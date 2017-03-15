@@ -1,0 +1,4 @@
+acceptable milliseconds of latency for percentile = 60
+500 requests, concurrency=100
+
+Disk hop from 0 to 20 too high. perhaps you need to start a little smaller? 

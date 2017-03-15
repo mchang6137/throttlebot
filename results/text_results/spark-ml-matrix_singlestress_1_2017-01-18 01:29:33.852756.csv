@@ -1,0 +1,4 @@
+metric,increment,resource,mean,stddev,data_points
+latency,0,cpu,30681.0,0.0,[30681]
+latency,0,disk,30681.0,0.0,[30681]
+latency,0,network,30681.0,0.0,[30681]

@@ -1,0 +1,179 @@
+import argparse
+import requests
+import simplejson as json
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime
+import numpy
+
+from time import sleep
+
+from measure_performance_MEAN import *
+from modify_resources import *
+from graph_plotter import *
+
+#Amount of time to allow commands to propagate through system
+COMMAND_DELAY = 5
+
+### Start the stresses on the various resources
+
+def start_causal_cpu(ssh_client, dummy_blkio_weight, network_reduction):	
+	create_dummy_disk_eater(ssh_client, dummy_blkio_weight)
+	set_network_delay(ssh_client, network_reduction)
+	sleep(COMMAND_DELAY)
+	
+def start_causal_disk(ssh_client, cpu_limit, network_reduction):
+	set_network_delay(ssh_client, network_reduction)
+	update_cpu(ssh_client, cpu_limit)
+	sleep(COMMAND_DELAY)
+
+def start_causal_network(ssh_client, cpu_limit, dummy_blkio_weight):
+	create_dummy_disk_eater(ssh_client, dummy_blkio_weight)
+	update_cpu(ssh_client, cpu_limit)
+	sleep(COMMAND_DELAY)
+
+###Revert system to the initial state
+
+def stop_causal_cpu(ssh_client):
+	remove_dummy_disk_eater(ssh_client)
+	remove_all_network_manipulation(ssh_client)
+	sleep(COMMAND_DELAY)
+
+def stop_causal_disk(ssh_client):
+	remove_all_network_manipulation(ssh_client)
+	reset_cpu(ssh_client)
+	sleep(COMMAND_DELAY)
+
+def stop_causal_network(ssh_client):
+	remove_dummy_disk_eater(ssh_client)
+	reset_cpu(ssh_client)
+	sleep(COMMAND_DELAY)
+
+def reset_all_stresses(ssh_client):
+	remove_dummy_disk_eater(ssh_client)
+	reset_cpu(ssh_client)
+	remove_all_network_manipulation(ssh_client)
+	sleep(COMMAND_DELAY)
+
+###Converts weightings to the correct units of stress values
+
+def weighting_to_latency(weighting):
+	MAX_LATENCY = 2
+	if weighting < 0 or weighting > 100:
+		print 'Invalid Weighting'
+		return
+	return (weighting / 100.0) * MAX_LATENCY
+
+def weighting_to_blkioweight(weighting):
+	MAX_BLKIO = 990
+	if weighting < 0 or weighting > 100:
+		print 'Invalid Weighting'
+		return
+	#+10 because blkio only accepts values between 10 and 1000
+	return int((weighting / 100.0) * MAX_BLKIO + 10)
+
+def weighting_to_cpucycle(weighting):
+	if weighting < 0 or weighting > 100:
+		print 'Invalid Weighting'
+		return
+	return weighting
+
+def measure_response_time(REST_server_ip, iterations):
+	all_requests = POST_to_website(REST_server_ip, iterations)
+	numpy_all_requests = numpy.array(all_requests)
+	mean = numpy.mean(numpy_all_requests)
+	std = numpy.std(numpy_all_requests)
+	clear_all_entries(args.website_ip)
+	return mean, std
+
+#Resets all parameters of the experiment to default values
+def reset_experiment(vm_ip):
+	ssh_client = quilt_ssh(vm_ip)
+	reset_all_stresses(ssh_client)
+	clear_all_entries(vm_ip)
+
+#Baseline Experiment without any kind of slowdown
+def measure_baseline(vm_ip, experiment_iterations):
+	return measure_response_time(vm_ip, experiment_iterations)
+
+def model_machine(vm_ip, experiment_iterations):
+	ssh_client = quilt_ssh(vm_ip)
+	initialize_machine(ssh_client)
+
+	increments = [20, 40, 60, 80]
+	reduction_level_to_latency_network = {}
+	reduction_level_to_latency_disk = {}
+	reduction_level_to_latency_cpu = {}
+	
+	mean, stddev = measure_baseline(vm_ip, experiment_iterations)
+	reduction_level_to_latency_network[0] = (mean, stddev)
+	reduction_level_to_latency_disk[0] = (mean, stddev)
+	reduction_level_to_latency_cpu[0] = (mean, stddev)
+
+	for increment in increments:
+		network_delay = weighting_to_latency(increment)
+		cpu_cycle = weighting_to_cpucycle(increment)
+		blkio_weight = weighting_to_blkioweight(increment)
+		print 'Experiment with increment={}'.format(increment)
+
+		print 'CPU Cycle Limit = {}'.format(cpu_cycle)
+		print 'Blkio Weight = {}'.format(blkio_weight)
+		print 'Network Delay = {}'.format(network_delay)
+		
+		print 'Causal CPU Experiment'
+		start_causal_cpu(ssh_client, blkio_weight, network_delay)
+		mean, stddev = measure_response_time(vm_ip, experiment_iterations)
+		stop_causal_cpu(ssh_client)
+		reduction_level_to_latency_cpu[increment] = (mean, stddev)
+
+		print 'Causal Network Experiment'
+		start_causal_network(ssh_client, cpu_cycle, blkio_weight)
+		mean, stddev = measure_response_time(vm_ip, experiment_iterations)
+		stop_causal_network(ssh_client)
+		reduction_level_to_latency_network[increment] = (mean, stddev)
+
+		print 'Causal Disk Experiment'
+		start_causal_disk(ssh_client, cpu_cycle, network_delay)
+		measure_response_time(vm_ip, experiment_iterations)
+		stop_causal_disk(ssh_client)
+		reduction_level_to_latency_disk[increment] = (mean, stddev)
+
+	return reduction_level_to_latency_disk, reduction_level_to_latency_cpu, reduction_level_to_latency_network
+
+def plot_results(results, resource_field):
+	key_list = results.keys()
+	print key_list
+	print key_list.sort()
+	x = np.array(key_list)
+	print x
+	value_list = [] 
+	stddev_list = []
+	for key in x: 
+		value_list.append(results[key][0])
+		stddev_list.append(results[key][1])
+	plot_with_error_bar(x, np.array(value_list), np.array(stddev_list), resource_field)
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("website_ip")
+	parser.add_argument("single_vm_ip")
+	parser.add_argument("--iterations", type=int, default=100, help="Number of HTTP requests to send the REST server per experiment")
+	parser.add_argument("--single_machine_ip", action="store_true", help="Experiment mode: IP Address of machine for single machine experiments")
+	args = parser.parse_args()
+	
+	reset_experiment(args.single_vm_ip)
+	all_machines = get_all_machines(args.single_vm_ip)
+	results_disk, results_cpu, results_network = model_machine(args.single_vm_ip, args.iterations)
+	print results_disk
+	print results_cpu
+	print results_network
+
+	plot_results(results_disk, 'Disk')
+	plot_results(results_cpu, 'CPU')
+	plot_results(results_network, 'Network')
+	
+	
+
+
+
+	

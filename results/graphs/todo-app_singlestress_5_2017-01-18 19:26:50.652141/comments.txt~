@@ -1,0 +1,4 @@
+acceptable milliseconds = 60
+1000 requests, concurrency=50
+
+Disk hop from 0 to 20 too high. perhaps you need to start a little smaller? 

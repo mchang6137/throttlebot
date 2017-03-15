@@ -1,0 +1,13 @@
+'''Details of Running experiments'''
+
+#Measure the performance of the application in term of latency
+def measure_runtime(experiment_args, experiment_iterations, experiment_type):
+    if experiment_type == 'spark-ml-matrix':
+        return measure_ml_matrix(experiment_args, experiment_iterations)
+    if experiment_type == 'REST':
+        return measure_REST_response_time(experiment_args, experiment_iterations)
+    elif experiment_type == 'nginx-single-machine':
+        return measure_nginx
+    else:
+        print ('INVALID EXPERIMENT TYPE')
+        exit()

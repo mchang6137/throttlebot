@@ -1,0 +1,71 @@
+import argparse
+import requests
+import simplejson as json
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime
+import numpy
+
+REST_URL = '/api/todos'
+
+def POST_to_website(website_ip, num_iterations):
+	# create request object, set url and post data
+	url = 'http://' + website_ip + REST_URL
+	all_request_times = []
+	print url
+
+	for x in range(num_iterations):
+		current_date = datetime.datetime.now()
+		data = {'text': str(current_date)}
+		headers = {'Content-type': 'application/json'}
+		request_time = requests.post(url, data=json.dumps(data), headers=headers).elapsed.total_seconds()
+		all_request_times.append(request_time)
+	
+	return all_request_times
+
+def delete_posts(website_ip, all_ids):
+	url = 'http://' + website_ip + REST_URL + '/'
+	for id in all_ids:
+		requests.delete(url + id)
+	
+def GET_from_website(website_ip):
+	url = 'http://' + website_ip + REST_URL
+	r = requests.get(url).json()
+	all_request_ids = []
+	for request in r:
+		all_request_ids.append(request['_id'])
+	return all_request_ids
+
+
+def clear_all_entries(website_ip):
+	all_ids = GET_from_website(website_ip)
+	delete_posts(website_ip, all_ids)
+
+def plot_requests(request_measurements):
+	plt.hist(request_measurements)
+	plt.show()
+	
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser()
+	parser.add_argument("website_ip")
+	parser.add_argument("--iterations", type=int, default=100, help="Number of HTTP requests to send the REST server")
+	parser.add_argument("--network_delay", type=float, default=-1.0, help="Network delay in milliseconds.")
+	parser.add_argument("--rm_network_delay", action="store_true", help="Remove any artificial network delays.")
+	parser.add_argument("--cpu_limit", type=float, default=-1.0, help="Limit CPU at CPU_LIMIT * 100 percent.")
+	parser.add_argument("--mem_limit", type=float, default=-1.0, help="Limit memory at MEM_LIMIT * 100 percent.")
+	args = parser.parse_args()
+
+	all_requests = POST_to_website(args.website_ip, args.iterations)
+	numpy_all_requests = numpy.array(all_requests)
+	mean = numpy.mean(numpy_all_requests)
+	std = numpy.std(numpy_all_requests)
+	plot_requests(all_requests)
+
+	#Clear all entries after running
+	clear_all_entries(args.website_ip)	
+	
+	print 'Mean: ' + str(mean)
+	print 'Std: ' + str(std)
+
+
+	
