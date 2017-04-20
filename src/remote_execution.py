@@ -2,8 +2,8 @@ import paramiko
 
 def quilt_ssh(ip):
 	client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	client.connect(ip, username="quilt")
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+	client.connect(ip, username="quilt", password='SSH_PASSWORD')
         return client
 
 def ssh_exec(ssh_client, cmd):

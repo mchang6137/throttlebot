@@ -42,8 +42,13 @@ def start_causal_network(ssh_client, cpu_rate, disk_rate):
 ### Throttle only a single resource at a time.
 def throttle_cpu(ssh_client, number_of_stress):
     print 'CPU Stress instances is {}'.format(number_of_stress)
+<<<<<<< HEAD
+    # update_cpu_through_stress(ssh_client, number_of_stress)
+    set_cpu_shares(ssh_client, number_of_stress)
+=======
     update_cpu_through_stress(ssh_client, number_of_stress)
     #set_cpu_shares(ssh_client, cpu_throttle_rate)
+>>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
 
 def throttle_disk(ssh_client, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
@@ -57,7 +62,11 @@ def throttle_network(ssh_client, network_bandwidth):
 ###Stop the throttling for a single resource
 def stop_throttle_cpu(ssh_client):
     print 'RESETTING CPU THROTTLING'
+<<<<<<< HEAD
+    reset_cpu(ssh_client, 'period')
+=======
     reset_cpu(ssh_client, 'stress')
+>>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
 
 def stop_throttle_network(ssh_client):
     remove_all_network_manipulation(ssh_client)
@@ -151,6 +160,10 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         max_bandwidth = container_to_network_bandwidth.itervalues().next()
         #Assumse monotonically increasing
         bandwidth_list = range(max_bandwidth)
+<<<<<<< HEAD
+        #TODO: should this be bandwidth_list in the function call below?
+=======
+>>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
         max_stress_index = binary_search(parameter_list, 'network', acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, measurement_field)
         network = bandwidth_list[max_stress_index]
         return network
@@ -159,7 +172,11 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         return
 
 def linear_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
+<<<<<<< HEAD
+    return
+=======
     
+>>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
     
 def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     min_index = 0
@@ -181,8 +198,8 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
             throttle_cpu(ssh_client, parameter_list[guess])
         
         #Assumes monotonically increasing performance times
-	runtime_array,_ = measure_runtime(experiment_args, 1, experiment_type)
-	mean = numpy.mean(runtime_array[metric])
+    runtime_array,_ = measure_runtime(experiment_args, 1, experiment_type)
+    mean = numpy.mean(runtime_array[metric])
         print 'With stress, the mean is {}'.format(mean)
         
         if field == 'network':
@@ -192,11 +209,11 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
         elif field == 'cpu':
             stop_throttle_cpu(ssh_client)
             
-	if mean	> acceptable_latency_lb and mean < acceptable_latency_ub:
+    if mean > acceptable_latency_lb and mean < acceptable_latency_ub:
             return guess
         elif mean < acceptable_latency_lb:
             min_index = guess + 1
-	    continue
+        continue
         elif mean > acceptable_latency_ub:
             max_index = guess - 1
             continue
@@ -277,21 +294,21 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
         reduction_level_to_utilization_network[increment] = network_utilization_diff
 
         print '======================================='
-	print 'INITIATING Disk Experiment '
+    print 'INITIATING Disk Experiment '
         if use_causal_analysis:
             cpu_throttle_rate = weighting_to_cpucycle(increment)
             container_to_network_capacity = get_container_network_capacity(ssh_client)
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
- 	    start_causal_disk(ssh_client, cpu_throttle_rate, network_reduction_rate)
+        start_causal_disk(ssh_client, cpu_throttle_rate, network_reduction_rate)
         else:
             disk_throttle_rate = weighting_to_disk_access_rate(increment)
             num_full_disk = throttle_disk(ssh_client, disk_throttle_rate)
- 	results_data_disk, disk_utilization_diff = measure_runtime(experiment_args, experiment_iterations, experiment_type)
+    results_data_disk, disk_utilization_diff = measure_runtime(experiment_args, experiment_iterations, experiment_type)
         if use_causal_analysis:
- 	    stop_causal_disk(ssh_client)
+        stop_causal_disk(ssh_client)
         else:
             stop_throttle_disk(ssh_client, num_full_disk)
- 	reduction_level_to_latency_disk[increment] = results_data_disk
+    reduction_level_to_latency_disk[increment] = results_data_disk
         reduction_level_to_utilization_disk[increment] = disk_utilization_diff
 
     '''
