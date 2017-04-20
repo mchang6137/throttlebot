@@ -53,11 +53,7 @@ def ssh_exec(ssh_client, cmd):
 def quilt_ssh(ip):
 	client = paramiko.SSHClient()
 	client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-<<<<<<< HEAD
 	client.connect(ip, username="quilt", password="SSH_PASSWORD")
-=======
-	client.connect(ip, username="quilt")
->>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
 	return client
 
 def make_single_POST(website_ip):

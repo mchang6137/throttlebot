@@ -42,13 +42,8 @@ def start_causal_network(ssh_client, cpu_rate, disk_rate):
 ### Throttle only a single resource at a time.
 def throttle_cpu(ssh_client, number_of_stress):
     print 'CPU Stress instances is {}'.format(number_of_stress)
-<<<<<<< HEAD
     # update_cpu_through_stress(ssh_client, number_of_stress)
     set_cpu_shares(ssh_client, number_of_stress)
-=======
-    update_cpu_through_stress(ssh_client, number_of_stress)
-    #set_cpu_shares(ssh_client, cpu_throttle_rate)
->>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
 
 def throttle_disk(ssh_client, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
@@ -62,11 +57,7 @@ def throttle_network(ssh_client, network_bandwidth):
 ###Stop the throttling for a single resource
 def stop_throttle_cpu(ssh_client):
     print 'RESETTING CPU THROTTLING'
-<<<<<<< HEAD
     reset_cpu(ssh_client, 'period')
-=======
-    reset_cpu(ssh_client, 'stress')
->>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
 
 def stop_throttle_network(ssh_client):
     remove_all_network_manipulation(ssh_client)
@@ -160,10 +151,7 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         max_bandwidth = container_to_network_bandwidth.itervalues().next()
         #Assumse monotonically increasing
         bandwidth_list = range(max_bandwidth)
-<<<<<<< HEAD
         #TODO: should this be bandwidth_list in the function call below?
-=======
->>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
         max_stress_index = binary_search(parameter_list, 'network', acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, measurement_field)
         network = bandwidth_list[max_stress_index]
         return network
@@ -172,11 +160,7 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         return
 
 def linear_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
-<<<<<<< HEAD
     return
-=======
-    
->>>>>>> a97e9fea630d60aefa5e31df827ba5623737ecc1
     
 def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     min_index = 0
