@@ -111,28 +111,24 @@ def update_cpu_through_stress(ssh_client, num_stress=0):
 #CPU period is assumed to be 1 second no matter what
 def set_cpu_shares(ssh_client, cpu_quota):
     container_names = get_container_names(ssh_client)
-    # cpu_quota = int(cpu_quota * get_num_cores(ssh_client) * 1000000)
-    cpu_quota = int((float(cpu_quota) / 10) * 1000000)
+    cpu_quota = int((float(cpu_quota) / 10) * get_num_cores(ssh_client) * 1000000)
     cpu_period = 1000000 #1 second in microseconds
 
     #CPU Quota must be less than 1 second
-    # while cpu_quota > 1000000:
-    #         cpu_quota = cpu_quota/2
-    #         cpu_period = cpu_period/2
+    while cpu_quota > 1000000:
+            cpu_quota = cpu_quota/2
+            cpu_period = cpu_period/2
 
     print 'Adjusted CPU period: {}'.format(cpu_period)
     print 'CPU Quota: {}'.format(cpu_quota)
 
     throttled_containers = []
     
-    core = 0
     for container_name in container_names:
         if container_name not in container_blacklist:
-            update_command = 'docker update --cpu-period {} --cpu-quota {} --cpuset-cpus {} {}'.format(cpu_period, cpu_quota, core, container_name)
-            print update_command
+            update_command = 'docker update --cpu-period {} --cpu-quota {} {}'.format(cpu_period, cpu_quota, core, container_name)
             ssh_client.exec_command(update_command)
             throttled_containers.append(container_name)
-            core += 1
     return throttled_containers
 
 def reset_cpu(ssh_client, cpu_throttle_type):
