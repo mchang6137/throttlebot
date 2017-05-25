@@ -5,3 +5,6 @@ print 'hi mi chaena owiefha weoifhaeow;ifhaweiflhaew oifha ;ilfhawo;eifaw;eoiflh
 
 for x in range(10):
     print 'hi'
+    print 'hlweifwef'
+
+print 'wepwefwe'
