@@ -1,4 +1,5 @@
-'''Body of Running Experiments'''
+
+'''Body of Running Experiments'''   
 '''Can return multiple performance values, but MUST return as one entry in the dict to be latency' '''
 
 from remote_execution import *
@@ -56,7 +57,7 @@ def measure_nginx_single_machine(experiment_args, experiment_iterations):
     for x in range(experiment_iterations):
         initial_utilizations = get_all_throttled_utilizations(nginx_ssh_client)
         benchmark_cmd = 'ab -n {} -c {} -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS, CONCURRENCY, nginx_public_ip)
-        print benchmark_cmd
+        print benchmark_cmd 
         _, results, _ = ssh_client.exec_command(benchmark_cmd)
         results.read()
         
