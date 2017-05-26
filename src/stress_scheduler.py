@@ -27,27 +27,27 @@ COMMAND_DELAY = 3
 
 ### Start the stresses on the various resources
 
-def start_causal_cpu(ssh_client, disk_rate, network_rate):
-    throttle_network(ssh_client, network_rate)
-    return throttle_disk(ssh_client, disk_rate)
+def start_causal_cpu(ssh_client, container_id, disk_rate, network_rate):
+    throttle_network(ssh_client, container_id, network_rate)
+    return throttle_disk(ssh_client, container_id, isk_rate)
 
-def start_causal_disk(ssh_client, cpu_rate, network_rate):
-    throttle_cpu(ssh_client, cpu_rate)
-    throttle_network(ssh_client, network_rate)
+def start_causal_disk(ssh_client, container_id, cpu_rate, network_rate):
+    throttle_cpu(ssh_client, container_id, cpu_rate)
+    throttle_network(ssh_client, container_id, network_rate)
 
-def start_causal_network(ssh_client, cpu_rate, disk_rate):
-    throttle_cpu(ssh_client, cpu_rate)
-    return throttle_disk(ssh_client, disk_rate)
+def start_causal_network(ssh_client, container_id, cpu_rate, disk_rate):
+    throttle_cpu(ssh_client, container_id, cpu_rate)
+    return throttle_disk(ssh_client, container_id, disk_rate)
 
 ### Throttle only a single resource at a time.
-def throttle_cpu(ssh_client, number_of_stress):
+def throttle_cpu(ssh_client, container_id, number_of_stress):
     print 'CPU Stress instances is {}'.format(number_of_stress)
     # update_cpu_through_stress(ssh_client, number_of_stress)
-    set_cpu_shares(ssh_client, number_of_stress)
+    set_cpu_shares(ssh_client, container_id, number_of_stress)
 
-def throttle_disk(ssh_client, disk_rate):
+def throttle_disk(ssh_client, container_id, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
-    return change_container_blkio(ssh_client, disk_rate)
+    return change_container_blkio(ssh_client, container_id, disk_rate)
 #    return create_dummy_disk_eater(ssh_client, disk_rate)
 
 def throttle_network(ssh_client, network_bandwidth):
@@ -55,38 +55,38 @@ def throttle_network(ssh_client, network_bandwidth):
     set_network_bandwidth(ssh_client, network_bandwidth)
 
 ###Stop the throttling for a single resource
-def stop_throttle_cpu(ssh_client):
+def stop_throttle_cpu(ssh_client, container_id):
     print 'RESETTING CPU THROTTLING'
-    reset_cpu(ssh_client, 'period')
+    reset_cpu(ssh_client, container_id, 'period')
 
 def stop_throttle_network(ssh_client):
     remove_all_network_manipulation(ssh_client)
 
-def stop_throttle_disk(ssh_client, num_fail):
-    change_container_blkio(ssh_client, 0)
+def stop_throttle_disk(ssh_client, container_id, num_fail):
+    change_container_blkio(ssh_client, container_id, 0)
 #    remove_dummy_disk_eater(ssh_client, num_fail)
 
-### Revert system to the initial state
+### Revert container to the initial state
 
-def stop_causal_cpu(ssh_client, num_full_disk):
+def stop_causal_cpu(ssh_client, container_id, num_full_disk):
     stop_throttle_network(ssh_client)
-    stop_throttle_disk(ssh_client, num_full_disk)
+    stop_throttle_disk(ssh_client, container_id, num_full_disk)
     sleep(COMMAND_DELAY)
 
-def stop_causal_disk(ssh_client):
+def stop_causal_disk(ssh_client, container_id):
     stop_throttle_network(ssh_client)
-    stop_throttle_cpu(ssh_client)
+    stop_throttle_cpu(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
-def stop_causal_network(ssh_client, num_full_disk):
-    stop_throttle_cpu(ssh_client)
-    stop_throttle_disk(ssh_client, num_full_disk)
+def stop_causal_network(ssh_client, container_id, num_full_disk):
+    stop_throttle_cpu(ssh_client, container_id)
+    stop_throttle_disk(ssh_client, container_id, num_full_disk)
     sleep(COMMAND_DELAY)
 
-def reset_all_stresses(ssh_client, num_full_disk):
+def reset_all_stresses(ssh_client, container_id, num_full_disk):
     print ('RESETTING ALL STRESSES!')
-    stop_throttle_cpu(ssh_client)
-    stop_throttle_disk(ssh_client, num_full_disk)
+    stop_throttle_cpu(ssh_client, container_id)
+    stop_throttle_disk(ssh_client, container_id, num_full_disk)
     stop_throttle_network(ssh_client)
     sleep(COMMAND_DELAY)
 
