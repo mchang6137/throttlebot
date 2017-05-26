@@ -33,13 +33,16 @@ MAX_NETWORK_BANDWIDTH = 600
 
 '''Stressing the Network'''
 
-# Add a Network Delay to one of the container interfaces on each machine
-def set_network_delay(ssh_client, container_id, delay):
+#Add a Network Delay to each of the container interfaces on VM
+def set_network_delay(ssh_client, delay):
     if delay <= 0:
-		invalid_resource_parameter('Network Delay', delay)
+        invalid_resource_parameter('Network Delay', delay)
         return
-    cmd = "sudo tc qdisc add dev {} root netem delay {}ms".format(container_id, delay)
-    response = ssh_exec(ssh_client, cmd)
+    container_ids = get_container_id(ssh_client, full_id=False, append_c=True)
+    for container in container_ids:
+        cmd = "sudo tc qdisc add dev {} root netem delay {}ms".format(container, delay)
+        #Not all containers will have an exposed interface but the ones which do not will simply fail
+        response = ssh_exec(ssh_client, cmd)
 
 # Contract: Bandwidth must be set in Kb/s
 # Fix me! Find the Bandwidth of the machine
@@ -60,7 +63,7 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
         cmd1 = 'sudo tc qdisc add dev {} handle 1: root htb default 11'.format(container)
         cmd2 = 'sudo tc class add dev {} parent 1: classid 1:1 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
         cmd3 = 'sudo tc class add dev {} parent 1:1 classid 1:11 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
-                # UNNECESSARY BECAUSE MICHAEL IS A FUCKING DUMBASS!!!!
+                # UNNECESSARY
                 # cmd4 = 'tc filter add dev {} parent 1: protocol ip u32 match ip dst {} flowid 1:1'.format(container, victim_private_ip)
 
         ssh_exec(ssh_client, cmd1)
@@ -68,12 +71,6 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
         ssh_exec(ssh_client, cmd3)
 
     return
-
-# Removes network manipulations for container with container_id in machine ssh_client
-def remove_network_manipulation(ssh_client, container_id):
-	cmd = "sudo tc qdisc del dev {} root".format(container_id)
-	ssh_exec(ssh_client, cmd)
-	return
 
 # Removes all network manipulations for ALL machines in the Quilt Environment
 def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
@@ -94,18 +91,6 @@ def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
                     ssh_exec(temp_ssh_client, cmd)
 
 '''Stressing the CPU'''
-# Indicates the number of 10%-stress that is introduced into the system
-def update_cpu_through_stress(ssh_client, num_stress=0):
-    """CPU Limit describes how much CPU will be used by the stresser"""
-    if num_stress < 0:
-        invalid_resource_parameter("CPU Allocation", limit)
-        return
-
-        # Separate CPU limit into several smaller increments of 10 instead of one larger one
-    for x in range(num_stress):
-        cmd = "stress -c 1 &> /dev/null & cpulimit -p $( pidof -o $! stress ) -l {} &> /dev/null &".format(10)
-        ssh_exec(ssh_client, cmd)
-
 # Allows you to set the CPU periods in a container, intended for a container that is already running
 # as opposed to update_cpu which actually just stresses the CPU by a predetermined amount
 # Assumes that that CPU_period and CPU_quota were not set beforehand
@@ -130,12 +115,6 @@ def set_cpu_shares(ssh_client, container_id, cpu_quota):
         throttled_containers.append(container_name)
     return throttled_containers
 
-def reset_cpu(ssh_client, container_id, cpu_throttle_type):
-    if cpu_throttle_type == 'period':
-            reset_cpu_shares(ssh_client, container_id)
-    elif cpu_throttle_type == 'stress':
-            reset_cpu_stress(ssh_client)
-
 def reset_cpu_shares(ssh_client, container_id):
     cpu_quota = -1
 
@@ -144,11 +123,31 @@ def reset_cpu_shares(ssh_client, container_id):
         ssh_client.exec_command(update_command)
     print 'reset_cpu_shares'
 
+# Function to reset CPU throttling depending on type*
+def reset_cpu(ssh_client, container_id, cpu_throttle_type):
+    if cpu_throttle_type == 'period':
+		reset_cpu_shares(ssh_client, container_id)
+    elif cpu_throttle_type == 'stress': # LEGACY
+		reset_cpu_stress(ssh_client)
+
+# LEGACY (All functions that throttle CPU through stress are legacy functions kept for reference)
+# Indicates the number of 10%-stress that is introduced into the system
+def update_cpu_through_stress(ssh_client, num_stress=0):
+    """CPU Limit describes how much CPU will be used by the stresser"""
+    if num_stress < 0:
+        invalid_resource_parameter("CPU Allocation", limit)
+        return
+
+        # Separate CPU limit into several smaller increments of 10 instead of one larger one
+    for x in range(num_stress):
+        cmd = "stress -c 1 &> /dev/null & cpulimit -p $( pidof -o $! stress ) -l {} &> /dev/null &".format(10)
+        ssh_exec(ssh_client, cmd)
+
+# LEGACY
 def reset_cpu_stress(ssh_client):
     cmd = "killall stress"
     ssh_exec(ssh_client, cmd)
     print 'Cpu Stresses killed'
-
 
 '''Stressing the Disk Read/write throughput'''
 
@@ -160,21 +159,11 @@ def set_blkio(ssh_client, container_id, relative_weight):
     cmd = 'docker update --blkio-weight={} {}'.format(relative_weight, container_id)
     ssh_exec(ssh_client, cmd)
 
-# This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
-# blkio_weight is a weight that is from 10-1000, which specifies the amount of disk utilization
-def create_dummy_blkio_disk_eater(ssh_client, blkio_weight):
-    if blkio_weight < 10 or blkio_weight > 1000:
-        invalid_resource_parameters("blkio_weight", blkio_weight)
-        return
-    create_docker_image_cmd = 'docker run -d --blkio-weight={} --name disk_eater ubuntu /bin/sh -c'.format(blkio_weight)
-    container_cmd =  '\"while true; do dd if=/dev/zero of=test bs=1048576 count=1024 conv=fsync; done\"'
-    ssh_exec(ssh_client, create_docker_image_cmd + container_cmd)
-
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     container_blacklist = ['ovn-controller', 'etcd', 'ovs-vswitchd', 'ovsdb-server', 'minion']
-    if name not in container_blacklist:
+    if container_id not in container_blacklist:
         disk_eater_id_cmd = 'docker inspect --format=\"{{{{.Id}}}}\" {}'.format(name)
         print disk_eater_id_cmd
         _, disk_eater_id, _ = ssh_client.exec_command(disk_eater_id_cmd)
@@ -198,8 +187,19 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     sleep(10)
     return 0
 
+# LEGACY (All functions that creates dummpy containers are legacy and kept for reference)
+# This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
+# blkio_weight is a weight that is from 10-1000, which specifies the amount of disk utilization
+def create_dummy_blkio_disk_eater(ssh_client, blkio_weight):
+    if blkio_weight < 10 or blkio_weight > 1000:
+        invalid_resource_parameters("blkio_weight", blkio_weight)
+        return
+    create_docker_image_cmd = 'docker run -d --blkio-weight={} --name disk_eater ubuntu /bin/sh -c'.format(blkio_weight)
+    container_cmd =  '\"while true; do dd if=/dev/zero of=test bs=1048576 count=1024 conv=fsync; done\"'
+    ssh_exec(ssh_client, create_docker_image_cmd + container_cmd)
+
+# LEGACY
 # Sets the maximum read and write rate of the disk to bandwidth_maximum
-# Unfortunately, we cannot set the block io because AWS guest machines only use noop I/O scheduling
 # disk_bandwidth should be in Kilobytes/sec
 def create_dummy_disk_eater(ssh_client, disk_bandwidth):
     if disk_bandwidth < 0:
@@ -240,6 +240,7 @@ def create_dummy_disk_eater(ssh_client, disk_bandwidth):
 
     return num_full_bandwidth
 
+# LEGACY
 # Removes the disk eater from the picture
 def remove_dummy_disk_eater(ssh_client, num_full):
     # Remove the container
