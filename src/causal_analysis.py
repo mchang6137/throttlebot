@@ -26,8 +26,8 @@ def calculate_total_delay_added(results, results_diff, increment, resource_field
         if resource_field == 'CPU':
             total_delay_added += get_disk_throttle_time(ssh_client, results_diff[increment][iteration_count]['disk'], increment)
             print 'DISK ADDED IS {}'.format(total_delay_added)
-    	    network_time = get_network_throttle_time(ssh_client, results_diff[increment][iteration_count]['network_outbound'], increment)
-	    network_time += get_network_throttle_time(ssh_client, results_diff[increment][iteration_count]['network_inbound'], increment)
+            network_time = get_network_throttle_time(ssh_client, results_diff[increment][iteration_count]['network_outbound'], increment)
+        network_time += get_network_throttle_time(ssh_client, results_diff[increment][iteration_count]['network_inbound'], increment)
             print 'Network time added is {}'.format(network_time)
             total_delay_added += network_time
         elif resource_field == 'Disk':
@@ -37,7 +37,7 @@ def calculate_total_delay_added(results, results_diff, increment, resource_field
             network_time  += get_network_throttle_time(ssh_client, results_diff[increment][iteration_count]['network_inbound'], increment)
             print 'Network time added is {}'.format(network_time)
             total_delay_added += network_time
-	elif resource_field == 'Network':
+    elif resource_field == 'Network':
             total_delay_added += get_cpu_throttle_time(ssh_client, results_diff[increment][iteration_count]['cpu'], increment)
             print 'CPU ADDED IS {}'.format(total_delay_added)
             disk_delay= get_disk_throttle_time(ssh_client, results_diff[increment][iteration_count]['disk'], increment)
