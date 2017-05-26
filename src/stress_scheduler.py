@@ -25,15 +25,15 @@ from present_results import *
 #Amount of time to allow commands to propagate through system
 COMMAND_DELAY = 3
 
-### Start the stresses on the various resources
+### Start the stresses on the various resources (virtual speedups)
 
 def start_causal_cpu(ssh_client, container_id, disk_rate, network_rate):
-    throttle_network(ssh_client, container_id, network_rate)
+    throttle_network(ssh_client, network_rate)
     return throttle_disk(ssh_client, container_id, isk_rate)
 
 def start_causal_disk(ssh_client, container_id, cpu_rate, network_rate):
     throttle_cpu(ssh_client, container_id, cpu_rate)
-    throttle_network(ssh_client, container_id, network_rate)
+    throttle_network(ssh_client, network_rate)
 
 def start_causal_network(ssh_client, container_id, cpu_rate, disk_rate):
     throttle_cpu(ssh_client, container_id, cpu_rate)
@@ -48,8 +48,9 @@ def throttle_cpu(ssh_client, container_id, number_of_stress):
 def throttle_disk(ssh_client, container_id, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
     return change_container_blkio(ssh_client, container_id, disk_rate)
-#    return create_dummy_disk_eater(ssh_client, disk_rate)
+    # return create_dummy_disk_eater(ssh_client, disk_rate)
 
+# network_bandwidth is a map from interface->bandwidth
 def throttle_network(ssh_client, network_bandwidth):
     print 'Network Reduction Rate: {}'.format(network_bandwidth)
     set_network_bandwidth(ssh_client, network_bandwidth)
@@ -64,7 +65,7 @@ def stop_throttle_network(ssh_client):
 
 def stop_throttle_disk(ssh_client, container_id, num_fail):
     change_container_blkio(ssh_client, container_id, 0)
-#    remove_dummy_disk_eater(ssh_client, num_fail)
+    # remove_dummy_disk_eater(ssh_client, num_fail)
 
 ### Revert container to the initial state
 
@@ -90,7 +91,7 @@ def reset_all_stresses(ssh_client, container_id, num_full_disk):
     stop_throttle_network(ssh_client)
     sleep(COMMAND_DELAY)
 
-#Removes outlier points from the plot
+# Removes outlier points from the plot
 def is_outlier(points, threshold=3.5):
     points = np.array(points)
     if len(points.shape) == 1:
@@ -104,9 +105,10 @@ def is_outlier(points, threshold=3.5):
 
     return modified_z_score > threshold
 
-#Initially hardcoded to nginx for convenience
-#Should hopefully just need to run once per application
-#In the future, can explore a binary search but this is not so simple since runtime is not necessarily growing constantly (or even monotonically), this might be difficult for now
+# Note: Shelved for later
+# Initially hardcoded to nginx for convenience
+# Should hopefully just need to run once per application
+# In the future, can explore a binary search but this is not so simple since runtime is not necessarily growing constantly (or even monotonically), this might be difficult for now
 def explore_stress_space(ssh_client, resource, experiment_args, experiment_type, allowable_latency_decrease, allowable_latency_deviation,  measurement_field):
 
     reset_all_stresses(ssh_client, 0)
@@ -159,9 +161,11 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         print 'Invalid resource'
         return
 
+# Note: Shelved for later
 def linear_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     return
 
+# Note: Shelved for later
 def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     min_index = 0
     max_index = len(parameter_list) - 1
@@ -336,7 +340,7 @@ if __name__ == "__main__":
     results_cpu = {}
     results_network = {}
 
-    #MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
+    # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
     if args.experiment_type == 'REST':
         experiment_args = [args.website_ip, args.victim_machine_public_ip]
         results_cpu, results_disk, results_network = model_machine(args.victim_machine_public_ip, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
