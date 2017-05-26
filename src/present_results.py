@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import ast
-import numpy 
+import numpy
 import argparse
 import csv
 import datetime
@@ -24,14 +24,14 @@ def read_from_file(data_file):
 
             if metric not in cpu:
                 cpu[metric] = {}
-		disk[metric] = {}
+                disk[metric] = {}
                 network[metric] = {}
 
             if resource == 'cpu':
-		cpu[metric][stress_level] = results
+                cpu[metric][stress_level] = results
             elif resource == 'disk':
                 disk[metric][stress_level] = results
-	    elif resource == 'network':
+            elif resource == 'network':
                 network[metric][stress_level] = results
 
     return cpu, disk, network
@@ -41,7 +41,7 @@ def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number,
     axis_labels = [str(x) for x in axis_labels]
     print axis_labels
     plt.xticks([1,2,3,4,5], axis_labels)
-    #plt.subplot(subplot_number)
+    # plt.subplot(subplot_number)
     plt.ylabel('Metric: {}'.format(metric))
     plt.ylim([ylim_min, ylim_max])
     plt.xlabel('Stress Percentage')
@@ -71,7 +71,7 @@ def plot_interpolation(box_array, metric, resource, experiment_type='changeme!')
         line_color = '#999999'
         error_length = 2
     line, = plt.plot(x, median_box, lw=3, label=resource, color=line_color)
-#    plt.legend(handles=[line])
+    # plt.legend(handles=[line])
     plt.errorbar(x, median_box, std_dev, lw=error_length, color=line_color)
     plt.grid()
     return line
@@ -127,11 +127,11 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
         causal_output = 'singlestress'
     output_dir_name = '{}_{}_{}_{}'.format(experiment_type, causal_output, iterations, datetime.datetime.now())
 
-    #Save the image in the appropriate directory
+    # Save the image in the appropriate directory
     if not os.path.exists(OUTPUT_DIRECTORY + output_dir_name):
         os.makedirs(OUTPUT_DIRECTORY + output_dir_name)
 
-    #Iterate through the metrics
+    # Iterate through the metrics
     for metric in cpu.iterkeys():
         box_array_cpu = []
         box_array_disk = []
@@ -142,15 +142,15 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
         print 'baseline results is {}'.format(baseline_results)
 
         for increment_key in sorted(disk[metric].iterkeys()):
-            #Iterate through different metrics
+            # Iterate through different metrics
             results_cpu = ast.literal_eval(cpu[metric][increment_key])
             results_disk = ast.literal_eval(disk[metric][increment_key])
             results_network = ast.literal_eval(network[metric][increment_key])
 
-#            results_cpu = [result - baseline_results for result in results_cpu]
-#            results_disk = [result - baseline_results for result in results_disk]
-#            results_network = [result - baseline_results for result in results_network]
-            
+            # results_cpu = [result - baseline_results for result in results_cpu]
+            # results_disk = [result - baseline_results for result in results_disk]
+            # results_network = [result - baseline_results for result in results_network]
+
             print '==========================================================='
             print 'THE METRIC IS: {}'.format(metric)
             print 'For Key: {}'.format(increment_key)
@@ -165,11 +165,11 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
             print 'Network Stats: '
             print 'Mean: {}'.format(numpy.mean(results_network))
             print 'Standard Deviation: {}\n'.format(numpy.std(results_network))
-            
+
             axis_labels.append(increment_key)
             try:
                 temp_array_cpu = numpy.array(results_cpu)
-                #no_outliers_cpu = temp_array_cpu[~is_outlier(results_cpu)]
+                # no_outliers_cpu = temp_array_cpu[~is_outlier(results_cpu)]
                 box_array_cpu.append(temp_array_cpu)
             except:
                 print 'CPU FAILED'
@@ -190,19 +190,19 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
 
         ymin = 1.05 * min(find_min_point(box_array_cpu), find_min_point(box_array_disk), find_min_point(box_array_network))
         ymax = 1.2 * max(find_max_point(box_array_cpu), find_max_point(box_array_disk), find_max_point(box_array_network))
-                  
-        #Plots the boxplots
-        #plot_boxplot(axis_labels, box_array_disk, metric, 'Disk', 222, use_causal_analysis, ymin, ymax)
-        #plot_boxplot(axis_labels, box_array_network, metric, 'Network', 221, use_causal_analysis, ymin, ymax)
-        #plot_boxplot(axis_labels, box_array_cpu, metric, 'CPU', 223, use_causal_analysis, ymin, ymax)
 
-                #Plots through the medians
+        # Plots the boxplots
+        # plot_boxplot(axis_labels, box_array_disk, metric, 'Disk', 222, use_causal_analysis, ymin, ymax)
+        # plot_boxplot(axis_labels, box_array_network, metric, 'Network', 221, use_causal_analysis, ymin, ymax)
+        # plot_boxplot(axis_labels, box_array_cpu, metric, 'CPU', 223, use_causal_analysis, ymin, ymax)
+
+        # Plots through the medians
         plot_interpolation(box_array_disk, metric, 'Disk')
         plot_interpolation(box_array_network, metric, 'Network')
         plot_interpolation(box_array_cpu, metric, 'CPU', experiment_type)
 
         plot_flat_baseline(box_array_disk, metric)
-            
+
         plt.legend(loc=(0.05, 0.6))
 
         graph_file = OUTPUT_DIRECTORY + output_dir_name + '/' + metric + '.png'
@@ -233,7 +233,7 @@ def find_max_point(results):
             max_val = numpy.amax(increment)
 
     return max_val
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -245,4 +245,3 @@ if __name__ == "__main__":
     results_in_milli = False
 
     plot_results(args.output_file, args.experiment_type, -1, args.should_save, convertToMilli=results_in_milli, use_causal_analysis=False)
-
