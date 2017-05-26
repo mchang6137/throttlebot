@@ -7,7 +7,7 @@ def get_container_id(ssh_client, full_id=False, append_c=True):
     for name in all_names:
         cmd = 'docker inspect --format=\"{{{{.Id}}}}\" {}'.format(name)
 
-	if full_id is False:
+        if full_id is False:
             #First 13 characters because of interface naming
             cmd += '| awk \'{{print substr($0,0,13)}}\''
         _, stdout, _ = ssh_client.exec_command(cmd)

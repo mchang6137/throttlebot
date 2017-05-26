@@ -76,7 +76,7 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
 def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
     all_machines = get_all_machines()
     if remove_all_machines is False:
-    	container_ids = get_container_id(ssh_client, full_id=False, append_c=True)
+        container_ids = get_container_id(ssh_client, full_id=False, append_c=True)
         for container in container_ids:
             container = 'ens3'
             cmd = "sudo tc qdisc del dev {} root".format(container)
@@ -84,7 +84,7 @@ def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
             return
         else:
             for machine in all_machines:
-            	temp_ssh_client = quilt_ssh(machine)
+                temp_ssh_client = quilt_ssh(machine)
                 container_ids = get_container_id(temp_ssh_client, full_id=False, append_c=False)
                 for container in container_ids:
                     cmd = "sudo tc qdisc del dev {} root".format(container)
@@ -126,9 +126,9 @@ def reset_cpu_shares(ssh_client, container_id):
 # Function to reset CPU throttling depending on type*
 def reset_cpu(ssh_client, container_id, cpu_throttle_type):
     if cpu_throttle_type == 'period':
-		reset_cpu_shares(ssh_client, container_id)
+        reset_cpu_shares(ssh_client, container_id)
     elif cpu_throttle_type == 'stress': # LEGACY
-		reset_cpu_stress(ssh_client)
+        reset_cpu_stress(ssh_client)
 
 # LEGACY (All functions that throttle CPU through stress are legacy functions kept for reference)
 # Indicates the number of 10%-stress that is introduced into the system
