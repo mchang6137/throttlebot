@@ -30,7 +30,7 @@ COMMAND_DELAY = 3
 def start_causal_cpu(ssh_client, disk_rate, network_rate):
     throttle_network(ssh_client, network_rate)
     return throttle_disk(ssh_client, disk_rate)
-    
+
 def start_causal_disk(ssh_client, cpu_rate, network_rate):
     throttle_cpu(ssh_client, cpu_rate)
     throttle_network(ssh_client, network_rate)
@@ -64,7 +64,7 @@ def stop_throttle_network(ssh_client):
 
 def stop_throttle_disk(ssh_client, num_fail):
     change_container_blkio(ssh_client, 0)
-#    remove_dummy_disk_eater(ssh_client, num_fail)    
+#    remove_dummy_disk_eater(ssh_client, num_fail)
 
 ### Revert system to the initial state
 
@@ -72,7 +72,7 @@ def stop_causal_cpu(ssh_client, num_full_disk):
     stop_throttle_network(ssh_client)
     stop_throttle_disk(ssh_client, num_full_disk)
     sleep(COMMAND_DELAY)
-    
+
 def stop_causal_disk(ssh_client):
     stop_throttle_network(ssh_client)
     stop_throttle_cpu(ssh_client)
@@ -99,18 +99,18 @@ def is_outlier(points, threshold=3.5):
     diff = np.sum((points - median)**2, axis=-1)
     diff = np.sqrt(diff)
     med_abs_deviation = np.median(diff)
-    
+
     modified_z_score = 0.6745 * diff / med_abs_deviation
-    
+
     return modified_z_score > threshold
 
 #Initially hardcoded to nginx for convenience
 #Should hopefully just need to run once per application
 #In the future, can explore a binary search but this is not so simple since runtime is not necessarily growing constantly (or even monotonically), this might be difficult for now
 def explore_stress_space(ssh_client, resource, experiment_args, experiment_type, allowable_latency_decrease, allowable_latency_deviation,  measurement_field):
-    
+
     reset_all_stresses(ssh_client, 0)
-    
+
     #Take a baseline measurement 20 times (extra since this is a particularly important measurement)
     runtime_array, utilization_diff = measure_runtime(experiment_args, 10, experiment_type)
     print 'The runtime array is {}'.format(runtime_array)
@@ -122,7 +122,7 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
     print 'Baseline latency {}'.format(average_baseline_latency)
     print 'lower bound {}'.format(acceptable_latency_lb)
     print 'upper bound {}'.format(acceptable_latency_ub)
-    
+
     if acceptable_latency_lb < 0:
         print 'Failure: Please input a smaller allowable latency decrease or allowable latency deviation'
         exit()
@@ -161,7 +161,7 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
 
 def linear_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     return
-    
+
 def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     min_index = 0
     max_index = len(parameter_list) - 1
@@ -172,7 +172,7 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
         print 'the guess is {}'.format(guess)
         print 'min index is {}'.format(min_index)
         print 'max index is {}'.format(max_index)
-        
+
         num_disk_eaters = 0
         if field == 'network':
             throttle_network(ssh_client, parameter_list[guess])
@@ -180,29 +180,29 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
             num_disk_eaters = throttle_disk(ssh_client, parameter_list[guess])
         elif field == 'cpu':
             throttle_cpu(ssh_client, parameter_list[guess])
-        
+
         #Assumes monotonically increasing performance times
-    runtime_array,_ = measure_runtime(experiment_args, 1, experiment_type)
-    mean = numpy.mean(runtime_array[metric])
+        runtime_array,_ = measure_runtime(experiment_args, 1, experiment_type)
+        mean = numpy.mean(runtime_array[metric])
         print 'With stress, the mean is {}'.format(mean)
-        
+
         if field == 'network':
             stop_throttle_network(ssh_client)
         elif field == 'disk':
             stop_throttle_disk(ssh_client, num_disk_eaters)
         elif field == 'cpu':
             stop_throttle_cpu(ssh_client)
-            
-    if mean > acceptable_latency_lb and mean < acceptable_latency_ub:
+
+        if mean > acceptable_latency_lb and mean < acceptable_latency_ub:
             return guess
         elif mean < acceptable_latency_lb:
             min_index = guess + 1
-        continue
+            continue
         elif mean > acceptable_latency_ub:
             max_index = guess - 1
             continue
 
-        counter += 1 
+        counter += 1
 
 def model_machine(victim_machine, experiment_args, experiment_iterations, experiment_type, use_causal_analysis, only_baseline):
     ssh_client = quilt_ssh(victim_machine)
@@ -210,7 +210,7 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
 
     initialize_machine(ssh_client)
     reset_all_stresses(ssh_client, 0)
-    
+
     increments = [20, 40, 60, 80]
     shuffle(increments)
     reduction_level_to_latency_network = {}
@@ -220,7 +220,7 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
     reduction_level_to_utilization_network = {}
     reduction_level_to_utilization_disk = {}
     reduction_level_to_utilization_cpu = {}
-    
+
     #Take baseline measurements: no perturbations!'''
     BASELINE_ITERATIONS = 15
     baseline_runtime_array, baseline_utilization_diff = measure_runtime(experiment_args, BASELINE_ITERATIONS, experiment_type)
@@ -234,7 +234,7 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
 
     if only_baseline:
         return reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network
-    
+
     for increment in increments:
 
         print 'Experiment with increment={}'.format(increment)
@@ -269,7 +269,7 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
             throttle_network(ssh_client, network_reduction_rate)
         results_data_network, network_utilization_diff = measure_runtime(experiment_args, experiment_iterations, experiment_type)
-        
+
         if use_causal_analysis:
             stop_causal_network(ssh_client, num_full_disk)
         else:
@@ -278,21 +278,21 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
         reduction_level_to_utilization_network[increment] = network_utilization_diff
 
         print '======================================='
-    print 'INITIATING Disk Experiment '
+        print 'INITIATING Disk Experiment '
         if use_causal_analysis:
             cpu_throttle_rate = weighting_to_cpucycle(increment)
             container_to_network_capacity = get_container_network_capacity(ssh_client)
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-        start_causal_disk(ssh_client, cpu_throttle_rate, network_reduction_rate)
+            start_causal_disk(ssh_client, cpu_throttle_rate, network_reduction_rate)
         else:
             disk_throttle_rate = weighting_to_disk_access_rate(increment)
             num_full_disk = throttle_disk(ssh_client, disk_throttle_rate)
-    results_data_disk, disk_utilization_diff = measure_runtime(experiment_args, experiment_iterations, experiment_type)
+        results_data_disk, disk_utilization_diff = measure_runtime(experiment_args, experiment_iterations, experiment_type)
         if use_causal_analysis:
-        stop_causal_disk(ssh_client)
+            stop_causal_disk(ssh_client)
         else:
             stop_throttle_disk(ssh_client, num_full_disk)
-    reduction_level_to_latency_disk[increment] = results_data_disk
+        reduction_level_to_latency_disk[increment] = results_data_disk
         reduction_level_to_utilization_disk[increment] = disk_utilization_diff
 
     '''
@@ -302,7 +302,7 @@ def model_machine(victim_machine, experiment_args, experiment_iterations, experi
                 reduction_level_to_latency_disk = calculate_total_delay_added(reduction_level_to_latency_disk['latency'], reduction_level_to_utilization_disk, key, 'Disk')
                 reduction_level_to_latency_cpu = calculate_total_delay_added(reduction_level_to_latency_cpu['latency'], reduction_level_to_utilization_cpu, key, 'CPU')
                 reduction_level_to_latency_network = calculate_total_delay_added(reduction_level_to_latency_network['latency'], reduction_level_to_utilization_network, key, 'Network')
-    '''     
+    '''
     return reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network
 
 '''
@@ -322,16 +322,16 @@ if __name__ == "__main__":
     parser.add_argument("--iterations", type=int, default=10, help="Number of HTTP requests to send the REST server per experiment")
     parser.add_argument("--use_causal_analysis", action="store_true", help="Set this option to stress only a single variable")
     parser.add_argument("--only_baseline", action="store_true", help="Only takes a measurement of the baseline without any stress")
-    
+
     args = parser.parse_args()
     print args
-    
+
     ssh_client = quilt_ssh(args.victim_machine_public_ip)
 
 #    experiment_args = [args.website_ip, args.traffic_generator_public_ip]
 #    explore_stress_space(ssh_client, 'disk', experiment_args, args.experiment_type, 4000, 250, 'latency')
 #    exit()
-    
+
     results_disk = {}
     results_cpu = {}
     results_network = {}
@@ -353,7 +353,7 @@ if __name__ == "__main__":
     else:
         print 'INVALID EXPERIMENT TYPE'
         exit()
-        
+
     if args.experiment_type == 'REST':
         reset_experiment(args.victim_machine)
 
@@ -363,10 +363,3 @@ if __name__ == "__main__":
 
     output_file_name = append_results_to_file(results_cpu, results_disk, results_network, args.experiment_type, args.use_causal_analysis, args.iterations)
     plot_results(output_file_name, args.experiment_type, args.iterations, 'save', convertToMilli=results_in_milli, use_causal_analysis=args.use_causal_analysis)
-
-    
-    
-
-
-
-    
