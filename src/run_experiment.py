@@ -92,7 +92,7 @@ def measure_nginx_single_machine(container_id, experiment_args, experiment_itera
     return all_requests, utilization_diffs
 
 #Measure response time for Spark ML-Matrix
-def measure_ml_matrix(spark_args, experiment_iterations):
+def measure_ml_matrix(container_id, spark_args, experiment_iterations):
     all_results = {}
     all_results['latency'] = []
 
@@ -120,7 +120,7 @@ def measure_ml_matrix(spark_args, experiment_iterations):
     utilization_diffs = []
     #Run the experiment experiment_iteration number of times
     for x in range(experiment_iterations):
-        initial_utilizations = get_all_throttled_utilizations(ssh_client)
+        initial_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
         print 'INITIAL UTILIZATIONS: {}'.format(initial_utilizations)
         _, runtime, _ = ssh_client.exec_command(execute_spark_job)
         print 'about to print the runtime read'
@@ -131,13 +131,13 @@ def measure_ml_matrix(spark_args, experiment_iterations):
         except IndexError:
             print 'Spark out of memory!'
             all_results['latency'].append(0)
-            final_utilizations = get_all_throttled_utilizations(ssh_client)
+            final_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
             utilization_diffs.append(get_utilization_diff(initial_utilizations, final_utilizations))
             continue
         all_results['latency'].append(runtime)
         #Returns in milliseconds
         print 'iteration {} complete'.format(x)
-        final_utilizations = get_all_throttled_utilizations(ssh_client)
+        final_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
         print 'FINAL UTILIZATIONS: {}'.format(final_utilizations)
         utilization_diffs.append(get_utilization_diff(initial_utilizations, final_utilizations))
 
@@ -149,7 +149,7 @@ def measure_ml_matrix(spark_args, experiment_iterations):
 #    std = numpy.std(numpy_all_requests)
     return all_results, utilization_diffs
 
-def measure_TODO_response_time(todo_args, iterations):
+def measure_TODO_response_time(container_id, todo_args, iterations):
     REST_server_ip = todo_args[0]
     req_generator_ip = todo_args[1]
 
@@ -195,7 +195,7 @@ def measure_TODO_response_time(todo_args, iterations):
     return all_requests, dummy_utilizations
 
 #Measure response time for MEAN Application
-def measure_REST_response_time(REST_args, iterations):
+def measure_REST_response_time(container_id, REST_args, iterations):
     REST_server_ip = REST_args[0]
     ssh_server_ip = REST_args[1]
     #Each iteration actually represents 100 web requests
