@@ -409,38 +409,3 @@ def get_current_memory(ssh_client):
     unit = memory[1]
     print ("CURR: {}".format((mem, unit)))
     return (mem, unit)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("public_vm_ip")
-    parser.add_argument("--network_delay", type=float, default=-1.0, help="Network delay in milliseconds.")
-    parser.add_argument("--rm_network_delay", action="store_true", help="Remove any artificial network delays.")
-    parser.add_argument("--network_bandwidth", type=float, default=1.0, help="Network Bandwidth in kbps")
-    parser.add_argument("--reset_network_bandwidth", action="store_true", help="Reset Network Bandwidth to the default value")
-    parser.add_argument("--cpu_limit", type=int, default=-1, help="Limit CPU at CPU_LIMIT percent.")
-    parser.add_argument("--rm_cpu_limit", action="store_true", help="Remove any cpu limits imposed with --cpu_limit.")
-    args = parser.parse_args()
-    ssh_client = quilt_ssh(args.public_vm_ip)
-#       timer_handle = initialize_utilization_measurements(ssh_client)
-    remove_all_network_manipulation(ssh_client)
-
-    container_bandwidth = get_container_network_capacity(ssh_client)
-    for container in container_bandwidth:
-        container_bandwidth[container] = 100#0.2 * container_bandwidth[container]
-    print container_bandwidth
-    set_incoming_network_bandwidth(ssh_client)
-    set_outgoing_network_bandwidth(ssh_client, container_bandwidth)
-
-    if args.network_delay >= 0:
-        set_network_delay(ssh_client, args.network_delay)
-    if args.rm_network_delay or args.reset_network_bandwidth:
-        remove_all_network_manipulation(ssh_client)
-    if args.network_bandwidth >=0:
-        set_network_bandwidth(ssh_client, args.network_bandwidth)
-    if args.cpu_limit >= 0 and args.cpu_limit <= 100:
-        install_deps(ssh_client)
-        update_cpu(ssh_client, limit=args.cpu_limit)
-    if args.rm_cpu_limit:
-        reset_cpu(ssh_client)
-    if args.mem_limit >= 0 and args.mem_limit <= 100:
-        update_memory(ssh_client, containers, limit=args.mem_limit)
