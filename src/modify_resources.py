@@ -397,20 +397,6 @@ def get_utilization_diff(initial_utilization, final_utilization):
     utilization_diff['disk'] = final_utilization['disk'] - initial_utilization['disk']
     return utilization_diff
 
-# Converts CPU throttle time from nanoseconds to seconds
-def get_cpu_throttle_time(ssh_client, throttle_time, increment):
-    return throttle_time / (10**9)
-
-def get_disk_throttle_time(ssh_client, result_in_bytes, increment):
-    disk_throttle = float(result_in_bytes) / get_disk_capabilities(ssh_client, increment)
-    return disk_throttle
-
-def get_network_throttle_time(ssh_client, result_in_bytes, increment):
-    all_container_interface_throttled = get_network_capabilities(ssh_client, increment)
-    all_container_interface_baseline = get_network_capabilities(ssh_client, 0)
-    network_throttle =  float(result_in_bytes) / all_container_interface_throttled.itervalues().next() - float(result_in_bytes) / all_container_interface_baseline.itervalues().next()
-    return network_throttle
-
 def get_current_memory(ssh_client):
     """Returns a tuple (memory size, unit) where unit is B, K, M, or G."""
     _, stdout, _ = ssh_client.exec_command("docker info | grep 'Total Memory: '")
