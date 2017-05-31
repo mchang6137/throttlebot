@@ -110,9 +110,9 @@ def set_cpu_shares(ssh_client, container_id, cpu_quota):
     throttled_containers = []
 
     if container_id not in container_blacklist:
-        update_command = 'docker update --cpu-period {} --cpu-quota {} {}'.format(cpu_period, cpu_quota, core, container_id)
+        update_command = 'docker update --cpu-period {} --cpu-quota {} {}'.format(cpu_period, cpu_quota, container_id)
         ssh_client.exec_command(update_command)
-        throttled_containers.append(container_name)
+        throttled_containers.append(container_id)
     return throttled_containers
 
 def reset_cpu_shares(ssh_client, container_id):
@@ -174,8 +174,8 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
 
         # Set Read and Write Conditions in real-time using cgroups
         # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
-        set_cgroup_write_rate_cmd = 'echo \"252:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(disk_bandwidth, disk_eater_id_str)
-        set_cgroup_read_rate_cmd = 'echo \"252:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(disk_bandwidth, disk_eater_id_str)
+        set_cgroup_write_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(disk_bandwidth, disk_eater_id_str)
+        set_cgroup_read_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(disk_bandwidth, disk_eater_id_str)
 
         print set_cgroup_write_rate_cmd
         print set_cgroup_read_rate_cmd
@@ -409,3 +409,28 @@ def get_current_memory(ssh_client):
     unit = memory[1]
     print ("CURR: {}".format((mem, unit)))
     return (mem, unit)
+
+
+# Main function for direct testing of above methods
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("public_vm_ip")
+    parser.add_argument("container_id")
+    parser.add_argument("--cpu_quota", type=int, default=0, help="Set CPU shares to CPU_QUOTA")
+    parser.add_argument("--rst_cpu_quota", action="store_true", help="Reset any cpu shares imposed by --cpu_quota")
+    parser.add_argument("--set_blkio", type=int, default=0, help="Set blkio to SET_BLKIO")
+    parser.add_argument("--rst_blkio", action="store_true", help="Reset any blkio restrictions set by --set_blkio")
+    args = parser.parse_args()
+    ssh_client = quilt_ssh(args.public_vm_ip)
+    container_id = args.container_id
+    cpu_quota = args.cpu_quota
+    set_blkio = args.set_blkio
+
+    if cpu_quota >= 0 and cpu_quota <= 1000000:
+        set_cpu_shares(ssh_client, container_id, cpu_quota)
+    if args.rst_cpu_quota:
+        reset_cpu_shares(ssh_client, container_id)
+    if set_blkio >= 0 and set_blkio <= 70000000:
+        change_container_blkio(ssh_client, container_id, set_blkio)
+    if args.rst_blkio:
+        change_container_blkio(ssh_client, container_id, 0)
