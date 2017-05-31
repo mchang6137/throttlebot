@@ -159,18 +159,10 @@ def set_blkio(ssh_client, container_id, relative_weight):
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
-    disk_eater_id_cmd = 'docker inspect --format=\"{{{{.Id}}}}\" {}'.format(name)
-    print disk_eater_id_cmd
-    _, disk_eater_id, _ = ssh_client.exec_command(disk_eater_id_cmd)
-    disk_eater_id_temp = disk_eater_id.read()
-    disk_eater_id_str = disk_eater_id_temp.strip('\n')
-
-    print disk_eater_id_str
-
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
-    set_cgroup_write_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(disk_bandwidth, disk_eater_id_str)
-    set_cgroup_read_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(disk_bandwidth, disk_eater_id_str)
+    set_cgroup_write_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
+    set_cgroup_read_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
     print set_cgroup_write_rate_cmd
     print set_cgroup_read_rate_cmd
