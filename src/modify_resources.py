@@ -95,12 +95,11 @@ def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
 # as opposed to update_cpu which actually just stresses the CPU by a predetermined amount
 # Assumes that that CPU_period and CPU_quota were not set beforehand
 # CPU period is assumed to be 1 second no matter what
-def set_cpu_shares(ssh_client, container_id, cpu_quota):
-    cpu_quota = int((float(cpu_quota) / 10) * get_num_cores(ssh_client) * 1000000)
-    cpu_period = 1000000 # 1 second in microseconds
+def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
+    # cpu_quota = int((float(cpu_quota) / 10) * get_num_cores(ssh_client) * 1000000)
 
     # CPU Quota must be less than 1 second
-    while cpu_quota > 1000000:
+    while cpu_quota > cpu_period:
             cpu_quota = cpu_quota/2
             cpu_period = cpu_period/2
 
@@ -109,16 +108,19 @@ def set_cpu_shares(ssh_client, container_id, cpu_quota):
 
     throttled_containers = []
 
-    update_command = 'docker update --cpu-period {} --cpu-quota {} {}'.format(cpu_period, cpu_quota, container_id)
+    update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
+    print update_command
     ssh_client.exec_command(update_command)
     throttled_containers.append(container_id)
 
     return throttled_containers
 
-def reset_cpu_shares(ssh_client, container_id):
-    update_command = 'docker update --cpu-quota 0 {}'.format(container_id)
+def reset_cpu_quota(ssh_client, container_id):
+    # Reset only seems to work when both period and quota are high (and equal of course)
+    update_command = 'docker update --cpu-period=1000000 --cpu-quota=1000000 {}'.format(container_id)
     ssh_client.exec_command(update_command)
-    print 'reset_cpu_shares'
+    print update_command
+    print 'reset_cpu_quota'
 
 # Function to reset CPU throttling depending on type*
 def reset_cpu(ssh_client, container_id, cpu_throttle_type):
@@ -161,8 +163,9 @@ def set_blkio(ssh_client, container_id, relative_weight):
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
-    set_cgroup_write_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
-    set_cgroup_read_rate_cmd = 'echo \"252:0 {}\" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
+    # Check for 202 or 252 for major device number
+    set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
+    set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
     print set_cgroup_write_rate_cmd
     print set_cgroup_read_rate_cmd
@@ -403,21 +406,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("public_vm_ip")
     parser.add_argument("container_id")
-    parser.add_argument("--cpu_quota", type=int, default=0, help="Set CPU shares to CPU_QUOTA")
+    parser.add_argument("--cpu_quota", type=int, default=0, help="Set CPU quota to CPU_QUOTA")
+    parser.add_argument("--cpu_period", type=int, default=0, help="Set CPU period to CPU_PERIOD")
     parser.add_argument("--rst_cpu_quota", action="store_true", help="Reset any cpu shares imposed by --cpu_quota")
     parser.add_argument("--set_blkio", type=int, default=0, help="Set blkio to SET_BLKIO")
     parser.add_argument("--rst_blkio", action="store_true", help="Reset any blkio restrictions set by --set_blkio")
     args = parser.parse_args()
     ssh_client = quilt_ssh(args.public_vm_ip)
     container_id = args.container_id
+    cpu_period = args.cpu_period
     cpu_quota = args.cpu_quota
     set_blkio = args.set_blkio
 
-    if cpu_quota >= 0 and cpu_quota <= 1000000:
-        set_cpu_shares(ssh_client, container_id, cpu_quota)
+    if args.cpu_quota and args.cpu_period and cpu_quota >= 0 and cpu_quota <= cpu_period:
+        set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota)
     if args.rst_cpu_quota:
-        reset_cpu_shares(ssh_client, container_id)
-    if set_blkio >= 0 and set_blkio <= 70000000:
+        reset_cpu_quota(ssh_client, container_id)
+    if args.set_blkio and set_blkio >= 0 and set_blkio <= 70000000:
         change_container_blkio(ssh_client, container_id, set_blkio)
     if args.rst_blkio:
         change_container_blkio(ssh_client, container_id, 0)
