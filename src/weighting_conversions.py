@@ -42,12 +42,11 @@ def weighting_to_disk_access_rate(weighting):
 
     return int(MAX_DISK_READ * weighting / 100)
 
-def weighting_to_cpucycle(weighting):
+def weighting_to_cpu_quota(weighting):
     if weighting < 0 or weighting > 100:
         print ('Invalid Weighting')
         return
-    #Temporary!!!!!!
-    return weighting/10
+    return int(1000000 * weighting / 100)
 
 def weighting_to_cpu_period(weighting):
     weighting = float(100 - weighting)
