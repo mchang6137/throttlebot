@@ -33,6 +33,7 @@ MAX_NETWORK_BANDWIDTH = 600
 
 '''Stressing the Network'''
 
+#Fix Me!
 #Add a Network Delay to each of the container interfaces on VM
 def set_network_delay(ssh_client, delay):
     if delay <= 0:
@@ -72,6 +73,7 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
 
     return
 
+# Fix me!
 # Removes all network manipulations for ALL machines in the Quilt Environment
 def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
     all_machines = get_all_machines()
@@ -110,7 +112,7 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
 
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
     print update_command
-    ssh_client.exec_command(update_command)
+    ssh_exec(ssh_client, update_command)
     throttled_containers.append(container_id)
 
     return throttled_containers
@@ -118,16 +120,9 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
 def reset_cpu_quota(ssh_client, container_id):
     # Reset only seems to work when both period and quota are high (and equal of course)
     update_command = 'docker update --cpu-period=1000000 --cpu-quota=1000000 {}'.format(container_id)
-    ssh_client.exec_command(update_command)
-    print update_command
     print 'reset_cpu_quota'
-
-# Function to reset CPU throttling depending on type*
-def reset_cpu(ssh_client, container_id, cpu_throttle_type):
-    if cpu_throttle_type == 'period':
-        reset_cpu_shares(ssh_client, container_id)
-    elif cpu_throttle_type == 'stress': # LEGACY
-        reset_cpu_stress(ssh_client)
+    print update_command
+    ssh_exec(ssh_client, update_command)
 
 # LEGACY (All functions that throttle CPU through stress are legacy functions kept for reference)
 # Indicates the number of 10%-stress that is introduced into the system
@@ -148,6 +143,14 @@ def reset_cpu_stress(ssh_client):
     ssh_exec(ssh_client, cmd)
     print 'Cpu Stresses killed'
 
+# LEGACY
+# Function to reset CPU throttling depending on type*
+def reset_cpu(ssh_client, container_id, cpu_throttle_type):
+    if cpu_throttle_type == 'period':
+        reset_cpu_quota(ssh_client, container_id)
+    elif cpu_throttle_type == 'stress':
+        reset_cpu_stress(ssh_client)
+
 '''Stressing the Disk Read/write throughput'''
 
 # set_blkio will change the relative proportion of all the containers (proportions range from 0-1000)
@@ -156,6 +159,7 @@ def set_blkio(ssh_client, container_id, relative_weight):
         invalid_resource_parameters("blkio weight", relative_weight)
         return
     cmd = 'docker update --blkio-weight={} {}'.format(relative_weight, container_id)
+    print cmd
     ssh_exec(ssh_client, cmd)
 
 # Positive value to set a maximum for both disk write and disk read
@@ -170,12 +174,11 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     print set_cgroup_write_rate_cmd
     print set_cgroup_read_rate_cmd
 
-    _, stdout, _ = ssh_client.exec_command(set_cgroup_write_rate_cmd)
-    _, stdout, _ = ssh_client.exec_command(set_cgroup_read_rate_cmd)
+    ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
+    ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
     # Sleep 10 seconds since the current queue must be emptied before this can be fulfilled
     sleep(10)
-    return 0
 
 # LEGACY (All functions that creates dummpy containers are legacy and kept for reference)
 # This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
@@ -287,9 +290,11 @@ def get_all_machines():
             all_machines.append(m)
     return set(all_machines)
 
+# LEGACY
 def initialize_machine(ssh_client):
     install_deps(ssh_client)
 
+# LEGACY
 def install_deps(ssh_client):
     cmd_cpulimit = "sudo DEBIAN_FRONTEND=noninteractive apt-get install cpulimit"
     cmd_stress = "sudo DEBIAN_FRONTEND=noninteractive apt-get install stress"
