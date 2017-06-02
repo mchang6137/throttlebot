@@ -32,13 +32,13 @@ def get_network_utilization(ssh_client, container_id):
     try:
             network_list = stdout.read().strip('\n').split(' ')
     except:
-        continue
-    if len(network_list) != 2:
-        continue
-    send_bytes = int(network_list[0])
-    rcv_bytes = int(network_list[1])
-    outbound_container_utilization += send_bytes
-    inbound_container_utilization += rcv_bytes
+        pass
+    if len(network_list) == 2:
+        send_bytes = int(network_list[0])
+        rcv_bytes = int(network_list[1])
+        outbound_container_utilization += send_bytes
+        inbound_container_utilization += rcv_bytes
+
     return outbound_container_utilization, inbound_container_utilization
 
 # Legacy (?)
