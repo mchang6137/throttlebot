@@ -29,21 +29,20 @@ COMMAND_DELAY = 3
 
 def start_causal_cpu(ssh_client, container_id, disk_rate, network_rate):
     throttle_network(ssh_client, network_rate)
-    return throttle_disk(ssh_client, container_id, isk_rate)
+    throttle_disk(ssh_client, container_id, disk_rate)
 
-def start_causal_disk(ssh_client, container_id, cpu_rate, network_rate):
-    throttle_cpu(ssh_client, container_id, cpu_rate)
+def start_causal_disk(ssh_client, container_id, cpu_period, cpu_quota, network_rate):
+    throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
     throttle_network(ssh_client, network_rate)
 
-def start_causal_network(ssh_client, container_id, cpu_rate, disk_rate):
-    throttle_cpu(ssh_client, container_id, cpu_rate)
-    return throttle_disk(ssh_client, container_id, disk_rate)
+def start_causal_network(ssh_client, container_id, cpu_period, cpu_quota, disk_rate):
+    throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
+    throttle_disk(ssh_client, container_id, disk_rate)
 
 ### Throttle only a single resource at a time.
-def throttle_cpu(ssh_client, container_id, number_of_stress):
-    print 'CPU Stress instances is {}'.format(number_of_stress)
+def throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota):
     # update_cpu_through_stress(ssh_client, number_of_stress)
-    set_cpu_shares(ssh_client, container_id, number_of_stress)
+    set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota)
 
 def throttle_disk(ssh_client, container_id, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
@@ -58,36 +57,41 @@ def throttle_network(ssh_client, network_bandwidth):
 ###Stop the throttling for a single resource
 def stop_throttle_cpu(ssh_client, container_id):
     print 'RESETTING CPU THROTTLING'
-    reset_cpu(ssh_client, container_id, 'period')
+    reset_cpu_quota(ssh_client, container_id)
 
 def stop_throttle_network(ssh_client):
+    print 'RESETTING NETWORK THROTTLING'
     remove_all_network_manipulation(ssh_client)
 
-def stop_throttle_disk(ssh_client, container_id, num_fail):
+def stop_throttle_disk(ssh_client, container_id):
+    print 'RESETTING DISK THROTTLING'
     change_container_blkio(ssh_client, container_id, 0)
     # remove_dummy_disk_eater(ssh_client, num_fail)
 
 ### Revert container to the initial state
 
-def stop_causal_cpu(ssh_client, container_id, num_full_disk):
+def stop_causal_cpu(ssh_client, container_id):
+    print 'RESETTING CASUAL CPU!'
     stop_throttle_network(ssh_client)
-    stop_throttle_disk(ssh_client, container_id, num_full_disk)
+    stop_throttle_disk(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
 def stop_causal_disk(ssh_client, container_id):
+    print 'RESETTING CASUAL DISK!'
     stop_throttle_network(ssh_client)
     stop_throttle_cpu(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
-def stop_causal_network(ssh_client, container_id, num_full_disk):
+def stop_causal_network(ssh_client, container_id):
+    print 'RESETTING CASUAL NETWORK!'
     stop_throttle_cpu(ssh_client, container_id)
-    stop_throttle_disk(ssh_client, container_id, num_full_disk)
+    stop_throttle_disk(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
-def reset_all_stresses(ssh_client, container_id, num_full_disk):
-    print ('RESETTING ALL STRESSES!')
+def reset_all_stresses(ssh_client, container_id):
+    print 'RESETTING ALL STRESSES!'
     stop_throttle_cpu(ssh_client, container_id)
-    stop_throttle_disk(ssh_client, container_id, num_full_disk)
+    stop_throttle_disk(ssh_client, container_id)
     stop_throttle_network(ssh_client)
     sleep(COMMAND_DELAY)
 
@@ -212,8 +216,8 @@ def model_machine(victim_machine, container_id, experiment_args, experiment_iter
     ssh_client = quilt_ssh(victim_machine)
     #Start by clearing all the previous perturbations in case something went wrong
 
-    initialize_machine(ssh_client)
-    reset_all_stresses(ssh_client, container_id, 0)
+    # initialize_machine(ssh_client) LEGACY
+    reset_all_stresses(ssh_client, container_id)
 
     increments = [20, 40, 60, 80]
     shuffle(increments)
@@ -250,13 +254,13 @@ def model_machine(victim_machine, container_id, experiment_args, experiment_iter
             disk_throttle_rate = weighting_to_disk_access_rate(increment)
             container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-            num_full_disk = start_causal_cpu(ssh_client, container_id, disk_throttle_rate, network_reduction_rate)
+            start_causal_cpu(ssh_client, container_id, disk_throttle_rate, network_reduction_rate)
         else:
-            cpu_throttle_rate = weighting_to_cpucycle(increment)
-            throttle_cpu(ssh_client, container_id, cpu_throttle_rate)
+            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+            throttle_cpu(ssh_client, container_id, 1000000, cpu_throttle_quota)
         results_data_cpu, cpu_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
         if use_causal_analysis:
-            stop_causal_cpu(ssh_client, container_id, num_full_disk)
+            stop_causal_cpu(ssh_client, container_id)
         else:
             stop_throttle_cpu(ssh_client, container_id)
         reduction_level_to_latency_cpu[increment] = results_data_cpu
@@ -266,8 +270,8 @@ def model_machine(victim_machine, container_id, experiment_args, experiment_iter
         print 'INITIATING Network Experiment'
         if use_causal_analysis:
             disk_throttle_rate = weighting_to_disk_access_rate(increment)
-            cpu_throttle_rate = weighting_to_cpucycle(increment)
-            num_full_disk = start_causal_network(ssh_client, container_id, cpu_throttle_rate, disk_throttle_rate)
+            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+            start_causal_network(ssh_client, container_id, 1000000, cpu_throttle_quota, disk_throttle_rate)
         else:
             container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
@@ -275,7 +279,7 @@ def model_machine(victim_machine, container_id, experiment_args, experiment_iter
         results_data_network, network_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
 
         if use_causal_analysis:
-            stop_causal_network(ssh_client, container_id, num_full_disk)
+            stop_causal_network(ssh_client, container_id)
         else:
             stop_throttle_network(ssh_client)
         reduction_level_to_latency_network[increment] = results_data_network
@@ -284,18 +288,18 @@ def model_machine(victim_machine, container_id, experiment_args, experiment_iter
         print '======================================='
         print 'INITIATING Disk Experiment '
         if use_causal_analysis:
-            cpu_throttle_rate = weighting_to_cpucycle(increment)
+            cpu_throttle_quota = weighting_to_cpu_quota(increment)
             container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-            start_causal_disk(ssh_client, container_id, cpu_throttle_rate, network_reduction_rate)
+            start_causal_disk(ssh_client, container_id, 1000000, cpu_throttle_quota, network_reduction_rate)
         else:
             disk_throttle_rate = weighting_to_disk_access_rate(increment)
-            num_full_disk = throttle_disk(ssh_client, container_id, disk_throttle_rate)
+            throttle_disk(ssh_client, container_id, disk_throttle_rate)
         results_data_disk, disk_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
         if use_causal_analysis:
             stop_causal_disk(ssh_client, container_id)
         else:
-            stop_throttle_disk(ssh_client, container_id, num_full_disk)
+            stop_throttle_disk(ssh_client, container_id)
         reduction_level_to_latency_disk[increment] = results_data_disk
         reduction_level_to_utilization_disk[increment] = disk_utilization_diff
 
