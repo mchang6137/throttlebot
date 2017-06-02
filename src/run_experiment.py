@@ -6,7 +6,8 @@ from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
 
-#Measure the performance of the application in term of latency
+# Measure the performance of the application in term of latency
+# Note: Although unused in some experiments, container_id was included to maintain symmetry
 def measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type):
     if experiment_type == 'spark-ml-matrix':
         return measure_ml_matrix(container_id, experiment_args, experiment_iterations)
@@ -149,6 +150,7 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
 #    std = numpy.std(numpy_all_requests)
     return all_results, utilization_diffs
 
+#container_id unused: see note in measure_runtime
 def measure_TODO_response_time(container_id, todo_args, iterations):
     REST_server_ip = todo_args[0]
     req_generator_ip = todo_args[1]
@@ -195,6 +197,7 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
     return all_requests, dummy_utilizations
 
 #Measure response time for MEAN Application
+#container_id unused: see note in measure_runtime
 def measure_REST_response_time(container_id, REST_args, iterations):
     REST_server_ip = REST_args[0]
     ssh_server_ip = REST_args[1]
