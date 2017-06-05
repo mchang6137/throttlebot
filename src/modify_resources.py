@@ -64,8 +64,6 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
         cmd1 = 'sudo tc qdisc add dev {} handle 1: root htb default 11'.format(container)
         cmd2 = 'sudo tc class add dev {} parent 1: classid 1:1 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
         cmd3 = 'sudo tc class add dev {} parent 1:1 classid 1:11 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
-                # UNNECESSARY
-                # cmd4 = 'tc filter add dev {} parent 1: protocol ip u32 match ip dst {} flowid 1:1'.format(container, victim_private_ip)
 
         ssh_exec(ssh_client, cmd1)
         ssh_exec(ssh_client, cmd2)

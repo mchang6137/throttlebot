@@ -166,10 +166,6 @@ def explore_stress_space(ssh_client, resource, experiment_args, experiment_type,
         return
 
 # Note: Shelved for later
-def linear_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
-    return
-
-# Note: Shelved for later
 def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_latency_ub, experiment_args, experiment_type, metric):
     min_index = 0
     max_index = len(parameter_list) - 1
