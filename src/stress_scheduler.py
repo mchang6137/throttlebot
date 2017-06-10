@@ -236,7 +236,8 @@ def model_machine(container_ids_dict, experiment_args, experiment_iterations, ex
             # initialize_machine(ssh_client) LEGACY
             reset_all_stresses(ssh_client, container_id)
 
-            increments = [20, 40, 60, 80]
+            # increments = [20, 40, 60, 80]
+            increments = [50] # For experimental purposes
             shuffle(increments)
 
             reduction_level_to_latency_network_container = {}
@@ -387,9 +388,13 @@ if __name__ == "__main__":
     else:
         services = args.services_to_stress.split(',')
     if args.stress_all_resources:
-        resources = ['CPU', 'NET', 'DISK']
+        resources = ['CPU', 'DISK', 'NET']
     else:
         resources = args.resources_to_stress.split(',')
+
+    if not args.stress_search_type:
+        print 'Please state a stress search type'
+        exit()
 
     # Retrieving dictionary of container_ids with service names as keys
     container_ids_dict = get_container_ids(args.victim_machine_public_ip.split(','), services, args.stress_search_type)
@@ -398,45 +403,61 @@ if __name__ == "__main__":
     results_cpu = {}
     results_network = {}
 
-    # Checking for stress search type
-    if args.stress_search_type == 'BINARY':
-        container_ids_tuple = container_ids_dict
-        container_ids_dict, standby_dict = container_ids_dict
+    continue_stressing = True
 
-    # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
-    if args.experiment_type == 'REST':
-        experiment_args = [args.website_ip, args.victim_machine_public_ip]
-        results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
-    elif args.experiment_type == "spark-ml-matrix":
-        #website_ip in this case is the spark master public ip
-        experiment_args = [args.website_ip, args.victim_machine_private_ip]
-        results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
-    elif args.experiment_type == "nginx-single":
-        experiment_args = [args.website_ip, args.traffic_generator_public_ip]
-        results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
-    elif args.experiment_type == "todo-app":
-        experiment_args = [args.website_ip, args.traffic_generator_public_ip]
-        results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
-    else:
-        print 'INVALID EXPERIMENT TYPE'
-        exit()
+    while(continue_stressing):
+        # Reset results dictionary for each iteration
+        results_disk = {}
+        results_cpu = {}
+        results_network = {}
 
-    # TODO: Fix to accomodate for dictionary
-    if args.experiment_type == 'REST':
-        reset_experiment(args.victim_machine, None) # args.container_id
+        # Checking for stress search type
+        if args.stress_search_type == 'BINARY':
+            container_ids_dict1, container_ids_dict2 = container_ids_dict
 
-    results_in_milli = True
-    if args.experiment_type == 'spark-ml-matrix' or args.experiment_type == 'nginx-single':
-        results_in_milli = False
+        # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
+        if args.experiment_type == 'REST':
+            experiment_args = [args.website_ip, args.victim_machine_public_ip]
+        elif args.experiment_type == "spark-ml-matrix":
+            #website_ip in this case is the spark master public ip
+            experiment_args = [args.website_ip, args.victim_machine_private_ip]
+        elif args.experiment_type == "nginx-single":
+            experiment_args = [args.website_ip, args.traffic_generator_public_ip]
+        elif args.experiment_type == "todo-app":
+            experiment_args = [args.website_ip, args.traffic_generator_public_ip]
+        else:
+            print 'INVALID EXPERIMENT TYPE'
+            exit()
 
-    # Revert container_ids_dict if necessary (Allows for modular update function)
-    if args.stress_search_type == 'BINARY':
-        container_ids_dict = container_ids_tuple
+        if args.stress_search_type == 'BINARY':
+            results_cpu1, results_disk1, results_network1 = model_machine(container_ids_dict1, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
+            results_cpu2, results_disk2, results_network2 = model_machine(container_ids_dict2, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
+        else: # More will be added as more search types are implemented
+            results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
 
-    # Update container dictionary based on type
-    container_ids_dict = get_updated_container_ids(container_ids_dict, (results_cpu, results_network, results_disk), args.stress_search_type)
+        # TODO: Fix to accomodate for dictionary
+        if args.experiment_type == 'REST':
+            reset_experiment(args.victim_machine, None) # args.container_id
 
-    #Create loop until finished (Undecided)
+        results_in_milli = True
+        if args.experiment_type == 'spark-ml-matrix' or args.experiment_type == 'nginx-single':
+            results_in_milli = False
+
+        # Revert container_ids_dict if necessary (Allows for modular update function)
+        if args.stress_search_type == 'BINARY':
+            results1 = (results_cpu1, results_disk1, results_network1)
+            results2 = (results_cpu2, results_disk2, results_network2)
+            results = (results1,results2)
+        else:
+            results = (results_cpu, results_disk, results_network)
+
+        # Update container dictionary based on type
+        container_ids_dict = get_updated_container_ids(container_ids_dict, results, args.stress_search_type)
+
+        # Checking and updating loop condition if necessarily (based on type)
+        if args.stress_search_type == 'BINARY':
+            if container_ids_dict == None:
+                continue_stressing = False
 
     # TODO Update to accomodate for new result data structure
     output_file_name = append_results_to_file(results_cpu, results_disk, results_network, args.experiment_type, args.use_causal_analysis, args.iterations)
