@@ -435,9 +435,9 @@ if __name__ == "__main__":
         else: # More will be added as more search types are implemented
             results_cpu, results_disk, results_network = model_machine(container_ids_dict, experiment_args, args.iterations, args.experiment_type, args.use_causal_analysis, args.only_baseline)
 
-        # TODO: Fix to accomodate for dictionary
         if args.experiment_type == 'REST':
-            reset_experiment(args.victim_machine, None) # args.container_id
+            for service, (vm_ip, container_id) in container_ids_dict:
+                reset_experiment(vm_ip, container_id)
 
         results_in_milli = True
         if args.experiment_type == 'spark-ml-matrix' or args.experiment_type == 'nginx-single':
