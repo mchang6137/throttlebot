@@ -35,7 +35,7 @@ MAX_NETWORK_BANDWIDTH = 600
 
 #Fix Me!
 #Add a Network Delay to each of the container interfaces on VM
-def set_network_delay(ssh_client, delay):
+def set_network_delay(ssh_client, container_id, delay):
     if delay <= 0:
         invalid_resource_parameter('Network Delay', delay)
         return
@@ -73,7 +73,7 @@ def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=T
 
 # Fix me!
 # Removes all network manipulations for ALL machines in the Quilt Environment
-def remove_all_network_manipulation(ssh_client, remove_all_machines=False):
+def remove_all_network_manipulation(ssh_client, container_id, remove_all_machines=False):
     all_machines = get_all_machines()
     if remove_all_machines is False:
         container_ids = get_container_id(ssh_client, full_id=False, append_c=True)

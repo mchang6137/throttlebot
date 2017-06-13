@@ -60,9 +60,9 @@ def stop_throttle_cpu(ssh_client, container_id):
     print 'RESETTING CPU THROTTLING'
     reset_cpu_quota(ssh_client, container_id)
 
-def stop_throttle_network(ssh_client):
+def stop_throttle_network(ssh_client, container_id):
     print 'RESETTING NETWORK THROTTLING'
-    remove_all_network_manipulation(ssh_client)
+    remove_all_network_manipulation(ssh_client, container_id)
 
 def stop_throttle_disk(ssh_client, container_id):
     print 'RESETTING DISK THROTTLING'
@@ -73,13 +73,13 @@ def stop_throttle_disk(ssh_client, container_id):
 
 def stop_causal_cpu(ssh_client, container_id):
     print 'RESETTING CASUAL CPU!'
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     stop_throttle_disk(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
 def stop_causal_disk(ssh_client, container_id):
     print 'RESETTING CASUAL DISK!'
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     stop_throttle_cpu(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
@@ -93,7 +93,7 @@ def reset_all_stresses(ssh_client, container_id):
     print 'RESETTING ALL STRESSES!'
     stop_throttle_cpu(ssh_client, container_id)
     stop_throttle_disk(ssh_client, container_id)
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
 # Removes outlier points from the plot
@@ -192,7 +192,7 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
         print 'With stress, the mean is {}'.format(mean)
 
         if field == 'network':
-            stop_throttle_network(ssh_client)
+            stop_throttle_network(ssh_client, container_id)
         elif field == 'disk':
             stop_throttle_disk(ssh_client, num_disk_eaters)
         elif field == 'cpu':
@@ -302,7 +302,7 @@ def model_machine(container_ids_dict, experiment_args, experiment_iterations, ex
                     if use_causal_analysis:
                         stop_causal_network(ssh_client, container_id)
                     else:
-                        stop_throttle_network(ssh_client)
+                        stop_throttle_network(ssh_client, container_id)
                     reduction_level_to_latency_network_container[increment] = results_data_network
                     reduction_level_to_utilization_network_container[increment] = network_utilization_diff
 
