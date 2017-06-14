@@ -35,3 +35,10 @@ def get_container_info(ssh_client, command, only_running=True):
     _, stdout, _ = ssh_client.exec_command('docker ps' + options)
     results = stdout.read().splitlines()
     return results
+
+def get_container_veth(ssh_client, container_id):
+    get_interface_cmd = "docker inspect {} | grep EndpointID".format(container_id)
+    _,stdout,stderr = ssh_client.exec_command(get_interface_cmd)
+    lines = stdout.readlines()[1]
+    interface_name = str(lines).split('\"')[3][:15]
+    return interface_name
