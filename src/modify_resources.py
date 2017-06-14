@@ -32,44 +32,44 @@ CPU_EATER = "cpu_eater"
 MAX_NETWORK_BANDWIDTH = 600
 
 '''Stressing the Network'''
+# Container_to_bandwidth maps Docker container id to the bandwidth that container should be throttled to.
+# Assumes that the container specified by container id is located in the machine for ssh_client
+# Bandwidth units: Mbps
+def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
+    interface_name = get_container_veth(ssh_client, container_id)
+    
+    # Execute the command within OVS
+    # OVS policy bandwidth accepts inputs in kbps
+    bandwidth_kbps = bandwidth * (10 ** 3)
+    ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, bandwidth_kbps)
+    ovs_burst_cmd = 'ovs-vsctl set interface {} ingress_policing_burst={}'.format(interface_name, 0)
+    docker_policing_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
+    docker_burst_cmd = "docker exec ovs-vswitchd {}".format(ovs_burst_cmd)
 
-#Fix Me!
-#Add a Network Delay to each of the container interfaces on VM
-def set_network_delay(ssh_client, delay):
-    if delay <= 0:
-        invalid_resource_parameter('Network Delay', delay)
-        return
-    container_ids = get_container_id(ssh_client, full_id=False, append_c=True)
-    for container in container_ids:
-        cmd = "sudo tc qdisc add dev {} root netem delay {}ms".format(container, delay)
-        #Not all containers will have an exposed interface but the ones which do not will simply fail
-        response = ssh_exec(ssh_client, cmd)
+    #Should be no output if throttling is applied correctly
+    _,_,err_val_rate = ssh_client.exec_command(docker_policing_cmd)
+    _,_,err_val_burst = ssh_client.exec_command(docker_burst_cmd)
+    if len(err_val_rate.readlines()) != 0:
+        print 'ERROR: Stress of container id {} network failed'.format(container_id)
+        return -1
+    else:
+        print 'SUCCESS: Stress of container id {} stressed to {}'.format(container_id, bandwidth)
+        return 1
 
-# Contract: Bandwidth must be set in Kb/s
-# Fix me! Find the Bandwidth of the machine
-# container_to_bandwidth is a map from interface->bandwidth
-def set_network_bandwidth(ssh_client, container_to_bandwidth, outgoing_traffic=True):
-    # talk to matt about network stuff
-    for container in container_to_bandwidth:
-        if container_to_bandwidth[container] <= 0:
-            bandwidth = container_to_bandwidth[container]
-            invalid_resource_parameter("Network Bandwidth", bandwidth)
-            return
+def reset_egress_network_bandwidth(ssh_client, container_id):
+    interface_name = get_container_veth(ssh_client, container_id)
 
-    for container in container_to_bandwidth:
-        bandwidth = int(container_to_bandwidth[container])
+    ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, 0)
+    reset_network_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
 
-                # Temporary!
-        container = 'ens3'
-        cmd1 = 'sudo tc qdisc add dev {} handle 1: root htb default 11'.format(container)
-        cmd2 = 'sudo tc class add dev {} parent 1: classid 1:1 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
-        cmd3 = 'sudo tc class add dev {} parent 1:1 classid 1:11 htb rate {}kbit ceil {}kbit'.format(container, bandwidth, bandwidth)
-
-        ssh_exec(ssh_client, cmd1)
-        ssh_exec(ssh_client, cmd2)
-        ssh_exec(ssh_client, cmd3)
-
-    return
+    #Should be no output if throttling is applied correctly
+    _,_,err_val_rate = ssh_client.exec_command(reset_network_cmd)
+    if len(err_val_rate.readlines()) != 0:
+        print 'ERROR: Resetting of container id {} network failed'.format(container_id)
+        return -1
+    else:
+        print 'SUCCESS: Stress of container id {} removed'.format(container_id)
+        return 1
 
 # Fix me!
 # Removes all network manipulations for ALL machines in the Quilt Environment
@@ -414,6 +414,9 @@ if __name__ == "__main__":
     parser.add_argument("--rst_cpu_quota", action="store_true", help="Reset any cpu shares imposed by --cpu_quota")
     parser.add_argument("--set_blkio", type=int, default=0, help="Set blkio to SET_BLKIO")
     parser.add_argument("--rst_blkio", action="store_true", help="Reset any blkio restrictions set by --set_blkio")
+    parser.add_argument("--set_network", type=int, default=0, help="Set the network bandwidth to a specific value")
+    parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling'
+    )
     args = parser.parse_args()
     ssh_client = quilt_ssh(args.public_vm_ip)
     container_id = args.container_id
@@ -429,3 +432,7 @@ if __name__ == "__main__":
         change_container_blkio(ssh_client, container_id, set_blkio)
     if args.rst_blkio:
         change_container_blkio(ssh_client, container_id, 0)
+    if args.set_network:
+        set_egress_network_bandwidth(ssh_client, container_id, args.set_network)
+    if args.rst_network:
+        reset_egress_network_bandwidth(ssh_client, container_id)
