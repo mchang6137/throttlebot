@@ -28,12 +28,12 @@ COMMAND_DELAY = 3
 ### Start the stresses on the various resources (virtual speedups)
 
 def start_causal_cpu(ssh_client, container_id, disk_rate, network_rate):
-    throttle_network(ssh_client, network_rate)
+    throttle_network(ssh_client, container_id, network_rate)
     throttle_disk(ssh_client, container_id, disk_rate)
 
 def start_causal_disk(ssh_client, container_id, cpu_period, cpu_quota, network_rate):
     throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
-    throttle_network(ssh_client, network_rate)
+    throttle_network(ssh_client, container_id, network_rate)
 
 def start_causal_network(ssh_client, container_id, cpu_period, cpu_quota, disk_rate):
     throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
@@ -52,7 +52,7 @@ def throttle_disk(ssh_client, container_id, disk_rate):
 # network_bandwidth is a map from interface->bandwidth
 def throttle_network(ssh_client, network_bandwidth):
     print 'Network Reduction Rate: {}'.format(network_bandwidth)
-    set_network_bandwidth(ssh_client, network_bandwidth)
+    set_network_bandwidth(ssh_client, container_id, network_bandwidth)
 
 ###Stop the throttling for a single resource
 def stop_throttle_cpu(ssh_client, container_id):
@@ -61,7 +61,7 @@ def stop_throttle_cpu(ssh_client, container_id):
 
 def stop_throttle_network(ssh_client):
     print 'RESETTING NETWORK THROTTLING'
-    remove_all_network_manipulation(ssh_client)
+    remove_all_network_manipulation(ssh_client, container_id)
 
 def stop_throttle_disk(ssh_client, container_id):
     print 'RESETTING DISK THROTTLING'
@@ -72,13 +72,13 @@ def stop_throttle_disk(ssh_client, container_id):
 
 def stop_causal_cpu(ssh_client, container_id):
     print 'RESETTING CASUAL CPU!'
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     stop_throttle_disk(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
 def stop_causal_disk(ssh_client, container_id):
     print 'RESETTING CASUAL DISK!'
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     stop_throttle_cpu(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
@@ -92,7 +92,7 @@ def reset_all_stresses(ssh_client, container_id):
     print 'RESETTING ALL STRESSES!'
     stop_throttle_cpu(ssh_client, container_id)
     stop_throttle_disk(ssh_client, container_id)
-    stop_throttle_network(ssh_client)
+    stop_throttle_network(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
 # Removes outlier points from the plot
