@@ -1,22 +1,30 @@
 import argparse
-from remote_execution import *
+import numpy as np
+import remote_execution as remote_exec
+from random import shuffle
+
+### Pre-defined blacklist (Temporary)
+blacklist = []
 
 ### Functions below are for getting initial container dictionaries
 
-# Function that calls on the correct get_container function based on TYPE
-def get_container_ids(vm_ips, services, stress_type):
-    if stress_type == 'ALL':
+# Function that calls on the correct get_container function based on POLICY
+def get_container_ids(vm_ips, services, resources, stress_policy):
+    if stress_policy == 'ALL':
         return get_container_ids_all(vm_ips, services)
-    elif stress_type == 'BINARY':
+    elif stress_policy == 'BINARY': # Shevled for later
         return get_container_ids_binary(vm_ips, services)
+    elif stress_policy == 'HALVING':
+        return get_container_ids_halving(vm_ips, services, resources)
 
 
 # Returns a dictionary of the services and their respective container_ids
 # VM_IPS is a list of ip addresses, and SERVICES is a list of services
+# Note: Services are the container commands (Temporary)
 def get_container_ids_all(vm_ips, services):
     container_id_dict = {}
     for vm_ip in vm_ips:
-        ssh_client = quilt_ssh(vm_ip)
+        ssh_client = remote_exec.quilt_ssh(vm_ip)
         docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
         docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
         _, stdout1, _ = ssh_client.exec_command(docker_container_id)
@@ -24,18 +32,55 @@ def get_container_ids_all(vm_ips, services):
         _, stdout2, _ = ssh_client.exec_command(docker_container_cmd)
         container_commands = stdout2.read().splitlines()
         for i in range(len(container_ids)):
-            if services == '*' or (container_commands[i] in services):
-                container_id_dict[container_commands[i]] = (vm_ip, container_ids[i])
+            if container_commands[i] not in blacklist and (services == '*' or (container_commands[i] in services)):
+                if container_commands[i] in container_id_dict:
+                    container_id_dict[container_commands[i]].append((vm_ip, container_ids[i]))
+                else:
+                    container_id_dict[container_commands[i]] = [(vm_ip, container_ids[i])]
 
     return container_id_dict
 
-
+# Shelved for later. Need to fix for dict/list update
 # Returns a tuple of dictionaries of the services and respective container_ids
 # The first dictionary holds the containers to be Stressed
 def get_container_ids_binary(vm_ips, services):
     container_id_dict = get_container_ids_all(vm_ips, services)
-    stress_dict1 = dict(container_id_dict.items()[len(container_id_dict)/2:])
-    stress_dict2 = dict(container_id_dict.items()[:len(container_id_dict)/2])
+    if container_id_dict is None:
+        return None
+    container_id_list = container_id_dict.items()
+    shuffle(container_id_list)
+    stress_dict1 = dict(container_id_list[len(container_id_list)/2:])
+    stress_dict2 = dict(container_id_list[:len(container_id_list)/2])
+
+    return stress_dict1,stress_dict2
+
+
+def get_container_ids_halving(vm_ips, services, resources):
+    container_id_dict = get_container_ids_all(vm_ips, services)
+    container_id_list = []
+    for service, tuplelist in container_id_dict.iteritems():
+        for vm_ip, container_id in tuplelist:
+            for resource in resources:
+                container_id_list.append((service, (vm_ip, (container_id, resource))))
+
+    shuffle(container_id_list)
+    # Converting list of tuples back into dictionaries
+    stress_list1 = container_id_list[len(container_id_list)/2:]
+    stress_list2 = container_id_list[:len(container_id_list)/2]
+
+    stress_dict1 = {}
+    for (service, (vm_ip, (container_id, resource))) in stress_list1:
+        if service in stress_dict1:
+            stress_dict1[service].append((vm_ip, (container_id, resource)))
+        else:
+            stress_dict1[service] = [(vm_ip, (container_id, resource))]
+
+    stress_dict2 = {}
+    for (service, (vm_ip, (container_id, resource))) in stress_list2:
+        if service in stress_dict2:
+            stress_dict2[service].append((vm_ip, (container_id, resource)))
+        else:
+            stress_dict2[service] = [(vm_ip, (container_id, resource))]
 
     return stress_dict1,stress_dict2
 
@@ -45,17 +90,16 @@ def get_container_ids_binary(vm_ips, services):
 # Returns an updated dictionary of the containers to stress based on type
 # OLD_CONTAINERS is the previous dictionary of containers, and RESULTS are the
 #     results of the stress tests
-def get_updated_container_ids(old_containers, results, stress_type):
-    if stress_type == 'ALL':
+def get_updated_container_ids(old_containers, results, stress_policy):
+    if stress_policy == 'ALL':
         return # Will Implement later
-    elif stress_type == 'BINARY':
+    elif stress_policy == 'BINARY' or stress_policy == 'HALVING':
         # In this case, old_containers should be a tuple of dictionaries
-        return get_updated_container_ids_binary(old_containers, results)
+        return get_updated_container_ids_binary_halving(old_containers, results)
     return
 
-
 # Old_containers MUST be a tuple of dictionaries (2)
-def get_updated_container_ids_binary(old_containers, results):
+def get_updated_container_ids_binary_halving(old_containers, results):
     old_stress_dict1, old_stress_dict2 = old_containers
     results1, results2 = results
 
@@ -65,21 +109,43 @@ def get_updated_container_ids_binary(old_containers, results):
     if (len1 == 1 and len2 == 0) or (len1 == 0 and len2 == 1):
         return None
 
-    if compare_performance_binary(results1, results2): # Results indicate stress
-        stress_dict1 = dict(old_stress_dict1.items()[len(old_stress_dict1)/2:])
-        stress_dict2 = dict(old_stress_dict1.items()[:len(old_stress_dict1)/2])
+    if compare_performance_binary_halving(results1, results2):
+        new_stress_list = []
+        for service, tuplelist in old_stress_dict1.iteritems():
+            for vm_ip, (container_id, resource) in tuplelist:
+                new_stress_list.append((service, (vm_ip, (container_id, resource))))
     else:
-        stress_dict1 = dict(old_stress_dict2.items()[len(old_stress_dict2)/2:])
-        stress_dict2 = dict(old_stress_dict2.items()[:len(old_stress_dict2)/2])
+        new_stress_list = []
+        for service, tuplelist in old_stress_dict2.iteritems():
+            for vm_ip, (container_id, resource) in tuplelist:
+                new_stress_list.append((service, (vm_ip, (container_id, resource))))
+
+    shuffle(new_stress_list)
+    stress_list1 = new_stress_list[len(new_stress_list)/2:]
+    stress_list2 = new_stress_list[:len(new_stress_list)/2]
+
+    stress_dict1 = {}
+    for (service, (vm_ip, (container_id, resource))) in stress_list1:
+        if service in stress_dict1:
+            stress_dict1[service].append((vm_ip, (container_id, resource)))
+        else:
+            stress_dict1[service] = [(vm_ip, (container_id, resource))]
+
+    stress_dict2 = {}
+    for (service, (vm_ip, (container_id, resource))) in stress_list2:
+        if service in stress_dict2:
+            stress_dict2[service].append((vm_ip, (container_id, resource)))
+        else:
+            stress_dict2[service] = [(vm_ip, (container_id, resource))]
 
     return stress_dict1,stress_dict2
 
 
 # Returns true if the first set of results perform worse than the second
 # Results1,2 must be a tuple (3)!
-# This method should only be used for stress search type BINARY
+# This method should only be used for stress search type BINARY or HALVING
 # NOTE: Only considering the results from increment 50 for experimental purposes
-def compare_performance_binary(results1, results2):
+def compare_performance_binary_halving(results1, results2):
     results_cpu1, results_disk1, results_net1 = results1
     results_cpu2, results_disk2, results_net2 = results2
     results_list = [results_cpu1, results_disk1, results_net1, results_cpu2, results_disk2, results_net2]
@@ -91,13 +157,21 @@ def compare_performance_binary(results1, results2):
     # Shortened from having 6 separate for-loops
     index = 0
     for result_type in results_list:
-        sum_50 = count_50 = baseline = 0
-        for service, (container, (increment, delay)) in result_type:
-            if increment == 0:
-                baseline = delay
-            else:
-                sum_50 += baseline - delay
-                count_50 += 1
+        sum_50 = count_50 = 0
+
+        for service, containerd in result_type.iteritems():
+            for container, incrementd in containerd.iteritems():
+                baseline_dict = {} # Each metric will have a different baseline
+                # Calculating baseline first
+                for increment, metricd in incrementd.iteritems():
+                    if increment == 0:
+                        for metric, delays  in metricd.iteritems():
+                            baseline_dict[metric] = np.mean(delays)
+                for increment, metricd in incrementd.iteritems():
+                    if increment != 0:
+                        for metric, delays in metricd.iteritems():
+                            sum_50 += np.mean(delays) - baseline_dict[metric]
+                            count_50 += 1
         avg_result[index] = sum_50 / float(count_50)
         index += 1
 
@@ -119,7 +193,9 @@ if __name__ == "__main__":
     parser.add_argument("public_vm_ips")
     parser.add_argument("--services_to_stress", help="List of services to stress on machines")
     parser.add_argument("--stress_all_services", action="store_true", help="Stress all services")
-    parser.add_argument("--stress_search_type", help="Type of stress search")
+    parser.add_argument("--resources_to_stress", help="List of resources to stress on machines")
+    parser.add_argument("--stress_all_resources", action="store_true", help="Stress all resources")
+    parser.add_argument("--stress_search_policy", help="Type of stress policy")
     args = parser.parse_args()
 
     public_vm_ips = args.public_vm_ips.split(',')
@@ -128,30 +204,65 @@ if __name__ == "__main__":
         print 'Please specify the services to stress'
         exit()
 
+    if (not args.resources_to_stress and not args.stress_all_resources):
+        print 'Please specify the resources to stress'
+        exit()
+
     if args.stress_all_services:
         services = '*'
     else:
         services = args.services_to_stress.split(',')
 
-    container_id_dict = get_container_ids(public_vm_ips, services, 'ALL')
+    if args.stress_all_resources:
+        resources = ['CPU','DISK','NET']
+    else:
+        resources = args.resources_to_stress.split(',')
+
+    container_id_dict = get_container_ids(public_vm_ips, services, resources, 'ALL')
 
     print 'All'
 
-    for service, (vm_ip, container_id) in container_id_dict.iteritems():
-        print '{}, ({},{})'.format(service, vm_ip, container_id)
+    for service, tuplelist in container_id_dict.iteritems():
+        for vm_ip, container_id in tuplelist:
+            print '{}, ({},{})'.format(service, vm_ip, container_id)
 
-    container_id_dict_tuple = get_container_ids(public_vm_ips, services, 'BINARY')
-
-    container_id_dict,standby_dict = container_id_dict_tuple
+    container_id_dict1, container_id_dict2 = get_container_ids(public_vm_ips, services, resources, 'HALVING')
 
     print 'First Half'
 
-    for service, (vm_ip, container_id) in container_id_dict.iteritems():
-        print '{}, ({},{})'.format(service, vm_ip, container_id)
+    for service, tuplelist in container_id_dict1.iteritems():
+        for (vm_ip, (container_id, resource)) in tuplelist:
+            print '{}, ({}, ({}, {}))'.format(service, vm_ip, container_id, resource)
 
     print 'Second Half'
 
-    for service, (vm_ip, container_id) in standby_dict.iteritems():
-        print '{}, ({},{})'.format(service, vm_ip, container_id)
+    for service, tuplelist in container_id_dict2.iteritems():
+        for (vm_ip, (container_id, resource)) in tuplelist:
+            print '{}, ({}, ({}, {}))'.format(service, vm_ip, container_id, resource)
+
+    print 'Entering loop'
+
+    newtup = (container_id_dict1, container_id_dict2)
+    # Testing if the splitting works (Must override condition in function)
+    while True:
+
+        print 'Splitting First Half'
+
+        newtup = get_updated_container_ids_binary_halving(newtup, ('hi','hi'))
+        if newtup is None:
+            break
+        new1,new2 = newtup
+
+        print 'New First Half'
+
+        for service, tuplelist in new1.iteritems():
+            for (vm_ip, (container_id, resource)) in tuplelist:
+                print '{}, ({}, ({}, {}))'.format(service, vm_ip, container_id, resource)
+
+        print 'New Second Half'
+
+        for service, tuplelist in new2.iteritems():
+            for (vm_ip, (container_id, resource)) in tuplelist:
+                print '{}, ({}, ({}, {}))'.format(service, vm_ip, container_id, resource)
 
     print 'Finished'
