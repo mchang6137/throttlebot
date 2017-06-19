@@ -37,7 +37,7 @@ MAX_NETWORK_BANDWIDTH = 600
 # Bandwidth units: Mbps
 def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
     interface_name = get_container_veth(ssh_client, container_id)
-    
+
     # Execute the command within OVS
     # OVS policy bandwidth accepts inputs in kbps
     bandwidth_kbps = bandwidth * (10 ** 3)
@@ -117,7 +117,7 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
 
 def reset_cpu_quota(ssh_client, container_id):
     # Reset only seems to work when both period and quota are high (and equal of course)
-    update_command = 'docker update --cpu-period=1000000 --cpu-quota=1000000 {}'.format(container_id)
+    update_command = 'docker update --cpu-quota=-1 {}'.format(container_id)
     print 'reset_cpu_quota'
     print update_command
     ssh_exec(ssh_client, update_command)
