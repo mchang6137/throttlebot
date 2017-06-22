@@ -52,7 +52,7 @@ def ssh_exec(ssh_client, cmd):
 def quilt_ssh(ip):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(ip, username="quilt")
+    client.connect(ip, username="quilt", password="")
     return client
 
 def make_single_POST(website_ip):
@@ -65,8 +65,8 @@ def make_single_POST(website_ip):
 
 def delete_posts(website_ip, all_ids):
     url = 'http://' + website_ip + REST_URL + '/'
-    for id in all_ids:
-        requests.delete(url + id)
+    for ids in all_ids:
+        requests.delete(url + ids)
 
 def GET_from_website(website_ip):
     url = 'http://' + website_ip + REST_URL
