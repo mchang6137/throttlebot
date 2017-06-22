@@ -4,7 +4,8 @@ import remote_execution as remote_exec
 from random import shuffle
 
 ### Pre-defined blacklist (Temporary)
-blacklist = []
+blacklist = ['run ovn-controller','/usr/bin/cadvisor -logtostderr --storage_duration=5m0s --allow_dynamic_housekeeping=true --global_housekeeping_interval=3m0s --housekeeping_interval=1s',
+            '/usr/local/bin/etcd --initial-cluster=master-172.31.15.173=http://172.31.15.173:2380 --heartbeat-interval=500 --election-timeout=5000 --proxy=on', 'run ovs-vswitchd', 'run ovsdb-server', 'quilt -l info minion -role=Worker']
 
 ### Functions below are for getting initial container dictionaries
 
@@ -92,7 +93,7 @@ def get_container_ids_halving(vm_ips, services, resources):
 #     results of the stress tests
 def get_updated_container_ids(old_containers, results, stress_policy):
     if stress_policy == 'ALL':
-        return # Will Implement later
+        return None
     elif stress_policy == 'BINARY' or stress_policy == 'HALVING':
         # In this case, old_containers should be a tuple of dictionaries
         return get_updated_container_ids_binary_halving(old_containers, results)
