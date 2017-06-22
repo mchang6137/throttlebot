@@ -153,7 +153,7 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
 #container_id unused: see note in measure_runtime
 def measure_TODO_response_time(container_id, todo_args, iterations):
     REST_server_ip = todo_args[0]
-    req_generator_ip = todo_args[1]
+    ssh_client = todo_args[1]
 
     all_requests = {}
     all_requests['rps'] = []
@@ -164,17 +164,19 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
 
     dummy_utilizations = {}
 
-    NUM_REQUESTS = 1500
-    CONCURRENCY = 700
+    NUM_REQUESTS = 500
+    CONCURRENCY = 200
     ACCEPTABLE_MS = 60
 
-    ssh_client = quilt_ssh(req_generator_ip)
-    post_cmd = 'ab -p post.txt -T application/json -n {} -c {} -e results_file http://{}/api/todos >output.txt'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -e results_file http://{}/api/todos > output.txt'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
 
-    clear_cmd = 'python3 clear_entries.py'
+    clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
+
+    print iterations
 
     for x in range(iterations):
         _, results,_ = ssh_client.exec_command(post_cmd)
+        print post_cmd
         results.read()
 
         rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
