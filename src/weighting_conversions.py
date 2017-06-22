@@ -40,13 +40,15 @@ def weighting_to_disk_access_rate(weighting):
     #INTRA-VM
     MAX_DISK_READ = 70000000
 
-    return int(MAX_DISK_READ * weighting / 100)
+    reduced = 100 - weighting
+    return int(MAX_DISK_READ * reduced / 100)
 
 def weighting_to_cpu_quota(weighting):
     if weighting < 0 or weighting > 100:
         print ('Invalid Weighting')
         return
-    return int(1000000 * weighting / 100)
+    reduced = 100 - weighting
+    return int(1000000 * reduced / 100)
 
 def weighting_to_cpu_period(weighting):
     weighting = float(100 - weighting)
