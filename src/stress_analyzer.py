@@ -4,8 +4,7 @@ import remote_execution as remote_exec
 from random import shuffle
 
 ### Pre-defined blacklist (Temporary)
-blacklist = ['run ovn-controller','/usr/bin/cadvisor -logtostderr --storage_duration=5m0s --allow_dynamic_housekeeping=true --global_housekeeping_interval=3m0s --housekeeping_interval=1s',
-            '/usr/local/bin/etcd --initial-cluster=master-172.31.15.173=http://172.31.15.173:2380 --heartbeat-interval=500 --election-timeout=5000 --proxy=on', 'run ovs-vswitchd', 'run ovsdb-server', 'quilt -l info minion -role=Worker']
+blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest']
 
 ### Functions below are for getting initial container dictionaries
 
@@ -21,23 +20,24 @@ def get_container_ids(vm_ips, services, resources, stress_policy):
 
 # Returns a dictionary of the services and their respective container_ids
 # VM_IPS is a list of ip addresses, and SERVICES is a list of services
-# Note: Services are the container commands (Temporary)
+# Note: Services are the container image names (Temporary)
 def get_container_ids_all(vm_ips, services):
     container_id_dict = {}
     for vm_ip in vm_ips:
         ssh_client = remote_exec.quilt_ssh(vm_ip)
         docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
-        docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
+        # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
+        docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
         _, stdout1, _ = ssh_client.exec_command(docker_container_id)
         container_ids = stdout1.read().splitlines()
-        _, stdout2, _ = ssh_client.exec_command(docker_container_cmd)
-        container_commands = stdout2.read().splitlines()
+        _, stdout2, _ = ssh_client.exec_command(docker_container_image)
+        container_images = stdout2.read().splitlines()
         for i in range(len(container_ids)):
-            if container_commands[i] not in blacklist and (services == '*' or (container_commands[i] in services)):
-                if container_commands[i] in container_id_dict:
-                    container_id_dict[container_commands[i]].append((vm_ip, container_ids[i]))
+            if container_images[i] not in blacklist and (services == '*' or (container_images[i] in services)):
+                if container_images[i] in container_id_dict:
+                    container_id_dict[container_images[i]].append((vm_ip, container_ids[i]))
                 else:
-                    container_id_dict[container_commands[i]] = [(vm_ip, container_ids[i])]
+                    container_id_dict[container_images[i]] = [(vm_ip, container_ids[i])]
 
     return container_id_dict
 
