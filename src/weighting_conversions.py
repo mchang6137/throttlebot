@@ -10,16 +10,16 @@ def weighting_to_latency(weighting):
     return (weighting / 100.0) * MAX_LATENCY
 
 ###Possible substitute using network bandwidth throttling instead of latency values
-###Returns the throttled bandwidth to Mbit/sec
+###Returns the throttled bandwidth to bits/sec
 def weighting_to_bandwidth(ssh_client, weighting, container_to_capacity):
     if weighting < 0 or weighting > 100:
         print 'Invalid Weighting'
         return
 
-    #Convert to stress amount AND convert from Mbps to Kbps
+    #Convert to stress amount AND convert from Mbps to bps
     for container in container_to_capacity:
         reduction = 100 - weighting
-        container_to_capacity[container] = container_to_capacity[container] * (float(reduction) / 100) * 1000
+        container_to_capacity[container] = container_to_capacity[container] * reduction / 100 * 1000000
 
     return container_to_capacity
 
@@ -40,13 +40,15 @@ def weighting_to_disk_access_rate(weighting):
     #INTRA-VM
     MAX_DISK_READ = 70000000
 
-    return int(MAX_DISK_READ * weighting / 100)
+    reduced = 100 - weighting
+    return int(MAX_DISK_READ * reduced / 100)
 
 def weighting_to_cpu_quota(weighting):
     if weighting < 0 or weighting > 100:
         print ('Invalid Weighting')
         return
-    return int(1000000 * weighting / 100)
+    reduced = 100 - weighting
+    return int(1000000 * reduced / 100)
 
 def weighting_to_cpu_period(weighting):
     weighting = float(100 - weighting)

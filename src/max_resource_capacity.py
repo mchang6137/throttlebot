@@ -6,7 +6,7 @@ from container_information import *
 def get_container_network_capacity(ssh_client, container_id):
     # Get the max capacity of the interface
     container_to_capacity = {}
-    cmd = 'cat /sys/class/net/{}/speed'.format(container_name)
+    cmd = 'cat /sys/class/net/{}/speed'.format(container_id)
     _, stdout, _ = ssh_client.exec_command(cmd)
 
     # This is tricky! It will vary by machine. Ignoring the prior command because its a theoretical guarantee and usage will depend on whether it is happening on the cloud or not
