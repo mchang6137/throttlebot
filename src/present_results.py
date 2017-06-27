@@ -100,13 +100,16 @@ def plot_flat_baseline(box_array, metric):
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
 def append_results_to_file(cpu, disk, network, experiment_type, use_causal_analysis, iterations):
-    OUTPUT_DIRECTORY = '/Users/ayctsai/Desktop/TB_Test/'
+    OUTPUT_DIRECTORY = 'results/'
     causal_output = ''
     if use_causal_analysis:
         causal_output = 'causal'
     else:
         causal_output = 'singlestress'
     output_file_name = '{}_{}_{}_{}.csv'.format(experiment_type, causal_output, iterations, datetime.datetime.now())
+
+    if not os.path.exists(OUTPUT_DIRECTORY):
+        os.makedirs(OUTPUT_DIRECTORY)
 
     with open(OUTPUT_DIRECTORY + output_file_name, 'wb') as csvfile:
         fieldnames = ['service', 'container_id', 'metric', 'increment', 'resource', 'mean', 'stddev', 'data_points']
@@ -130,12 +133,9 @@ def append_results_to_file(cpu, disk, network, experiment_type, use_causal_analy
     return OUTPUT_DIRECTORY + output_file_name
 
 def plot_results(data_file, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
-    fig = plt.figure(1, figsize=(9,6))
-    ax = fig.add_subplot(111)
-
     cpu, disk, network = read_from_file(data_file)
 
-    OUTPUT_DIRECTORY = '/Users/ayctsai/Desktop/TB_Test/graphs/'
+    OUTPUT_DIRECTORY = 'results/graphs/'
     causal_output = ''
     if use_causal_analysis:
         causal_output = 'causal'
@@ -151,6 +151,10 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
     for service, containerd in cpu.iteritems():
         for container, data in containerd.iteritems():
             for metric in data.iterkeys():
+
+                fig = plt.figure(1, figsize=(11,6))
+                ax = fig.add_subplot(111)
+
                 box_array_cpu = []
                 box_array_disk = []
                 box_array_network = []
