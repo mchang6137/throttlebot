@@ -269,75 +269,73 @@ def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_i
             reduction_level_to_utilization_disk_container[0] = baseline_utilization_diff
             reduction_level_to_utilization_cpu_container[0] = baseline_utilization_diff
 
-            if only_baseline:
-                return reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network
+            if not only_baseline:
+                for increment in increments:
 
-            for increment in increments:
+                    print 'Experiment with increment={}'.format(increment)
 
-                print 'Experiment with increment={}'.format(increment)
+                    if 'CPU' in resources:
+                        print '====================================='
+                        print 'INITIATING CPU Experiment'
+                        num_full_disk = 0
+                        if use_causal_analysis:
+                            disk_throttle_rate = weighting_to_disk_access_rate(increment)
+                            container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
+                            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
+                            start_causal_cpu(ssh_client, container_id, disk_throttle_rate, network_reduction_rate)
+                        else:
+                            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+                            throttle_cpu(ssh_client, container_id, 1000000, cpu_throttle_quota)
+                        results_data_cpu, cpu_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
+                        if use_causal_analysis:
+                            stop_causal_cpu(ssh_client, container_id)
+                        else:
+                            stop_throttle_cpu(ssh_client, container_id)
+                        reduction_level_to_latency_cpu_container[increment] = results_data_cpu
+                        reduction_level_to_utilization_cpu_container[increment] = cpu_utilization_diff
 
-                if 'CPU' in resources:
-                    print '====================================='
-                    print 'INITIATING CPU Experiment'
-                    num_full_disk = 0
-                    if use_causal_analysis:
-                        disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                        container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                        network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                        start_causal_cpu(ssh_client, container_id, disk_throttle_rate, network_reduction_rate)
-                    else:
-                        cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                        throttle_cpu(ssh_client, container_id, 1000000, cpu_throttle_quota)
-                    results_data_cpu, cpu_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
-                    if use_causal_analysis:
-                        stop_causal_cpu(ssh_client, container_id)
-                    else:
-                        stop_throttle_cpu(ssh_client, container_id)
-                    reduction_level_to_latency_cpu_container[increment] = results_data_cpu
-                    reduction_level_to_utilization_cpu_container[increment] = cpu_utilization_diff
+                    if 'NET' in resources:
+                            print '======================================'
+                            print 'INITIATING Network Experiment'
+                            try:
+                                if use_causal_analysis:
+                                    disk_throttle_rate = weighting_to_disk_access_rate(increment)
+                                    cpu_throttle_quota = weighting_to_cpu_quota(increment)
+                                    start_causal_network(ssh_client, container_id, 1000000, cpu_throttle_quota, disk_throttle_rate)
+                                else:
+                                    container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
+                                    network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
+                                    throttle_network(ssh_client, container_id, network_reduction_rate)
+                                results_data_network, network_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
 
-                if 'NET' in resources:
-                        print '======================================'
-                        print 'INITIATING Network Experiment'
-                        try:
-                            if use_causal_analysis:
-                                disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                                cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                                start_causal_network(ssh_client, container_id, 1000000, cpu_throttle_quota, disk_throttle_rate)
-                            else:
-                                container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                                network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                                throttle_network(ssh_client, container_id, network_reduction_rate)
-                            results_data_network, network_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
-
-                            if use_causal_analysis:
-                                stop_causal_network(ssh_client, container_id)
-                            else:
-                                stop_throttle_network(ssh_client, container_id)
-                            reduction_level_to_latency_network_container[increment] = results_data_network
-                            reduction_level_to_utilization_network_container[increment] = network_utilization_diff
-                        except:
-                            print 'Passed NET'
-                            reduction_level_to_latency_network_container[increment] = reduction_level_to_latency_network_container[0]
-                            reduction_level_to_utilization_network_container[increment] = reduction_level_to_utilization_network_container[0]
-                if 'DISK' in resources:
-                    print '======================================='
-                    print 'INITIATING Disk Experiment '
-                    if use_causal_analysis:
-                        cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                        container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                        network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                        start_causal_disk(ssh_client, container_id, 1000000, cpu_throttle_quota, network_reduction_rate)
-                    else:
-                        disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                        throttle_disk(ssh_client, container_id, disk_throttle_rate)
-                    results_data_disk, disk_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
-                    if use_causal_analysis:
-                        stop_causal_disk(ssh_client, container_id)
-                    else:
-                        stop_throttle_disk(ssh_client, container_id)
-                    reduction_level_to_latency_disk_container[increment] = results_data_disk
-                    reduction_level_to_utilization_disk_container[increment] = disk_utilization_diff
+                                if use_causal_analysis:
+                                    stop_causal_network(ssh_client, container_id)
+                                else:
+                                    stop_throttle_network(ssh_client, container_id)
+                                reduction_level_to_latency_network_container[increment] = results_data_network
+                                reduction_level_to_utilization_network_container[increment] = network_utilization_diff
+                            except:
+                                print 'Passed NET'
+                                reduction_level_to_latency_network_container[increment] = reduction_level_to_latency_network_container[0]
+                                reduction_level_to_utilization_network_container[increment] = reduction_level_to_utilization_network_container[0]
+                    if 'DISK' in resources:
+                        print '======================================='
+                        print 'INITIATING Disk Experiment '
+                        if use_causal_analysis:
+                            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+                            container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
+                            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
+                            start_causal_disk(ssh_client, container_id, 1000000, cpu_throttle_quota, network_reduction_rate)
+                        else:
+                            disk_throttle_rate = weighting_to_disk_access_rate(increment)
+                            throttle_disk(ssh_client, container_id, disk_throttle_rate)
+                        results_data_disk, disk_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
+                        if use_causal_analysis:
+                            stop_causal_disk(ssh_client, container_id)
+                        else:
+                            stop_throttle_disk(ssh_client, container_id)
+                        reduction_level_to_latency_disk_container[increment] = results_data_disk
+                        reduction_level_to_utilization_disk_container[increment] = disk_utilization_diff
 
             reduction_level_to_latency_network_service[container_id] = reduction_level_to_latency_network_container
             reduction_level_to_latency_disk_service[container_id] = reduction_level_to_latency_disk_container
@@ -424,6 +422,14 @@ if __name__ == "__main__":
             socket.inet_aton(ip)
         except:
             print 'IP {} is invalid'.format(ip)
+            exit()
+
+    website_addresses = args.website_ip.split(',')
+    for website in website_addresses:
+        try:
+            socket.inet_aton(website)
+        except:
+            print 'Website IP {} is invalid'.format(website)
             exit()
 
     if args.traffic_generator_public_ip:
