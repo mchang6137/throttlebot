@@ -24,7 +24,7 @@ def get_container_ids(vm_ips, services, resources, stress_policy):
 def get_container_ids_all(vm_ips, services):
     container_id_dict = {}
     for vm_ip in vm_ips:
-        ssh_client = remote_exec.quilt_ssh(vm_ip)
+        ssh_client = remote_exec.get_client(vm_ip)
         docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
         # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
         docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
