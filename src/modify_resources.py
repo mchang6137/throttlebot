@@ -54,8 +54,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
     if len(err_val_rate.readlines()) != 0:
         print 'ERROR: Stress of container id {} network failed'.format(container_id)
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
-        raise ValueError('Network Set Error')
-        return -1
+        raise SystemError('Network Set Error')
     else:
         print 'SUCCESS: Stress of container id {} stressed to {}'.format(container_id, bandwidth)
         return 1
@@ -71,7 +70,7 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
     if len(err_val_rate.readlines()) != 0:
         print 'ERROR: Resetting of container id {} network failed'.format(container_id)
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
-        return -1
+        raise SystemError('Network Set Error')
     else:
         print 'SUCCESS: Stress of container id {} removed'.format(container_id)
         return 1
