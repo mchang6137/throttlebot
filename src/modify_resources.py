@@ -54,8 +54,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
     if len(err_val_rate.readlines()) != 0:
         print 'ERROR: Stress of container id {} network failed'.format(container_id)
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
-        raise ValueError('Network Set Error')
-        return -1
+        raise SystemError('Network Set Error')
     else:
         print 'SUCCESS: Stress of container id {} stressed to {}'.format(container_id, bandwidth)
         return 1
@@ -71,7 +70,7 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
     if len(err_val_rate.readlines()) != 0:
         print 'ERROR: Resetting of container id {} network failed'.format(container_id)
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
-        return -1
+        raise SystemError('Network Set Error')
     else:
         print 'SUCCESS: Stress of container id {} removed'.format(container_id)
         return 1
@@ -89,7 +88,7 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
             return
         else:
             for machine in all_machines:
-                temp_ssh_client = quilt_ssh(machine)
+                temp_ssh_client = get_client(machine)
                 container_ids = get_container_id(temp_ssh_client, full_id=False, append_c=False)
                 for container in container_ids:
                     cmd = "sudo tc qdisc del dev {} root".format(container)
@@ -126,6 +125,25 @@ def reset_cpu_quota(ssh_client, container_id):
     print 'reset_cpu_quota'
     print update_command
     ssh_exec(ssh_client, update_command)
+
+
+# Pins the selected cores to the container (will reset any CPU quotas)
+# Hardcoded cpuset-mems for now
+def set_cpu_cores(ssh_client, container_id, cores):
+    reset_cpu_quota(ssh_client, container_id) # CPU quotas conflict with core pinning
+    rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(cores, container_id)
+    ssh_exec(ssh_client, rst_cores_cmd)
+    print 'Cores {} pinned to container {}'.format(cores, container_id)
+
+
+# Resetting pinned cpu_cores (container will have access to all cores)
+def reset_cpu_cores(ssh_client, container_id):
+    cores = get_num_cores(ssh_client) - 1
+    core_cmd = '0-{}'.format(cores)
+    rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
+    ssh_exec(ssh_client, rst_cores_cmd)
+    print 'Reset container {}\'s core restraints'.format(container_id)
+
 
 # LEGACY (All functions that throttle CPU through stress are legacy functions kept for reference)
 # Indicates the number of 10%-stress that is introduced into the system
@@ -395,6 +413,13 @@ def get_utilization_diff(initial_utilization, final_utilization):
     utilization_diff['disk'] = final_utilization['disk'] - initial_utilization['disk']
     return utilization_diff
 
+
+def get_num_cores(ssh_client):
+    num_cores_cmd = 'nproc --all'
+    _, stdout, _ = ssh_client.exec_command(num_cores_cmd)
+    return int(stdout.read())
+
+
 def get_current_memory(ssh_client):
     """Returns a tuple (memory size, unit) where unit is B, K, M, or G."""
     _, stdout, _ = ssh_client.exec_command("docker info | grep 'Total Memory: '")
@@ -423,7 +448,7 @@ if __name__ == "__main__":
     parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling'
     )
     args = parser.parse_args()
-    ssh_client = quilt_ssh(args.public_vm_ip)
+    ssh_client = get_client(args.public_vm_ip)
     container_id = args.container_id
     cpu_period = args.cpu_period
     cpu_quota = args.cpu_quota

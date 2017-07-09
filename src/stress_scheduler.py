@@ -389,7 +389,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print args
 
-#   ssh_client = quilt_ssh(args.victim_machine_public_ip)
+#   ssh_client = get_client(args.victim_machine_public_ip)
 #   experiment_args = [args.website_ip, args.traffic_generator_public_ip]
 #   explore_stress_space(ssh_client, 'disk', experiment_args, args.experiment_type, 4000, 250, 'latency')
 #   exit()
@@ -439,14 +439,14 @@ if __name__ == "__main__":
             print 'Traffic Generator IP {} is invalid'.format(args.traffic_generator_public_ip)
             exit()
         # Installng dependencies on traffic generator client
-        traffic_client = quilt_ssh(args.traffic_generator_public_ip)
+        traffic_client = get_client(args.traffic_generator_public_ip)
         ssh_exec(traffic_client, 'sudo apt-get install -y apache2-utils')
 
     # Creating dictionary of SSH CLIENTS
     victim_ips = args.victim_machine_public_ip.split(',')
     ssh_clients = {}
     for victim_ip in victim_ips:
-        ssh_clients[victim_ip] = quilt_ssh(victim_ip)
+        ssh_clients[victim_ip] = get_client(victim_ip)
 
     # Retrieving dictionary of container_ids with service names as keys
     container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)

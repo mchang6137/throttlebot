@@ -24,7 +24,7 @@ def POST_to_website(website_ip, num_iterations, num_threads=4, remote=False, ssh
         scp_upload = "scp -oStrictHostKeyChecking=no {} {} quilt@{}:~".format(REMOTE_POST_SCRIPT, CONFIG_SCRIPT, ssh_ip)
         subprocess.call(scp_upload, shell=True)
 
-        ssh_client = quilt_ssh(ssh_ip)
+        ssh_client = get_client(ssh_ip)
         config_cmd = "chmod +x {c} && ./{c}".format(c=CONFIG_SCRIPT)
         measure_cmd = "python3 {} {} --iterations {} --threads {}".format(REMOTE_POST_SCRIPT, website_ip, num_iterations, num_threads)
         ssh_exec(ssh_client, config_cmd)
@@ -49,7 +49,7 @@ def ssh_exec(ssh_client, cmd):
     if err:
         print ("Error execing {}: {}".format(cmd, err))
 
-def quilt_ssh(ip):
+def get_client(ip):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(ip, username="quilt", password="")

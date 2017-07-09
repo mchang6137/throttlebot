@@ -23,7 +23,7 @@ def measure_runtime(container_id, experiment_args, experiment_iterations, experi
 
 #Resets all parameters of the experiment to default values
 def reset_experiment(vm_ip, container_id):
-    ssh_client = quilt_ssh(vm_ip)
+    ssh_client = get_client(vm_ip)
     reset_all_stresses(ssh_client, container_id)
     try:
         clear_all_entries(vm_ip)
@@ -46,8 +46,8 @@ def measure_nginx_single_machine(container_id, experiment_args, experiment_itera
     nginx_public_ip = experiment_args[0]
     traffic_generate_machine = experiment_args[1]
 
-    ssh_client = quilt_ssh(traffic_generate_machine)
-    nginx_ssh_client = quilt_ssh(nginx_public_ip)
+    ssh_client = get_client(traffic_generate_machine)
+    nginx_ssh_client = get_client(nginx_public_ip)
 
     NUM_REQUESTS = 5
     CONCURRENCY = 1
@@ -99,7 +99,7 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
 
     spark_master_public_ip = spark_args[0]
     spark_master_private_ip = spark_args[1]
-    ssh_client = quilt_ssh(spark_master_public_ip)
+    ssh_client = get_client(spark_master_public_ip)
     spark_class = '--class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent '
     driver_class = '--driver-class-path ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar ml-matrix-master/target/scala-2.10/mlmatrix-assembly-0.1.1.jar '
     driver_memory = '--driver-memory 6G '
