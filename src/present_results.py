@@ -66,8 +66,8 @@ def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number,
 
 def plot_interpolation(box_array, metric, resource, experiment_type='changeme!', service='changeme!', container_id='changeme!'):
     median_box = [numpy.median(increment_result) for increment_result in box_array]
-    x = [0, 20, 40, 60, 80]
-    # x = [0, 50] # TESTING
+    # x = [0, 20, 40, 60, 80]
+    x = [0, 50] # TESTING
     std_dev = [numpy.std(increment_result) for increment_result in box_array]
     plt.xlim(-5, 85)
     font = {'family':'serif','serif':['Times']}
@@ -89,7 +89,6 @@ def plot_interpolation(box_array, metric, resource, experiment_type='changeme!',
     line, = plt.plot(x, median_box, lw=3, label=resource, color=line_color)
     # plt.legend(handles=[line])
     plt.errorbar(x, median_box, std_dev, lw=error_length, color=line_color)
-    plt.grid()
     return line
 
 def plot_flat_baseline(box_array, metric):
@@ -99,7 +98,7 @@ def plot_flat_baseline(box_array, metric):
     flat_line = [median] * 5
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
-def append_results_to_file(cpu, disk, network, experiment_type, use_causal_analysis, iterations):
+def append_results_to_file(cpu, disk, network, resources, experiment_type, use_causal_analysis, iterations):
     OUTPUT_DIRECTORY = 'results/'
     causal_output = ''
     if use_causal_analysis:
@@ -122,17 +121,28 @@ def append_results_to_file(cpu, disk, network, experiment_type, use_causal_analy
                 for metric in all_metric_keys:
                     for increment_key in sorted(data.iterkeys()):
                     #Iterate through different metrics
-                        results_cpu = cpu[service][container][increment_key][metric]
-                        results_disk = disk[service][container][increment_key][metric]
-                        results_network = network[service][container][increment_key][metric]
-
-                        writer.writerow({'service': service, 'container_id': container, 'metric': metric, 'increment': increment_key, 'resource': 'cpu', 'mean': numpy.mean(results_cpu), 'stddev': numpy.std(results_cpu), 'data_points': results_cpu})
-                        writer.writerow({'service': service, 'container_id': container, 'metric': metric, 'increment': increment_key, 'resource': 'disk', 'mean': numpy.mean(results_disk), 'stddev': numpy.std(results_disk), 'data_points': results_disk})
-                        writer.writerow({'service': service, 'container_id': container, 'metric': metric, 'increment': increment_key, 'resource': 'network', 'mean': numpy.mean(results_network), 'stddev': numpy.std(results_network), 'data_points': results_network})
+                        if 'CPU' in resources:
+                            results_cpu = cpu[service][container][increment_key][metric]
+                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
+                                             'increment': increment_key, 'resource': 'cpu',
+                                             'mean': numpy.mean(results_cpu), 'stddev': numpy.std(results_cpu),
+                                             'data_points': results_cpu})
+                        if 'DISK' in resources:
+                            results_disk = disk[service][container][increment_key][metric]
+                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
+                                             'increment': increment_key, 'resource': 'disk',
+                                             'mean': numpy.mean(results_disk), 'stddev': numpy.std(results_disk),
+                                             'data_points': results_disk})
+                        if 'NET' in resources:
+                            results_network = network[service][container][increment_key][metric]
+                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
+                                             'increment': increment_key, 'resource': 'network',
+                                             'mean': numpy.mean(results_network), 'stddev': numpy.std(results_network),
+                                             'data_points': results_network})
 
     return OUTPUT_DIRECTORY + output_file_name
 
-def plot_results(data_file, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
+def plot_results(data_file, resources, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
     cpu, disk, network = read_from_file(data_file)
 
     OUTPUT_DIRECTORY = 'results/graphs/'
@@ -147,8 +157,16 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
     if not os.path.exists(OUTPUT_DIRECTORY + output_dir_name):
         os.makedirs(OUTPUT_DIRECTORY + output_dir_name)
 
+    # Checking for used resource
+    base = None
+    if 'CPU' in resources:
+        base = cpu
+    elif 'NET' in resources:
+        base = network
+    elif 'DISK' in resources:
+        base = disk
 
-    for service, containerd in cpu.iteritems():
+    for service, containerd in base.iteritems():
         for container, data in containerd.iteritems():
             for metric in data.iterkeys():
 
@@ -165,9 +183,12 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
 
                 for increment_key in sorted(data[metric].iterkeys()):
                     # Iterate through different metrics
-                    results_cpu = ast.literal_eval(cpu[service][container][metric][increment_key])
-                    results_disk = ast.literal_eval(disk[service][container][metric][increment_key])
-                    results_network = ast.literal_eval(network[service][container][metric][increment_key])
+                    if 'CPU' in resources:
+                        results_cpu = ast.literal_eval(cpu[service][container][metric][increment_key])
+                    if 'DISK' in resources:
+                        results_disk = ast.literal_eval(disk[service][container][metric][increment_key])
+                    if 'NET' in resources:
+                        results_network = ast.literal_eval(network[service][container][metric][increment_key])
 
                     # results_cpu = [result - baseline_results for result in results_cpu]
                     # results_disk = [result - baseline_results for result in results_disk]
@@ -177,42 +198,48 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
                     print 'FOR CONTAINER {} OF SERVICE {}'.format(container, service)
                     print 'THE METRIC IS: {}'.format(metric)
                     print 'For Key: {}'.format(increment_key)
-                    print 'CPU stats:'
-                    print 'Mean: {}'.format(numpy.mean(results_cpu))
-                    print 'Standard Deviation: {}\n'.format(numpy.std(results_cpu))
+                    if 'CPU' in resources:
+                        print 'CPU stats:'
+                        print 'Mean: {}'.format(numpy.mean(results_cpu))
+                        print 'Standard Deviation: {}\n'.format(numpy.std(results_cpu))
 
-                    print 'Disk Stats: '
-                    print 'Mean: {}'.format(numpy.mean(results_disk))
-                    print 'Standard Deviation: {}\n'.format(numpy.std(results_disk))
+                    if 'DISK' in resources:
+                        print 'Disk Stats: '
+                        print 'Mean: {}'.format(numpy.mean(results_disk))
+                        print 'Standard Deviation: {}\n'.format(numpy.std(results_disk))
 
-                    print 'Network Stats: '
-                    print 'Mean: {}'.format(numpy.mean(results_network))
-                    print 'Standard Deviation: {}\n'.format(numpy.std(results_network))
+                    if 'NET' in resources:
+                        print 'Network Stats: '
+                        print 'Mean: {}'.format(numpy.mean(results_network))
+                        print 'Standard Deviation: {}\n'.format(numpy.std(results_network))
 
                     axis_labels.append(increment_key)
-                    try:
-                        temp_array_cpu = numpy.array(results_cpu)
-                        # no_outliers_cpu = temp_array_cpu[~is_outlier(results_cpu)]
-                        box_array_cpu.append(temp_array_cpu)
-                    except:
-                        print 'CPU FAILED'
+                    if 'CPU' in resources:
+                        try:
+                            temp_array_cpu = numpy.array(results_cpu)
+                            # no_outliers_cpu = temp_array_cpu[~is_outlier(results_cpu)]
+                            box_array_cpu.append(temp_array_cpu)
+                        except:
+                            print 'CPU FAILED'
 
-                    try:
-                        temp_array_disk = numpy.array(results_disk)
-                        # no_outliers_disk = temp_array_disk[~is_outlier(results_disk)]
-                        box_array_disk.append(temp_array_disk)
-                    except:
-                        print 'DISK FAILED'
+                    if 'DISK' in resources:
+                        try:
+                            temp_array_disk = numpy.array(results_disk)
+                            # no_outliers_disk = temp_array_disk[~is_outlier(results_disk)]
+                            box_array_disk.append(temp_array_disk)
+                        except:
+                            print 'DISK FAILED'
 
-                    try:
-                        temp_array_network = numpy.array(results_network)
-                        # no_outliers_network = temp_array_network[~is_outlier(results_network)]
-                        box_array_network.append(temp_array_network)
-                    except:
-                        print 'NETWORK FAILED'
+                    if 'NET' in resources:
+                        try:
+                            temp_array_network = numpy.array(results_network)
+                            # no_outliers_network = temp_array_network[~is_outlier(results_network)]
+                            box_array_network.append(temp_array_network)
+                        except:
+                            print 'NETWORK FAILED'
 
-                ymin = 1.05 * min(find_min_point(box_array_cpu), find_min_point(box_array_disk), find_min_point(box_array_network))
-                ymax = 1.2 * max(find_max_point(box_array_cpu), find_max_point(box_array_disk), find_max_point(box_array_network))
+                # ymin = 1.05 * min(find_min_point(box_array_cpu), find_min_point(box_array_disk), find_min_point(box_array_network))
+                # ymax = 1.2 * max(find_max_point(box_array_cpu), find_max_point(box_array_disk), find_max_point(box_array_network))
 
                 # Plots the boxplots
                 # plot_boxplot(axis_labels, box_array_disk, metric, 'Disk', 222, use_causal_analysis, ymin, ymax)
@@ -220,13 +247,18 @@ def plot_results(data_file, experiment_type, iterations, should_save, convertToM
                 # plot_boxplot(axis_labels, box_array_cpu, metric, 'CPU', 223, use_causal_analysis, ymin, ymax)
 
                 # Plots through the medians
-                plot_interpolation(box_array_disk, metric, 'Disk')
-                plot_interpolation(box_array_network, metric, 'Network')
-                plot_interpolation(box_array_cpu, metric, 'CPU', experiment_type, service, container)
-
-                plot_flat_baseline(box_array_disk, metric)
+                if 'DISK' in resources:
+                    plot_interpolation(box_array_disk, metric, 'Disk')
+                    plot_flat_baseline(box_array_disk, metric)
+                if 'NET' in resources:
+                    plot_interpolation(box_array_network, metric, 'Network')
+                    plot_flat_baseline(box_array_network, metric)
+                if 'CPU' in resources:
+                    plot_interpolation(box_array_cpu, metric, 'CPU', experiment_type, service, container)
+                    plot_flat_baseline(box_array_cpu, metric)
 
                 plt.legend(loc=(0.05, 0.6))
+                plt.grid()
 
                 graph_file = OUTPUT_DIRECTORY + output_dir_name + '/' + container + metric + '.png'
                 # graph_file = './' + output_dir_name +  metric + '.png'
@@ -262,8 +294,9 @@ def find_max_point(results):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("output_file", help="File containing results" )
+    parser.add_argument("resources_to_stress", help="List of resources to throttle")
     args = parser.parse_args()
     print args
     results_in_milli = False
 
-    plot_results(args.output_file, 'todo-app', 2, 'save', False, False)
+    plot_results(args.output_file, args.resources_to_stress.split(','), 'todo-app', 1, 'save', False, False)
