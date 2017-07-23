@@ -66,8 +66,8 @@ def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number,
 
 def plot_interpolation(box_array, metric, resource, experiment_type='changeme!', service='changeme!', container_id='changeme!'):
     median_box = [numpy.median(increment_result) for increment_result in box_array]
-    # x = [0, 20, 40, 60, 80]
-    x = [0, 50] # TESTING
+    x = [0, 20, 40, 60, 80]
+    # x = [0, 50] # TESTING
     std_dev = [numpy.std(increment_result) for increment_result in box_array]
     plt.xlim(-5, 85)
     font = {'family':'serif','serif':['Times']}
@@ -115,7 +115,16 @@ def append_results_to_file(cpu, disk, network, resources, experiment_type, use_c
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
-        for service, containerd in disk.iteritems():
+        # Checking for used resource
+        base = None
+        if 'CPU' in resources:
+            base = cpu
+        elif 'NET' in resources:
+            base = network
+        elif 'DISK' in resources:
+            base = disk
+
+        for service, containerd in base.iteritems():
             for container, data in containerd.iteritems():
                 all_metric_keys = data[0].keys()
                 for metric in all_metric_keys:
@@ -248,10 +257,10 @@ def plot_results(data_file, resources, experiment_type, iterations, should_save,
 
                 # Plots through the medians
                 if 'DISK' in resources:
-                    plot_interpolation(box_array_disk, metric, 'Disk')
+                    plot_interpolation(box_array_disk, metric, 'Disk', experiment_type, service, container)
                     plot_flat_baseline(box_array_disk, metric)
                 if 'NET' in resources:
-                    plot_interpolation(box_array_network, metric, 'Network')
+                    plot_interpolation(box_array_network, metric, 'Network', experiment_type, service, container)
                     plot_flat_baseline(box_array_network, metric)
                 if 'CPU' in resources:
                     plot_interpolation(box_array_cpu, metric, 'CPU', experiment_type, service, container)

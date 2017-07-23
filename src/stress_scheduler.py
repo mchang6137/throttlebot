@@ -271,8 +271,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_i
             reduction_level_to_utilization_cpu_container = {}
 
             #Take baseline measurements: no perturbations!'''
-            # BASELINE_ITERATIONS = 10
-            BASELINE_ITERATIONS = 1 # For fast Benchmarking
+            BASELINE_ITERATIONS = 10
+            # BASELINE_ITERATIONS = 1 # For fast Benchmarking
             experiment_args[0] = vm_ip
             print 'EX ARG 0 {}'.format(experiment_args[0])
             baseline_runtime_array, baseline_utilization_diff = measure_runtime(container_id, experiment_args, BASELINE_ITERATIONS, experiment_type)
@@ -410,7 +410,7 @@ if __name__ == "__main__":
     parser.add_argument("--stress_all_resources", action="store_true", help="Throttle all resources")
     parser.add_argument("--cpu_cores", action="store_true", help="Use CPU core throttling")
     parser.add_argument("--stress_search_policy", help="Type of stress policy")
-    parser.add_argument("--iterations", type=int, default=1, help="Number of HTTP requests to send the REST server per experiment")
+    parser.add_argument("--iterations", type=int, default=7, help="Number of HTTP requests to send the REST server per experiment")
     parser.add_argument("--use_causal_analysis", action="store_true", help="Set this option to stress only a single variable")
     parser.add_argument("--only_baseline", action="store_true", help="Only takes a measurement of the baseline without any stress")
 
