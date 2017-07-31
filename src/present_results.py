@@ -9,7 +9,7 @@ import os
 from remote_execution import *
 from matplotlib.backends.backend_pdf import PdfPages
 
-def read_from_file(data_file):
+def read_from_file(data_file, resume_boolean):
     cpu = {}
     disk = {}
     network = {}
@@ -34,17 +34,34 @@ def read_from_file(data_file):
                 disk[service][container_id] = {}
                 network[service][container_id] = {}
 
-            if metric not in cpu[service][container_id]:
-                cpu[service][container_id][metric] = {}
-                disk[service][container_id][metric] = {}
-                network[service][container_id][metric] = {}
+            # Accounting for the swapped metric/increment
+            if resume_boolean:
+                stress_level = int(stress_level)
+                if stress_level not in cpu[service][container_id]:
+                    cpu[service][container_id][stress_level] = {}
+                    disk[service][container_id][stress_level] = {}
+                    network[service][container_id][stress_level] = {}
 
-            if resource == 'cpu':
-                cpu[service][container_id][metric][stress_level] = results
-            elif resource == 'disk':
-                disk[service][container_id][metric][stress_level] = results
-            elif resource == 'network':
-                network[service][container_id][metric][stress_level] = results
+                int_list_results = [float(numb) for numb in results[1:-1].split(',')]
+
+                if resource == 'cpu':
+                    cpu[service][container_id][stress_level][metric] = int_list_results
+                elif resource == 'disk':
+                    disk[service][container_id][stress_level][metric] = int_list_results
+                elif resource == 'network':
+                    network[service][container_id][stress_level][metric] = int_list_results
+            else:
+                if metric not in cpu[service][container_id]:
+                    cpu[service][container_id][metric] = {}
+                    disk[service][container_id][metric] = {}
+                    network[service][container_id][metric] = {}
+
+                if resource == 'cpu':
+                    cpu[service][container_id][metric][stress_level] = results
+                elif resource == 'disk':
+                    disk[service][container_id][metric][stress_level] = results
+                elif resource == 'network':
+                    network[service][container_id][metric][stress_level] = results
 
     return cpu, disk, network
 
@@ -98,14 +115,20 @@ def plot_flat_baseline(box_array, metric):
     flat_line = [median] * 5
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
-def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations):
+def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations, finished_boolean):
     OUTPUT_DIRECTORY = 'results/'
     causal_output = ''
     if use_causal_analysis:
         causal_output = 'causal'
     else:
         causal_output = 'singlestress'
-    output_file_name = '{}_{}_{}_{}.csv'.format(experiment_type, causal_output, iterations, datetime.datetime.now())
+
+    if finished_boolean:
+        status = 'Full'
+    else:
+        status = 'Checkpoint'
+
+    output_file_name = '{}_{}_{}_{}_{}.csv'.format(status, experiment_type, causal_output, iterations, datetime.datetime.now())
 
     if not os.path.exists(OUTPUT_DIRECTORY):
         os.makedirs(OUTPUT_DIRECTORY)
@@ -152,7 +175,7 @@ def append_results_to_file(cpu, disk, network, resources, increments, experiment
     return OUTPUT_DIRECTORY + output_file_name
 
 def plot_results(data_file, resources, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
-    cpu, disk, network = read_from_file(data_file)
+    cpu, disk, network = read_from_file(data_file, False)
 
     OUTPUT_DIRECTORY = 'results/graphs/'
     causal_output = ''
