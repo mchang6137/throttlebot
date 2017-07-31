@@ -225,7 +225,7 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
 
         counter += 1
 
-def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_iterations, experiment_type, stress_policy, resources, use_causal_analysis, only_baseline):
+def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experiment_iterations, experiment_type, stress_policy, resources, use_causal_analysis, only_baseline):
 
     reduction_level_to_latency_network = {}
     reduction_level_to_latency_disk = {}
@@ -234,6 +234,9 @@ def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_i
     reduction_level_to_utilization_network = {}
     reduction_level_to_utilization_disk = {}
     reduction_level_to_utilization_cpu = {}
+
+    increment_values = experiment_inc_args[0]
+    experiment_args = experiment_inc_args[1]
 
     for service, ip_container_tuples in container_ids_dict.iteritems():
         print 'STRESSING SERVICE {}'.format(service)
@@ -258,9 +261,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_i
             # initialize_machine(ssh_client) LEGACY
             reset_all_stresses(ssh_client, container_id, cpu_cores)
 
-            # increments = [20, 40, 60, 80]
-            increments = [50] # For experimental purposes
-            shuffle(increments)
+            shuffle(increment_values)
 
             reduction_level_to_latency_network_container = {}
             reduction_level_to_latency_disk_container = {}
@@ -272,20 +273,23 @@ def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_i
 
             #Take baseline measurements: no perturbations!'''
             BASELINE_ITERATIONS = 10
-            # BASELINE_ITERATIONS = 1 # For fast Benchmarking
+            # BASELINE_ITERATIONS = 3 # For fast Benchmarking
             experiment_args[0] = vm_ip
             print 'EX ARG 0 {}'.format(experiment_args[0])
-            baseline_runtime_array, baseline_utilization_diff = measure_runtime(container_id, experiment_args, BASELINE_ITERATIONS, experiment_type)
-            reduction_level_to_latency_network_container[0] = baseline_runtime_array
-            reduction_level_to_latency_disk_container[0] = baseline_runtime_array
-            reduction_level_to_latency_cpu_container[0] = baseline_runtime_array
+            if 0 in increment_values:
+                baseline_runtime_array, baseline_utilization_diff = measure_runtime(container_id, experiment_args, BASELINE_ITERATIONS, experiment_type)
+                reduction_level_to_latency_network_container[0] = baseline_runtime_array
+                reduction_level_to_latency_disk_container[0] = baseline_runtime_array
+                reduction_level_to_latency_cpu_container[0] = baseline_runtime_array
 
-            reduction_level_to_utilization_network_container[0] = baseline_utilization_diff
-            reduction_level_to_utilization_disk_container[0] = baseline_utilization_diff
-            reduction_level_to_utilization_cpu_container[0] = baseline_utilization_diff
+                reduction_level_to_utilization_network_container[0] = baseline_utilization_diff
+                reduction_level_to_utilization_disk_container[0] = baseline_utilization_diff
+                reduction_level_to_utilization_cpu_container[0] = baseline_utilization_diff
 
             if not only_baseline:
-                for increment in increments:
+                for increment in increment_values:
+                    if increment == 0:
+                        continue
 
                     print 'Experiment with increment={}'.format(increment)
 
@@ -413,6 +417,7 @@ if __name__ == "__main__":
     parser.add_argument("--iterations", type=int, default=7, help="Number of HTTP requests to send the REST server per experiment")
     parser.add_argument("--use_causal_analysis", action="store_true", help="Set this option to stress only a single variable")
     parser.add_argument("--only_baseline", action="store_true", help="Only takes a measurement of the baseline without any stress")
+    parser.add_argument("--increments", help="The increments of stressing")
 
     args = parser.parse_args()
     print args
@@ -512,6 +517,21 @@ if __name__ == "__main__":
     else:
         print 'Using CPU Quota Throttling'
 
+    # Getting increments
+    if not args.increments:
+        increments = [0, 20, 40, 60, 80]
+    else:
+        if args.only_baseline:
+            print 'Cannot specify increments when only_baseline is true'
+            exit()
+        string_increments = args.increments.split(',')
+        try:
+            increments = map(int, string_increments)
+        except:
+            print 'ERROR: Increments must be integers'
+            exit()
+    experiment_inc_args = [increments, experiment_args]
+
     while continue_stressing:
         # Reset results dictionary for each iteration
         results_disk = {}
@@ -519,10 +539,10 @@ if __name__ == "__main__":
         results_network = {}
 
         if stress_policy == 'BINARY' or stress_policy == 'HALVING':
-            results1 = model_machine(ssh_clients, container_ids_dict1, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
-            results2 = model_machine(ssh_clients, container_ids_dict2, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
+            results1 = model_machine(ssh_clients, container_ids_dict1, experiment_inc_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
+            results2 = model_machine(ssh_clients, container_ids_dict2, experiment_inc_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
         else: # More will be added as more search policies are implemented
-            results = model_machine(ssh_clients, container_ids_dict, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
+            results = model_machine(ssh_clients, container_ids_dict, experiment_inc_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
 
         if args.experiment_type == 'REST':
             for service, (vm_ip, container_id) in container_ids_dict:
@@ -546,5 +566,5 @@ if __name__ == "__main__":
                 results, _ = results
             results_cpu, results_disk, results_network = results
 
-    output_file_name = append_results_to_file(results_cpu, results_disk, results_network, resources, args.experiment_type, args.use_causal_analysis, args.iterations)
+    output_file_name = append_results_to_file(results_cpu, results_disk, results_network, resources, increments, args.experiment_type, args.use_causal_analysis, args.iterations)
     plot_results(output_file_name, resources, args.experiment_type, args.iterations, 'save', convertToMilli=results_in_milli, use_causal_analysis=args.use_causal_analysis)

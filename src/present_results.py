@@ -98,7 +98,7 @@ def plot_flat_baseline(box_array, metric):
     flat_line = [median] * 5
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
-def append_results_to_file(cpu, disk, network, resources, experiment_type, use_causal_analysis, iterations):
+def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations):
     OUTPUT_DIRECTORY = 'results/'
     causal_output = ''
     if use_causal_analysis:
@@ -126,7 +126,7 @@ def append_results_to_file(cpu, disk, network, resources, experiment_type, use_c
 
         for service, containerd in base.iteritems():
             for container, data in containerd.iteritems():
-                all_metric_keys = data[0].keys()
+                all_metric_keys = data[min(increments)].keys()
                 for metric in all_metric_keys:
                     for increment_key in sorted(data.iterkeys()):
                     #Iterate through different metrics
@@ -258,12 +258,16 @@ def plot_results(data_file, resources, experiment_type, iterations, should_save,
                 # Plots through the medians
                 if 'DISK' in resources:
                     plot_interpolation(box_array_disk, metric, 'Disk', experiment_type, service, container)
-                    plot_flat_baseline(box_array_disk, metric)
                 if 'NET' in resources:
                     plot_interpolation(box_array_network, metric, 'Network', experiment_type, service, container)
-                    plot_flat_baseline(box_array_network, metric)
                 if 'CPU' in resources:
                     plot_interpolation(box_array_cpu, metric, 'CPU', experiment_type, service, container)
+
+                if 'DISK' in resources:
+                    plot_flat_baseline(box_array_disk, metric)
+                elif 'NET' in resources:
+                    plot_flat_baseline(box_array_network, metric)
+                elif 'DISK' in resources:
                     plot_flat_baseline(box_array_cpu, metric)
 
                 plt.legend(loc=(0.05, 0.6))
