@@ -53,3 +53,13 @@ def weighting_to_cpu_quota(weighting):
 def weighting_to_cpu_period(weighting):
     weighting = float(100 - weighting)
     return weighting/100
+
+def get_num_cores(ssh_client):
+    num_cores_cmd = 'nproc --all'
+    _, stdout, _ = ssh_client.exec_command(num_cores_cmd)
+    return int(stdout.read())
+
+def weighting_to_cpu_cores(ssh_client, weighting):
+    total_cores = get_num_cores(ssh_client)
+    num_cores = int(round(float(total_cores) * (float(100 - weighting) / 100)))
+    return 1 if num_cores == 0 else num_cores

@@ -93,7 +93,7 @@ if __name__ == "__main__":
             except:
                 error_message(line_numb, 'cpu')
                 exit()
-            if cpu_value == 0:
+            if cpu_percentage == 0:
                 reset_cpu_quota(ssh_client, container_id)
             else:
                 set_cpu_cores(ssh_client, container_id, 0)

@@ -17,8 +17,10 @@ def measure_runtime(container_id, experiment_args, experiment_iterations, experi
         return measure_nginx_single_machine(container_id, experiment_args, experiment_iterations)
     elif experiment_type == 'todo-app':
         return measure_TODO_response_time(container_id, experiment_args, experiment_iterations)
+    elif experiment_type == 'basic-get':
+        return measure_GET_response_time(container_id, experiment_args, experiment_iterations)
     else:
-        print ('INVALID EXPERIMENT TYPE')
+        print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
 
 #Resets all parameters of the experiment to default values
@@ -213,3 +215,39 @@ def measure_REST_response_time(container_id, REST_args, iterations):
     std = numpy.std(numpy_all_requests)
     #percentile99 = numpy.percentile(a, 99)
     return numpy.array(all_requests)
+
+def measure_GET_response_time(container_id, experiment_args, iterations):
+    website_public_ip = experiment_args[0]
+    traffic_client = experiment_args[1]
+
+    NUM_REQUESTS = 1
+    CONCURRENCY = 1
+
+    all_requests = {}
+    all_requests['rps'] = []
+    all_requests['latency'] = []
+    all_requests['latency_50'] = []
+    all_requests['latency_99'] = []
+    all_requests['latency_90'] = []
+
+    for x in range(iterations):
+        benchmark_cmd = 'ab -n {} -c {} -s 999999 -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS,
+                                                                                                   CONCURRENCY,
+                                                                                                   website_public_ip)
+        print benchmark_cmd
+        _, results, _ = traffic_client.exec_command(benchmark_cmd)
+        results.read()
+
+        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
+        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
+        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
+        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
+        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+
+        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
+        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
+        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
+        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
+        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+
+    return all_requests, {}

@@ -56,7 +56,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Stress of container id {} stressed to {}'.format(container_id, bandwidth)
+        print 'SUCCESS: Network stress of container id {} stressed to {}'.format(container_id, bandwidth)
         return 1
 
 def reset_egress_network_bandwidth(ssh_client, container_id):
@@ -72,7 +72,7 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Stress of container id {} removed'.format(container_id)
+        print 'SUCCESS: Network stress of container id {} removed'.format(container_id)
         return 1
 
 # Unused
@@ -133,7 +133,7 @@ def set_cpu_cores(ssh_client, container_id, cores):
     reset_cpu_quota(ssh_client, container_id) # CPU quotas conflict with core pinning
     rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(cores, container_id)
     ssh_exec(ssh_client, rst_cores_cmd)
-    print 'Cores {} pinned to container {}'.format(cores, container_id)
+    print '{} Cores pinned to container {}'.format(cores, container_id)
 
 
 # Resetting pinned cpu_cores (container will have access to all cores)
@@ -198,8 +198,8 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
-    # Sleep 10 seconds since the current queue must be emptied before this can be fulfilled
-    sleep(10)
+    # Sleep 5 seconds since the current queue must be emptied before this can be fulfilled
+    sleep(5)
 
 # LEGACY (All functions that creates dummpy containers are legacy and kept for reference)
 # This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
