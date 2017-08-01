@@ -5,6 +5,7 @@
 from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
+from run_spark_streaming import *
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
@@ -19,6 +20,8 @@ def measure_runtime(container_id, experiment_args, experiment_iterations, experi
         return measure_TODO_response_time(container_id, experiment_args, experiment_iterations)
     elif experiment_type == 'basic-get':
         return measure_GET_response_time(container_id, experiment_args, experiment_iterations)
+    elif experiment_type == 'spark_streaming':
+        return measure_spark_streaming(container_id, experiment_args, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()

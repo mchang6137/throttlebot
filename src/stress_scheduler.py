@@ -233,8 +233,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
         reduction_level_to_latency_disk = {}
         reduction_level_to_latency_cpu = {}
     else:
-        reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network = \
-            prev_results
+        reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network = prev_results
 
     reduction_level_to_utilization_network = {}
     reduction_level_to_utilization_disk = {}
