@@ -531,6 +531,12 @@ if __name__ == "__main__":
     parser.add_argument("--only_baseline", action="store_true", help="Only takes a measurement of the baseline without any stress")
     parser.add_argument("--increments", help="The increments of stressing")
     parser.add_argument("--resume", help="Resume experiment (need to specify increments)")
+    parser.add_argument("--redis_ms", help="IP of Redis Machine")
+    parser.add_argument("--spark_stream", help ="IP of Spark Stream")
+    parser.add_argument("--kafka", help="IP of Kafka machine")
+    parser.add_argument("--spark_ms", help="IP of spark-ms ")
+    parser.add_argument("--spark_wk", help="IPs of spark workers")
+
 
     args = parser.parse_args()
     print args
@@ -594,19 +600,6 @@ if __name__ == "__main__":
     for victim_ip in victim_ips:
         ssh_clients[victim_ip] = get_client(victim_ip)
 
-    # Retrieving dictionary of container_ids with service names as keys
-    container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
-
-    results_disk = {}
-    results_cpu = {}
-    results_network = {}
-
-    continue_stressing = True
-
-    # Checking for stress search type
-    if stress_policy == 'HALVING' or stress_policy == 'BINARY':
-        container_ids_dict1, container_ids_dict2 = container_ids_dict
-
     # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
     if args.experiment_type == 'REST':
         experiment_args = [args.website_ip.split(','), ip_addresses]
@@ -619,6 +612,52 @@ if __name__ == "__main__":
         experiment_args = [args.website_ip.split(','), traffic_client]
     elif args.experiment_type == "basic-get":
         experiment_args = [args.website_ip.split(','), traffic_client]
+    elif args.experiment_type == "spark-streaming":
+        if not args.redis_ms:
+            print 'Please enter a redis IP'
+            exit()
+        else:
+            redis_ip = args.redis_ms
+        if not args.spark_stream:
+            print 'Please enter a spark-stream IP'
+            exit()
+        else:
+            spark_stream_ip = args.spark_stream
+        if not args.kafka:
+            print 'Please enter a kafka IP'
+            exit()
+        else:
+            kafka_ip = args.kafka
+        if not args.spark_ms:
+            print 'Please enter a spark-ms IP'
+            exit()
+        else:
+            spark_ms_ip = args.spark_ms
+        if not args.spark_wk:
+            print 'Please enter the spark worker IP'
+            exit()
+        else:
+            spark_wk_ip_list = args.spark_wk.split(',')
+        redis_dict = get_container_ids_all([redis_ip], "hantaowang/redis")
+        spark_stream_dict = get_container_ids_all([spark_stream_ip], "mchang6137/spark_streaming")
+        kafka_dict = get_container_ids_all([kafka_ip], "mchang6137/kafka")
+        spark_ms_dict = get_container_ids_all([spark_ms_ip], "mchang6137/spark-yahoo")
+        spark_wk_dict = {"spark-wk": []}
+        for spark_wk_ip in spark_wk_ip_list:
+            spark_wk_sub_dict = get_container_ids_all([spark_wk_ip], "mchang6137/spark-yahoo")
+            spark_wk_dict["spark-wk"].append(spark_wk_sub_dict["mchang6137/spark-yahoo"])
+            ssh_clients[spark_wk_ip] = get_client(spark_wk_ip)
+
+        experiment_args_dict = {}
+        experiment_args_dict.update(redis_dict)
+        experiment_args_dict.update(spark_stream_dict)
+        experiment_args_dict.update(kafka_dict)
+        experiment_args_dict.update(spark_ms_dict)
+        experiment_args_dict.update(spark_wk_dict)
+        experiment_args = [experiment_args_dict]
+
+        # Adding spark worker ips to ip_addresses
+        ip_addresses.append(spark_wk_ip_list)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(args.experiment_type)
         exit()
@@ -658,6 +697,22 @@ if __name__ == "__main__":
     else:
         resume_boolean = False
         previous_results = None
+
+    # Retrieving dictionary of container_ids with service names as keys
+    container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
+
+    # Checking for stress search type
+    if stress_policy == 'HALVING' or stress_policy == 'BINARY':
+        container_ids_dict1, container_ids_dict2 = container_ids_dict
+
+    results_disk = {}
+    results_cpu = {}
+    results_network = {}
+
+    continue_stressing = True
+
+    print experiment_args
+    print ip_addresses
 
     while continue_stressing:
         # Reset results dictionary for each iteration
