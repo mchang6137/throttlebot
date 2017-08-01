@@ -262,7 +262,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
         for vm_ip, container_id in ip_container_tuples:
             print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
 
-            if isinstance([], vm_ip):
+            if isinstance(vm_ip, list):
                 multiple_containers = True
                 multi_size = len(vm_ip)
                 container_tag = container_id[0]

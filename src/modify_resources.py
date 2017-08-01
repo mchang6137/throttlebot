@@ -131,8 +131,9 @@ def reset_cpu_quota(ssh_client, container_id):
 # Hardcoded cpuset-mems for now
 def set_cpu_cores(ssh_client, container_id, cores):
     reset_cpu_quota(ssh_client, container_id) # CPU quotas conflict with core pinning
-    rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(cores, container_id)
-    ssh_exec(ssh_client, rst_cores_cmd)
+    core_cmd = '0-{}'.format(cores-1)
+    set_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
+    ssh_exec(ssh_client, set_cores_cmd)
     print '{} Cores pinned to container {}'.format(cores, container_id)
 
 
@@ -198,8 +199,8 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
-    # Sleep 5 seconds since the current queue must be emptied before this can be fulfilled
-    sleep(5)
+    # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
+    sleep(1)
 
 # LEGACY (All functions that creates dummpy containers are legacy and kept for reference)
 # This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
