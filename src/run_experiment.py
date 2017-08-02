@@ -20,7 +20,7 @@ def measure_runtime(container_id, experiment_args, experiment_iterations, experi
         return measure_TODO_response_time(container_id, experiment_args, experiment_iterations)
     elif experiment_type == 'basic-get':
         return measure_GET_response_time(container_id, experiment_args, experiment_iterations)
-    elif experiment_type == 'spark_streaming':
+    elif experiment_type == 'spark-streaming':
         return measure_spark_streaming(container_id, experiment_args, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)

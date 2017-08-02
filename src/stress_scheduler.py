@@ -23,6 +23,7 @@ from remote_execution import *
 from run_experiment import *
 from container_information import *
 from present_results import *
+from run_spark_streaming import *
 
 #Amount of time to allow commands to propagate through system
 COMMAND_DELAY = 3
@@ -241,6 +242,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
 
     increment_values = experiment_inc_args[0]
     experiment_args = experiment_inc_args[1]
+    print 'blah'
+    print experiment_args
 
     for service, ip_container_tuples in container_ids_dict.iteritems():
         print 'STRESSING SERVICE {}'.format(service)
@@ -299,7 +302,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
 
             BASELINE_ITERATIONS = 10
             # BASELINE_ITERATIONS = 3 # For fast Benchmarking
-            experiment_args[0] = vm_ip
+            #experiment_args[0] = vm_ip
             print 'EX ARG 0 {}'.format(experiment_args[0])
             if 0 in increment_values:
                 baseline_runtime_array, baseline_utilization_diff = measure_runtime(container_id, experiment_args, BASELINE_ITERATIONS, experiment_type)
@@ -353,6 +356,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                                     cpu_throttle_quota = weighting_to_cpu_quota(increment)
                                     throttle_cpu_quota(ssh_client, container_id, 1000000, cpu_throttle_quota)
 
+                        print 'blah2'
+                        print experiment_args
                         results_data_cpu, cpu_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
 
                         if use_causal_analysis:
@@ -657,6 +662,9 @@ if __name__ == "__main__":
 
         # Adding spark worker ips to ip_addresses
         ip_addresses.append(spark_wk_ip_list)
+
+        #Initialize Spark Master
+        initialize_spark_experiment(experiment_args[0])
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(args.experiment_type)
         exit()
@@ -698,8 +706,9 @@ if __name__ == "__main__":
         previous_results = None
 
     # Retrieving dictionary of container_ids with service names as keys
-    container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
-
+    #container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
+    container_ids_dict = get_container_ids_all(ip_addresses, "*")
+    
     # Checking for stress search type
     if stress_policy == 'HALVING' or stress_policy == 'BINARY':
         container_ids_dict1, container_ids_dict2 = container_ids_dict
