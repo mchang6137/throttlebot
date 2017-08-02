@@ -52,7 +52,7 @@ if __name__ == "__main__":
     with open(args.file_name) as csvfile:
         ssh_clients = {}
         line_numb = 2
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(filter(lambda row: row[0] != '#', csvfile))
         for row in reader:
             ip_address = row['IP']
             container_id = row['Container']
@@ -81,8 +81,7 @@ if __name__ == "__main__":
             if cpu_cores == 0:
                 reset_cpu_cores(ssh_client, container_id)
             else:
-                core_cmd = '0-{}'.format(cpu_cores - 1)
-                set_cpu_cores(ssh_client, container_id, core_cmd)
+                set_cpu_cores(ssh_client, container_id, cpu_cores)
 
             # Setting CPU throttling
             try:
