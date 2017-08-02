@@ -100,12 +100,8 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 # Assumes that that CPU_period and CPU_quota were not set beforehand
 # CPU period is assumed to be 1 second no matter what
 def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
-    # cpu_quota = int((float(cpu_quota) / 10) * get_num_cores(ssh_client) * 1000000)
 
-    # CPU Quota must be less than 1 second
-    while cpu_quota > cpu_period:
-            cpu_quota = cpu_quota/2
-            cpu_period = cpu_period/2
+    cpu_quota *= get_num_cores(ssh_client)
 
     print 'Adjusted CPU period: {}'.format(cpu_period)
     print 'CPU Quota: {}'.format(cpu_quota)
