@@ -85,7 +85,7 @@ $ kops delete cluster {cluster_name}.k8s.local --yes
 source: http://blog.arungupta.me/gossip-kubernetes-aws-kops/
 
 ### Deploying a simple multi-tier application on your cluster
-The Kubernetes documentation covers how to launch a basic web application using PHP and Redis. The documentation also includes how to externalize the application.
+The Kubernetes documentation covers how to launch a basic web application using PHP and Redis. The documentation also explains how to externalize an application.
 https://kubernetes.io/docs/tutorials/stateless-application/guestbook/
 
 Alternatively, one can pull the following repository and deploy the application with a single comand.
@@ -128,19 +128,21 @@ $ /sys/fs/cgroup/blkio/kubepods/burstable/{pod#}/{container_ID}*/blkio.throttle.
 
 Approach (does not work): Identify the veth of individual containers and use tc with HTB queuing discipling to throttle network bandwidth.
 
-Identify the veth of individual containers by running the following command from shell.
+Identify the veth of individual containers by checking the iflink of containers from shell.
 ```
-$ cat /sys/class/net/veth11d4238/ifindex
+$ cat /sys/class/net/eth0/iflink
 ```
+source: https://superuser.com/questions/1183454/finding-out-the-veth-interface-of-a-docker-container
+
 Set bandwidth using tc.
 ```
-$ sudo tc qdisc add dev {veth#} handle 1: root htb default 11
-$ sudo tc class add dev {veth#} parent 1: classid 1:1 htb rate 1kbps
-$ sudo tc class add dev {veth#} parent 1:1 classid 1:11 htb rate 1kbps
+$ sudo tc qdisc add dev {veth_id} handle 1: root htb default 11
+$ sudo tc class add dev {veth_id} parent 1: classid 1:1 htb rate 1kbps
+$ sudo tc class add dev {veth_id} parent 1:1 classid 1:11 htb rate 1kbps
 ``` 
 
 Other approaches:
 - Tried other queuing disciplines
-- Create custom [Docker bridges](https://docs.docker.com)? (tricky/have to define bridge before container deployment)
+- Create custom [Docker bridges](https://docs.docker.com/engine/userguide/networking/default_network/build-bridges/)? (tricky/have to define bridge before container deployment)
 
 
