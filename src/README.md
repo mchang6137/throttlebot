@@ -37,7 +37,7 @@ $ brew install awscli
 ```
 
 ### Configure AWS User Permissions
-Using kops requires the correct API credentials for your AWS account.
+Using kops requires the correct API credentials for your AWS account (AmazonEC2FullAccess, AmazonRoute53FullAccess, AmazonS3FullAccess, IAMFullAccess, AmazonVPCFullAccess).
 
 ```
 $ aws iam create-group --group-name kops
@@ -54,7 +54,7 @@ $ aws iam create-access-key --user-name kops
 ```
 ```
 # set up the aws client to use the new IAM user
-$ aws configure      
+$ aws configure
 
 # Export the variables for kops use
 $ export AWS_ACCESS_KEY_ID=<access key>
@@ -97,7 +97,7 @@ $ kubectl cluster-info
 ```
 The application can then be deployed with a single command.
 ```
-$ kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml
+$ kubectl create -f guestbook/all-in-one/guestbook-all-in-one.yaml
 ```
 You can check your currently running services.
 ```
@@ -110,13 +110,37 @@ $ kubectl delete -f guestbook/all-in-one/guestbook-all-in-one.yaml
 
 
 ## ThrottleBot Compatibility
+The SSH public key for EC2 instances launched by kops defaults to ~/.ssh/id_rsa.pub.
 
 
 ### CPU
+Did not run into major issues.
 
 ### Disk
+Must change how to reference cgroups and individual containers in change_container_blkio() function in modify_resources.py.
+
+Kubernetes organizes containers using pods so the path has to be changed to:
+```
+$ /sys/fs/cgroup/blkio/kubepods/burstable/{pod#}/{container_ID}*/blkio.throttle.read_bps_device
+````
 
 ### Network
 
+Approach (does not work): Identify the veth of individual containers and use tc with HTB queuing discipling to throttle network bandwidth.
+
+Identify the veth of individual containers by running the following command from shell.
+```
+$ cat /sys/class/net/veth11d4238/ifindex
+```
+Set bandwidth using tc.
+```
+$ sudo tc qdisc add dev {veth#} handle 1: root htb default 11
+$ sudo tc class add dev {veth#} parent 1: classid 1:1 htb rate 1kbps
+$ sudo tc class add dev {veth#} parent 1:1 classid 1:11 htb rate 1kbps
+``` 
+
+Other approaches:
+- Tried other queuing disciplines
+- Create custom [Docker bridges](https://docs.docker.com)? (tricky/have to define bridge before container deployment)
 
 
