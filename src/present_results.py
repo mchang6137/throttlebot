@@ -18,7 +18,6 @@ def read_from_file(data_file, resume_boolean):
         reader = csv.DictReader(csvfile)
         for row in reader:
             service = row['service']
-            container_id = row['container_id']
             metric = row['metric']
             stress_level = row['increment']
             resource = row['resource']
@@ -29,39 +28,35 @@ def read_from_file(data_file, resume_boolean):
                 disk[service] = {}
                 network[service] = {}
 
-            if container_id not in cpu[service]:
-                cpu[service][container_id] = {}
-                disk[service][container_id] = {}
-                network[service][container_id] = {}
-
             # Accounting for the swapped metric/increment
+            # ALL RESUME ARE OUTDATED
             if resume_boolean:
                 stress_level = int(stress_level)
-                if stress_level not in cpu[service][container_id]:
-                    cpu[service][container_id][stress_level] = {}
-                    disk[service][container_id][stress_level] = {}
-                    network[service][container_id][stress_level] = {}
+                if stress_level not in cpu[service]:
+                    cpu[service][stress_level] = {}
+                    disk[service][stress_level] = {}
+                    network[service][stress_level] = {}
 
                 int_list_results = [float(numb) for numb in results[1:-1].split(',')]
 
                 if resource == 'cpu':
-                    cpu[service][container_id][stress_level][metric] = int_list_results
+                    cpu[service][stress_level][metric] = int_list_results
                 elif resource == 'disk':
-                    disk[service][container_id][stress_level][metric] = int_list_results
+                    disk[service][stress_level][metric] = int_list_results
                 elif resource == 'network':
-                    network[service][container_id][stress_level][metric] = int_list_results
+                    network[service][stress_level][metric] = int_list_results
             else:
-                if metric not in cpu[service][container_id]:
-                    cpu[service][container_id][metric] = {}
-                    disk[service][container_id][metric] = {}
-                    network[service][container_id][metric] = {}
+                if metric not in cpu[service]:
+                    cpu[service][metric] = {}
+                    disk[service][metric] = {}
+                    network[service][metric] = {}
 
                 if resource == 'cpu':
-                    cpu[service][container_id][metric][stress_level] = results
+                    cpu[service][metric][stress_level] = results
                 elif resource == 'disk':
-                    disk[service][container_id][metric][stress_level] = results
+                    disk[service][metric][stress_level] = results
                 elif resource == 'network':
-                    network[service][container_id][metric][stress_level] = results
+                    network[service][metric][stress_level] = results
 
     return cpu, disk, network
 
@@ -81,6 +76,7 @@ def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number,
     plt.boxplot(box_array)
     plt.grid(True)
 
+# OUTDATED NO CONTAINER
 def plot_interpolation(box_array, metric, resource, experiment_type='changeme!', service='changeme!', container_id='changeme!'):
     median_box = [numpy.median(increment_result) for increment_result in box_array]
     x = [0, 20, 40, 60, 80]
@@ -134,7 +130,7 @@ def append_results_to_file(cpu, disk, network, resources, increments, experiment
         os.makedirs(OUTPUT_DIRECTORY)
 
     with open(OUTPUT_DIRECTORY + output_file_name, 'wb') as csvfile:
-        fieldnames = ['service', 'container_id', 'metric', 'increment', 'resource', 'mean', 'stddev', 'data_points']
+        fieldnames = ['service', 'metric', 'increment', 'resource', 'mean', 'stddev', 'data_points']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -147,33 +143,33 @@ def append_results_to_file(cpu, disk, network, resources, increments, experiment
         elif 'DISK' in resources:
             base = disk
 
-        for service, containerd in base.iteritems():
-            for container, data in containerd.iteritems():
-                all_metric_keys = data[min(increments)].keys()
-                for metric in all_metric_keys:
-                    for increment_key in sorted(data.iterkeys()):
-                    #Iterate through different metrics
-                        if 'CPU' in resources:
-                            results_cpu = cpu[service][container][increment_key][metric]
-                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
-                                             'increment': increment_key, 'resource': 'cpu',
-                                             'mean': numpy.mean(results_cpu), 'stddev': numpy.std(results_cpu),
-                                             'data_points': results_cpu})
-                        if 'DISK' in resources:
-                            results_disk = disk[service][container][increment_key][metric]
-                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
-                                             'increment': increment_key, 'resource': 'disk',
-                                             'mean': numpy.mean(results_disk), 'stddev': numpy.std(results_disk),
-                                             'data_points': results_disk})
-                        if 'NET' in resources:
-                            results_network = network[service][container][increment_key][metric]
-                            writer.writerow({'service': service, 'container_id': container, 'metric': metric,
-                                             'increment': increment_key, 'resource': 'network',
-                                             'mean': numpy.mean(results_network), 'stddev': numpy.std(results_network),
-                                             'data_points': results_network})
+        for service, data in base.iteritems():
+            all_metric_keys = data[min(increments)].keys()
+            for metric in all_metric_keys:
+                for increment_key in sorted(data.iterkeys()):
+                #Iterate through different metrics
+                    if 'CPU' in resources:
+                        results_cpu = cpu[service][increment_key][metric]
+                        writer.writerow({'service': service, 'metric': metric,
+                                         'increment': increment_key, 'resource': 'cpu',
+                                         'mean': numpy.mean(results_cpu), 'stddev': numpy.std(results_cpu),
+                                         'data_points': results_cpu})
+                    if 'DISK' in resources:
+                        results_disk = disk[service][increment_key][metric]
+                        writer.writerow({'service': service, 'metric': metric,
+                                         'increment': increment_key, 'resource': 'disk',
+                                         'mean': numpy.mean(results_disk), 'stddev': numpy.std(results_disk),
+                                         'data_points': results_disk})
+                    if 'NET' in resources:
+                        results_network = network[service][increment_key][metric]
+                        writer.writerow({'service': service, 'metric': metric,
+                                         'increment': increment_key, 'resource': 'network',
+                                         'mean': numpy.mean(results_network), 'stddev': numpy.std(results_network),
+                                         'data_points': results_network})
 
     return OUTPUT_DIRECTORY + output_file_name
 
+# OUTDATED (NO CONTAINER ID)
 def plot_results(data_file, resources, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
     cpu, disk, network = read_from_file(data_file, False)
 
