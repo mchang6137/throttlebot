@@ -111,7 +111,8 @@ def plot_flat_baseline(box_array, metric):
     flat_line = [median] * 5
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
-def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations, finished_boolean):
+def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations,
+                           experiment_iteration_count, finished_boolean):
     OUTPUT_DIRECTORY = 'results/'
     causal_output = ''
     if use_causal_analysis:
@@ -124,7 +125,8 @@ def append_results_to_file(cpu, disk, network, resources, increments, experiment
     else:
         status = 'Checkpoint'
 
-    output_file_name = '{}_{}_{}_{}_{}.csv'.format(status, experiment_type, causal_output, iterations, datetime.datetime.now())
+    output_file_name = '{}_{}_{}_{}_{}.csv'.format(status, experiment_type, causal_output, experiment_iteration_count,
+                                                   datetime.datetime.now())
 
     if not os.path.exists(OUTPUT_DIRECTORY):
         os.makedirs(OUTPUT_DIRECTORY)

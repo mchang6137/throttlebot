@@ -22,62 +22,23 @@ def get_container_ids(vm_ips, services, resources, stress_policy):
 # Returns a dictionary of the services and their respective container_ids
 # VM_IPS is a list of ip addresses, and SERVICES is a list of services
 # Note: Services are the container image names (Temporary)
-# Only function that currently supports multi-container stressing
 def get_container_ids_all(vm_ips, services):
     container_id_dict = {}
     for vm_ip in vm_ips:
-        # MULTI-SERVICE is not updated
-        if isinstance(vm_ip, list):
-            sub_container_dict = {}
-            for i in range(len(vm_ip)):
-                vm_ip_current = vm_ip[i]
-                ssh_client = remote_exec.get_client(vm_ip_current)
-                docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
-                # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
-                docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
-                _, stdout1, _ = ssh_client.exec_command(docker_container_id)
-                container_ids = stdout1.read().splitlines()
-                _, stdout2, _ = ssh_client.exec_command(docker_container_image)
-                container_images = stdout2.read().splitlines()
-                for j in range(len(container_ids)):
-                    if container_images[j] not in blacklist and (services == '*' or (container_images[j] in services)):
-                        if container_images[j] in sub_container_dict:
-                            sub_container_dict[container_images[j]].append((vm_ip_current, container_ids[j]))
-                        else:
-                            sub_container_dict[container_images[j]] = [(vm_ip_current, container_ids[j])]
-            service_list = []
-            vm_list = []
-            container_list = []
-            for service, ip_cont_tuple_list in sub_container_dict.iteritems():
-                for ip_cont_tuple in ip_cont_tuple_list:
-                    ip_address, container_id = ip_cont_tuple
-                    if service not in service_list:
-                        service_list.append(service)
-                        vm_list.append([])
-                        container_list.append([])
-                    service_index = service_list.index(service)
-                    vm_list[service_index].append(ip_address)
-                    container_list[service_index].append(container_id)
-            for i in range(len(service_list)):
-                if service_list[i] in container_id_dict:
-                    container_id_dict[service_list[i]].append((vm_list[i], container_list[i]))
+        ssh_client = remote_exec.get_client(vm_ip)
+        docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
+        # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
+        docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
+        _, stdout1, _ = ssh_client.exec_command(docker_container_id)
+        container_ids = stdout1.read().splitlines()
+        _, stdout2, _ = ssh_client.exec_command(docker_container_image)
+        container_images = stdout2.read().splitlines()
+        for i in range(len(container_ids)):
+            if container_images[i] not in blacklist and (services == '*' or (container_images[i] in services)):
+                if container_images[i] in container_id_dict:
+                    container_id_dict[container_images[i]].append((vm_ip, container_ids[i]))
                 else:
-                    container_id_dict[service_list[i]] = [(vm_list[i], container_list[i])]
-        else:
-            ssh_client = remote_exec.get_client(vm_ip)
-            docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
-            # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
-            docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
-            _, stdout1, _ = ssh_client.exec_command(docker_container_id)
-            container_ids = stdout1.read().splitlines()
-            _, stdout2, _ = ssh_client.exec_command(docker_container_image)
-            container_images = stdout2.read().splitlines()
-            for i in range(len(container_ids)):
-                if container_images[i] not in blacklist and (services == '*' or (container_images[i] in services)):
-                    if container_images[i] in container_id_dict:
-                        container_id_dict[container_images[i]].append((vm_ip, container_ids[i]))
-                    else:
-                        container_id_dict[container_images[i]] = [(vm_ip, container_ids[i])]
+                    container_id_dict[container_images[i]] = [(vm_ip, container_ids[i])]
 
     return container_id_dict
 
