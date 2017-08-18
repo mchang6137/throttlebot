@@ -73,20 +73,6 @@ def reset_all_stresses(ssh_client, container_id, cpu_cores):
     stop_throttle_network(ssh_client, container_id)
     sleep(COMMAND_DELAY)
 
-# Removes outlier points from the plot
-def is_outlier(points, threshold=3.5):
-    points = np.array(points)
-    if len(points.shape) == 1:
-        points = points[:,None]
-    median = np.median(points, axis=0)
-    diff = np.sum((points - median)**2, axis=-1)
-    diff = np.sqrt(diff)
-    med_abs_deviation = np.median(diff)
-
-    modified_z_score = 0.6745 * diff / med_abs_deviation
-
-    return modified_z_score > threshold
-
 # Note: Shelved for later
 # Initially hardcoded to nginx for convenience
 # Should hopefully just need to run once per application
