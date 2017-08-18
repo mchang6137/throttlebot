@@ -15,8 +15,7 @@ KEY:
 IP: Machine IP where container is located
 Container: The container id that 'docker ps' generates
 CPUC: The number of cpu-cores allocated to that machine (1 to <Number of CPUs available>) (0 to reset)
-CPU: (Single Core Only) Percentage of available CPU allocated to that machine (1 - 100, 100 being the max) (0 to reset)
-    *Note: If set, CPU value will overwrite CPUC
+CPU: Percentage of available CPU allocated to that machine (1 - 100, 100 being the max) (0 to reset) (Multicore)
 DISK: read/write rates (bps) (0 to reset)
 NET: network speed (bps) (0 to reset)
 """
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     with open(args.file_name) as csvfile:
         ssh_clients = {}
         line_numb = 2
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(filter(lambda row: row[0] != '#', csvfile))
         for row in reader:
             ip_address = row['IP']
             container_id = row['Container']
@@ -82,8 +81,7 @@ if __name__ == "__main__":
             if cpu_cores == 0:
                 reset_cpu_cores(ssh_client, container_id)
             else:
-                core_cmd = '0-{}'.format(cpu_cores - 1)
-                set_cpu_cores(ssh_client, container_id, core_cmd)
+                set_cpu_cores(ssh_client, container_id, cpu_cores)
 
             # Setting CPU throttling
             try:
@@ -93,10 +91,9 @@ if __name__ == "__main__":
             except:
                 error_message(line_numb, 'cpu')
                 exit()
-            if cpu_value == 0:
+            if cpu_percentage == 0:
                 reset_cpu_quota(ssh_client, container_id)
             else:
-                set_cpu_cores(ssh_client, container_id, 0)
                 set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage * 1000000 / 100)
 
             # Setting DISK speeds

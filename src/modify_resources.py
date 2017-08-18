@@ -25,9 +25,6 @@ container_blacklist = ['ovn-controller', 'minion', 'ovs-vswitchd', 'ovsdb-server
 # Conversion factor from unit KEY to KiB
 CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 
-# The name of the container that runs an infinite loop just to consume CPU.
-CPU_EATER = "cpu_eater"
-
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
@@ -56,7 +53,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Stress of container id {} stressed to {}'.format(container_id, bandwidth)
+        print 'SUCCESS: Network stress of container id {} stressed to {}'.format(container_id, bandwidth)
         return 1
 
 def reset_egress_network_bandwidth(ssh_client, container_id):
@@ -72,7 +69,7 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Stress of container id {} removed'.format(container_id)
+        print 'SUCCESS: Network stress of container id {} removed'.format(container_id)
         return 1
 
 # Unused
@@ -100,12 +97,8 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 # Assumes that that CPU_period and CPU_quota were not set beforehand
 # CPU period is assumed to be 1 second no matter what
 def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
-    # cpu_quota = int((float(cpu_quota) / 10) * get_num_cores(ssh_client) * 1000000)
 
-    # CPU Quota must be less than 1 second
-    while cpu_quota > cpu_period:
-            cpu_quota = cpu_quota/2
-            cpu_period = cpu_period/2
+    cpu_quota *= get_num_cores(ssh_client)
 
     print 'Adjusted CPU period: {}'.format(cpu_period)
     print 'CPU Quota: {}'.format(cpu_quota)
@@ -130,10 +123,11 @@ def reset_cpu_quota(ssh_client, container_id):
 # Pins the selected cores to the container (will reset any CPU quotas)
 # Hardcoded cpuset-mems for now
 def set_cpu_cores(ssh_client, container_id, cores):
-    reset_cpu_quota(ssh_client, container_id) # CPU quotas conflict with core pinning
-    rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(cores, container_id)
-    ssh_exec(ssh_client, rst_cores_cmd)
-    print 'Cores {} pinned to container {}'.format(cores, container_id)
+    cores = int(cores) - 1
+    core_cmd = '0-{}'.format(cores)
+    set_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
+    ssh_exec(ssh_client, set_cores_cmd)
+    print '{} Cores pinned to container {}'.format(core_cmd, container_id)
 
 
 # Resetting pinned cpu_cores (container will have access to all cores)
@@ -144,45 +138,7 @@ def reset_cpu_cores(ssh_client, container_id):
     ssh_exec(ssh_client, rst_cores_cmd)
     print 'Reset container {}\'s core restraints'.format(container_id)
 
-
-# LEGACY (All functions that throttle CPU through stress are legacy functions kept for reference)
-# Indicates the number of 10%-stress that is introduced into the system
-def update_cpu_through_stress(ssh_client, num_stress=0):
-    """CPU Limit describes how much CPU will be used by the stresser"""
-    if num_stress < 0:
-        invalid_resource_parameter("CPU Allocation", limit)
-        return
-
-        # Separate CPU limit into several smaller increments of 10 instead of one larger one
-    for x in range(num_stress):
-        cmd = "stress -c 1 &> /dev/null & cpulimit -p $( pidof -o $! stress ) -l {} &> /dev/null &".format(10)
-        ssh_exec(ssh_client, cmd)
-
-# LEGACY
-def reset_cpu_stress(ssh_client):
-    cmd = "killall stress"
-    ssh_exec(ssh_client, cmd)
-    print 'Cpu Stresses killed'
-
-# LEGACY
-# Function to reset CPU throttling depending on type*
-def reset_cpu(ssh_client, container_id, cpu_throttle_type):
-    if cpu_throttle_type == 'period':
-        reset_cpu_quota(ssh_client, container_id)
-    elif cpu_throttle_type == 'stress':
-        reset_cpu_stress(ssh_client)
-
 '''Stressing the Disk Read/write throughput'''
-
-# set_blkio will change the relative proportion of all the containers (proportions range from 0-1000)
-def set_blkio(ssh_client, container_id, relative_weight):
-    if relative_weight < 10 or relative_weight > 1000:
-        invalid_resource_parameters("blkio weight", relative_weight)
-        return
-    cmd = 'docker update --blkio-weight={} {}'.format(relative_weight, container_id)
-    print cmd
-    ssh_exec(ssh_client, cmd)
-
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
@@ -198,72 +154,8 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
-    # Sleep 10 seconds since the current queue must be emptied before this can be fulfilled
-    sleep(10)
-
-# LEGACY (All functions that creates dummpy containers are legacy and kept for reference)
-# This is a dummy container that eats an arbitrary amount of Disk atthe cost of some CPU utilization
-# blkio_weight is a weight that is from 10-1000, which specifies the amount of disk utilization
-def create_dummy_blkio_disk_eater(ssh_client, blkio_weight):
-    if blkio_weight < 10 or blkio_weight > 1000:
-        invalid_resource_parameters("blkio_weight", blkio_weight)
-        return
-    create_docker_image_cmd = 'docker run -d --blkio-weight={} --name disk_eater ubuntu /bin/sh -c'.format(blkio_weight)
-    container_cmd =  '\"while true; do dd if=/dev/zero of=test bs=1048576 count=1024 conv=fsync; done\"'
-    ssh_exec(ssh_client, create_docker_image_cmd + container_cmd)
-
-# LEGACY
-# Sets the maximum read and write rate of the disk to bandwidth_maximum
-# disk_bandwidth should be in Kilobytes/sec
-def create_dummy_disk_eater(ssh_client, disk_bandwidth):
-    if disk_bandwidth < 0:
-        invalid_resource_parameters("Disk_bandwidth", disk_bandwidth)
-        return
-
-    max_bandwidth = get_disk_capabilities(ssh_client, 100)
-    num_full_bandwidth = disk_bandwidth/max_bandwidth
-    partial_bandwidth = disk_bandwidth % max_bandwidth
-    print 'Number of full disk bandwidth is {}'.format(num_full_bandwidth)
-    print 'Disk eater partial bandwidth is {}'.format(partial_bandwidth)
-
-    container_cmd_initialize = '\"dd if=/dev/zero of=test bs=1048576 count=1024 iflag=nocache oflag=dsync;'
-    container_cmd =  'while true; do dd if=test of=test1 bs=1048576 count=1024 iflag=nocache oflag=dsync; done\"'
-
-    for x in range(num_full_bandwidth):
-        create_docker_image_cmd = 'docker run -d --name disk_eater_{} ubuntu /bin/bash -c '.format(x)
-        _, stdout, _ = ssh_client.exec_command(create_docker_image_cmd + container_cmd_initialize + container_cmd)
-
-    create_docker_image_cmd = 'docker run -d --name disk_eater ubuntu /bin/bash -c '
-    _, stdout, _ = ssh_client.exec_command(create_docker_image_cmd + container_cmd_initialize + container_cmd)
-
-    # Need some time to sleep so that the container has time to finish spinning up making the initial copy
-    sleep(30)
-    disk_eater_id_cmd = 'docker inspect --format=\"{{.Id}}\" disk_eater'
-
-    _, disk_eater_id, _ = ssh_client.exec_command(disk_eater_id_cmd)
-    disk_eater_id_temp = disk_eater_id.read()
-    disk_eater_id_str = disk_eater_id_temp.strip('\n')
-
-    # Set Read and Write Conditions in real-time using cgroups
-    # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
-    set_cgroup_write_rate_cmd = 'echo \"252:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.write_bps_device'.format(partial_bandwidth, disk_eater_id_str)
-    set_cgroup_read_rate_cmd = 'echo \"252:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}/blkio.throttle.read_bps_device'.format(partial_bandwidth, disk_eater_id_str)
-
-    _, stdout, _ = ssh_client.exec_command(set_cgroup_write_rate_cmd)
-    _, stdout, _ = ssh_client.exec_command(set_cgroup_read_rate_cmd)
-
-    return num_full_bandwidth
-
-# LEGACY
-# Removes the disk eater from the picture
-def remove_dummy_disk_eater(ssh_client, num_full):
-    # Remove the container
-    for x in range(num_full):
-        kill_container_cmd = 'docker rm -f disk_eater_{}'.format(x)
-        ssh_exec(ssh_client, kill_container_cmd)
-    # Kills the partial container as well
-    kill_container_cmd = 'docker rm -f disk_eater'
-    ssh_exec(ssh_client, kill_container_cmd)
+    # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
+    sleep(1)
 
 '''Helper functions that are used for various reasons'''
 
@@ -322,117 +214,10 @@ def install_deps(ssh_client):
     ssh_exec(ssh_client, cmd_cpulimit)
     ssh_exec(ssh_client, cmd_stress)
 
-# TODO
-def invalid_resource_parameter(resource, quantity):
-    print ('Invalid resource paramater for {}, the quantity given is {}'.format(resource, quantity))
-    return
-
-'''Functions to get the performance utilizations of a container'''
-
-container_to_cpu_utilization = {}
-container_to_network_utilization = {}
-container_to_disk_utilization = {}
-
-# Kick off the Utilization Measurements Thread
-def initialize_utilization_measurements(ssh_client):
-    all_container_id = get_container_id(ssh_client, full_id=False, append_c=False)
-    for container in all_container_id:
-        container_to_cpu_utilization[container] = []
-        container_to_network_utilization[container] = []
-        container_to_disk_utilization[container] = []
-
-    timer = start_measurement_timer(ssh_client)
-    return timer
-
-# Stop the measurement timer and then reset the global counters
-def stop_utilization_measurements(measurement_thread):
-    print ('STOPPING UTILIZATION')
-    print (measurement_thread)
-    measurement_thread.cancel()
-    all_container_id = get_container_id(ssh_client, full_id=False, append_c=False)
-    print (analyze_container_runtimes())
-
-    for container in all_container_id:
-        container_to_cpu_utilization[container] = []
-        container_to_network_utilization[container] = []
-        container_to_disk_utilization[container] = []
-
-# Reset the timer values
-def reset_analysis_values():
-    container_to_cpu_utilization = {}
-    container_to_network_utilization = {}
-    container_to_disk_utilization = {}
-
-# Analysis currently only checks to see who used a certain resource the most or least over the course of the entire experiment
-def analyze_container_runtimes():
-    cpu_max_difference = 0
-    cpu_container_id = 0
-    for container in container_to_cpu_utilization:
-        if len(container_to_cpu_utilization[container]) > 0:
-            difference = container_to_cpu_utilization[container][-1] - container_to_cpu_utilization[container][0]
-            if difference > cpu_max_difference:
-                cpu_max_difference = difference
-                cpu_container_id = container
-
-    disk_max_difference = 0
-    disk_container_id = 0
-    for container in container_to_disk_utilization:
-        if len(container_to_disk_utilization[container]) > 0:
-            difference = container_to_disk_utilization[container][-1] - container_to_disk_utilization[container][0]
-            if difference > disk_max_difference:
-                disk_max_difference = difference
-                disk_container_id = container
-
-    network_max_difference = 0
-    network_container_id = 0
-    for container in container_to_network_utilization:
-        if len(container_to_network_utilization[container]) > 0:
-            difference = container_to_network_utilization[container][-1][0] - container_to_network_utilization[container][0][0]
-            if difference > network_max_difference:
-                network_max_difference = difference
-                network_container_id = container
-
-    return (cpu_max_difference, cpu_container_id, disk_max_difference, disk_container_id, network_max_difference, network_container_id)
-
-# Starts a thread that consistently takes utilization measurements
-def start_measurement_timer(ssh_client):
-    timer_duration = 5.0
-    timer = threading.Timer(timer_duration, start_measurement_timer, [ssh_client])
-    timer.start()
-    get_cpu_utilization(ssh_client)
-    get_network_utilization(ssh_client)
-    get_disk_utilization(ssh_client)
-    return timer
-
-# Assuming a static container set!
-def get_utilization_diff(initial_utilization, final_utilization):
-    utilization_diff = {}
-    utilization_diff['cpu'] = final_utilization['cpu'] - initial_utilization['cpu']
-    utilization_diff['network_outbound'] = final_utilization['network_outbound'] - initial_utilization['network_outbound']
-    utilization_diff['network_inbound'] = final_utilization['network_inbound'] - initial_utilization['network_inbound']
-    utilization_diff['disk'] = final_utilization['disk'] - initial_utilization['disk']
-    return utilization_diff
-
-
 def get_num_cores(ssh_client):
     num_cores_cmd = 'nproc --all'
     _, stdout, _ = ssh_client.exec_command(num_cores_cmd)
     return int(stdout.read())
-
-
-def get_current_memory(ssh_client):
-    """Returns a tuple (memory size, unit) where unit is B, K, M, or G."""
-    _, stdout, _ = ssh_client.exec_command("docker info | grep 'Total Memory: '")
-    line = stdout.readline() # XXX: Check that warnings aren't included.
-    if not line.startswith('Total Memory: '):
-        return
-    memory = line[len('Total Memory: '):]
-    memory = memory.split()
-    mem = float(memory[0])
-    unit = memory[1]
-    print ("CURR: {}".format((mem, unit)))
-    return (mem, unit)
-
 
 # Main function for direct testing of above methods
 if __name__ == "__main__":

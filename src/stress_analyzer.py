@@ -4,7 +4,8 @@ import remote_execution as remote_exec
 from random import shuffle
 
 ### Pre-defined blacklist (Temporary)
-blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest']
+blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
+             'tsaianson/netflushclient']
 
 ### Functions below are for getting initial container dictionaries
 
@@ -56,6 +57,7 @@ def get_container_ids_binary(vm_ips, services):
     return stress_dict1,stress_dict2
 
 
+# OUTDATED
 def get_container_ids_halving(vm_ips, services, resources):
     container_id_dict = get_container_ids_all(vm_ips, services)
     container_id_list = []
@@ -88,6 +90,7 @@ def get_container_ids_halving(vm_ips, services, resources):
 
 ### Functions below are for updating container dictionaries
 
+# OUTDATED
 # Returns an updated dictionary of the containers to stress based on type
 # OLD_CONTAINERS is the previous dictionary of containers, and RESULTS are the
 #     results of the stress tests
@@ -99,6 +102,7 @@ def get_updated_container_ids(old_containers, results, stress_policy):
         return get_updated_container_ids_binary_halving(old_containers, results)
     return
 
+# OUTDATED
 # Old_containers MUST be a tuple of dictionaries (2)
 def get_updated_container_ids_binary_halving(old_containers, results):
     old_stress_dict1, old_stress_dict2 = old_containers
@@ -142,6 +146,7 @@ def get_updated_container_ids_binary_halving(old_containers, results):
     return stress_dict1,stress_dict2
 
 
+# OUTDATED
 # Returns true if the first set of results perform worse than the second
 # Results1,2 must be a tuple (3)!
 # This method should only be used for stress search type BINARY or HALVING

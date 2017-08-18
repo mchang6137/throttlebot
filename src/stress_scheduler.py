@@ -12,39 +12,29 @@ import ast
 import os
 import socket
 from random import shuffle
+import redis
 
 from time import sleep
 
 from stress_analyzer import *
 from modify_resources import *
 from weighting_conversions import *
-from causal_analysis import *
 from remote_execution import *
 from run_experiment import *
 from container_information import *
 from present_results import *
+from run_spark_streaming import *
 
 #Amount of time to allow commands to propagate through system
 COMMAND_DELAY = 3
 
-### Start the stresses on the various resources (virtual speedups)
-
-def start_causal_cpu(ssh_client, container_id, disk_rate, network_rate):
-    throttle_network(ssh_client, container_id, network_rate)
-    throttle_disk(ssh_client, container_id, disk_rate)
-
-def start_causal_disk(ssh_client, container_id, cpu_period, cpu_quota, network_rate):
-    throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
-    throttle_network(ssh_client, container_id, network_rate)
-
-def start_causal_network(ssh_client, container_id, cpu_period, cpu_quota, disk_rate):
-    throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota)
-    throttle_disk(ssh_client, container_id, disk_rate)
-
 ### Throttle only a single resource at a time.
-def throttle_cpu(ssh_client, container_id, cpu_period, cpu_quota):
+def throttle_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
     # update_cpu_through_stress(ssh_client, number_of_stress)
     set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota)
+
+def throttle_cpu_cores(ssh_client, container_id, cores):
+    set_cpu_cores(ssh_client, container_id, cores)
 
 def throttle_disk(ssh_client, container_id, disk_rate):
     print 'Disk Throttle Rate: {}'.format(disk_rate)
@@ -57,42 +47,28 @@ def throttle_network(ssh_client, container_id, network_bandwidth):
     set_egress_network_bandwidth(ssh_client, container_id, network_bandwidth)
 
 ###Stop the throttling for a single resource
-def stop_throttle_cpu(ssh_client, container_id):
+def stop_throttle_cpu(ssh_client, container_id, cores):
     print 'RESETTING CPU THROTTLING'
-    reset_cpu_quota(ssh_client, container_id)
+    if cores:
+        reset_cpu_cores(ssh_client, container_id)
+    else:
+        reset_cpu_quota(ssh_client, container_id)
 
 def stop_throttle_network(ssh_client, container_id):
     print 'RESETTING NETWORK THROTTLING'
-    reset_egress_network_bandwidth(ssh_client, container_id)
+    # reset_egress_network_bandwidth(ssh_client, container_id)
+    container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
+    network_bandwith = weighting_to_bandwidth(ssh_client, 0, container_to_network_capacity)
+    throttle_network(ssh_client, container_id, network_bandwith)
 
 def stop_throttle_disk(ssh_client, container_id):
     print 'RESETTING DISK THROTTLING'
     change_container_blkio(ssh_client, container_id, 0)
     # remove_dummy_disk_eater(ssh_client, num_fail)
 
-### Revert container to the initial state
-
-def stop_causal_cpu(ssh_client, container_id):
-    print 'RESETTING CASUAL CPU!'
-    stop_throttle_network(ssh_client, container_id)
-    stop_throttle_disk(ssh_client, container_id)
-    sleep(COMMAND_DELAY)
-
-def stop_causal_disk(ssh_client, container_id):
-    print 'RESETTING CASUAL DISK!'
-    stop_throttle_network(ssh_client, container_id)
-    stop_throttle_cpu(ssh_client, container_id)
-    sleep(COMMAND_DELAY)
-
-def stop_causal_network(ssh_client, container_id):
-    print 'RESETTING CASUAL NETWORK!'
-    stop_throttle_cpu(ssh_client, container_id)
-    stop_throttle_disk(ssh_client, container_id)
-    sleep(COMMAND_DELAY)
-
-def reset_all_stresses(ssh_client, container_id):
+def reset_all_stresses(ssh_client, container_id, cpu_cores):
     print 'RESETTING ALL STRESSES!'
-    stop_throttle_cpu(ssh_client, container_id)
+    stop_throttle_cpu(ssh_client, container_id, cpu_cores)
     stop_throttle_disk(ssh_client, container_id)
     stop_throttle_network(ssh_client, container_id)
     sleep(COMMAND_DELAY)
@@ -210,157 +186,209 @@ def binary_search(parameter_list, field, acceptable_latency_lb, acceptable_laten
 
         counter += 1
 
-def model_machine(ssh_clients, container_ids_dict, experiment_args, experiment_iterations, experiment_type, stress_policy, resources, use_causal_analysis, only_baseline):
+def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experiment_iterations, experiment_type,
+                  stress_policy, resources, only_baseline, resume_bool, prev_results,
+                  experiment_iteration_count, redis_db):
 
-    reduction_level_to_latency_network = {}
-    reduction_level_to_latency_disk = {}
-    reduction_level_to_latency_cpu = {}
+    # RESUME FUNCTION SHELVED FOR LATER (ALSO OUTDATED)
+    if not resume_bool:
+        reduction_level_to_latency_network = {}
+        reduction_level_to_latency_disk = {}
+        reduction_level_to_latency_cpu = {}
+    else:
+        reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network = prev_results
 
-    reduction_level_to_utilization_network = {}
-    reduction_level_to_utilization_disk = {}
-    reduction_level_to_utilization_cpu = {}
+    increment_values = experiment_inc_args[0]
+    experiment_args = experiment_inc_args[1]
+
+    # Declaring baseline outside of loop for ALL services
+    baseline_runtime_array, baseline_utilization_diff = None, None
 
     for service, ip_container_tuples in container_ids_dict.iteritems():
         print 'STRESSING SERVICE {}'.format(service)
 
-        reduction_level_to_latency_network_service = {}
-        reduction_level_to_latency_disk_service = {}
-        reduction_level_to_latency_cpu_service = {}
+        if not resume_bool or (service not in reduction_level_to_latency_cpu):
+            reduction_level_to_latency_network_service = {}
+            reduction_level_to_latency_disk_service = {}
+            reduction_level_to_latency_cpu_service = {}
+        else:
+            reduction_level_to_latency_network_service = reduction_level_to_latency_network[service]
+            reduction_level_to_latency_disk_service = reduction_level_to_latency_disk[service]
+            reduction_level_to_latency_cpu_service = reduction_level_to_latency_cpu[service]
 
-        reduction_level_to_utilization_network_service = {}
-        reduction_level_to_utilization_disk_service = {}
-        reduction_level_to_utilization_cpu_service = {}
+        # Used for service aliasing (Later implementation)
+        service_tag = service
 
-        for vm_ip, container_id in ip_container_tuples:
-            print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+        # OUTDATED
+        if stress_policy == 'HALVING':
+            container_id, resource = container_id
+            resources = [resource]
 
-            if stress_policy == 'HALVING':
-                container_id, resource = container_id
-                resources = [resource]
-            ssh_client = ssh_clients[vm_ip]
-            #Start by clearing all the previous perturbations in case something went wrong
+        # initialize_machine(ssh_client) LEGACY
+        print "CLEARING ALL STRESSES"
+        print "====================================="
+        for service, ip_container_tuples in container_ids_dict.iteritems():
+            for vm_ip, container_id in ip_container_tuples:
+                ssh_client = ssh_clients[vm_ip]
+                reset_all_stresses(ssh_client, container_id, cpu_cores)
+        print "FINISHED CLEARING ALL STRESSES"
+        print "====================================="
+        print '\n' * 4
 
-            # initialize_machine(ssh_client) LEGACY
-            reset_all_stresses(ssh_client, container_id)
+        shuffle(increment_values)
 
-            increments = [20, 40, 60, 80]
-            # increments = [50] # For experimental purposes
-            shuffle(increments)
+        BASELINE_ITERATIONS = 10
+        # BASELINE_ITERATIONS = 3 # For fast Benchmarking
+        if 0 in increment_values:
+            # Checking if baseline has been calculated yet
+            if baseline_runtime_array == None and baseline_utilization_diff == None:
+                baseline_runtime_array = measure_runtime(None, experiment_args, BASELINE_ITERATIONS,
+                                                         experiment_type)
 
-            reduction_level_to_latency_network_container = {}
-            reduction_level_to_latency_disk_container = {}
-            reduction_level_to_latency_cpu_container = {}
+            reduction_level_to_latency_network_service[0] = baseline_runtime_array
+            hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'NET')
+            sorted_set_name = '{},{}'.format(service_tag, 'NET')
+            print 'HashName: {}'.format(hash_name)
+            print 'SortedSetName: {}'.format(sorted_set_name)
+            for metric, data in baseline_runtime_array.iteritems():
+                key_name = '{},{}'.format(0, metric)
+                sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                redis_db.hset(hash_name, key_name, '{}'.format(data))
+                redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
 
-            reduction_level_to_utilization_network_container = {}
-            reduction_level_to_utilization_disk_container = {}
-            reduction_level_to_utilization_cpu_container = {}
+            reduction_level_to_latency_disk_service[0] = baseline_runtime_array
+            hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'DISK')
+            sorted_set_name = '{},{}'.format(service_tag, 'DISK')
+            print 'HashName: {}'.format(hash_name)
+            print 'SortedSetName: {}'.format(sorted_set_name)
+            for metric, data in baseline_runtime_array.iteritems():
+                key_name = '{},{}'.format(0, metric)
+                sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                redis_db.hset(hash_name, key_name, '{}'.format(data))
+                redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
 
-            #Take baseline measurements: no perturbations!'''
-            BASELINE_ITERATIONS = 10
-            # BASELINE_ITERATIONS = 2 # For fast Benchmarking
-            experiment_args[0] = vm_ip
-            print 'EX ARG 0 {}'.format(experiment_args[0])
-            baseline_runtime_array, baseline_utilization_diff = measure_runtime(container_id, experiment_args, BASELINE_ITERATIONS, experiment_type)
-            reduction_level_to_latency_network_container[0] = baseline_runtime_array
-            reduction_level_to_latency_disk_container[0] = baseline_runtime_array
-            reduction_level_to_latency_cpu_container[0] = baseline_runtime_array
+            reduction_level_to_latency_cpu_service[0] = baseline_runtime_array
+            hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'CPU')
+            sorted_set_name = '{},{}'.format(service_tag, 'CPU')
+            print 'HashName: {}'.format(hash_name)
+            print 'SortedSetName: {}'.format(sorted_set_name)
+            for metric, data in baseline_runtime_array.iteritems():
+                key_name = '{},{}'.format(0, metric)
+                sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                redis_db.hset(hash_name, key_name, '{}'.format(data))
+                redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
 
-            reduction_level_to_utilization_network_container[0] = baseline_utilization_diff
-            reduction_level_to_utilization_disk_container[0] = baseline_utilization_diff
-            reduction_level_to_utilization_cpu_container[0] = baseline_utilization_diff
+        if not only_baseline:
+            for increment in increment_values:
+                if increment == 0:
+                    continue
 
-            if not only_baseline:
-                for increment in increments:
+                print 'Experiment with increment={}'.format(increment)
 
-                    print 'Experiment with increment={}'.format(increment)
+                if 'CPU' in resources:
+                    print '====================================='
+                    print 'INITIATING CPU Experiment'
 
-                    if 'CPU' in resources:
-                        print '====================================='
-                        print 'INITIATING CPU Experiment'
-                        num_full_disk = 0
-                        if use_causal_analysis:
-                            disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                            container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                            start_causal_cpu(ssh_client, container_id, disk_throttle_rate, network_reduction_rate)
+                    for vm_ip, container_id in ip_container_tuples:
+                        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                        ssh_client = ssh_clients[vm_ip]
+                        if cpu_cores:
+                            num_cores = weighting_to_cpu_cores(ssh_client, increment)
+                            throttle_cpu_cores(ssh_client, container_id, num_cores)
                         else:
                             cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                            throttle_cpu(ssh_client, container_id, 1000000, cpu_throttle_quota)
-                        results_data_cpu, cpu_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
-                        if use_causal_analysis:
-                            stop_causal_cpu(ssh_client, container_id)
-                        else:
-                            stop_throttle_cpu(ssh_client, container_id)
-                        reduction_level_to_latency_cpu_container[increment] = results_data_cpu
-                        reduction_level_to_utilization_cpu_container[increment] = cpu_utilization_diff
+                            throttle_cpu_quota(ssh_client, container_id, 1000000, cpu_throttle_quota)
 
-                    if 'NET' in resources:
-                            print '======================================'
-                            print 'INITIATING Network Experiment'
-                            try:
-                                if use_causal_analysis:
-                                    disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                                    cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                                    start_causal_network(ssh_client, container_id, 1000000, cpu_throttle_quota, disk_throttle_rate)
-                                else:
-                                    container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                                    network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                                    throttle_network(ssh_client, container_id, network_reduction_rate)
-                                results_data_network, network_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
+                    results_data_cpu = measure_runtime(container_id, experiment_args,
+                                                                             experiment_iterations, experiment_type)
 
-                                if use_causal_analysis:
-                                    stop_causal_network(ssh_client, container_id)
-                                else:
-                                    stop_throttle_network(ssh_client, container_id)
-                                reduction_level_to_latency_network_container[increment] = results_data_network
-                                reduction_level_to_utilization_network_container[increment] = network_utilization_diff
-                            except:
-                                print 'Passed NET'
-                                reduction_level_to_latency_network_container[increment] = reduction_level_to_latency_network_container[0]
-                                reduction_level_to_utilization_network_container[increment] = reduction_level_to_utilization_network_container[0]
-                    if 'DISK' in resources:
-                        print '======================================='
-                        print 'INITIATING Disk Experiment '
-                        if use_causal_analysis:
-                            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+                    for vm_ip, container_id in ip_container_tuples:
+                        ssh_client = ssh_clients[vm_ip]
+                        stop_throttle_cpu(ssh_client, container_id, cpu_cores)
+
+                    reduction_level_to_latency_cpu_service[increment] = results_data_cpu
+                    hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'CPU')
+                    sorted_set_name = '{},{}'.format(service_tag, 'CPU')
+                    print 'HashName: {}'.format(hash_name)
+                    print 'SortedSetName: {}'.format(sorted_set_name)
+                    for metric, data in results_data_cpu.iteritems():
+                        key_name = '{},{}'.format(increment, metric)
+                        sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                        redis_db.hset(hash_name, key_name, '{}'.format(data))
+                        redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
+
+                if 'NET' in resources:
+                    print '======================================'
+                    print 'INITIATING Network Experiment'
+                    try:
+                        for vm_ip, container_id in ip_container_tuples:
+                            print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                            ssh_client = ssh_clients[vm_ip]
                             container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-                            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment, container_to_network_capacity)
-                            start_causal_disk(ssh_client, container_id, 1000000, cpu_throttle_quota, network_reduction_rate)
-                        else:
-                            disk_throttle_rate = weighting_to_disk_access_rate(increment)
-                            throttle_disk(ssh_client, container_id, disk_throttle_rate)
-                        results_data_disk, disk_utilization_diff = measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type)
-                        if use_causal_analysis:
-                            stop_causal_disk(ssh_client, container_id)
-                        else:
-                            stop_throttle_disk(ssh_client, container_id)
-                        reduction_level_to_latency_disk_container[increment] = results_data_disk
-                        reduction_level_to_utilization_disk_container[increment] = disk_utilization_diff
+                            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment,
+                                                                            container_to_network_capacity)
+                            throttle_network(ssh_client, container_id, network_reduction_rate)
 
-            reduction_level_to_latency_network_service[container_id] = reduction_level_to_latency_network_container
-            reduction_level_to_latency_disk_service[container_id] = reduction_level_to_latency_disk_container
-            reduction_level_to_latency_cpu_service[container_id] = reduction_level_to_latency_cpu_container
+                        results_data_network = measure_runtime(container_id, experiment_args, experiment_iterations,
+                                                               experiment_type)
 
-            reduction_level_to_utilization_network_service[container_id] = reduction_level_to_utilization_network_container
-            reduction_level_to_utilization_disk_service[container_id] = reduction_level_to_utilization_disk_container
-            reduction_level_to_utilization_cpu_service[container_id] = reduction_level_to_utilization_cpu_container
+                        for vm_ip, container_id in ip_container_tuples:
+                            ssh_client = ssh_clients[vm_ip]
+                            stop_throttle_network(ssh_client, container_id)
 
-        reduction_level_to_latency_network[service] = reduction_level_to_latency_network_service
-        reduction_level_to_latency_disk[service] = reduction_level_to_latency_disk_service
-        reduction_level_to_latency_cpu[service] = reduction_level_to_latency_cpu_service
+                        reduction_level_to_latency_network_service[increment] = results_data_network
+                        hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'NET')
+                        sorted_set_name = '{},{}'.format(service_tag, 'NET')
+                        print 'HashName: {}'.format(hash_name)
+                        print 'SortedSetName: {}'.format(sorted_set_name)
+                        for metric, data in results_data_network.iteritems():
+                            key_name = '{},{}'.format(increment, metric)
+                            sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                            redis_db.hset(hash_name, key_name, '{}'.format(data))
+                            redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
+                    except:
+                        print 'Passed NET'
+                        reduction_level_to_latency_network_service[increment] = \
+                            reduction_level_to_latency_network_service[0]
+                if 'DISK' in resources:
+                    print '======================================='
+                    print 'INITIATING Disk Experiment '
+                    disk_throttle_rate = weighting_to_disk_access_rate(increment)
+                    for vm_ip, container_id in ip_container_tuples:
+                        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                        ssh_client = ssh_clients[vm_ip]
+                        throttle_disk(ssh_client, container_id, disk_throttle_rate)
 
-        reduction_level_to_utilization_network[service] = reduction_level_to_utilization_network_service
-        reduction_level_to_utilization_disk[service] = reduction_level_to_utilization_disk_service
-        reduction_level_to_utilization_cpu[service] = reduction_level_to_utilization_cpu_service
+                    results_data_disk = measure_runtime(container_id, experiment_args, experiment_iterations,
+                                                        experiment_type)
 
-    '''
-    if use_causal_analysis:
-        for key in sorted(results.iterkeys()):
-            if key != 0:
-                reduction_level_to_latency_disk = calculate_total_delay_added(container_id, reduction_level_to_latency_disk['latency'], reduction_level_to_utilization_disk, key, 'Disk')
-                reduction_level_to_latency_cpu = calculate_total_delay_added(container_id, reduction_level_to_latency_cpu['latency'], reduction_level_to_utilization_cpu, key, 'CPU')
-                reduction_level_to_latency_network = calculate_total_delay_added(container_id, reduction_level_to_latency_network['latency'], reduction_level_to_utilization_network, key, 'Network')
-    '''
+                    for vm_ip, container_id in ip_container_tuples:
+                        ssh_client = ssh_clients[vm_ip]
+                        stop_throttle_disk(ssh_client, container_id)
+
+                    reduction_level_to_latency_disk_service[increment] = results_data_disk
+                    hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'DISK')
+                    sorted_set_name = '{},{}'.format(service_tag, 'DISK')
+                    print 'HashName: {}'.format(hash_name)
+                    print 'SortedSetName: {}'.format(sorted_set_name)
+                    for metric, data in results_data_disk.iteritems():
+                        key_name = '{},{}'.format(increment, metric)
+                        sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
+                        redis_db.hset(hash_name, key_name, '{}'.format(data))
+                        redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
+
+                # Saving results
+                reduction_level_to_latency_network[service_tag] = reduction_level_to_latency_network_service
+                reduction_level_to_latency_disk[service_tag] = reduction_level_to_latency_disk_service
+                reduction_level_to_latency_cpu[service_tag] = reduction_level_to_latency_cpu_service
+
+                # File Checkpoint
+                file = append_results_to_file(reduction_level_to_latency_cpu, reduction_level_to_latency_disk,
+                                              reduction_level_to_latency_network, resources, increments,
+                                              experiment_type, experiment_iterations,
+                                              experiment_iteration_count, False)
+                print 'Checkpoint file for increment {} is {}'.format(increment, file)
+
     return reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network
 
 '''
@@ -381,18 +409,25 @@ if __name__ == "__main__":
     parser.add_argument("--stress_all_services", action="store_true", help="Stress all services")
     parser.add_argument("--resources_to_stress", help="List of resources to throttle")
     parser.add_argument("--stress_all_resources", action="store_true", help="Throttle all resources")
+    parser.add_argument("--cpu_cores", action="store_true", help="Use CPU core throttling")
     parser.add_argument("--stress_search_policy", help="Type of stress policy")
     parser.add_argument("--iterations", type=int, default=7, help="Number of HTTP requests to send the REST server per experiment")
-    parser.add_argument("--use_causal_analysis", action="store_true", help="Set this option to stress only a single variable")
     parser.add_argument("--only_baseline", action="store_true", help="Only takes a measurement of the baseline without any stress")
+    parser.add_argument("--increments", help="The increments of stressing")
+    parser.add_argument("--resume", help="Resume experiment (need to specify increments)")
+    parser.add_argument("--redis_ms", help="IP of Redis Machine")
+    parser.add_argument("--spark_stream", help ="IP of Spark Stream")
+    parser.add_argument("--kafka", help="IP of Kafka machine")
+    parser.add_argument("--spark_ms", help="IP of spark-ms ")
+    parser.add_argument("--spark_wk", help="IPs of spark workers")
+    parser.add_argument("--multiservice_stressing", help="Lists of services to be stressed together")
+
 
     args = parser.parse_args()
     print args
 
-#   ssh_client = get_client(args.victim_machine_public_ip)
-#   experiment_args = [args.website_ip, args.traffic_generator_public_ip]
-#   explore_stress_space(ssh_client, 'disk', experiment_args, args.experiment_type, 4000, 250, 'latency')
-#   exit()
+    # Initializing Redis DB
+    redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
 
     # Accomodating for wildcards
     if args.stress_all_services:
@@ -448,8 +483,133 @@ if __name__ == "__main__":
     for victim_ip in victim_ips:
         ssh_clients[victim_ip] = get_client(victim_ip)
 
+    # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
+    if args.experiment_type == 'REST':
+        experiment_args = [args.website_ip, ip_addresses]
+    elif args.experiment_type == "spark-ml-matrix":
+        #website_ip in this case is the spark master public ip
+        experiment_args = [args.website_ip, args.victim_machine_private_ip]
+    elif args.experiment_type == "nginx-single":
+        experiment_args = [args.website_ip, args.traffic_generator_public_ip]
+    elif args.experiment_type == "todo-app":
+        experiment_args = [args.website_ip, traffic_client]
+    elif args.experiment_type == "basic-get":
+        experiment_args = [args.website_ip, traffic_client]
+    elif args.experiment_type == "spark-streaming":
+        if not args.redis_ms:
+            print 'Please enter a redis IP'
+            exit()
+        else:
+            redis_ip = args.redis_ms
+        if not args.spark_stream:
+            print 'Please enter a spark-stream IP'
+            exit()
+        else:
+            spark_stream_ip = args.spark_stream
+        if not args.kafka:
+            print 'Please enter a kafka IP'
+            exit()
+        else:
+            kafka_ip = args.kafka
+        if not args.spark_ms:
+            print 'Please enter a spark-ms IP'
+            exit()
+        else:
+            spark_ms_ip = args.spark_ms
+        if not args.spark_wk:
+            print 'Please enter the spark worker IP'
+            exit()
+        else:
+            spark_wk_ip_list = args.spark_wk.split(',')
+        redis_dict = get_container_ids_all([redis_ip], "hantaowang/redis")
+        spark_stream_dict = get_container_ids_all([spark_stream_ip], "mchang6137/spark_streaming")
+        kafka_dict = get_container_ids_all([kafka_ip], "mchang6137/kafka")
+        spark_ms_dict = get_container_ids_all([spark_ms_ip], "mchang6137/spark-yahoo")
+        spark_wk_dict = {"spark-wk": []}
+        for spark_wk_ip in spark_wk_ip_list:
+            spark_wk_sub_dict = get_container_ids_all([spark_wk_ip], "mchang6137/spark-yahoo")
+            spark_wk_dict["spark-wk"].append(spark_wk_sub_dict["mchang6137/spark-yahoo"])
+            ssh_clients[spark_wk_ip] = get_client(spark_wk_ip)
+            # Adding spark worker ips to ip_addresses
+            ip_addresses.append(spark_wk_ip)
+
+        experiment_args_dict = {}
+        experiment_args_dict.update(redis_dict)
+        experiment_args_dict.update(spark_stream_dict)
+        experiment_args_dict.update(kafka_dict)
+        experiment_args_dict.update(spark_ms_dict)
+        experiment_args_dict.update(spark_wk_dict)
+        experiment_args = [experiment_args_dict]
+
+        #Initialize Spark Master
+        initialize_spark_experiment(experiment_args[0])
+    else:
+        print 'INVALID EXPERIMENT TYPE: {}'.format(args.experiment_type)
+        exit()
+
+    # Notifying User CPU throttling type
+    cpu_cores = args.cpu_cores
+    if cpu_cores:
+        print 'Using CPU Core Throttling'
+    else:
+        print 'Using CPU Quota Throttling'
+
+    # Getting increments
+    if not args.increments:
+        if args.resume:
+            print 'If resuming from a previous experiment, please specify increments'
+            exit()
+        increments = [0, 20, 40, 60, 80]
+    else:
+        if args.only_baseline:
+            print 'Cannot specify increments when only_baseline is true'
+            exit()
+        string_increments = args.increments.split(',')
+        try:
+            increments = map(int, string_increments)
+        except:
+            print 'ERROR: Increments must be integers'
+            exit()
+    experiment_inc_args = [increments, experiment_args]
+
+    if args.resume:
+        print 'RESUME FUNCTIONALITY HAS BEEN SHELVED FOR LATER (AND IT IS ALSO OUTDATED)'
+        exit()
+        try:
+            previous_results = read_from_file(args.resume, True)
+        except:
+            print 'File not found'
+            exit()
+        resume_boolean = True
+    else:
+        resume_boolean = False
+        previous_results = None
+
     # Retrieving dictionary of container_ids with service names as keys
     container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
+
+    # Accounting for multi-service stressing (Currently only works for stress_policy=ALL)
+    if args.multiservice_stressing:
+        multi_service_lists = args.multiservice_stressing.split('|')
+        for multi_service_str in multi_service_lists:
+            multi_service_list = ast.literal_eval(multi_service_str)
+            new_multi_service_tuple_list = []
+            new_multi_service_name = None
+            for multi_service in multi_service_list:
+                old_container_tuple_list = container_ids_dict.pop(multi_service, None)
+                if not old_container_tuple_list:
+                    print 'Service {} not found'.format(multi_service)
+                    exit()
+                new_multi_service_tuple_list += old_container_tuple_list
+                if not new_multi_service_name:
+                    new_multi_service_name = multi_service
+                else:
+                    new_multi_service_name += '+{}'.format(multi_service)
+            container_ids_dict.update({new_multi_service_name: new_multi_service_tuple_list})
+
+    # Checking for stress search type
+    if stress_policy == 'HALVING' or stress_policy == 'BINARY':
+        container_ids_dict1, container_ids_dict2 = container_ids_dict
 
     results_disk = {}
     results_cpu = {}
@@ -457,23 +617,7 @@ if __name__ == "__main__":
 
     continue_stressing = True
 
-    # Checking for stress search type
-    if stress_policy == 'HALVING' or stress_policy == 'BINARY':
-        container_ids_dict1, container_ids_dict2 = container_ids_dict
-
-    # MESSY TODO: Write an abstract class for the experiment type and implement elsewhere
-    if args.experiment_type == 'REST':
-        experiment_args = [args.website_ip.split(','), ip_addresses]
-    elif args.experiment_type == "spark-ml-matrix":
-        #website_ip in this case is the spark master public ip
-        experiment_args = [args.website_ip.split(','), args.victim_machine_private_ip]
-    elif args.experiment_type == "nginx-single":
-        experiment_args = [args.website_ip.split(','), args.traffic_generator_public_ip]
-    elif args.experiment_type == "todo-app":
-        experiment_args = [args.website_ip.split(','), traffic_client]
-    else:
-        print 'INVALID EXPERIMENT TYPE'
-        exit()
+    experiment_iteration_count = 0
 
     while continue_stressing:
         # Reset results dictionary for each iteration
@@ -482,10 +626,19 @@ if __name__ == "__main__":
         results_network = {}
 
         if stress_policy == 'BINARY' or stress_policy == 'HALVING':
-            results1 = model_machine(ssh_clients, container_ids_dict1, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
-            results2 = model_machine(ssh_clients, container_ids_dict2, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
+            results1 = model_machine(ssh_clients, container_ids_dict1, experiment_inc_args, args.iterations,
+                                     args.experiment_type, stress_policy, resources,
+                                     args.only_baseline, resume_boolean, previous_results, experiment_iteration_count,
+                                     redis_db)
+            results2 = model_machine(ssh_clients, container_ids_dict2, experiment_inc_args, args.iterations,
+                                     args.experiment_type, stress_policy, resources,
+                                     args.only_baseline, resume_boolean, previous_results, experiment_iteration_count,
+                                     redis_db)
         else: # More will be added as more search policies are implemented
-            results = model_machine(ssh_clients, container_ids_dict, experiment_args, args.iterations, args.experiment_type, stress_policy, resources, args.use_causal_analysis, args.only_baseline)
+            results = model_machine(ssh_clients, container_ids_dict, experiment_inc_args, args.iterations,
+                                    args.experiment_type, stress_policy, resources,
+                                    args.only_baseline, resume_boolean, previous_results, experiment_iteration_count,
+                                    redis_db)
 
         if args.experiment_type == 'REST':
             for service, (vm_ip, container_id) in container_ids_dict:
@@ -509,5 +662,7 @@ if __name__ == "__main__":
                 results, _ = results
             results_cpu, results_disk, results_network = results
 
-    output_file_name = append_results_to_file(results_cpu, results_disk, results_network, args.experiment_type, args.use_causal_analysis, args.iterations)
-    plot_results(output_file_name, args.experiment_type, args.iterations, 'save', convertToMilli=results_in_milli, use_causal_analysis=args.use_causal_analysis)
+        experiment_iteration_count += 1
+
+    output_file_name = append_results_to_file(results_cpu, results_disk, results_network, resources, increments, args.experiment_type, args.iterations, '-',True)
+    #plot_results(output_file_name, resources, args.experiment_type, args.iterations, 'save', convertToMilli=results_in_milli)
