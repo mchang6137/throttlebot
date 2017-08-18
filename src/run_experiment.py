@@ -68,10 +68,7 @@ def measure_nginx_single_machine(container_id, experiment_args, experiment_itera
     field_name = 'percent requests within {}'.format(ACCEPTABLE_MS)
     all_requests[field_name] = []
 
-    utilization_diffs = []
-
     for x in range(experiment_iterations):
-        initial_utilizations = get_all_throttled_utilizations(nginx_ssh_client, container_id)
         benchmark_cmd = 'ab -n {} -c {} -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS, CONCURRENCY, nginx_public_ip)
         print benchmark_cmd
         _, results, _ = ssh_client.exec_command(benchmark_cmd)
@@ -91,11 +88,7 @@ def measure_nginx_single_machine(container_id, experiment_args, experiment_itera
         all_requests['rps'].append(execute_parse_results(ssh_client, rps_cmd))
         all_requests[field_name].append(execute_parse_results(ssh_client, requests_within_time_cmd))
 
-        final_utilizations = get_all_throttled_utilizations(nginx_ssh_client, container_id)
-
-        utilization_diffs.append(get_utilization_diff(initial_utilizations, final_utilizations))
-
-    return all_requests, utilization_diffs
+    return all_requests
 
 #Measure response time for Spark ML-Matrix
 def measure_ml_matrix(container_id, spark_args, experiment_iterations):
@@ -123,11 +116,8 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
     #execute_spark_job = 'docker exec {} {}'.format(container_name.read().strip('\n'), spark_submit_cmd)
     print execute_spark_job
 
-    utilization_diffs = []
     #Run the experiment experiment_iteration number of times
     for x in range(experiment_iterations):
-        initial_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
-        print 'INITIAL UTILIZATIONS: {}'.format(initial_utilizations)
         _, runtime, _ = ssh_client.exec_command(execute_spark_job)
         print 'about to print the runtime read'
         result_time = runtime.read()
@@ -137,23 +127,12 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
         except IndexError:
             print 'Spark out of memory!'
             all_results['latency'].append(0)
-            final_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
-            utilization_diffs.append(get_utilization_diff(initial_utilizations, final_utilizations))
             continue
         all_results['latency'].append(runtime)
-        #Returns in milliseconds
-        print 'iteration {} complete'.format(x)
-        final_utilizations = get_all_throttled_utilizations(ssh_client, container_id)
-        print 'FINAL UTILIZATIONS: {}'.format(final_utilizations)
-        utilization_diffs.append(get_utilization_diff(initial_utilizations, final_utilizations))
 
     print all_results
 
-#    numpy_all_requests = numpy.array(all_runtimes)
-
-#   mean = numpy.mean(numpy_all_requests)
-#    std = numpy.std(numpy_all_requests)
-    return all_results, utilization_diffs
+    return all_results
 
 #container_id unused: see note in measure_runtime
 def measure_TODO_response_time(container_id, todo_args, iterations):
@@ -166,8 +145,6 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
     all_requests['latency_50'] = []
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
-
-    dummy_utilizations = {}
 
     NUM_REQUESTS = 500
     CONCURRENCY = 200
@@ -201,7 +178,7 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
         cleared.read()
 
     print all_requests
-    return all_requests, dummy_utilizations
+    return all_requests
 
 #Measure response time for MEAN Application
 #container_id unused: see note in measure_runtime
@@ -253,4 +230,4 @@ def measure_GET_response_time(container_id, experiment_args, iterations):
         all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
         all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
 
-    return all_requests, {}
+    return all_requests

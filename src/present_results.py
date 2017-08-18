@@ -60,7 +60,7 @@ def read_from_file(data_file, resume_boolean):
 
     return cpu, disk, network
 
-def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number, use_causal_analysis, ylim_min, ylim_max):
+def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number, ylim_min, ylim_max):
     axis_labels.sort()
     axis_labels = [str(x) for x in axis_labels]
     print axis_labels
@@ -69,10 +69,7 @@ def plot_boxplot(axis_labels, box_array, metric, resource_field, subplot_number,
     plt.ylabel('Metric: {}'.format(metric))
     plt.ylim([ylim_min, ylim_max])
     plt.xlabel('Stress Percentage')
-    if use_causal_analysis:
-        plt.title('Stressing all resources except {}'.format(resource_field))
-    else:
-        plt.title('Stressing only {}'.format(resource_field))
+    plt.title('Stressing only {}'.format(resource_field))
     plt.boxplot(box_array)
     plt.grid(True)
 
@@ -111,21 +108,16 @@ def plot_flat_baseline(box_array, metric):
     flat_line = [median] * 5
     plt.plot(x, flat_line, 'r--', label='Baseline (No stresses)')
 
-def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, use_causal_analysis, iterations,
+def append_results_to_file(cpu, disk, network, resources, increments, experiment_type, iterations,
                            experiment_iteration_count, finished_boolean):
     OUTPUT_DIRECTORY = 'results/'
-    causal_output = ''
-    if use_causal_analysis:
-        causal_output = 'causal'
-    else:
-        causal_output = 'singlestress'
 
     if finished_boolean:
         status = 'Full'
     else:
         status = 'Checkpoint'
 
-    output_file_name = '{}_{}_{}_{}_{}.csv'.format(status, experiment_type, causal_output, experiment_iteration_count,
+    output_file_name = '{}_{}_{}_{}.csv'.format(status, experiment_type, experiment_iteration_count,
                                                    datetime.datetime.now())
 
     if not os.path.exists(OUTPUT_DIRECTORY):
@@ -172,16 +164,11 @@ def append_results_to_file(cpu, disk, network, resources, increments, experiment
     return OUTPUT_DIRECTORY + output_file_name
 
 # OUTDATED (NO CONTAINER ID)
-def plot_results(data_file, resources, experiment_type, iterations, should_save, convertToMilli=True, use_causal_analysis=True):
+def plot_results(data_file, resources, experiment_type, iterations, should_save, convertToMilli=True):
     cpu, disk, network = read_from_file(data_file, False)
 
     OUTPUT_DIRECTORY = 'results/graphs/'
-    causal_output = ''
-    if use_causal_analysis:
-        causal_output = 'causal'
-    else:
-        causal_output = 'singlestress'
-    output_dir_name = '{}_{}_{}_{}'.format(experiment_type, causal_output, iterations, datetime.datetime.now())
+    output_dir_name = '{}_{}_{}'.format(experiment_type, iterations, datetime.datetime.now())
 
     # Save the image in the appropriate directory
     if not os.path.exists(OUTPUT_DIRECTORY + output_dir_name):
