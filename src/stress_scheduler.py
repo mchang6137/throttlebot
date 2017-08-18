@@ -190,7 +190,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                   stress_policy, resources, only_baseline, resume_bool, prev_results,
                   experiment_iteration_count, redis_db):
 
-    # Resume outdated
+    # RESUME FUNCTION SHELVED FOR LATER (ALSO OUTDATED)
     if not resume_bool:
         reduction_level_to_latency_network = {}
         reduction_level_to_latency_disk = {}
@@ -200,7 +200,6 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
 
     increment_values = experiment_inc_args[0]
     experiment_args = experiment_inc_args[1]
-    print experiment_args
 
     # Declaring baseline outside of loop for ALL services
     baseline_runtime_array, baseline_utilization_diff = None, None
@@ -208,7 +207,6 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
     for service, ip_container_tuples in container_ids_dict.iteritems():
         print 'STRESSING SERVICE {}'.format(service)
 
-        # Resume outdated
         if not resume_bool or (service not in reduction_level_to_latency_cpu):
             reduction_level_to_latency_network_service = {}
             reduction_level_to_latency_disk_service = {}
@@ -295,11 +293,11 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                         print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
                         ssh_client = ssh_clients[vm_ip]
                         if cpu_cores:
-                                num_cores = weighting_to_cpu_cores(ssh_client, increment)
-                                throttle_cpu_cores(ssh_client, container_id, num_cores)
+                            num_cores = weighting_to_cpu_cores(ssh_client, increment)
+                            throttle_cpu_cores(ssh_client, container_id, num_cores)
                         else:
-                                cpu_throttle_quota = weighting_to_cpu_quota(increment)
-                                throttle_cpu_quota(ssh_client, container_id, 1000000, cpu_throttle_quota)
+                            cpu_throttle_quota = weighting_to_cpu_quota(increment)
+                            throttle_cpu_quota(ssh_client, container_id, 1000000, cpu_throttle_quota)
 
                     results_data_cpu = measure_runtime(container_id, experiment_args,
                                                                              experiment_iterations, experiment_type)
@@ -331,9 +329,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                                                                             container_to_network_capacity)
                             throttle_network(ssh_client, container_id, network_reduction_rate)
 
-                        results_data_network = measure_runtime(container_id, experiment_args,
-                                                                                         experiment_iterations,
-                                                                                         experiment_type)
+                        results_data_network = measure_runtime(container_id, experiment_args, experiment_iterations,
+                                                               experiment_type)
 
                         for vm_ip, container_id in ip_container_tuples:
                             ssh_client = ssh_clients[vm_ip]
@@ -362,8 +359,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                         ssh_client = ssh_clients[vm_ip]
                         throttle_disk(ssh_client, container_id, disk_throttle_rate)
 
-                    results_data_disk = measure_runtime(container_id, experiment_args,
-                                                                              experiment_iterations, experiment_type)
+                    results_data_disk = measure_runtime(container_id, experiment_args, experiment_iterations,
+                                                        experiment_type)
 
                     for vm_ip, container_id in ip_container_tuples:
                         ssh_client = ssh_clients[vm_ip]
@@ -423,6 +420,7 @@ if __name__ == "__main__":
     parser.add_argument("--kafka", help="IP of Kafka machine")
     parser.add_argument("--spark_ms", help="IP of spark-ms ")
     parser.add_argument("--spark_wk", help="IPs of spark workers")
+    parser.add_argument("--multiservice_stressing", help="Lists of services to be stressed together")
 
 
     args = parser.parse_args()
@@ -575,6 +573,8 @@ if __name__ == "__main__":
     experiment_inc_args = [increments, experiment_args]
 
     if args.resume:
+        print 'RESUME FUNCTIONALITY HAS BEEN SHELVED FOR LATER (AND IT IS ALSO OUTDATED)'
+        exit()
         try:
             previous_results = read_from_file(args.resume, True)
         except:
@@ -587,7 +587,26 @@ if __name__ == "__main__":
 
     # Retrieving dictionary of container_ids with service names as keys
     container_ids_dict = get_container_ids(ip_addresses, services, resources, stress_policy)
-    
+
+    # Accounting for multi-service stressing (Currently only works for stress_policy=ALL)
+    if args.multiservice_stressing:
+        multi_service_lists = args.multiservice_stressing.split('|')
+        for multi_service_str in multi_service_lists:
+            multi_service_list = ast.literal_eval(multi_service_str)
+            new_multi_service_tuple_list = []
+            new_multi_service_name = None
+            for multi_service in multi_service_list:
+                old_container_tuple_list = container_ids_dict.pop(multi_service, None)
+                if not old_container_tuple_list:
+                    print 'Service {} not found'.format(multi_service)
+                    exit()
+                new_multi_service_tuple_list += old_container_tuple_list
+                if not new_multi_service_name:
+                    new_multi_service_name = multi_service
+                else:
+                    new_multi_service_name += '+{}'.format(multi_service)
+            container_ids_dict.update({new_multi_service_name: new_multi_service_tuple_list})
+
     # Checking for stress search type
     if stress_policy == 'HALVING' or stress_policy == 'BINARY':
         container_ids_dict1, container_ids_dict2 = container_ids_dict
@@ -597,9 +616,6 @@ if __name__ == "__main__":
     results_network = {}
 
     continue_stressing = True
-
-    print experiment_args
-    print ip_addresses
 
     experiment_iteration_count = 0
 
