@@ -16,130 +16,165 @@ from random import shuffle
 from time import sleep
 
 from collection import namedtuple
+
 from stress_analyzer import *
 from modify_resources import *
 from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
 from container_information import *
-from present_results import *
-from run_spark_streaming import *
+from cluster_information import *
+
+from stress_analyzer import MR
 
 import redis_client as tbot_datastore
+import redis_resource as resource_datastore
 
-#Amount of time to allow commands to propagate through system
-COMMAND_DELAY = 3
-
-# Frontend for all resource modifications
-# Given a MR, this function will take the original resource allocation at the current iteration
-# To add a stress, it must be added as a function here.
-# If the current resource allocation of the MR is equivalent to R
-# increment_level = 20 will cause Tbot to update the resource provision to  R - 0.2R
-# increment_level = 0 will allow Tbot to effectively reset the resource provisioning to the previous level
-def change_MR_provision(mr, current_mr_allocation, iteration_num, increment_level=0):
-    for container_id,vm_id in mr.mr_instances:
-        ssh_client = get_client(vm_id)
+# Sets the resource provision for all containers in a service
+def set_mr_provision(mr, new_mr_allocation):
+    for vm_ip,container_id in mr.mr_instances:
+        ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORES':
-            num_cores = weighting_to_cpu_cores(ssh_client, increment_level)
-            throttle_cpu_cores(ssh_client, container_id, num_cores)
+            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
-            cpu_throttle_quota = weighting_to_cpu_quota(increment_level)
             #TODO: Period should not be hardcoded to 1 second
-            throttle_cpu_quota(ssh_client, container_id, 1000000, cpu_throttle_quota)
+            set_cpu_quota(ssh_client, container_id, 1000000, new_mr_allocation)
         elif mr.resource == 'DISK':
-            disk_throttle_rate = weighting_to_disk_access_rate(increment_level)
-            throttle_disk(ssh_client, container_id, disk_throttle_rate)
+            change_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
-            container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-            network_reduction_rate = weighting_to_bandwidth(ssh_client, increment_level, container_to_network_capacity)
-            throttle_network(ssh_client, container_id, network_reduction_rate)
+            set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
         else:
             print 'INVALID resource'
             return
-
-### Throttle only a single resource at a time.
-def throttle_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
-    # update_cpu_through_stress(ssh_client, number_of_stress)
-    set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota)
-
-def throttle_cpu_cores(ssh_client, container_id, cores):
-    set_cpu_cores(ssh_client, container_id, cores)
-
-def throttle_disk(ssh_client, container_id, disk_rate):
-    print 'Disk Throttle Rate: {}'.format(disk_rate)
-    return change_container_blkio(ssh_client, container_id, disk_rate)
-    # return create_dummy_disk_eater(ssh_client, disk_rate)
-
-# network_bandwidth is a map from interface->bandwidth
-def throttle_network(ssh_client, container_id, network_bandwidth):
-    print 'Network Reduction Rate: {}'.format(network_bandwidth)
-    set_egress_network_bandwidth(ssh_client, container_id, network_bandwidth)
-
-def stop_throttle_cpu(ssh_client, container_id, cores):
-    print 'RESETTING CPU THROTTLING'
-    if cores:
-        reset_cpu_cores(ssh_client, container_id)
+        
+# Converts a change in resource provisioning to raw change
+# current_mr_allocation is dict for a MR from its resource to its provision
+# Example: 20% -> 24 Gbps
+def convert_percent_to_raw(mr, current_service_allocation, weight_change=0):
+    if mr.resource == 'CPU-CORES':
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation['CPU-CORES'])
+    elif mr.resource == 'CPU-QUOTA':
+        return weighting_to_cpu_quota(weight_change, current_mr_allocation['CPU-QUOTA'])
+    elif mr.resource == 'DISK':
+        return  weighting_to_blkio(weight_change, current_mr_allocation['DISK'])
+    elif mr.resource == 'NET':
+        return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
     else:
-        reset_cpu_quota(ssh_client, container_id)
+        print 'INVALID resource'
+        exit()
 
-def stop_throttle_network(ssh_client, container_id):
-    print 'RESETTING NETWORK THROTTLING'
-    # reset_egress_network_bandwidth(ssh_client, container_id)
-    container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
-    network_bandwith = weighting_to_bandwidth(ssh_client, 0, container_to_network_capacity)
-    throttle_network(ssh_client, container_id, network_bandwith)
+# Collect real information about the cluster and write to redis
+# ALL Information (regardless of user inputs are collected in this step)
+def init_service_placement_r(redis_db, machine_type):
+    # Collect real information about the application
+    vm_list = get_actual_vms()
 
-def stop_throttle_disk(ssh_client, container_id):
-    print 'RESETTING DISK THROTTLING'
-    change_container_blkio(ssh_client, container_id, 0)
-    # remove_dummy_disk_eater(ssh_client, num_fail)
+    # Write to Redis where each service is located in the cluster
+    service_to_deployment = get_service_placements(vm_list)
+    for service in service_to_deployment:
+        write_service_locations(redis_db, service, service_to_deployment[service])
+    return service_to_deployment
 
-# One-time initialization of Throttlebot Tools
-def initialize_experiment(redis_host='localhost'):
-    # Initializing Redis DB
-    redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
+# Set the current resource configurations within the actual containers
+# Data points in resource_config are expressed in percentage change
+def init_resource_config(redis_db, resource_config, machine_type):
+    print 'Initializing the Resource Configurations in the containers'
+    instance_specs = get_instance_specs(machine_type)
+    
+    for mr in resource_config:
+        weight_change = resource_config[mr]
+        new_resource_provision = convert_percent_to_raw(mr, instance_specs, weight_change)
+        # Enact the change in resource provisioning
+        set_mr_provision(mr, new_resource_provision)
 
-def run(system_config, workload_config, cluster_config):
+        # Reflect the change in Redis
+        write_mr_alloc(redis_db, mr, new_resource_provision)
+
+# Checks if the current system can support improvements in a particular MR
+def check_improve_mr_viability(mr, improvement_amount):
+    print 'Checking MR viability'
+    
+
+def run(system_config, workload_config, resource_config):
     redis_db = system_config['redis_host']
     baseline_trials = system_config['baseline_trials']
     experiment_trials = system_config['trials']
-    increments = system_config['increments']
+    stress_weights = system_config['stress_weights']
+    stress_policy = system_config['stress_policy']
+    resource_to_stress = system_config['stress_these_resources']
+    service_to_stress = system_config['stress_these_services']
+    vm_to_stress = system_config['stress_these_machines']
+    machine_type = system_config['machine_type']
     preferred_performance_metric = workload_config['tbot_metric']
-    
-    initialize_experiment(redis_db)
-    set_all_resources(cluster_config)
+    optimize_for_lowest = workload_config['optimize_for_lowest']
+
+    redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
+
+    # Automatically Collect real information about the cluster
+    service_to_deployment = init_service_placement_r(redis_db, machine_type)
+    init_resource_config(redis_db, resource_config, machine_type)
     
     experiment_count = 0
-    
+
     while experiment_count < 3:
         # Run the baseline experiment
         baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
 
-        #Get a list of tuples (named tuples) to stress
-        mr_to_stress = get_container_ids(ip_addresses)
+        # Get a list of MRs to stress in the form of a list of MRs
+        mr_to_stress = generate_mr_from_policy(vm_to_stress, service_to_stress, resource_to_stress, stress_policy)
+        
         for mr in mr_to_stress:
             increment_to_performance = {}
             current_mr_allocation = get_MR_provision(redis_db, mr)
-            for increment_level in increments:
-                change_MR_provision(mr, current_mr_allocation, experiment_count, increment_level)
+            for stress_weight in stress_weights:
+                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
+                set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
-                #Remove the effects of the re-provisioning
-                change_MR_provision(mr, current_mr_allocation, experiment_count, 0)
-                increment_to_performance[increment_level] = experiment_results
+                #Write results of experiment to Redis
+                mean_result = float(sum(experiment_results[preferred_performance_metric])) /
+                              len(experiment_results[preferred_performance_metric])
+                write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
+                
+                # Remove the effect of the resource stressing
+                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
+                increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
             write_redis_results(redis_db, increment_to_performance, mr, experiment_count, preferred_performance_metric)
+        
+        # Recover the results of the experiment from Redis
+        max_stress_weight = min(stress_weights)
+        mimr_list = get_top_n_mimr(redis_db, experiment_iteration_count, preferred_performance_metric, max_stress_weight, 
+                                   get_lowest=optimize_for_lowest, 10)
+        
+        # Try all the MIMRs in the list until a viable improvement is determined
+        # Improvement Amount 
+        for mr in mimr_list:
+            improvement_percent = improve_mr_by(redis_db, mr)
+            if check_improve_mr_viability(mr, improvement_percent):
+                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
+                set_mr_provision(mr, new_alloc)
+                print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc) 
+                break
+            else:
+                print 'Improvement Attempted by not viable: MR {} improved by {}'.format(mr.to_string(), new_alloc)
 
-        #Recover the results of the experiment from Redis
-        mimr = get_mimr(redis_db, experiment_iteration_count)
+        #Compare against the baseline at the beginning of the program
+        improved_performance = measure_runtime(workload_config, baseline_trials, experiment_count)
+        performance_gain = improved_performance - baseline_results
         
         # Write a summary of the experiment's iterations to Redis
         write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_gain) 
 
         # TODO: Handle False Positive
-        # TODO: Compare against performance condition -- for now only do some number of experiments 
+        # TODO: Compare against performance condition -- for now only do some number of experiments
+
+# Determine Amount to improve a MIMR
+def improve_mr_by(redis_db, mimr, weight_stressed):
+    #Simple heuristic currently: Just improve by amount it was improved
+    return (weight_stressed * -1)
 
 # Run baseline
 def measure_baseline(workload_config, baseline_trials=10, experiment_num)
@@ -157,17 +192,21 @@ def parse_config_file(config_file):
     #Configuration Parameters relating to Throttlebot
     sys_config['baseline_trials'] = config.getint('Basic', 'trials')
     sys_config['trials'] = config.getint('Basic', 'trials')
-    sys_config['increments'] = config.get('Basic', 'increments').split(',')
+    sys_config['stress_weight'] = config.get('Basic', 'stress_weight').split(',')
     sys_config['stress_these_resources'] = config.get('Basic', 'stress_these_resources').split(',')
     sys_config['stress_these_services'] = config.get('Basic', 'stress_these_services').split(',')
+    sys_config['stress_these_machines'] = config.get('Basic', 'stress_these_machines').split(',')
     sys_config['redis_host'] = config.get('Basic', 'redis_host')
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
+    # Assume that an application deployed on homogeneous machines
+    sys_config['instance_type'] = config.get('Basic', 'machine_type')
         
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
     workload_config['request_generator'] = config.get('Workload', 'request_generator').split(',')
     workload_config['frontend'] = config.get('Workload', 'frontend')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
+    workload_config['tbot_metric_optimal'] = config.getboolean('Workload', 'optimize_for_lowest')
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
 
     #Additional experiment-specific arguments
@@ -180,11 +219,61 @@ def parse_config_file(config_file):
     workload_config['additional_args'] = additional_args_dict
     return sys_config, workload_config
 
+# Parse a default resource configuration
+# Returns a mapping of a MR to its current resource allocation (raw amount)
+def parse_resource_conf_file(resource_config):
+    mr_allocation = {}
+    vm_list = get_actual_vms()
+    
+    # Empty Config means that we should default resource allocation to half of current resource allocation
+    if config_file is None:
+        service_to_deployment = get_service_placements(vm_list)
+        vm_to_service = get_vm_to_service(vm_list)
+        instance_specs = get_instance_specs(instance_type)
+
+        # DEFAULT_ALLOCATION sets the initial configuration
+        # Ensure that we will not violate resource provisioning in the machine
+        # Assign resources equally to services without exceeding machine resource limitations
+        DEFAULT_CHANGE= -50
+        max_num_services = 0
+        for vm in vm_to_service:
+            if len(vm_to_service[vm]) > max_num_services:
+                max_num_services = len(vm_to_service[vm])
+        default_change = 100.0 / max_num_services
+        if default_change > 50:
+            default_change = 50
+        # Multiply by -1 to remove the resource provisioned
+        default_change = default_change * -1
+        mr_list = get_all_mrs('*', '*', '*')
+        for mr in mr_list:
+            mr_allocation[mr] = default_change
+    else:
+        print 'Placeholder for a way to configure the resources'
+
+    return mr_allocation
+
+# Throttlebot allows regex * to represent ALL
+def resolve_config_wildcards(sys_config, workload_config):
+    if sys_config['stress_these_services'][0] == '*':
+        sys_config['stress_these_services'] = get_actual_vms()
+    if sys_config['stress_these_machines'] == '*':
+        sys_config['stress_these_machines'] = get_actual_services()
+
 def validate_configs(sys_config, workload_config):
     #Validate Address related configuration arguments
     validate_ip([sys_config['redis_host']])
     validate_ip(workload_config['frontend'])
     validate_ip(workload_config['request_generator'])
+
+    for resource in sys_config['stress_these_resources'] :
+        if resource == 'CPU-CORES' or
+                       'CPU-QUOTA' or
+                       'DISK'      or
+                       'NET'       or
+                       '*':
+            continue
+        else:
+            print 'Cannot stress a specified resource: {}'.format(resource)
 
 #Possibly will need to be changed as we start using hostnames in Quilt
 def validate_ip(ip_addresses):
@@ -204,12 +293,12 @@ Examples:
 '''
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("config_file", help="Configuration File for Throttlebot Execution")
-    parser.add_argument("default_resource_config", help='Default Resource Allocation for Throttlebot')
+    parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
+    parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     args = parser.parse_args()
+    
     sys_config, workload_config = parse_config_file(args.config_file)
-    resource_allocation = set_default_configuration(args.default_resource_config)
+    resource_config = parse_resource_config_file(args.default_resource_config)
                              
-    run_experiment(sys_config, workload_config, resource_allocation)
-
+    run(sys_config, workload_config, resource_config)
 
