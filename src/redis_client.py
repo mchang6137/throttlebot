@@ -65,12 +65,14 @@ def get_mimr(redis_db, experiment_iteration_count, perf_metric, get_lowest=True)
 # Currently assuming that there is only a single metric that a user would care about
 def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken):
     hash_name = '{}summary'.format(experiment_iteration_count)
-    redis_db.zadd(hash_name, 'mimr', mimr, 'perf_improvement', perf_gain, 'action_taken', action_taken)
+    redis_db.hset(hash_name, 'mimr', mimr)
+    redis_db.hset(hash_name, 'perf_improvement', perf_gain)
+    redis_db.hset(hash_name, 'action_taken', action_taken)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
     hash_name = '{}summary'.format(experiment_iteration_count)
     mimr = redis_db.hget(hash_name, 'mimr')
-    perf_improvement = redis_db.get(hash_name, 'perf_improvement')
-    action_taken = redis_db.get(hash_name, 'action_taken')
+    perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
+    action_taken = redis_db.hget(hash_name, 'action_taken')
     return mimr, action_taken, perf_improvement
