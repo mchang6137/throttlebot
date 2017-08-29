@@ -1,65 +1,65 @@
-'''Converts various weightings between 0 and 100 to an actual amount to stress particular resource to'''
+)'''
+
+Converts various weightings between 0 and 100 to an actual amount to stress particular resource to
+
+ALL UNITS IN BITS
+
+All functions accept:
+1.) Current allocation of resource
+2.) Percentage to change resource. 
+- A positive number means to increase the resource provisioning by a certain amount. 
+- A negative numbers means to decrease the resource provisioning by a certain amount
+
+Returns the new bandwdith
+
+'''
 from modify_resources import *
 from remote_execution import *
 
-def weighting_to_latency(weighting):
-    MAX_LATENCY = 2
-    if weighting < 0 or weighting > 100:
-        print ('Invalid Weighting')
-        return
-    return (weighting / 100.0) * MAX_LATENCY
+# Change the networking capacity
+# Current Capacity in bits/p
+def weighting_to_net_bandwidth(weight_change, current_alloc):
+    new_bandwidth = current_alloc + ((weight_change / 100.0) * current_capacity)
+    assert new_bandwidth > 0 
+    return new_bandwidth
 
-###Possible substitute using network bandwidth throttling instead of latency values
-###Returns the throttled bandwidth to bits/sec
-def weighting_to_bandwidth(ssh_client, weighting, container_to_capacity):
-    if weighting < 0 or weighting > 100:
-        print 'Invalid Weighting'
-        return
-
-    #Convert to stress amount AND convert from Mbps to bps
-    for container in container_to_capacity:
-        reduction = 100 - weighting
-        container_to_capacity[container] = container_to_capacity[container] * reduction / 100 * 1000000
-
-    return container_to_capacity
-
-def weighting_to_blkioweight(weighting):
-    MAX_BLKIO = 990
-    if weighting < 0 or weighting > 100:
-        print ('Invalid Weighting')
+# Change the weighting on the blkio
+# Conducted for the disk stressing
+def weighting_to_blkio(weight_change, current_alloc):
+    if weighting <= 0 or weighting > 100:
+        print ('Invalid Weighting for blkioweight')
         return
     #+10 because blkio only accepts values between 10 and 1000
         #Lower weighting must have lower bound on the blkio weight allocation
-    return int((weighting / 100.0) * MAX_BLKIO + 10)
+    new_blkio = current_alloc + int((weight_change / 100.0) * current_alloc + 10)
+    assert new_blkio > 0
+    return new_blkio
 
-def weighting_to_disk_access_rate(weighting):
-    #This is a hack! To find the max disk throughput, try:
-    # sudo hdparm -t /dev/xvda
-    #Units are Bytes/second
-    #70 MB = 7000000 Bytes
-    #INTRA-VM
-    MAX_DISK_READ = 70000000
+# Change the weighting of the CPU Quota
+# TODO: Extend this to type of stressing to multiple cores
+# Assumes a constant period
+def weighting_to_cpu_quota(weight_change, current_alloc, cpu_period=1000000):
+    new_quota = current_alloc + int(current_alloc * (weight_change / 100.0))
+    assert new_quota > 0 and current_alloc < cpu_period
+    return new_quota
 
-    reduced = 100 - weighting
-    return int(MAX_DISK_READ * reduced / 100)
+# Alternative method of changing the CPU stresing
+# Reduces the number of cores
+# This is a special case, unlike the other types of stressing
+def weighting_to_cpu_cores(weight_change, current_alloc):
+    assert current_alloc > 0
+    
+    new_cores = round(current_alloc + (weight_change / 100.0) * current_alloc)
+    if new_cores == current_alloc:
+        if weight_change < 0:
+            new_cores = current_alloc - 1
+        else:
+            new_cores = current_alloc + 1
+    return new_cores
 
-def weighting_to_cpu_quota(weighting):
-    if weighting < 0 or weighting > 100:
-        print ('Invalid Weighting')
-        return
-    reduced = 100 - weighting
-    return int(1000000 * reduced / 100)
-
-def weighting_to_cpu_period(weighting):
-    weighting = float(100 - weighting)
-    return weighting/100
-
+# This probably belongs in a different function
+# Leaving here for convenience
 def get_num_cores(ssh_client):
     num_cores_cmd = 'nproc --all'
     _, stdout, _ = ssh_client.exec_command(num_cores_cmd)
     return int(stdout.read())
-
-def weighting_to_cpu_cores(ssh_client, weighting):
-    total_cores = get_num_cores(ssh_client)
-    num_cores = int(round(float(total_cores) * (float(100 - weighting) / 100)))
-    return 1 if num_cores == 0 else num_cores

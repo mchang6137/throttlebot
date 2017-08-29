@@ -30,6 +30,11 @@ from stress_analyzer import MR
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 
+'''
+Functions that enable stressing resources and determining how much to stress
+Stresses implemented in: modify_resources.py
+'''
+
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation):
     for vm_ip,container_id in mr.mr_instances:
@@ -64,6 +69,11 @@ def convert_percent_to_raw(mr, current_service_allocation, weight_change=0):
         print 'INVALID resource'
         exit()
 
+'''
+Initialization: 
+Set Default resource allocations and initialize Redis to reflect those initial allocations
+'''
+
 # Collect real information about the cluster and write to redis
 # ALL Information (regardless of user inputs are collected in this step)
 def init_service_placement_r(redis_db, machine_type):
@@ -91,10 +101,27 @@ def init_resource_config(redis_db, resource_config, machine_type):
         # Reflect the change in Redis
         write_mr_alloc(redis_db, mr, new_resource_provision)
 
+''' 
+Tools that are used for experimental purposes in Throttlebot 
+'''
+# Determine Amount to improve a MIMR
+def improve_mr_by(redis_db, mimr, weight_stressed):
+    #Simple heuristic currently: Just improve by amount it was improved
+    return (weight_stressed * -1)
+
+# Run baseline
+def measure_baseline(workload_config, baseline_trials=10, experiment_num)
+    baseline_runtime_array = measure_runtime(None, workload_config, baseline_trials)
+    return baseline_runtime_array
+
 # Checks if the current system can support improvements in a particular MR
 def check_improve_mr_viability(mr, improvement_amount):
     print 'Checking MR viability'
-    
+
+
+'''
+Primary Run method that is called from the main
+'''
 
 def run(system_config, workload_config, resource_config):
     redis_db = system_config['redis_host']
@@ -171,15 +198,10 @@ def run(system_config, workload_config, resource_config):
         # TODO: Handle False Positive
         # TODO: Compare against performance condition -- for now only do some number of experiments
 
-# Determine Amount to improve a MIMR
-def improve_mr_by(redis_db, mimr, weight_stressed):
-    #Simple heuristic currently: Just improve by amount it was improved
-    return (weight_stressed * -1)
-
-# Run baseline
-def measure_baseline(workload_config, baseline_trials=10, experiment_num)
-    baseline_runtime_array = measure_runtime(None, workload_config, baseline_trials)
-    return baseline_runtime_array
+'''
+Functions to parse configuration files
+Parses Throttlebot config file and the Resource Allocation Configuration File
+'''
 
 # Parses the configuration parameters for both Throttlebot and the workload that Throttlebot is running
 def parse_config_file(config_file):
