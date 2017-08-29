@@ -115,8 +115,20 @@ def measure_baseline(workload_config, baseline_trials=10, experiment_num)
     return baseline_runtime_array
 
 # Checks if the current system can support improvements in a particular MR
-def check_improve_mr_viability(mr, improvement_amount):
+# Improvement amount is the raw amount a resource is being improved by
+# Always leave 10% of system resources available for Quilt
+def check_improve_mr_viability(redis_db, mr, improvement_amount):
     print 'Checking MR viability'
+
+    # Check if available space on machines being tested
+    for instance in mr.instances:
+        vm_ip,container_id = instance
+        machine_consumption = read_machine_consumption(redis_db, vm_ip)
+        machine_capacity = read_machine_capacity(redis_db, vm_ip)
+
+        if machine_consumption + improvement_amount > machine_capacity:
+            return False
+    return True
 
 
 '''
@@ -150,10 +162,9 @@ def run(system_config, workload_config, resource_config):
 
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(vm_to_stress, service_to_stress, resource_to_stress, stress_policy)
-        
+        current_mr_allocation = get_MR_provision(redis_db, mr)
         for mr in mr_to_stress:
             increment_to_performance = {}
-            current_mr_allocation = get_MR_provision(redis_db, mr)
             for stress_weight in stress_weights:
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
                 set_mr_provision(mr, new_alloc)
@@ -180,8 +191,8 @@ def run(system_config, workload_config, resource_config):
         # Improvement Amount 
         for mr in mimr_list:
             improvement_percent = improve_mr_by(redis_db, mr)
-            if check_improve_mr_viability(mr, improvement_percent):
-                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
+            new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
+            if check_improve_mr_viability(mr, new_alloc):
                 set_mr_provision(mr, new_alloc)
                 print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc) 
                 break
