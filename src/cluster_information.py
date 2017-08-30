@@ -1,3 +1,5 @@
+import remote_execution as remote_exec
+
 '''
 Queries information about the cluster.
 Currently retrieves the information from quilt ps
@@ -6,6 +8,9 @@ CURRENT IMPL: Retrieve data from naive calls of quilt ps and docker ps
 TODO: Retrieve the information from directly querying the Quilt key-value store
 
 '''
+
+### Pre-defined blacklist (Temporary)
+quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest']
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
@@ -25,6 +30,14 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
     # TODO
         
     return resource_capacity
+
+def get_quilt_services():
+    return quilt_blacklist
+
+# Returns all stressable resources available for this
+def get_stressable_resources(cloud_provider='aws-ec2'):
+    all_resources = ['CPU-CORE', 'CPU-QUOTA', 'NET', 'DISK']
+    return all_resources
 
 # Identify the container id and VM where a service might be residing
 # Return service_name -> (vm_ip, container_id)

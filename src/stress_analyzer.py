@@ -10,21 +10,32 @@ blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2
 
 class MR:
     def __init__(self, service_name, resource, instances):
-        self.service_name = service
+        self.service_name = service_name
         self.resource = resource
+        # instances should be a list of tuples: (vm_ip, container_id)
         self.instances = instances
 
+    def to_string(self):
+        return '{},{}'.format(self.service_name, self.resource)
+
+    def __hash__(self):
+        return hash((self.service_name, self.resource))
+
+    def __eq__(self, other):
+        return (self.service_name, self.resource) == (other.service_name, other.resource)
+
 # Opening function to generate any kind of function
-def generate_mr_from_policy(vm_ips, services, resources, stress_policy):
-    if stress_policy == 'ALL':
-        return get_all_mrs(vm_ips, services, resources):
+def generate_mr_from_policy(stress_policy, current_mr_config):
+    # Retrieves all MRs directly from Cluster information
+    if stress_policy = 'ALL':
+        return current_mr_config
     else:
         print 'This stress policy does not exist; defaulting to ALL stress'
         return get_container_ids_all(vm_ips, services)
     
 # Policy that returns all MRs subject to restrictions on
 # VMs, service names, and resources
-def get_all_mrs(vm_list, services, resources):
+def get_all_mrs_cluster(vm_list, services, resources):
     mr_schedule = [] 
     service_to_deployment = get_service_placements(vm_list)
     
@@ -36,29 +47,6 @@ def get_all_mrs(vm_list, services, resources):
             mr_schedule.add(MR(service, resource, deployments))
             
     return mr_schedule
-
-# Returns a dictionary of the services and their respective container_ids
-# VM_IPS is a list of ip addresses, and SERVICES is a list of services
-# Note: Services are the container image names (Temporary)
-def get_container_ids_all(vm_ips, services):
-    container_id_dict = {}
-    for vm_ip in vm_ips:
-        ssh_client = remote_exec.get_client(vm_ip)
-        docker_container_id = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
-        # docker_container_cmd = 'docker ps --no-trunc | grep -oP \'\"\K[^\"]+(?=[\"])\''
-        docker_container_image = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
-        _, stdout1, _ = ssh_client.exec_command(docker_container_id)
-        container_ids = stdout1.read().splitlines()
-        _, stdout2, _ = ssh_client.exec_command(docker_container_image)
-        container_images = stdout2.read().splitlines()
-        for i in range(len(container_ids)):
-            if container_images[i] not in blacklist and (services == '*' or (container_images[i] in services)):
-                if container_images[i] in container_id_dict:
-                    container_id_dict[container_images[i]].append((vm_ip, container_ids[i]))
-                else:
-                    container_id_dict[container_images[i]] = [(vm_ip, container_ids[i])]
-
-    return container_id_dict
 
 # Temporary main method to test get_container_ids function
 if __name__ == "__main__":

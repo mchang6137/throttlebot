@@ -40,7 +40,7 @@ def set_mr_provision(mr, new_mr_allocation):
     for vm_ip,container_id in mr.mr_instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
-        if mr.resource == 'CPU-CORES':
+        if mr.resource == 'CPU-CORE':
             set_cpu_cores(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded to 1 second
@@ -57,8 +57,8 @@ def set_mr_provision(mr, new_mr_allocation):
 # current_mr_allocation is dict for a MR from its resource to its provision
 # Example: 20% -> 24 Gbps
 def convert_percent_to_raw(mr, current_service_allocation, weight_change=0):
-    if mr.resource == 'CPU-CORES':
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation['CPU-CORES'])
+    if mr.resource == 'CPU-CORE':
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation['CPU-CORE'])
     elif mr.resource == 'CPU-QUOTA':
         return weighting_to_cpu_quota(weight_change, current_mr_allocation['CPU-QUOTA'])
     elif mr.resource == 'DISK':
@@ -76,23 +76,22 @@ Set Default resource allocations and initialize Redis to reflect those initial a
 
 # Collect real information about the cluster and write to redis
 # ALL Information (regardless of user inputs are collected in this step)
-def init_service_placement_r(redis_db, machine_type):
-    # Collect real information about the application
-    vm_list = get_actual_vms()
-
-    # Write to Redis where each service is located in the cluster
-    service_to_deployment = get_service_placements(vm_list)
-    for service in service_to_deployment:
-        write_service_locations(redis_db, service, service_to_deployment[service])
-    return service_to_deployment
+def init_service_placement_r(redis_db, default_mr_configuration):
+    services_seen = []
+    for mr in default_mr_configuration:
+        if mr.service_name not in services_seen:
+            tbot_datastore.write_service_locations(redis_db, mr.service_name, mr.instances)
+            services_seen.append(mr.service_name)
+        else:
+            continue
 
 # Set the current resource configurations within the actual containers
 # Data points in resource_config are expressed in percentage change
-def init_resource_config(redis_db, resource_config, machine_type):
+def init_resource_config(redis_db, default_mr_config, machine_type):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
     
-    for mr in resource_config:
+    for mr in default_mr_config:
         weight_change = resource_config[mr]
         new_resource_provision = convert_percent_to_raw(mr, instance_specs, weight_change)
         # Enact the change in resource provisioning
@@ -106,17 +105,18 @@ def init_resource_config(redis_db, resource_config, machine_type):
 def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     print 'Initializing the per machine capacities'
     resource_alloc = get_instance_specs(machine_type)
+    quilt_usage = {}
 
     # Leave some resources available for Quilt containers to run (OVS, etc.)
     # This is dictated by quilt overhead
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
-        resource_alloc[resource] = (quilt_overhead/100.0) * max_cap
+        quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
     
     all_vms = get_actual_vms()
 
     for vm_ip in all_vms:
-        write_machine_consumption(redis_db, vm_ip, 0)
+        write_machine_consumption(redis_db, vm_ip, quilt_usage)
         write_machine_capacity(redis_db, vm_ip, resource_alloc)
 
 ''' 
@@ -159,10 +159,13 @@ def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
 
 '''
 Primary Run method that is called from the main
+system_config: Throttlebot related General parameters in a dict
+workload_config: Parameters about the workload in a dict
+default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(system_config, workload_config, resource_config):
-    redis_db = system_config['redis_host']
+def run(system_config, workload_config, default_mr_config):
+    redis_host = system_config['redis_host']
     baseline_trials = system_config['baseline_trials']
     experiment_trials = system_config['trials']
     stress_weights = system_config['stress_weights']
@@ -178,18 +181,19 @@ def run(system_config, workload_config, resource_config):
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
 
-    # Automatically Collect real information about the cluster
+    # Initialize Redis and Cluster based on the default resource configuration
     init_cluster_capacities_r(redis_db, quilt_overhead)
-    service_to_deployment = init_service_placement_r(redis_db, machine_type)
-    init_resource_config(redis_db, resource_config, machine_type)
+    init_service_placement_r(redis_db, default_mr_config)
+    init_resource_config(redis_db, defaut_mr_config, machine_type)
     
     # Run the baseline experiment
     baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
     experiment_count = 0
+    current_mr_config = default_mr_config
     
     while experiment_count < 3:
         # Get a list of MRs to stress in the form of a list of MRs
-        mr_to_stress = generate_mr_from_policy(vm_to_stress, service_to_stress, resource_to_stress, stress_policy)
+        mr_to_stress = generate_mr_from_policy(stress_policy, current_mr_config)
         current_mr_allocation = get_MR_provision(redis_db, mr)
         for mr in mr_to_stress:
             increment_to_performance = {}
@@ -285,13 +289,21 @@ def parse_config_file(config_file):
     return sys_config, workload_config
 
 # Parse a default resource configuration
-# Returns a mapping of a MR to its current resource allocation (raw amount)
+# Gathers the information from directly querying the machines on the cluster
+# This should be ONLY TIME the machines are queried directly -- remaining calls
+# should be conducted from Redis
+#
+# Returns a mapping of a MR to its current resource allocation (percentage amount)
 def parse_resource_conf_file(resource_config):
-    mr_allocation = {}
     vm_list = get_actual_vms()
+    all_services = get_actual_services()
+    all_resources = get_stressable_resources()
     
-    # Empty Config means that we should default resource allocation to half of current resource allocation
-    if config_file is None:
+    mr_allocation = {}
+    
+    # Empty Config means that we should default resource allocation to only use
+    # half of the total resource capacity on the machine
+    if resource_config is None:
         service_to_deployment = get_service_placements(vm_list)
         vm_to_service = get_vm_to_service(vm_list)
         instance_specs = get_instance_specs(instance_type)
@@ -299,20 +311,16 @@ def parse_resource_conf_file(resource_config):
         # DEFAULT_ALLOCATION sets the initial configuration
         # Ensure that we will not violate resource provisioning in the machine
         # Assign resources equally to services without exceeding machine resource limitations
-        DEFAULT_CHANGE= -50
         max_num_services = 0
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
-        default_change = 100.0 / max_num_services
-        if default_change > 50:
-            default_change = 50
-        # Multiply by -1 to remove the resource provisioned
-        default_change = default_change * -1
-        mr_list = get_all_mrs('*', '*', '*')
+        default_alloc_percentage = 50.0 / max_num_services
+        mr_list = get_all_mrs(vm_list, all_services, all_resources)
         for mr in mr_list:
-            mr_allocation[mr] = default_change
+            mr_allocation[mr] = default_alloc_percentage
     else:
+        # Manual Configuration possible here, to be implemented
         print 'Placeholder for a way to configure the resources'
 
     return mr_allocation
@@ -331,7 +339,7 @@ def validate_configs(sys_config, workload_config):
     validate_ip(workload_config['request_generator'])
 
     for resource in sys_config['stress_these_resources'] :
-        if resource == 'CPU-CORES' or
+        if resource == 'CPU-CORE' or
                        'CPU-QUOTA' or
                        'DISK'      or
                        'NET'       or
@@ -349,6 +357,24 @@ def validate_ip(ip_addresses):
             print 'The IP Address is Invalid'.format(ip)
             exit()
 
+# Filter out resources, services, and machines that shouldn't be stressed on this iteration
+# Automatically Filter out Quilt-specific modules
+def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptable_machines):
+    for mr in mr_allocation:
+        if mr.service_name in get_quilt_services():
+            del mr_allocation[mr]
+        if '*' not in acceptable_services and mr.service_name not in acceptable_services:
+            del mr_allocation[mr]
+        # Cannot have both CPU and Quota Stressing
+        # Default to reducing the number of cores
+        if '*' in acceptable_resources and mr.resource == 'CPU-QUOTA':
+            del mr_allocation[mr]
+        elif '*' not in acceptable_resources and mr.service_name not in acceptable_resources:
+            del mr_allocation[mr]
+        # Temporarily ignoring acceptable_machines since it might be unnecessary
+        # and it is hard to solve...
+    return mr_allocation
+
 '''
 Experiment arguements takes a list of arguments for the type of experiments
 Examples:
@@ -363,7 +389,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config = parse_config_file(args.config_file)
-    resource_config = parse_resource_config_file(args.default_resource_config)
+    mr_allocation = parse_resource_config_file(args.default_resource_config)
+
+    # While stress policies can further filter MRs, the first filter is applied here
+    # mr_allocation should include only the MRs that are included
+    mr_allocation = filter_mr(mr_allocation,
+                              sys_config['stress_these_resources'],
+                              sys_config['stress_these_services'],
+                              sys_config['stress_these_machines'])
                              
-    run(sys_config, workload_config, resource_config)
+    run(sys_config, workload_config, mr_allocation)
 

@@ -82,3 +82,30 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
     return mimr, action_taken, perf_improvement
+
+'''
+This index is a mapping of a particular service (which is assumed to be
+constant for a run of Throttlebot to the (IP Address, docker container
+id) of the machine that it is running on.
+
+ASSUMPTION: Each machine instance does not have two containers with the same
+service on it
+
+'''
+
+# identifier_tuple is a list of tuples of (IP address, docker_container_id)
+# Note that we use the docker_container_id to distinguish it from the
+# Quilt container id, which is different
+def write_service_locations(redis_db, service, identifier_tuple):
+    service_ip_key = '{}_ip'.format(service)
+    service_docker_key = '{}_id'.format(service)
+    redis_db.lpush(service_ip_key, identifier_tuple[0])
+    redis_db.lpush(service_docker_key, identifier_tuple[1])
+
+def read_service_locations(redis_db, service):
+    service_ip_key = '{}_ip'.format(service)
+    service_docker_key = '{}_id'.format(service)
+    ip_list = redis_db.lrange(service_ip_key, 0, -1)
+    docker_list = redis_db.lrange(service_docker_key, 0, -1)
+
+    return zip(ip_list, docker_list)
