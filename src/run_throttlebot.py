@@ -98,7 +98,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type):
         set_mr_provision(mr, new_resource_provision)
 
         # Reflect the change in Redis
-        write_mr_alloc(redis_db, mr, new_resource_provision)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
         update_machine_consumption(redis_db, mr, new_resource_provision, 0)
 
 # Initializes the maximum capacity and current consumption of Quilt
@@ -155,7 +155,14 @@ def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
         vm_ip,container_id = instance
         prior_consumption = read_machine_consumption(redis_db, vm_ip)
         new_consumption = prior_consumption + new_alloc - old_alloc
-        write_machine_consumption(redis_db, vm_ip,  new_consumption)
+        resource_datastore.write_machine_consumption(redis_db, vm_ip,  new_consumption)
+
+# Updates the MR configuration from resource datastore
+def update_mr_config(redis_db, mr_in_play):
+    updated_configuration = {}
+    for mr in default_mr_config:
+        updated_configuration[mr] = resource_datastore.read_mr_alloc(redis_db, mr)
+    return updated_configuration
 
 '''
 Primary Run method that is called from the main
@@ -189,8 +196,11 @@ def run(system_config, workload_config, default_mr_config):
     # Run the baseline experiment
     baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
     experiment_count = 0
-    current_mr_config = default_mr_config
-    
+
+    # Initialize the current configurations
+    # Invariant: MR are the same between iterations
+    current_mr_config = update_mr_config(redis_db, default_mr_config)
+
     while experiment_count < 3:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(stress_policy, current_mr_config)
@@ -205,18 +215,18 @@ def run(system_config, workload_config, default_mr_config):
                 #Write results of experiment to Redis
                 mean_result = float(sum(experiment_results[preferred_performance_metric])) /
                               len(experiment_results[preferred_performance_metric])
-                write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
+                tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
                 
                 # Remove the effect of the resource stressing
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
-            write_redis_results(redis_db, increment_to_performance, mr, experiment_count, preferred_performance_metric)
+            tbot_datastore.write_redis_results(redis_db, increment_to_performance, mr, experiment_count, preferred_performance_metric)
         
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
-        mimr_list = get_top_n_mimr(redis_db, experiment_iteration_count, preferred_performance_metric, max_stress_weight, 
+        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_iteration_count, preferred_performance_metric, max_stress_weight, 
                                    get_lowest=optimize_for_lowest, 10)
         
         # Try all the MIMRs in the list until a viable improvement is determined
@@ -227,9 +237,10 @@ def run(system_config, workload_config, default_mr_config):
             if check_improve_mr_viability(mr, new_alloc):
                 set_mr_provision(mr, new_alloc)
                 print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc)
-                old_alloc = read_mr_alloc(redis_db, mr)
-                write_mr_alloc(redis_db, mr, new_alloc)
+                old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+                resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
                 update_mr_consumption(redis_db, mr, new_alloc, old_alloc)
+                current_mr_config = update_mr_config(redis_db, current_mr_config)
                 break
             else:
                 print 'Improvement Attempted by not viable: MR {} improved by {}'.format(mr.to_string(), new_alloc)
@@ -239,11 +250,17 @@ def run(system_config, workload_config, default_mr_config):
         performance_improvement = improved_performance - baseline_results
         
         # Write a summary of the experiment's iterations to Redis
-        write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_improvement) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_improvement) 
         baseline_performance = improved_performance
+
+        results = tbot_datastore.read_summary_redis(redis_db, experiment_iteration_count)
+        print 'Results from iteration {} are {}'.format(experiment_iteration_count, results)
         
         # TODO: Handle False Positive
         # TODO: Compare against performance condition -- for now only do some number of experiments
+
+    print '{} experiments completed'.format(experiment_iteration_count)
+    print 'New resource configuration = {}'.format(current_mr_config)
 
 '''
 Functions to parse configuration files

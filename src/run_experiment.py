@@ -9,19 +9,20 @@ from run_spark_streaming import *
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
-def measure_runtime(container_id, experiment_args, experiment_iterations, experiment_type):
+def measure_runtime(workload_config, experiment_iterations):
+    experiment_type = workload_config['type']
     if experiment_type == 'spark-ml-matrix':
-        return measure_ml_matrix(container_id, experiment_args, experiment_iterations)
+        return measure_ml_matrix(workload_config, experiment_iterations)
     if experiment_type == 'REST':
-        return measure_REST_response_time(container_id, experiment_args, experiment_iterations)
+        return measure_REST_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'nginx-single':
-        return measure_nginx_single_machine(container_id, experiment_args, experiment_iterations)
+        return measure_nginx_single_machine(workload_config, experiment_iterations)
     elif experiment_type == 'todo-app':
-        return measure_TODO_response_time(container_id, experiment_args, experiment_iterations)
+        return measure_TODO_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'basic-get':
-        return measure_GET_response_time(container_id, experiment_args, experiment_iterations)
+        return measure_GET_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'spark-streaming':
-        return measure_spark_streaming(container_id, experiment_args, experiment_iterations)
+        return measure_spark_streaming(workload_config, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
@@ -47,9 +48,9 @@ def execute_parse_results(ssh_client, cmd):
 
 #Use the Apache Benchmarking suite to hit a single container
 #experiment_args = [nginx_public_ip, pinging_machine]
-def measure_nginx_single_machine(container_id, experiment_args, experiment_iterations):
-    nginx_public_ip = experiment_args[0]
-    traffic_generate_machine = experiment_args[1]
+def measure_nginx_single_machine(workload_configuration, experiment_iterations):
+    nginx_public_ip = workload_configuration['frontend']
+    traffic_generate_machine = workload_configuration['request_generator']
 
     ssh_client = get_client(traffic_generate_machine)
     nginx_ssh_client = get_client(nginx_public_ip)
