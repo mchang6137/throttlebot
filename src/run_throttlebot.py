@@ -100,10 +100,29 @@ def init_resource_config(redis_db, resource_config, machine_type):
 
         # Reflect the change in Redis
         write_mr_alloc(redis_db, mr, new_resource_provision)
+        update_machine_consumption(redis_db, mr, new_resource_provision, 0)
+
+# Initializes the maximum capacity and current consumption of Quilt
+def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
+    print 'Initializing the per machine capacities'
+    resource_alloc = get_instance_specs(machine_type)
+
+    # Leave some resources available for Quilt containers to run (OVS, etc.)
+    # This is dictated by quilt overhead
+    for resource in resource_alloc:
+        max_cap = resource_alloc[resource]
+        resource_alloc[resource] = (quilt_overhead/100.0) * max_cap
+    
+    all_vms = get_actual_vms()
+
+    for vm_ip in all_vms:
+        write_machine_consumption(redis_db, vm_ip, 0)
+        write_machine_capacity(redis_db, vm_ip, resource_alloc)
 
 ''' 
 Tools that are used for experimental purposes in Throttlebot 
 '''
+
 # Determine Amount to improve a MIMR
 def improve_mr_by(redis_db, mimr, weight_stressed):
     #Simple heuristic currently: Just improve by amount it was improved
@@ -130,6 +149,13 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
             return False
     return True
 
+# Update the resource consumption of a machine after an MIMR has been improved
+def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
+    for instance in mr.instances:
+        vm_ip,container_id = instance
+        prior_consumption = read_machine_consumption(redis_db, vm_ip)
+        new_consumption = prior_consumption + new_alloc - old_alloc
+        write_machine_consumption(redis_db, vm_ip,  new_consumption)
 
 '''
 Primary Run method that is called from the main
@@ -145,21 +171,23 @@ def run(system_config, workload_config, resource_config):
     service_to_stress = system_config['stress_these_services']
     vm_to_stress = system_config['stress_these_machines']
     machine_type = system_config['machine_type']
+    quilt_overhead = system_config['quilt_overhead']
+    
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
 
     # Automatically Collect real information about the cluster
+    init_cluster_capacities_r(redis_db, quilt_overhead)
     service_to_deployment = init_service_placement_r(redis_db, machine_type)
     init_resource_config(redis_db, resource_config, machine_type)
     
+    # Run the baseline experiment
+    baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
     experiment_count = 0
-
+    
     while experiment_count < 3:
-        # Run the baseline experiment
-        baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
-
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(vm_to_stress, service_to_stress, resource_to_stress, stress_policy)
         current_mr_allocation = get_MR_provision(redis_db, mr)
@@ -194,18 +222,22 @@ def run(system_config, workload_config, resource_config):
             new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
             if check_improve_mr_viability(mr, new_alloc):
                 set_mr_provision(mr, new_alloc)
-                print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc) 
+                print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc)
+                old_alloc = read_mr_alloc(redis_db, mr)
+                write_mr_alloc(redis_db, mr, new_alloc)
+                update_mr_consumption(redis_db, mr, new_alloc, old_alloc)
                 break
             else:
                 print 'Improvement Attempted by not viable: MR {} improved by {}'.format(mr.to_string(), new_alloc)
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials, experiment_count)
-        performance_gain = improved_performance - baseline_results
+        performance_improvement = improved_performance - baseline_results
         
         # Write a summary of the experiment's iterations to Redis
-        write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_gain) 
-
+        write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_improvement) 
+        baseline_performance = improved_performance
+        
         # TODO: Handle False Positive
         # TODO: Compare against performance condition -- for now only do some number of experiments
 
@@ -231,8 +263,8 @@ def parse_config_file(config_file):
     sys_config['stress_these_machines'] = config.get('Basic', 'stress_these_machines').split(',')
     sys_config['redis_host'] = config.get('Basic', 'redis_host')
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
-    # Assume that an application deployed on homogeneous machines
-    sys_config['instance_type'] = config.get('Basic', 'machine_type')
+    sys_config['machine_type'] = config.get('Basic', 'machine_type')
+    sys_config['quilt_overhead'] = config.get('Basic', 'quilt_overhead')
         
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')

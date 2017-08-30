@@ -43,14 +43,14 @@ def read_machine_consumption(redis_db, machine_ip):
 
     return machine_util
 
-def write_machine_cap(redis_db, machine_ip, machine_cap):
+def write_machine_capacity(redis_db, machine_ip, machine_cap):
     name = '{}machine_consumption'.format(machine_ip)
     redis_db.hset(name, 'CPU-CORES', machine_cap['CPU-CORES'])
     redis_db.hset(name, 'CPU-QUOTA', machine_cap['CPU-QUOTA'])
     redis_db.hset(name, 'DISK', machine_cap['DISK'])
     redis_db.hset(name, 'NET', machine_cap['NET'])
 
-def read_machine_consumption(redis_db, machine_ip):
+def read_machine_capacity(redis_db, machine_ip):
     machine_cap = {}
     name = '{}machine_capacity'.format(machine_ip)
     machine_cap['CPU_CORES'] = redis_db.hget(name, 'CPU-CORES')
