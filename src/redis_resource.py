@@ -1,4 +1,23 @@
-import redis_client
+import redis.client
+import redis_client as tbot_datastore
+
+from mr import MR
+
+'''
+Get Information relating to MRs
+'''
+
+# Returns a list of MR as MR objects
+def get_all_mrs(redis_db):
+    mr_name = 'mr_alloc'
+    all_mrs = redis_db.hgetall(mr_name)
+    mr_list = list(all_mrs.keys())
+    mr_object_list = []
+    for mr in mr_list:
+        service_name,resource = mr.split(',')
+        deployments = tbot_datastore.read_service_locations(redis_db, service_name)
+        mr_object_list.append(MR(service_name, resource, deployments))
+    return mr_object_list
 
 '''
 This is specifically for the storing and accessing of the redis data 
@@ -16,7 +35,14 @@ def write_mr_alloc(redis_db, mr, new_allocation):
 def read_mr_alloc(redis_db, mr):
     mr_name = 'mr_alloc'
     key = generate_mr_key(mr.service_name, mr.resource)
-    return redis_db.hget(mr_name, key)
+    return float(redis_db.hget(mr_name, key))
+
+def read_all_mr_alloc(redis_db):
+    mr_name = 'mr_alloc'
+    result = redis_db.hgetall(mr_name)
+    for mr in result:
+        result[mr] = float(result[mr])
+    return result
 
 '''
 Machine Consumption index maps a particular VM (identified by IP address) to 
@@ -28,37 +54,32 @@ capacity to the full amount
 # machine_util is a tuple that stores the machine's current usage level
 def write_machine_consumption(redis_db, machine_ip, machine_util):
     name = '{}machine_consumption'.format(machine_ip)
-    redis_db.hset(name, 'CPU-CORE', machine_util['CPU-CORE'])
-    redis_db.hset(name, 'CPU-QUOTA', machine_util['CPU-QUOTA'])
-    redis_db.hset(name, 'DISK', machine_util['DISK'])
-    redis_db.hset(name, 'NET', machine_util['NET'])
+    for key in machine_util:
+        redis_db.hset(name, key, machine_util[key])
 
 def read_machine_consumption(redis_db, machine_ip):
     machine_util = {}
     name = '{}machine_consumption'.format(machine_ip)
-    machine_util['CPU_CORE'] = redis_db.hget(name, 'CPU-CORE')
-    machine_util['CPU_QUOTA'] = redis_db.hget(name, 'CPU-QUOTA')
-    machine_util['DISK'] = redis_db.hget(name, 'DISK')
-    machine_util['NET'] = redis_db.hget(name, 'NET')
+    machine_consumption = redis_db.hgetall(name)
 
-    return machine_util
+    for resource in machine_consumption:
+        machine_consumption[resource] = float(machine_consumption[resource])
+    return machine_consumption
 
 def write_machine_capacity(redis_db, machine_ip, machine_cap):
-    name = '{}machine_consumption'.format(machine_ip)
-    redis_db.hset(name, 'CPU-CORE', machine_cap['CPU-CORE'])
-    redis_db.hset(name, 'CPU-QUOTA', machine_cap['CPU-QUOTA'])
-    redis_db.hset(name, 'DISK', machine_cap['DISK'])
-    redis_db.hset(name, 'NET', machine_cap['NET'])
+    name = '{}machine_capacity'.format(machine_ip)
+    for key in machine_cap:
+        redis_db.hset(name, key, machine_cap[key])
 
 def read_machine_capacity(redis_db, machine_ip):
     machine_cap = {}
     name = '{}machine_capacity'.format(machine_ip)
-    machine_cap['CPU_CORE'] = redis_db.hget(name, 'CPU-CORE')
-    machine_cap['CPU_QUOTA'] = redis_db.hget(name, 'CPU-QUOTA')
-    machine_cap['DISK'] = redis_db.hget(name, 'DISK')
-    machine_cap['NET'] = redis_db.hget(name, 'NET')
+    
+    machine_capacity = redis_db.hgetall(name)
+    for resource in machine_capacity:
+        machine_capacity[resource] = float(machine_capacity[resource])
+    return machine_capacity
 
-    return machine_cap
 
     
 

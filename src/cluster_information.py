@@ -15,12 +15,12 @@ quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
 def get_actual_vms():
-    return []
+    return ['52.53.193.146']
 
 # Find all the services in the current Quilt Cluster
 # Returns a list of service names (strings)
 def get_actual_services():
-    return []
+    return ['nginx:1.10']
 
 # Given a machine type, identify the amount of resource on the machine
 # Assumes that the entire cluster has the same machine type
@@ -28,6 +28,13 @@ def get_actual_services():
 def get_instance_specs(machine_type, provider='aws-ec2'):
     resource_capacity = {}
     # TODO
+    # 388 Mbps
+    resource_capacity['NET'] = 388 * (10 ** 6)
+    # 83.28 MB/s
+    resource_capacity['DISK'] = 83.28 
+    # 1
+    resource_capacity['CPU-CORE'] = 1
+    resource_capacity['CPU-QUOTA'] = 100
         
     return resource_capacity
 

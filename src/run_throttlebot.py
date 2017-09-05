@@ -15,7 +15,7 @@ from random import shuffle
 
 from time import sleep
 
-from collection import namedtuple
+from collections import namedtuple
 
 from stress_analyzer import *
 from modify_resources import *
@@ -25,8 +25,9 @@ from run_experiment import *
 from container_information import *
 from cluster_information import *
 
-from stress_analyzer import MR
+from mr	import MR
 
+import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 
@@ -37,7 +38,7 @@ Stresses implemented in: modify_resources.py
 
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation):
-    for vm_ip,container_id in mr.mr_instances:
+    for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORE':
@@ -54,15 +55,14 @@ def set_mr_provision(mr, new_mr_allocation):
             return
         
 # Converts a change in resource provisioning to raw change
-# current_mr_allocation is dict for a MR from its resource to its provision
 # Example: 20% -> 24 Gbps
-def convert_percent_to_raw(mr, current_service_allocation, weight_change=0):
+def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
     if mr.resource == 'CPU-CORE':
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation['CPU-CORE'])
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
     elif mr.resource == 'CPU-QUOTA':
-        return weighting_to_cpu_quota(weight_change, current_mr_allocation['CPU-QUOTA'])
+        return weighting_to_cpu_quota(weight_change, current_mr_allocation)
     elif mr.resource == 'DISK':
-        return  weighting_to_blkio(weight_change, current_mr_allocation['DISK'])
+        return  weighting_to_blkio(weight_change, current_mr_allocation)
     elif mr.resource == 'NET':
         return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
     else:
@@ -90,10 +90,9 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 def init_resource_config(redis_db, default_mr_config, machine_type):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
-    
     for mr in default_mr_config:
-        weight_change = resource_config[mr]
-        new_resource_provision = convert_percent_to_raw(mr, instance_specs, weight_change)
+        weight_change = default_mr_config[mr]
+        new_resource_provision = convert_percent_to_raw(mr, instance_specs[mr.resource], weight_change)
         # Enact the change in resource provisioning
         set_mr_provision(mr, new_resource_provision)
 
@@ -116,8 +115,8 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     all_vms = get_actual_vms()
 
     for vm_ip in all_vms:
-        write_machine_consumption(redis_db, vm_ip, quilt_usage)
-        write_machine_capacity(redis_db, vm_ip, resource_alloc)
+        resource_datastore.write_machine_consumption(redis_db, vm_ip, quilt_usage)
+        resource_datastore.write_machine_capacity(redis_db, vm_ip, resource_alloc)
 
 ''' 
 Tools that are used for experimental purposes in Throttlebot 
@@ -129,8 +128,8 @@ def improve_mr_by(redis_db, mimr, weight_stressed):
     return (weight_stressed * -1)
 
 # Run baseline
-def measure_baseline(workload_config, baseline_trials=10, experiment_num)
-    baseline_runtime_array = measure_runtime(None, workload_config, baseline_trials)
+def measure_baseline(workload_config, baseline_trials=10):
+    baseline_runtime_array = measure_runtime(workload_config, baseline_trials)
     return baseline_runtime_array
 
 # Checks if the current system can support improvements in a particular MR
@@ -142,10 +141,10 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
     # Check if available space on machines being tested
     for instance in mr.instances:
         vm_ip,container_id = instance
-        machine_consumption = read_machine_consumption(redis_db, vm_ip)
-        machine_capacity = read_machine_capacity(redis_db, vm_ip)
+        machine_consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
+        machine_capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
 
-        if machine_consumption + improvement_amount > machine_capacity:
+        if machine_consumption[mr.resource] + improvement_amount > machine_capacity[mr.resource]:
             return False
     return True
 
@@ -153,14 +152,17 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
     for instance in mr.instances:
         vm_ip,container_id = instance
-        prior_consumption = read_machine_consumption(redis_db, vm_ip)
-        new_consumption = prior_consumption + new_alloc - old_alloc
-        resource_datastore.write_machine_consumption(redis_db, vm_ip,  new_consumption)
+        prior_consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
+        new_consumption = float(prior_consumption[mr.resource]) + new_alloc - old_alloc
+
+        utilization_dict = {}
+        utilization_dict[mr.resource] = new_consumption
+        resource_datastore.write_machine_consumption(redis_db, vm_ip,  utilization_dict)
 
 # Updates the MR configuration from resource datastore
 def update_mr_config(redis_db, mr_in_play):
     updated_configuration = {}
-    for mr in default_mr_config:
+    for mr in mr_in_play:
         updated_configuration[mr] = resource_datastore.read_mr_alloc(redis_db, mr)
     return updated_configuration
 
@@ -187,34 +189,38 @@ def run(system_config, workload_config, default_mr_config):
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
+    redis_db.flushall()
 
     # Initialize Redis and Cluster based on the default resource configuration
-    init_cluster_capacities_r(redis_db, quilt_overhead)
+    init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
-    init_resource_config(redis_db, defaut_mr_config, machine_type)
+    init_resource_config(redis_db, default_mr_config, machine_type)
     
     # Run the baseline experiment
-    baseline_results = measure_baseline(workload_config, baseline_trials, experiment_count)
     experiment_count = 0
+    baseline_performance = measure_baseline(workload_config, baseline_trials)
 
     # Initialize the current configurations
     # Invariant: MR are the same between iterations
-    current_mr_config = update_mr_config(redis_db, default_mr_config)
+    current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
 
     while experiment_count < 3:
         # Get a list of MRs to stress in the form of a list of MRs
-        mr_to_stress = generate_mr_from_policy(stress_policy, current_mr_config)
-        current_mr_allocation = get_MR_provision(redis_db, mr)
+        mr_to_stress = generate_mr_from_policy(redis_db, stress_policy)
+        print mr_to_stress
+        
         for mr in mr_to_stress:
+            print 'Current MR is {}'.format(mr.to_string())
             increment_to_performance = {}
+            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
+            print 'Current MR allocation is {}'.format(current_mr_allocation)
             for stress_weight in stress_weights:
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
                 set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
                 #Write results of experiment to Redis
-                mean_result = float(sum(experiment_results[preferred_performance_metric])) /
-                              len(experiment_results[preferred_performance_metric])
+                mean_result = float(sum(experiment_results[preferred_performance_metric])) / len(experiment_results[preferred_performance_metric])
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
                 
                 # Remove the effect of the resource stressing
@@ -222,44 +228,54 @@ def run(system_config, workload_config, default_mr_config):
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
-            tbot_datastore.write_redis_results(redis_db, increment_to_performance, mr, experiment_count, preferred_performance_metric)
+            tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
         
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
-        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_iteration_count, preferred_performance_metric, max_stress_weight, 
-                                   get_lowest=optimize_for_lowest, 10)
+        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
+                                   get_lowest=optimize_for_lowest, num_results_returned=10)
         
         # Try all the MIMRs in the list until a viable improvement is determined
-        # Improvement Amount 
+        # Improvement Amount
+        mimr = None
         for mr in mimr_list:
-            improvement_percent = improve_mr_by(redis_db, mr)
+            improvement_percent = improve_mr_by(redis_db, mr, max_stress_weight)
+            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
-            if check_improve_mr_viability(mr, new_alloc):
+            if check_improve_mr_viability(redis_db, mr, new_alloc):
                 set_mr_provision(mr, new_alloc)
                 print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc)
                 old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
                 update_mr_consumption(redis_db, mr, new_alloc, old_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
+                mimr = mr
                 break
             else:
-                print 'Improvement Attempted by not viable: MR {} improved by {}'.format(mr.to_string(), new_alloc)
+                print 'Improvement not viable: MR {} failed to improve by {}'.format(mr.to_string(), new_alloc)
+                
+        if mimr is None:
+            print 'No viable improvement found'
+            exit()
 
         #Compare against the baseline at the beginning of the program
-        improved_performance = measure_runtime(workload_config, baseline_trials, experiment_count)
-        performance_improvement = improved_performance - baseline_results
+        improved_performance = measure_runtime(workload_config, baseline_trials)
+        print improved_performance
+        improved_mean = sum(improved_performance[preferred_performance_metric]) / float(len(improved_performance[preferred_performance_metric]))
+        baseline_mean = sum(baseline_performance[preferred_performance_metric]) / float(len(baseline_performance[preferred_performance_metric]))                                                                           
+        performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_iteration_count, mimr, performance_improvement) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement) 
         baseline_performance = improved_performance
 
-        results = tbot_datastore.read_summary_redis(redis_db, experiment_iteration_count)
-        print 'Results from iteration {} are {}'.format(experiment_iteration_count, results)
+        results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Results from iteration {} are {}'.format(experiment_count, results)
         
         # TODO: Handle False Positive
         # TODO: Compare against performance condition -- for now only do some number of experiments
 
-    print '{} experiments completed'.format(experiment_iteration_count)
+    print '{} experiments completed'.format(experiment_count)
     print 'New resource configuration = {}'.format(current_mr_config)
 
 '''
@@ -276,23 +292,24 @@ def parse_config_file(config_file):
     config.read(config_file)
 
     #Configuration Parameters relating to Throttlebot
-    sys_config['baseline_trials'] = config.getint('Basic', 'trials')
+    sys_config['baseline_trials'] = config.getint('Basic', 'baseline_trials')
     sys_config['trials'] = config.getint('Basic', 'trials')
-    sys_config['stress_weight'] = config.get('Basic', 'stress_weight').split(',')
+    stress_weights = config.get('Basic', 'stress_weights').split(',')
+    sys_config['stress_weights'] = [int(x) for x in stress_weights]
     sys_config['stress_these_resources'] = config.get('Basic', 'stress_these_resources').split(',')
     sys_config['stress_these_services'] = config.get('Basic', 'stress_these_services').split(',')
     sys_config['stress_these_machines'] = config.get('Basic', 'stress_these_machines').split(',')
     sys_config['redis_host'] = config.get('Basic', 'redis_host')
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
-    sys_config['quilt_overhead'] = config.get('Basic', 'quilt_overhead')
+    sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
         
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
     workload_config['request_generator'] = config.get('Workload', 'request_generator').split(',')
-    workload_config['frontend'] = config.get('Workload', 'frontend')
+    workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
-    workload_config['tbot_metric_optimal'] = config.getboolean('Workload', 'optimize_for_lowest')
+    workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
 
     #Additional experiment-specific arguments
@@ -311,7 +328,7 @@ def parse_config_file(config_file):
 # should be conducted from Redis
 #
 # Returns a mapping of a MR to its current resource allocation (percentage amount)
-def parse_resource_conf_file(resource_config):
+def parse_resource_config_file(resource_config):
     vm_list = get_actual_vms()
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
@@ -321,9 +338,7 @@ def parse_resource_conf_file(resource_config):
     # Empty Config means that we should default resource allocation to only use
     # half of the total resource capacity on the machine
     if resource_config is None:
-        service_to_deployment = get_service_placements(vm_list)
         vm_to_service = get_vm_to_service(vm_list)
-        instance_specs = get_instance_specs(instance_type)
 
         # DEFAULT_ALLOCATION sets the initial configuration
         # Ensure that we will not violate resource provisioning in the machine
@@ -333,9 +348,9 @@ def parse_resource_conf_file(resource_config):
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
         default_alloc_percentage = 50.0 / max_num_services
-        mr_list = get_all_mrs(vm_list, all_services, all_resources)
+        mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
-            mr_allocation[mr] = default_alloc_percentage
+            mr_allocation[mr] = -1 * default_alloc_percentage
     else:
         # Manual Configuration possible here, to be implemented
         print 'Placeholder for a way to configure the resources'
@@ -356,11 +371,7 @@ def validate_configs(sys_config, workload_config):
     validate_ip(workload_config['request_generator'])
 
     for resource in sys_config['stress_these_resources'] :
-        if resource == 'CPU-CORE' or
-                       'CPU-QUOTA' or
-                       'DISK'      or
-                       'NET'       or
-                       '*':
+        if resource in ['CPU-CORE', 'CPU-QUOTA', 'DISK', 'NET', '*']:
             continue
         else:
             print 'Cannot stress a specified resource: {}'.format(resource)
@@ -377,28 +388,28 @@ def validate_ip(ip_addresses):
 # Filter out resources, services, and machines that shouldn't be stressed on this iteration
 # Automatically Filter out Quilt-specific modules
 def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptable_machines):
+    delete_queue = []
     for mr in mr_allocation:
         if mr.service_name in get_quilt_services():
-            del mr_allocation[mr]
-        if '*' not in acceptable_services and mr.service_name not in acceptable_services:
-            del mr_allocation[mr]
+            delete_queue.append(mr)
+        elif '*' not in acceptable_services and mr.service_name not in acceptable_services:
+            delete_queue.append(mr)
         # Cannot have both CPU and Quota Stressing
-        # Default to reducing the number of cores
-        if '*' in acceptable_resources and mr.resource == 'CPU-QUOTA':
-            del mr_allocation[mr]
-        elif '*' not in acceptable_resources and mr.service_name not in acceptable_resources:
-            del mr_allocation[mr]
+        # Default to using quota
+        elif '*' in acceptable_resources and mr.resource == 'CPU-CORE':
+            delete_queue.append(mr)
+        elif '*' not in acceptable_resources and mr.resource not in acceptable_resources:
+            delete_queue.append(mr)
         # Temporarily ignoring acceptable_machines since it might be unnecessary
         # and it is hard to solve...
+
+    for mr in delete_queue:
+        print mr.to_string()
+        del mr_allocation[mr]
+    
     return mr_allocation
 
-'''
-Experiment arguements takes a list of arguments for the type of experiments
-Examples:
-"REST": Node TODO App: [public_vm_ip]
-"spark-ml-matrix": Spark ml-matrix: [public_vm_ip, private_vm_ip]
-"nginx-single": Single unreplicated nginx serving up static pages
-'''
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
@@ -406,14 +417,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config = parse_config_file(args.config_file)
-    mr_allocation = parse_resource_config_file(args.default_resource_config)
-
+    mr_allocation = parse_resource_config_file(args.resource_config)
+    
     # While stress policies can further filter MRs, the first filter is applied here
     # mr_allocation should include only the MRs that are included
+    # mr_allocation will provision some percentage of the total resources
     mr_allocation = filter_mr(mr_allocation,
                               sys_config['stress_these_resources'],
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
-                             
+
     run(sys_config, workload_config, mr_allocation)
 

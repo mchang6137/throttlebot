@@ -37,7 +37,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
 
     # Execute the command within OVS
     # OVS policy bandwidth accepts inputs in bps
-    bandwidth_kbps = bandwidth[container_id] / (10 ** 3)
+    bandwidth_kbps = bandwidth / (10 ** 3)
     ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, int(bandwidth_kbps))
     ovs_burst_cmd = 'ovs-vsctl set interface {} ingress_policing_burst={}'.format(interface_name, 0)
     docker_policing_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
@@ -141,6 +141,7 @@ def reset_cpu_cores(ssh_client, container_id):
 '''Stressing the Disk Read/write throughput'''
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
+# Units are in MB/s
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)

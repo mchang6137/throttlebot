@@ -1,4 +1,4 @@
-)'''
+'''
 
 Converts various weightings between 0 and 100 to an actual amount to stress particular resource to
 
@@ -19,21 +19,18 @@ from remote_execution import *
 # Change the networking capacity
 # Current Capacity in bits/p
 def weighting_to_net_bandwidth(weight_change, current_alloc):
-    new_bandwidth = current_alloc + ((weight_change / 100.0) * current_capacity)
+    new_bandwidth = current_alloc + ((weight_change / 100.0) * current_alloc)
     assert new_bandwidth > 0 
-    return new_bandwidth
+    return int(new_bandwidth)
 
 # Change the weighting on the blkio
 # Conducted for the disk stressing
 def weighting_to_blkio(weight_change, current_alloc):
-    if weighting <= 0 or weighting > 100:
-        print ('Invalid Weighting for blkioweight')
-        return
     #+10 because blkio only accepts values between 10 and 1000
         #Lower weighting must have lower bound on the blkio weight allocation
     new_blkio = current_alloc + int((weight_change / 100.0) * current_alloc + 10)
     assert new_blkio > 0
-    return new_blkio
+    return int(new_blkio)
 
 # Change the weighting of the CPU Quota
 # TODO: Extend this to type of stressing to multiple cores
@@ -41,7 +38,7 @@ def weighting_to_blkio(weight_change, current_alloc):
 def weighting_to_cpu_quota(weight_change, current_alloc, cpu_period=1000000):
     new_quota = current_alloc + int(current_alloc * (weight_change / 100.0))
     assert new_quota > 0 and current_alloc < cpu_period
-    return new_quota
+    return int(new_quota)
 
 # Alternative method of changing the CPU stresing
 # Reduces the number of cores
