@@ -166,6 +166,13 @@ def update_mr_config(redis_db, mr_in_play):
         updated_configuration[mr] = resource_datastore.read_mr_alloc(redis_db, mr)
     return updated_configuration
 
+# Prints all improvements attempted by Throttlebot
+def print_all_steps(redis_db, total_experiments):
+    print 'Steps towards improving performance'
+    for experiment_count in range(total_experiments):
+        mimr,action_taken,perf_improvement = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
+
 '''
 Primary Run method that is called from the main
 system_config: Throttlebot related General parameters in a dict
@@ -195,7 +202,7 @@ def run(system_config, workload_config, default_mr_config):
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type)
-    
+
     # Run the baseline experiment
     experiment_count = 0
     baseline_performance = measure_baseline(workload_config, baseline_trials)
@@ -204,7 +211,7 @@ def run(system_config, workload_config, default_mr_config):
     # Invariant: MR are the same between iterations
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
 
-    while experiment_count < 3:
+    while experiment_count < 10:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(redis_db, stress_policy)
         print mr_to_stress
@@ -233,30 +240,35 @@ def run(system_config, workload_config, default_mr_config):
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
-                                   get_lowest=optimize_for_lowest, num_results_returned=10)
+                                   optimize_for_lowest=optimize_for_lowest, num_results_returned=10)
         
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
         mimr = None
-        for mr in mimr_list:
+        action_taken = 0
+        print 'The MR improvement is {}'.format(max_stress_weight)
+        for mr_score in mimr_list:
+            mr,score = mr_score
             improvement_percent = improve_mr_by(redis_db, mr, max_stress_weight)
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
-            if check_improve_mr_viability(redis_db, mr, new_alloc):
+            improvement_amount = new_alloc - current_mr_allocation
+            action_taken = improvement_amount
+            if check_improve_mr_viability(redis_db, mr, improvement_amount):
                 set_mr_provision(mr, new_alloc)
-                print 'Improvement Calculated: MR {} improved by {}'.format(mr.to_string(), new_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
                 old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
-                update_mr_consumption(redis_db, mr, new_alloc, old_alloc)
+                update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
                 mimr = mr
                 break
             else:
-                print 'Improvement not viable: MR {} failed to improve by {}'.format(mr.to_string(), new_alloc)
+                print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
                 
         if mimr is None:
             print 'No viable improvement found'
-            exit()
+            break
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
@@ -266,17 +278,20 @@ def run(system_config, workload_config, default_mr_config):
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken) 
         baseline_performance = improved_performance
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
+        experiment_count += 1
         
         # TODO: Handle False Positive
         # TODO: Compare against performance condition -- for now only do some number of experiments
 
     print '{} experiments completed'.format(experiment_count)
-    print 'New resource configuration = {}'.format(current_mr_config)
+    print_all_steps(redis_db, experiment_count)
+    for mr in current_mr_config:
+        print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
 
 '''
 Functions to parse configuration files

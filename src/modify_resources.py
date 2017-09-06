@@ -95,16 +95,17 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 # Allows you to set the CPU periods in a container, intended for a container that is already running
 # as opposed to update_cpu which actually just stresses the CPU by a predetermined amount
 # Assumes that that CPU_period and CPU_quota were not set beforehand
+# CPU Quota should be a percentage
 # CPU period is assumed to be 1 second no matter what
-def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
-
-    cpu_quota *= get_num_cores(ssh_client)
+def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
+    cpu_quota = int((cpu_quota_percent/100.0) * cpu_period)
+    #cpu_quota *= get_num_cores(ssh_client)
 
     print 'Adjusted CPU period: {}'.format(cpu_period)
     print 'CPU Quota: {}'.format(cpu_quota)
 
     throttled_containers = []
-
+    
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
     print update_command
     ssh_exec(ssh_client, update_command)

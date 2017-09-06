@@ -35,9 +35,10 @@ def weighting_to_blkio(weight_change, current_alloc):
 # Change the weighting of the CPU Quota
 # TODO: Extend this to type of stressing to multiple cores
 # Assumes a constant period
-def weighting_to_cpu_quota(weight_change, current_alloc, cpu_period=1000000):
-    new_quota = current_alloc + int(current_alloc * (weight_change / 100.0))
-    assert new_quota > 0 and current_alloc < cpu_period
+def weighting_to_cpu_quota(weight_change, current_alloc):
+    # We divide by 100 because CPU quota allocation is given as percentage
+    new_quota = current_alloc + int(current_alloc * weight_change/100.0)
+    assert new_quota > 0 
     return int(new_quota)
 
 # Alternative method of changing the CPU stresing

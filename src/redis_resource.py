@@ -37,12 +37,22 @@ def read_mr_alloc(redis_db, mr):
     key = generate_mr_key(mr.service_name, mr.resource)
     return float(redis_db.hget(mr_name, key))
 
+# Returns a list of MR objects with their current allocations
 def read_all_mr_alloc(redis_db):
     mr_name = 'mr_alloc'
-    result = redis_db.hgetall(mr_name)
-    for mr in result:
-        result[mr] = float(result[mr])
-    return result
+    mr_to_score = redis_db.hgetall(mr_name)
+    for mr in mr_to_score:
+        mr_to_score[mr] = float(mr_to_score[mr])
+
+    mr_allocation_list = {}
+    for mr in mr_to_score:
+        service_name,resource = mr.split(',')
+        deployments = tbot_datastore.read_service_locations(redis_db, service_name)
+        mr_object = MR(service_name, resource, deployments)
+        mr_allocation_list[mr_object] = mr_to_score[mr]
+        
+    return mr_allocation_list
+    
 
 '''
 Machine Consumption index maps a particular VM (identified by IP address) to 
