@@ -159,6 +159,18 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
 
+'''Stressing the Memory Size'''
+# Units are in MB
+def set_memory_size(ssh_client, container_id, memory):
+    set_memory_command = 'docker update --memory={}M {}'.format(memory, container_id)
+    print set_memory_command
+    ssh_exec(ssh_client, set_memory_command)
+
+def reset_memory_size(ssh_client, container_id):
+    reset_memory_command = 'docker update --memory=0 {}'.format(container_id)
+    print reset_memory_command
+    ssh_exec(ssh_client, reset_memory_command)
+
 '''Helper functions that are used for various reasons'''
 
 def convert_to_kib(mem):
@@ -232,8 +244,9 @@ if __name__ == "__main__":
     parser.add_argument("--set_blkio", type=int, default=0, help="Set blkio to SET_BLKIO")
     parser.add_argument("--rst_blkio", action="store_true", help="Reset any blkio restrictions set by --set_blkio")
     parser.add_argument("--set_network", type=int, default=0, help="Set the network bandwidth to a specific value")
-    parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling'
-    )
+    parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling')
+    parser.add_argument("--set_memory", type=int, default=0, help="Set Memory limit to MEMORY")
+    parser.add_argument("--rst_memory", action="store_true", help="Reset memory limits")
     args = parser.parse_args()
     ssh_client = get_client(args.public_vm_ip)
     container_id = args.container_id
@@ -253,3 +266,7 @@ if __name__ == "__main__":
         set_egress_network_bandwidth(ssh_client, container_id, args.set_network)
     if args.rst_network:
         reset_egress_network_bandwidth(ssh_client, container_id)
+    if args.set_memory:
+        set_memory_size(ssh_client, container_id, args.set_memory)
+    if args.rst_memory:
+        reset_memory_size(ssh_client, container_id)

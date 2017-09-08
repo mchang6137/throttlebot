@@ -50,6 +50,8 @@ def set_mr_provision(mr, new_mr_allocation):
             change_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
             set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
+        elif mr.resource == 'MEMORY':
+            set_memory_size(ssh_client, container_id, new_mr_allocation)
         else:
             print 'INVALID resource'
             return
@@ -65,6 +67,8 @@ def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
         return  weighting_to_blkio(weight_change, current_mr_allocation)
     elif mr.resource == 'NET':
         return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
+    elif mr.resource == 'MEMORY':
+        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances[0])
     else:
         print 'INVALID resource'
         exit()
@@ -248,7 +252,7 @@ def run(system_config, workload_config, default_mr_config):
         action_taken = 0
         print 'The MR improvement is {}'.format(max_stress_weight)
         for mr_score in mimr_list:
-            mr,score = mr_score
+            mr, score = mr_score
             improvement_percent = improve_mr_by(redis_db, mr, max_stress_weight)
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
@@ -386,7 +390,7 @@ def validate_configs(sys_config, workload_config):
     validate_ip(workload_config['request_generator'])
 
     for resource in sys_config['stress_these_resources'] :
-        if resource in ['CPU-CORE', 'CPU-QUOTA', 'DISK', 'NET', '*']:
+        if resource in ['CPU-CORE', 'CPU-QUOTA', 'DISK', 'NET', 'MEMORY', '*']:
             continue
         else:
             print 'Cannot stress a specified resource: {}'.format(resource)
@@ -397,7 +401,7 @@ def validate_ip(ip_addresses):
         try:
             socket.inet_aton(ip)
         except:
-            print 'The IP Address is Invalid'.format(ip)
+            print 'The IP Address {} is Invalid'.format(ip)
             exit()
 
 # Filter out resources, services, and machines that shouldn't be stressed on this iteration

@@ -35,6 +35,7 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
     # 1
     resource_capacity['CPU-CORE'] = 1
     resource_capacity['CPU-QUOTA'] = 100
+    resource_capacity['MEMORY'] = 8096
         
     return resource_capacity
 
@@ -43,7 +44,7 @@ def get_quilt_services():
 
 # Returns all stressable resources available for this
 def get_stressable_resources(cloud_provider='aws-ec2'):
-    all_resources = ['CPU-CORE', 'CPU-QUOTA', 'NET', 'DISK']
+    all_resources = ['CPU-CORE', 'CPU-QUOTA', 'NET', 'DISK', 'MEMORY']
     return all_resources
 
 # Identify the container id and VM where a service might be residing
@@ -87,8 +88,3 @@ def get_vm_to_service(vm_ips):
             else:
                 vm_to_service[vm_ip] = [service]
     return vm_to_service
-            
-    
-
-
-    
