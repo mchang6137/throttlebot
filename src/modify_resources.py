@@ -37,7 +37,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
 
     # Execute the command within OVS
     # OVS policy bandwidth accepts inputs in bps
-    bandwidth_kbps = bandwidth[container_id] / (10 ** 3)
+    bandwidth_kbps = bandwidth / (10 ** 3)
     ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, int(bandwidth_kbps))
     ovs_burst_cmd = 'ovs-vsctl set interface {} ingress_policing_burst={}'.format(interface_name, 0)
     docker_policing_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
@@ -95,16 +95,17 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 # Allows you to set the CPU periods in a container, intended for a container that is already running
 # as opposed to update_cpu which actually just stresses the CPU by a predetermined amount
 # Assumes that that CPU_period and CPU_quota were not set beforehand
+# CPU Quota should be a percentage
 # CPU period is assumed to be 1 second no matter what
-def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota):
-
-    cpu_quota *= get_num_cores(ssh_client)
+def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
+    cpu_quota = int((cpu_quota_percent/100.0) * cpu_period)
+    #cpu_quota *= get_num_cores(ssh_client)
 
     print 'Adjusted CPU period: {}'.format(cpu_period)
     print 'CPU Quota: {}'.format(cpu_quota)
 
     throttled_containers = []
-
+    
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
     print update_command
     ssh_exec(ssh_client, update_command)
@@ -141,6 +142,7 @@ def reset_cpu_cores(ssh_client, container_id):
 '''Stressing the Disk Read/write throughput'''
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
+# Units are in MB/s
 def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
