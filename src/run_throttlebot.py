@@ -176,7 +176,10 @@ def print_all_steps(redis_db, total_experiments):
     net_improvement = 0
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count,
+                                                                                                  mimr,
+                                                                                                  action_taken,
+                                                                                                  perf_improvement)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(perf_improvement)
 
@@ -242,19 +245,32 @@ def run(system_config, workload_config, default_mr_config):
 
                 #Write results of experiment to Redis
                 mean_result = calculate_mean(experiment_results[preferred_performance_metric])
-                tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
+                tbot_datastore.write_redis_ranking(redis_db,
+                                                   experiment_count,
+                                                   preferred_performance_metric,
+                                                   mean_result,
+                                                   mr,
+                                                   stress_weight)
                 
                 # Remove the effect of the resource stressing
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
-            tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
+            tbot_datastore.write_redis_results(redis_db,
+                                               mr,
+                                               increment_to_performance,
+                                               experiment_count,
+                                               preferred_performance_metric)
         
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
-        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
-                                   optimize_for_lowest=optimize_for_lowest, num_results_returned=10)
+        mimr_list = tbot_datastore.get_top_n_mimr(redis_db,
+                                                  experiment_count,
+                                                  preferred_performance_metric,
+                                                  max_stress_weight,
+                                                  optimize_for_lowest=optimize_for_lowest,
+                                                  num_results_returned=10)
         
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
@@ -270,7 +286,9 @@ def run(system_config, workload_config, default_mr_config):
             action_taken = improvement_amount
             if check_improve_mr_viability(redis_db, mr, improvement_amount):
                 set_mr_provision(mr, new_alloc)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(),
+                                                                                    current_mr_allocation,
+                                                                                    new_alloc)
                 old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
                 update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
@@ -278,7 +296,10 @@ def run(system_config, workload_config, default_mr_config):
                 mimr = mr
                 break
             else:
-                print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
+                print 'Improvement Calculated: MR {} failed to improve \
+                from {} to {}'.format(mr.to_string(),
+                                      current_mr_allocation,
+                                      new_alloc)
                 
         if mimr is None:
             print 'No viable improvement found'

@@ -48,9 +48,16 @@ def read_redis_result(redis_db, experiment_iteration_count, mr, perf_metric):
 
 # Writes scored result of the experiment to Redis
 # Maps the ordered performance times to the correct MR experiment
-def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_result, mr, stress_weight):
+def write_redis_ranking(redis_db,
+                        experiment_iteration_count,
+                        perf_metric,
+                        mean_result,
+                        mr,
+                        stress_weight):
     print 'Writing to the Redis Ranking'
-    sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
+    sorted_set_name = generate_ordered_performance_key(experiment_iteration_count,
+                                                       perf_metric,
+                                                       stress_weight)
     print 'SortedSetName: {}'.format(sorted_set_name)
 
     mr_key = generate_hash_key(experiment_iteration_count, mr, perf_metric)
@@ -58,8 +65,16 @@ def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_
 
 # Redis sets are ordered from lowest score to the highest score
 # A metric where lower is better would have get_lowest parameter set to True
-def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, optimize_for_lowest=True, num_results_returned=1):
-    sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
+def get_top_n_mimr(redis_db,
+                   experiment_iteration_count,
+                   perf_metric,
+                   stress_weight,
+                   optimize_for_lowest=True,
+                   num_results_returned=1):
+    
+    sorted_set_name = generate_ordered_performance_key(experiment_iteration_count,
+                                                       perf_metric,
+                                                       stress_weight)
     print 'Recovering the MIMR'
 
     # If improving performance means lowering the performance
@@ -83,7 +98,8 @@ def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_wei
 
 # After each iteration of Throttlebot, write a summary, essentially a record of what Throttlebot did
 # perf_gain should be the performance gain over the baseline
-# action_taken should be the amount of performance improvement given to the MIMR  in the form of +x, where x is a raw amount added to the MR
+# action_taken should be the amount of performance improvement given to the MIMR
+# in the form of +x, where x is a raw amount added to the MR
 # Currently assuming that there is only a single metric that a user would care about
 def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken):
     hash_name = '{}summary'.format(experiment_iteration_count)
