@@ -35,6 +35,7 @@ def reset_experiment(vm_ip, container_id):
         clear_all_entries(vm_ip)
     except:
         print ("Couldn't reset VM {}".format(vm_ip))
+    close_client(ssh_client)
 
 def execute_parse_results(ssh_client, cmd):
     _, results, _ = ssh_client.exec_command(cmd)
@@ -49,11 +50,10 @@ def execute_parse_results(ssh_client, cmd):
 #Use the Apache Benchmarking suite to hit a single container
 #experiment_args = [nginx_public_ip, pinging_machine]
 def measure_nginx_single_machine(workload_configuration, experiment_iterations):
-    nginx_public_ip = workload_configuration['frontend']
-    traffic_generate_machine = workload_configuration['request_generator']
+    nginx_public_ip = workload_configuration['frontend'][0]
+    traffic_generate_machine = workload_configuration['request_generator'][0]
 
     ssh_client = get_client(traffic_generate_machine)
-    nginx_ssh_client = get_client(nginx_public_ip)
 
     NUM_REQUESTS = 5
     CONCURRENCY = 1
@@ -89,10 +89,13 @@ def measure_nginx_single_machine(workload_configuration, experiment_iterations):
         all_requests['rps'].append(execute_parse_results(ssh_client, rps_cmd))
         all_requests[field_name].append(execute_parse_results(ssh_client, requests_within_time_cmd))
 
+    close_client(ssh_client)
+
     return all_requests
 
 #Measure response time for Spark ML-Matrix
-def measure_ml_matrix(container_id, spark_args, experiment_iterations):
+# Outdated
+def measure_ml_matrix(workload_configuration, experiment_iterations):
     all_results = {}
     all_results['latency'] = []
 
@@ -136,9 +139,11 @@ def measure_ml_matrix(container_id, spark_args, experiment_iterations):
     return all_results
 
 #container_id unused: see note in measure_runtime
-def measure_TODO_response_time(container_id, todo_args, iterations):
-    REST_server_ip = todo_args[0]
-    ssh_client = todo_args[1]
+def measure_TODO_response_time(workload_configuration, iterations):
+    REST_server_ip = workload_configuration['frontend'][0]
+    traffic_generator_ip = workload_configuration['request_generator'][0]
+
+    traffic_client = get_client(traffic_generator_ip)
 
     all_requests = {}
     all_requests['rps'] = []
@@ -158,7 +163,7 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
     print iterations
 
     for x in range(iterations):
-        _, results,_ = ssh_client.exec_command(post_cmd)
+        _, results,_ = traffic_client.exec_command(post_cmd)
         print post_cmd
         results.read()
 
@@ -175,17 +180,18 @@ def measure_TODO_response_time(container_id, todo_args, iterations):
         all_requests['latency_50'].append(execute_parse_results(ssh_client, latency_50_cmd))
         all_requests['rps'].append(execute_parse_results(ssh_client, rps_cmd))
 
-        _,cleared,_ = ssh_client.exec_command(clear_cmd)
+        _,cleared,_ = traffic_client.exec_command(clear_cmd)
         cleared.read()
+
+    close_client(traffic_client)
 
     print all_requests
     return all_requests
 
 #Measure response time for MEAN Application
-#container_id unused: see note in measure_runtime
-def measure_REST_response_time(container_id, REST_args, iterations):
-    REST_server_ip = REST_args[0]
-    ssh_server_ip = REST_args[1]
+def measure_REST_response_time(workload_configuration, iterations):
+    REST_server_ip = workload_configuration['frontend'][0]
+    ssh_server_ip = workload_configuration['request_generator'][0]
     #Each iteration actually represents 100 web requests
     all_requests = []
     for x in range(iterations):
@@ -197,11 +203,13 @@ def measure_REST_response_time(container_id, REST_args, iterations):
     #percentile99 = numpy.percentile(a, 99)
     return numpy.array(all_requests)
 
-def measure_GET_response_time(container_id, experiment_args, iterations):
-    website_public_ip = experiment_args[0]
-    traffic_client = experiment_args[1]
+def measure_GET_response_time(workload_configuration, iterations):
+    disknet_public_ip = workload_configuration['frontend'][0]
+    traffic_generate_machine = workload_configuration['request_generator'][0]
 
-    NUM_REQUESTS = 1
+    traffic_client = get_client(traffic_generate_machine)
+
+    NUM_REQUESTS = 50
     CONCURRENCY = 1
 
     all_requests = {}
@@ -214,7 +222,7 @@ def measure_GET_response_time(container_id, experiment_args, iterations):
     for x in range(iterations):
         benchmark_cmd = 'ab -n {} -c {} -s 999999 -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS,
                                                                                                    CONCURRENCY,
-                                                                                                   website_public_ip)
+                                                                                                   disknet_public_ip)
         print benchmark_cmd
         _, results, _ = traffic_client.exec_command(benchmark_cmd)
         results.read()
@@ -230,5 +238,7 @@ def measure_GET_response_time(container_id, experiment_args, iterations):
         all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
         all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
         all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+
+    close_client(traffic_client)
 
     return all_requests

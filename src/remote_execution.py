@@ -11,3 +11,6 @@ def ssh_exec(ssh_client, cmd):
     err = stderr.read()
     if err:
         print ("Error execing {}: {}".format(cmd, err))
+
+def close_client(ssh_client):
+    ssh_client.close()

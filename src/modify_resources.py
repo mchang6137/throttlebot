@@ -90,6 +90,7 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
                 for container in container_ids:
                     cmd = "sudo tc qdisc del dev {} root".format(container)
                     ssh_exec(temp_ssh_client, cmd)
+                close_client(temp_ssh_client)
 
 '''Stressing the CPU'''
 # Allows you to set the CPU periods in a container, intended for a container that is already running
@@ -147,6 +148,7 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
     # Check for 202 or 252 for major device number
+    disk_bandwidth = convert_to_B((disk_bandwidth, "MiB"))
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
@@ -159,7 +161,24 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
 
+'''Stressing the Memory Size'''
+# Units are in MB
+def set_memory_size(ssh_client, container_id, memory):
+    set_memory_command = 'docker update --memory={}M {}'.format(memory, container_id)
+    print set_memory_command
+    ssh_exec(ssh_client, set_memory_command)
+
+def reset_memory_size(ssh_client, container_id):
+    reset_memory_command = 'docker update --memory=0 {}'.format(container_id)
+    print reset_memory_command
+    ssh_exec(ssh_client, reset_memory_command)
+
 '''Helper functions that are used for various reasons'''
+
+def convert_to_B(mem):
+    """MEM is a tuple (mem_size, unit). Unit must be KiB, MiB, or GiB.
+        Returns mem_size converted to B."""
+    return convert_to_kib(mem) * (2**10)
 
 def convert_to_kib(mem):
     """MEM is a tuple (mem_size, unit). Unit must be KiB, MiB, or GiB.
@@ -232,8 +251,9 @@ if __name__ == "__main__":
     parser.add_argument("--set_blkio", type=int, default=0, help="Set blkio to SET_BLKIO")
     parser.add_argument("--rst_blkio", action="store_true", help="Reset any blkio restrictions set by --set_blkio")
     parser.add_argument("--set_network", type=int, default=0, help="Set the network bandwidth to a specific value")
-    parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling'
-    )
+    parser.add_argument("--rst_network", action="store_true", help='Reset Network bandwidth to no throttling')
+    parser.add_argument("--set_memory", type=int, default=0, help="Set Memory limit to MEMORY")
+    parser.add_argument("--rst_memory", action="store_true", help="Reset memory limits")
     args = parser.parse_args()
     ssh_client = get_client(args.public_vm_ip)
     container_id = args.container_id
@@ -253,3 +273,7 @@ if __name__ == "__main__":
         set_egress_network_bandwidth(ssh_client, container_id, args.set_network)
     if args.rst_network:
         reset_egress_network_bandwidth(ssh_client, container_id)
+    if args.set_memory:
+        set_memory_size(ssh_client, container_id, args.set_memory)
+    if args.rst_memory:
+        reset_memory_size(ssh_client, container_id)

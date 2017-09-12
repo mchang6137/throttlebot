@@ -15,12 +15,12 @@ quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
 def get_actual_vms():
-    return ['52.53.193.146']
+    return ['54.183.176.238']
 
 # Find all the services in the current Quilt Cluster
 # Returns a list of service names (strings)
 def get_actual_services():
-    return ['nginx:1.10']
+    return ['tsaianson/disknetflush']
 
 # Given a machine type, identify the amount of resource on the machine
 # Assumes that the entire cluster has the same machine type
@@ -110,7 +110,7 @@ def get_quilt_services():
 
 # Returns all stressable resources available for this
 def get_stressable_resources(cloud_provider='aws-ec2'):
-    all_resources = ['CPU-CORE', 'CPU-QUOTA', 'NET', 'DISK']
+    all_resources = ['CPU-CORE', 'CPU-QUOTA', 'NET', 'DISK', 'MEMORY']
     return all_resources
 
 # Identify the container id and VM where a service might be residing
@@ -135,6 +135,7 @@ def get_service_placements(vm_ips):
                 service_to_deployment[service_name] = [identifier_tuple]
             else:
                 service_to_deployment[service_name].append(identifier_tuple)
+        remote_exec.close_client(ssh_client)
     return service_to_deployment
 
 # Identify the services residing on each VM
@@ -153,9 +154,5 @@ def get_vm_to_service(vm_ips):
                 vm_to_service[vm_ip].append(service)
             else:
                 vm_to_service[vm_ip] = [service]
+        remote_exec.close_client(ssh_client)
     return vm_to_service
-            
-    
-
-
-    
