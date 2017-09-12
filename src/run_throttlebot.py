@@ -179,6 +179,10 @@ def print_all_steps(redis_db, total_experiments):
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(perf_improvement)
+
+# Calcualte the mean of a list
+def calculate_mean(object_list):
+    return float(sum(object_list)) / len(object_list)
     
 '''
 Primary Run method that is called from the main
@@ -237,7 +241,7 @@ def run(system_config, workload_config, default_mr_config):
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
                 #Write results of experiment to Redis
-                mean_result = float(sum(experiment_results[preferred_performance_metric])) / len(experiment_results[preferred_performance_metric])
+                mean_result = calculate_mean(experiment_results[preferred_performance_metric])
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
                 
                 # Remove the effect of the resource stressing
@@ -283,8 +287,8 @@ def run(system_config, workload_config, default_mr_config):
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
         print improved_performance
-        improved_mean = sum(improved_performance[preferred_performance_metric]) / float(len(improved_performance[preferred_performance_metric]))
-        baseline_mean = sum(baseline_performance[preferred_performance_metric]) / float(len(baseline_performance[preferred_performance_metric]))                                                                           
+        improved_mean = calculate_mean(improved_performance[preferred_performance_metric])
+        baseline_mean = calculate_mean(baseline_performance[preferred_performance_metric])
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
