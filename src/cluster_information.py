@@ -1,3 +1,4 @@
+import subprocess
 import remote_execution as remote_exec
 
 '''
@@ -15,7 +16,52 @@ quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
 def get_actual_vms():
-    return ['54.183.176.238']
+    ps_args = ['quilt', 'ps']
+    awk_args = ["awk", r'{print $6}']
+
+    # Identify the machine index of the master node
+    machine_roles = parse_quilt_ps_col(2, machine_level=True)
+    
+    # Get the IP addresses of all the machines
+    machine_ips = parse_quilt_ps_col(6, machine_level=True)
+
+    combined_machine_info = zip(machine_roles, machine_ips)
+    ips = []
+    for info in combined_machine_info:
+        role,ip = info
+        if role == 'Master':
+            continue
+        ips.append(ip)
+    return ips
+
+# Gets all the services in the Quilt cluster
+# Identifies the services based on the COMMAND
+def get_actual_services():
+    services = parse_quilt_ps_col(3, machine_level=False)
+    return services
+
+def parse_quilt_ps_col(column, machine_level=True):
+    ps_args = ['quilt', 'ps']
+    awk_args = ["awk", r'{{print ${}}}'.format(column)]
+    
+    ps = subprocess.Popen(ps_args, stdout=subprocess.PIPE)
+    col_results = subprocess.check_output(awk_args, stdin=ps.stdout)
+    result_list = []
+    if machine_level:
+        for result in col_results.splitlines():
+            if result == '':
+                break
+            result_list.append(result)
+        return result_list[1:]
+    else:
+        below_line = False
+        for result in col_results.splitlines():
+            if result == '':
+                below_line = True
+                continue
+            if below_line:
+                result_list.append(result)
+        return result_list[1:]
 
 # Find all the services in the current Quilt Cluster
 # Returns a list of service names (strings)
@@ -156,3 +202,4 @@ def get_vm_to_service(vm_ips):
                 vm_to_service[vm_ip] = [service]
         remote_exec.close_client(ssh_client)
     return vm_to_service
+
