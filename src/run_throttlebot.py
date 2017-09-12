@@ -44,8 +44,8 @@ def set_mr_provision(mr, new_mr_allocation):
         if mr.resource == 'CPU-CORE':
             set_cpu_cores(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
-            #TODO: Period should not be hardcoded to 1 second
-            set_cpu_quota(ssh_client, container_id, 1000000, new_mr_allocation)
+            #TODO: Period should not be hardcoded 
+            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
         elif mr.resource == 'DISK':
             change_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
@@ -173,10 +173,13 @@ def update_mr_config(redis_db, mr_in_play):
 # Prints all improvements attempted by Throttlebot
 def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
+    net_improvement = 0
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
-
+        net_improvement += float(perf_improvement)
+    print 'Net Improvement: {}'.format(perf_improvement)
+    
 '''
 Primary Run method that is called from the main
 system_config: Throttlebot related General parameters in a dict
