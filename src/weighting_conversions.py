@@ -57,7 +57,7 @@ def weighting_to_cpu_cores(weight_change, current_alloc):
 
 def weighting_to_memory(weight_change, current_alloc, instance):
     new_memory = current_alloc + int(current_alloc * weight_change/100.0)
-    min_memory = get_min_memory(instance)
+    min_memory = get_min_memory(instance[0])
     if new_memory < min_memory:
         return min_memory
     return new_memory

@@ -68,7 +68,7 @@ def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
     elif mr.resource == 'NET':
         return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
     elif mr.resource == 'MEMORY':
-        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances[0])
+        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances)
     else:
         print 'INVALID resource'
         exit()
@@ -206,6 +206,9 @@ def run(system_config, workload_config, default_mr_config):
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type)
+
+    # Install machine dependencies
+    install_dependencies(workload_config)
 
     # Run the baseline experiment
     experiment_count = 0
@@ -403,6 +406,15 @@ def validate_ip(ip_addresses):
         except:
             print 'The IP Address {} is Invalid'.format(ip)
             exit()
+
+# Installs dependencies on machines if needed
+def install_dependencies(workload_config):
+    traffic_machines = workload_config['request_generator']
+    for traffic_machine in traffic_machines:
+        traffic_client = get_client(traffic_machine)
+        ssh_exec(traffic_client, 'sudo apt-get install apache2-utils -y')
+        close_client(traffic_client)
+
 
 # Filter out resources, services, and machines that shouldn't be stressed on this iteration
 # Automatically Filter out Quilt-specific modules
