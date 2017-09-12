@@ -90,6 +90,7 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
                 for container in container_ids:
                     cmd = "sudo tc qdisc del dev {} root".format(container)
                     ssh_exec(temp_ssh_client, cmd)
+                close_client(temp_ssh_client)
 
 '''Stressing the CPU'''
 # Allows you to set the CPU periods in a container, intended for a container that is already running

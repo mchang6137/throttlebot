@@ -35,6 +35,7 @@ def reset_experiment(vm_ip, container_id):
         clear_all_entries(vm_ip)
     except:
         print ("Couldn't reset VM {}".format(vm_ip))
+    close_client(ssh_client)
 
 def execute_parse_results(ssh_client, cmd):
     _, results, _ = ssh_client.exec_command(cmd)
@@ -87,6 +88,8 @@ def measure_nginx_single_machine(workload_configuration, experiment_iterations):
         all_requests['latency_50'].append(execute_parse_results(ssh_client, latency_50_cmd))
         all_requests['rps'].append(execute_parse_results(ssh_client, rps_cmd))
         all_requests[field_name].append(execute_parse_results(ssh_client, requests_within_time_cmd))
+
+    close_client(ssh_client)
 
     return all_requests
 
@@ -180,6 +183,8 @@ def measure_TODO_response_time(workload_configuration, iterations):
         _,cleared,_ = traffic_client.exec_command(clear_cmd)
         cleared.read()
 
+    close_client(traffic_client)
+
     print all_requests
     return all_requests
 
@@ -233,5 +238,7 @@ def measure_GET_response_time(workload_configuration, iterations):
         all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
         all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
         all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+
+    close_client(traffic_client)
 
     return all_requests

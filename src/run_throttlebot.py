@@ -54,7 +54,7 @@ def set_mr_provision(mr, new_mr_allocation):
             set_memory_size(ssh_client, container_id, new_mr_allocation)
         else:
             print 'INVALID resource'
-            return
+        close_client(ssh_client)
         
 # Converts a change in resource provisioning to raw change
 # Example: 20% -> 24 Gbps
