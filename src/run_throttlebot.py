@@ -410,6 +410,8 @@ def validate_ip(ip_addresses):
 # Installs dependencies on machines if needed
 def install_dependencies(workload_config):
     traffic_machines = workload_config['request_generator']
+    if traffic_machines == ['']:
+        return
     for traffic_machine in traffic_machines:
         traffic_client = get_client(traffic_machine)
         ssh_exec(traffic_client, 'sudo apt-get install apache2-utils -y')
