@@ -147,6 +147,7 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
     # Check for 202 or 252 for major device number
+    disk_bandwidth = convert_to_B((disk_bandwidth, "MiB"))
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
@@ -172,6 +173,11 @@ def reset_memory_size(ssh_client, container_id):
     ssh_exec(ssh_client, reset_memory_command)
 
 '''Helper functions that are used for various reasons'''
+
+def convert_to_B(mem):
+    """MEM is a tuple (mem_size, unit). Unit must be KiB, MiB, or GiB.
+        Returns mem_size converted to B."""
+    return convert_to_kib(mem) * (2**10)
 
 def convert_to_kib(mem):
     """MEM is a tuple (mem_size, unit). Unit must be KiB, MiB, or GiB.
