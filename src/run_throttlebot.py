@@ -352,7 +352,7 @@ def parse_config_file(config_file):
 # This should be ONLY TIME the machines are queried directly -- remaining calls
 # should be conducted from Redis
 #
-# The provisioning may be invalid.
+# The provisioning may be invalid, this will be checked in a later function
 # Returns a mapping of a MR to its current resource allocation (in terms of the raw amount)
 def parse_resource_config_file(resource_config_csv, sys_config):
     machine_type = sys_config['machine_type']
@@ -379,7 +379,9 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         default_alloc_percentage = 50.0 / max_num_services
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
-            mr_allocation[mr] = -1 * default_alloc_percentage
+            max_capacity = get_instance_specs(machine_type)[mr.resource]
+            default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
+            mr_allocation[mr] = default_raw_alloc
     else:
         # Manual Configuration Possible
         # Parse a CSV
