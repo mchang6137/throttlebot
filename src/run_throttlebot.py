@@ -95,8 +95,11 @@ def init_resource_config(redis_db, default_mr_config, machine_type):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
-        weight_change = default_mr_config[mr]
-        new_resource_provision = convert_percent_to_raw(mr, instance_specs[mr.resource], weight_change)
+        new_resource_provision = default_mr_config[mr]
+        if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
+            print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
+            exit()
+            
         # Enact the change in resource provisioning
         set_mr_provision(mr, new_resource_provision)
 
@@ -111,7 +114,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     quilt_usage = {}
 
     # Leave some resources available for Quilt containers to run (OVS, etc.)
-    # This is dictated by quilt overhead
+     # This is dictated by quilt overhead
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
         quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
@@ -153,6 +156,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
     return True
 
 # Update the resource consumption of a machine after an MIMR has been improved
+# Assumes that the new allocation of resources is valid 
 def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
     for instance in mr.instances:
         vm_ip,container_id = instance
