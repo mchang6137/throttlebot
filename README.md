@@ -1,4 +1,4 @@
-Throttlebot!
+#Throttlebot!
 
 The advent of accessible open source software and lightweight virtualized containers have led to the widespread adoption of complex software services like Spark or Redis. In spite of the popularity of these services, performance tuning for these services are usually managed by provisioning large teams of manual labor for the problem. The manpower required for this makes it highly unfeasible for the vast majority of organizations. We propose ThrottleBot which identifies performance bottlenecks for a containerized service by systematically throttling the container resources. Ultimately, this makes it possible to intelligently provision containers while allowing the user to treat the system as a black box. ThrottleBot successfully identifies the bottleneck in a variety of widely used services, including Nginx, Spark, and the MEAN stack.ThrottleBot!
 
@@ -21,23 +21,23 @@ Steps to run Throttlebot:
 
 The "Basic" Section describes general Throttlebot parameters.
 
-baseline_trials: The number of experiment trials to run for the baseline experiment
-trials: The number of trials to run each of the stressed experiments (you might feel inclined to choose fewer trials than experiment_trials for faster experimenting
-increments: Describes how many levels of stressing. An increment of 20 s
-stress_these_resources: The resources that are good to consider. Current options so far are only DISK, NET, CPU-CORE, and CPU-QUOTA. 
-stress_these_services: The names of the services you would want Throttlebot to stress. To stress all services,simply indicate *. Throttlebot will blacklist any non-application related services by default
+- baseline_trials: The number of experiment trials to run for the baseline experiment
+- trials: The number of trials to run each of the stressed experiments (you might feel inclined to choose fewer trials than experiment_trials for faster experimenting
+- increments: Describes how many levels of stressing. An increment of 20 s
+stress_these_resources: The resources that are good to consider. Current options so far are only DISK, NET, CPU-CORE, MEMORY, and CPU-QUOTA. 
+- stress_these_services: The names of the services you would want Throttlebot to stress. To stress all services,simply indicate *. Throttlebot will blacklist any non-application related services by default
 redis_host: The host where the Redis is located (Throttlebot uses Redis as it's data store)
-stress_policy: The policy that is being used by Throttlebot to decide which containers to consider on each iteration. Note: the only policy implemented right now is 'ALL'
+- stress_policy: The policy that is being used by Throttlebot to decide which containers to consider on each iteration. Note: the only policy implemented right now is 'ALL'
 
 The "Workload" section describes several Workload specific parameters. Throttlebot will run the experiment in this manner on each iteration.
 
-type: Each implemented workload will have a type. Set the experiment name here. This might be deprecated later.
+- type: Each implemented workload will have a type. Set the experiment name here. This might be deprecated later.
 request_generator: An instance that generates requests to the application under test. There might be multiple of these instances. This is most likely an Ip address or a hostname.
-frontend: The host name (or IP address) where the application frontend is. This is an IP address or hostname.
+- frontend: The host name (or IP address) where the application frontend is. This is an IP address or hostname.
 additional_args: The names of any additional arguments that would be used by this workload
-additional_arg_values: The values of the additional arguments (see additional_args above), listed in the same order as the argument names in additional_args
-tbot_metric: The experiment could return several metrics, but this tells Throttlebot which metric to prioritize MIMRs by. There can only be a single metric here. Ensure that the metric is spelled identically as in your workload.py
-performance_target: A termination point for Throttlebot. This is for Throttlebot to know when to stop running the experiments. This is not yet implemented.
+- additional_arg_values: The values of the additional arguments (see additional_args above), listed in the same order as the argument names in additional_args
+- tbot_metric: The experiment could return several metrics, but this tells Throttlebot which metric to prioritize MIMRs by. There can only be a single metric here. Ensure that the metric is spelled identically as in your workload.py
+- performance_target: A termination point for Throttlebot. This is for Throttlebot to know when to stop running the experiments. This is not yet implemented.
 
 Once the configuration is set, ensure Redis is up and running, and then start Throttlebot with the following command.
 
