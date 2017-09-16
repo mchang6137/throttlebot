@@ -18,7 +18,6 @@ from time import sleep
 from collections import namedtuple
 
 from stress_analyzer import *
-from modify_resources import *
 from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
@@ -30,48 +29,7 @@ from mr	import MR
 import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
-
-'''
-Functions that enable stressing resources and determining how much to stress
-Stresses implemented in: modify_resources.py
-'''
-
-# Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation):
-    for vm_ip,container_id in mr.instances:
-        ssh_client = get_client(vm_ip)
-        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
-        if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'CPU-QUOTA':
-            #TODO: Period should not be hardcoded 
-            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
-        elif mr.resource == 'DISK':
-            change_container_blkio(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'NET':
-            set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'MEMORY':
-            set_memory_size(ssh_client, container_id, new_mr_allocation)
-        else:
-            print 'INVALID resource'
-        close_client(ssh_client)
-        
-# Converts a change in resource provisioning to raw change
-# Example: 20% -> 24 Gbps
-def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
-    if mr.resource == 'CPU-CORE':
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
-    elif mr.resource == 'CPU-QUOTA':
-        return weighting_to_cpu_quota(weight_change, current_mr_allocation)
-    elif mr.resource == 'DISK':
-        return  weighting_to_blkio(weight_change, current_mr_allocation)
-    elif mr.resource == 'NET':
-        return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
-    elif mr.resource == 'MEMORY':
-        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances)
-    else:
-        print 'INVALID resource'
-        exit()
+import modify_resources as resource_modifier
 
 '''
 Initialization: 
@@ -101,7 +59,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type):
             exit()
             
         # Enact the change in resource provisioning
-        set_mr_provision(mr, new_resource_provision)
+        resource_modifier.set_mr_provision(mr, new_resource_provision)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -237,7 +195,7 @@ def run(system_config, workload_config, default_mr_config):
             print 'Current MR allocation is {}'.format(current_mr_allocation)
             for stress_weight in stress_weights:
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-                set_mr_provision(mr, new_alloc)
+                resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
                 #Write results of experiment to Redis
@@ -269,7 +227,7 @@ def run(system_config, workload_config, default_mr_config):
             improvement_amount = new_alloc - current_mr_allocation
             action_taken = improvement_amount
             if check_improve_mr_viability(redis_db, mr, improvement_amount):
-                set_mr_provision(mr, new_alloc)
+                resource_modifier.set_mr_provision(mr, new_alloc)
                 print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
                 old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
