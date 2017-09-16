@@ -352,9 +352,13 @@ def parse_config_file(config_file):
 # This should be ONLY TIME the machines are queried directly -- remaining calls
 # should be conducted from Redis
 #
-# Returns a mapping of a MR to its current resource allocation (percentage amount)
-def parse_resource_config_file(resource_config):
+# The provisioning may be invalid.
+# Returns a mapping of a MR to its current resource allocation (in terms of the raw amount)
+def parse_resource_config_file(resource_config_csv, sys_config):
+    machine_type = sys_config['machine_type']
+    
     vm_list = get_actual_vms()
+    service_placements = get_service_placements(vm_list)
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
     
@@ -362,7 +366,7 @@ def parse_resource_config_file(resource_config):
     
     # Empty Config means that we should default resource allocation to only use
     # half of the total resource capacity on the machine
-    if resource_config is None:
+    if resource_config_csv is None:
         vm_to_service = get_vm_to_service(vm_list)
 
         # DEFAULT_ALLOCATION sets the initial configuration
@@ -377,8 +381,30 @@ def parse_resource_config_file(resource_config):
         for mr in mr_list:
             mr_allocation[mr] = -1 * default_alloc_percentage
     else:
-        # Manual Configuration possible here, to be implemented
-        print 'Placeholder for a way to configure the resources'
+        # Manual Configuration Possible
+        # Parse a CSV
+        # Format of resource allocation: SERVICE,RESOURCE,TYPE,REPR
+        mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
+        with open(resource_config_csv, 'rb') as resource_config:
+            reader = csv.DictReader(resource_config)
+
+            for row in reader:
+                service_name = row['SERVICE']
+                resource = row['RESOURCE']
+                amount = float(row['AMOUNT'])
+                amount_repr = row['REPR']
+
+                # Convert REPR to RAW AMOUNT
+                if amount_repr == 'PERCENT':
+                    if amount <= 0 or amount > 100:
+                        print 'Error: invalid default percentage. Exiting...'
+                        exit()
+                    max_capacity = get_instance_specs(machine_type)[resource]
+                    amount = (amount / 100.0) * max_capacity
+
+                mr = MR(service_name, resource, service_placements[service_name])
+                assert mr in mr_list
+                mr_allocation[mr] = amount
 
     return mr_allocation
 
@@ -453,7 +479,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config = parse_config_file(args.config_file)
-    mr_allocation = parse_resource_config_file(args.resource_config)
+    mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
     
     # While stress policies can further filter MRs, the first filter is applied here
     # mr_allocation should include only the MRs that are included
