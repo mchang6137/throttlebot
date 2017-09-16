@@ -141,6 +141,20 @@ def print_all_steps(redis_db, total_experiments):
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(perf_improvement)
+
+# Writes a CSV that can be re-fed into Throttlebot as a configuration
+def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
+    with open(output_csv, 'w') as csvfile:
+        fieldnames = ['SERVICE', 'RESOURCE', 'AMOUNT', 'REPR']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for mr in final_configuration:
+            result_dict = {}
+            result_dict['SERVICE'] = mr.service_name
+            result_dict['RESOURCE'] = mr.resource
+            result_dict['AMOUNT'] = final_configuration[mr]
+            result_dict['REPR'] = 'RAW'
+            writer.writerow(result_dict)
     
 '''
 Primary Run method that is called from the main
@@ -264,6 +278,8 @@ def run(system_config, workload_config, default_mr_config):
     print_all_steps(redis_db, experiment_count)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+        
+    print_csv_configuration(current_mr_config)
 
 '''
 Functions to parse configuration files
