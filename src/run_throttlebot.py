@@ -122,6 +122,38 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
         resource_datastore.write_machine_consumption(redis_db, vm_ip, quilt_usage)
         resource_datastore.write_machine_capacity(redis_db, vm_ip, resource_alloc)
 
+'''
+Functions for the purpose of checking if False Positives occured
+'''
+
+def is_false_positive(redis_db, workload_config, mr, weight_change):
+    # Stress all resources except the MR
+    original_mr_alloc = stress_all_but(redis_db, weight_change, mr)
+    results = measure_baseline(workload_config, mr)
+
+    revert_causal_stressing(redis_db, original_mr_alloc)
+
+    # How to interpret the results of the inverted stress
+    
+    return False
+
+# "Causal" approach to stressing - stress all other resources
+#  Returns a function to revert the stressing
+def stress_all_but(redis_db, mr, weight_change):
+    mr_allocation = read_all_mr_alloc(redis_db)
+    del mr_allocation[mr]
+
+    for mr in mr_allocation:
+        new_alloc = convert_percent_to_raw(mr, mr_allocation[mr], weight_change)
+        set_mr_provision(mr, new_alloc)
+
+    return mr_allocation
+
+# Takes a list of MR allocation and resets them
+def revert_causal_stressing(redis_db, original_mr_alloc):
+    for mr in mr_allocation:
+        set_mr_provision(mr, mr_allocation(mr)
+
 ''' 
 Tools that are used for experimental purposes in Throttlebot 
 '''
@@ -182,6 +214,16 @@ def print_all_steps(redis_db, total_experiments):
                                                                                                   perf_improvement)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(perf_improvement)
+
+# Determine if False Positive occurred
+def is_perf_improvement(performance_change, optimize_for_lowest):
+    if optimize_for_lowest and performance_change > 0:
+        return True
+    elif optimize_for_lowest is False and performance_change < 0:
+        return True
+    else:
+        return False
+            
 
 # Calcualte the mean of a list
 def calculate_mean(object_list):
@@ -310,11 +352,17 @@ def run(system_config, workload_config, default_mr_config):
         print improved_performance
         improved_mean = calculate_mean(improved_performance[preferred_performance_metric])
         baseline_mean = calculate_mean(baseline_performance[preferred_performance_metric])
-        performance_improvement = improved_mean - baseline_mean
+        performance_change = improved_mean - baseline_mean
+
+        # Handle False Positives
+        if is_perf_improvement(performance_change, optimize_for_lowest):
+            print 'Potential False positive detected'
+            if is_false_positive(mimr):
+                print 'False positive determination still not complete'         
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken) 
-        baseline_performance = improved_performance
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_change, action_taken) 
+        baseline_performance = improved_mean
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)

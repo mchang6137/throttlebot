@@ -44,14 +44,14 @@ def read_all_mr_alloc(redis_db):
     for mr in mr_to_score:
         mr_to_score[mr] = float(mr_to_score[mr])
 
-    mr_allocation_list = {}
+    mr_allocation_dict = {}
     for mr in mr_to_score:
         service_name,resource = mr.split(',')
         deployments = tbot_datastore.read_service_locations(redis_db, service_name)
         mr_object = MR(service_name, resource, deployments)
-        mr_allocation_list[mr_object] = mr_to_score[mr]
+        mr_allocation_dict[mr_object] = mr_to_score[mr]
         
-    return mr_allocation_list
+    return mr_allocation_dict
     
 
 '''
