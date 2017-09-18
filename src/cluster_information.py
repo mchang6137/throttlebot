@@ -146,6 +146,10 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
         'd2.8xlarge':  {'CPU-CORE': 18, 'DISK': 0,   'NET': 0,    'MEMORY': 36, 'STORAGE': '24 x 2000 HDD'}
     }
 
+    # Some hacks to clean up the results returned by this function
+    # Primarily, Storage is not a necessary field
+    if 'STORAGE' in resource_capacity[machine_type]:
+        del resource_capacity[machine_type]['STORAGE']
     resource_capacity[machine_type]['CPU-QUOTA'] = 100
     return resource_capacity[machine_type]
 
