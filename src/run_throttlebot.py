@@ -18,7 +18,6 @@ from time import sleep
 from collections import namedtuple
 
 from stress_analyzer import *
-from modify_resources import *
 from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
@@ -30,48 +29,7 @@ from mr	import MR
 import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
-
-'''
-Functions that enable stressing resources and determining how much to stress
-Stresses implemented in: modify_resources.py
-'''
-
-# Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation):
-    for vm_ip,container_id in mr.instances:
-        ssh_client = get_client(vm_ip)
-        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
-        if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'CPU-QUOTA':
-            #TODO: Period should not be hardcoded 
-            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
-        elif mr.resource == 'DISK':
-            change_container_blkio(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'NET':
-            set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
-        elif mr.resource == 'MEMORY':
-            set_memory_size(ssh_client, container_id, new_mr_allocation)
-        else:
-            print 'INVALID resource'
-        close_client(ssh_client)
-        
-# Converts a change in resource provisioning to raw change
-# Example: 20% -> 24 Gbps
-def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
-    if mr.resource == 'CPU-CORE':
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
-    elif mr.resource == 'CPU-QUOTA':
-        return weighting_to_cpu_quota(weight_change, current_mr_allocation)
-    elif mr.resource == 'DISK':
-        return  weighting_to_blkio(weight_change, current_mr_allocation)
-    elif mr.resource == 'NET':
-        return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
-    elif mr.resource == 'MEMORY':
-        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances)
-    else:
-        print 'INVALID resource'
-        exit()
+import modify_resources as resource_modifier
 
 '''
 Initialization: 
@@ -95,10 +53,13 @@ def init_resource_config(redis_db, default_mr_config, machine_type):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
-        weight_change = default_mr_config[mr]
-        new_resource_provision = convert_percent_to_raw(mr, instance_specs[mr.resource], weight_change)
+        new_resource_provision = default_mr_config[mr]
+        if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
+            print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
+            exit()
+            
         # Enact the change in resource provisioning
-        set_mr_provision(mr, new_resource_provision)
+        resource_modifier.set_mr_provision(mr, new_resource_provision)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -111,7 +72,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     quilt_usage = {}
 
     # Leave some resources available for Quilt containers to run (OVS, etc.)
-    # This is dictated by quilt overhead
+     # This is dictated by quilt overhead
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
         quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
@@ -153,6 +114,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
     return True
 
 # Update the resource consumption of a machine after an MIMR has been improved
+# Assumes that the new allocation of resources is valid 
 def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
     for instance in mr.instances:
         vm_ip,container_id = instance
@@ -179,6 +141,20 @@ def print_all_steps(redis_db, total_experiments):
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(perf_improvement)
+
+# Writes a CSV that can be re-fed into Throttlebot as a configuration
+def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
+    with open(output_csv, 'w') as csvfile:
+        fieldnames = ['SERVICE', 'RESOURCE', 'AMOUNT', 'REPR']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for mr in final_configuration:
+            result_dict = {}
+            result_dict['SERVICE'] = mr.service_name
+            result_dict['RESOURCE'] = mr.resource
+            result_dict['AMOUNT'] = final_configuration[mr]
+            result_dict['REPR'] = 'RAW'
+            writer.writerow(result_dict)
     
 '''
 Primary Run method that is called from the main
@@ -233,7 +209,7 @@ def run(system_config, workload_config, default_mr_config):
             print 'Current MR allocation is {}'.format(current_mr_allocation)
             for stress_weight in stress_weights:
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-                set_mr_provision(mr, new_alloc)
+                resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
                 #Write results of experiment to Redis
@@ -265,7 +241,7 @@ def run(system_config, workload_config, default_mr_config):
             improvement_amount = new_alloc - current_mr_allocation
             action_taken = improvement_amount
             if check_improve_mr_viability(redis_db, mr, improvement_amount):
-                set_mr_provision(mr, new_alloc)
+                resource_modifier.set_mr_provision(mr, new_alloc)
                 print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
                 old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
@@ -302,6 +278,8 @@ def run(system_config, workload_config, default_mr_config):
     print_all_steps(redis_db, experiment_count)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+        
+    print_csv_configuration(current_mr_config)
 
 '''
 Functions to parse configuration files
@@ -352,9 +330,13 @@ def parse_config_file(config_file):
 # This should be ONLY TIME the machines are queried directly -- remaining calls
 # should be conducted from Redis
 #
-# Returns a mapping of a MR to its current resource allocation (percentage amount)
-def parse_resource_config_file(resource_config):
+# The provisioning may be invalid, this will be checked in a later function
+# Returns a mapping of a MR to its current resource allocation (in terms of the raw amount)
+def parse_resource_config_file(resource_config_csv, sys_config):
+    machine_type = sys_config['machine_type']
+    
     vm_list = get_actual_vms()
+    service_placements = get_service_placements(vm_list)
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
     
@@ -362,7 +344,7 @@ def parse_resource_config_file(resource_config):
     
     # Empty Config means that we should default resource allocation to only use
     # half of the total resource capacity on the machine
-    if resource_config is None:
+    if resource_config_csv is None:
         vm_to_service = get_vm_to_service(vm_list)
 
         # DEFAULT_ALLOCATION sets the initial configuration
@@ -375,10 +357,34 @@ def parse_resource_config_file(resource_config):
         default_alloc_percentage = 50.0 / max_num_services
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
-            mr_allocation[mr] = -1 * default_alloc_percentage
+            max_capacity = get_instance_specs(machine_type)[mr.resource]
+            default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
+            mr_allocation[mr] = default_raw_alloc
     else:
-        # Manual Configuration possible here, to be implemented
-        print 'Placeholder for a way to configure the resources'
+        # Manual Configuration Possible
+        # Parse a CSV
+        # Format of resource allocation: SERVICE,RESOURCE,TYPE,REPR
+        mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
+        with open(resource_config_csv, 'rb') as resource_config:
+            reader = csv.DictReader(resource_config)
+
+            for row in reader:
+                service_name = row['SERVICE']
+                resource = row['RESOURCE']
+                amount = float(row['AMOUNT'])
+                amount_repr = row['REPR']
+
+                # Convert REPR to RAW AMOUNT
+                if amount_repr == 'PERCENT':
+                    if amount <= 0 or amount > 100:
+                        print 'Error: invalid default percentage. Exiting...'
+                        exit()
+                    max_capacity = get_instance_specs(machine_type)[resource]
+                    amount = (amount / 100.0) * max_capacity
+
+                mr = MR(service_name, resource, service_placements[service_name])
+                assert mr in mr_list
+                mr_allocation[mr] = amount
 
     return mr_allocation
 
@@ -453,7 +459,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config = parse_config_file(args.config_file)
-    mr_allocation = parse_resource_config_file(args.resource_config)
+    mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
     
     # While stress policies can further filter MRs, the first filter is applied here
     # mr_allocation should include only the MRs that are included

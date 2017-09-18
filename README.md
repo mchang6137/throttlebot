@@ -39,6 +39,15 @@ additional_args: The names of any additional arguments that would be used by thi
 - tbot_metric: The experiment could return several metrics, but this tells Throttlebot which metric to prioritize MIMRs by. There can only be a single metric here. Ensure that the metric is spelled identically as in your workload.py
 - performance_target: A termination point for Throttlebot. This is for Throttlebot to know when to stop running the experiments. This is not yet implemented.
 
+2.) One also has the option of setting an initial resource configuration.
+- If the user does not pass in a resource configuration (i.e., python run_throttlebot.py --config_file test_config.py), then Throttlebot will automatically provision some hard resource limits to the application. Throttlebot will find the maximum capacity of MR,halve it, and divide it by the the machine with the highest number of containers. This will ensure that there is room to scale resource provisioning up and down for the purposes of testing.
+- The user also has the option of passing in a resource configuration as a CSV file. The CSV file has 4 fields.
+  - SERVICE: The service name
+  - RESOURCE: The resource name (These names have the same restrictions as the ones named in the Throttlebot configuration file. (SERVICE, RESOURCE), is an MR
+  - AMOUNT: The amount provisioned to the MR
+  - REPR: This can be either RAW or PERCENT. RAW indicates the exact raw amount of resource being provisioned to the system, while PERCENT indicates the percent of the raw capacity of the machine. 
+There must be an entry for every MR present in the system
+
 Once the configuration is set, ensure Redis is up and running, and then start Throttlebot with the following command.
 
 $ python run_throttlebot.py <config_file_name>

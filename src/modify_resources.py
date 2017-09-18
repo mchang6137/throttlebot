@@ -28,6 +28,26 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
+# Sets the resource provision for all containers in a service
+def set_mr_provision(mr, new_mr_allocation):
+    for vm_ip,container_id in mr.instances:
+        ssh_client = get_client(vm_ip)
+        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+        if mr.resource == 'CPU-CORE':
+            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
+        elif mr.resource == 'CPU-QUOTA':
+            #TODO: Period should not be hardcoded
+            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
+        elif mr.resource == 'DISK':
+            change_container_blkio(ssh_client, container_id, new_mr_allocation)
+        elif mr.resource == 'NET':
+            set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
+        elif mr.resource == 'MEMORY':
+            set_memory_size(ssh_client, container_id, new_mr_allocation)
+        else:
+            print 'INVALID resource'
+        close_client(ssh_client)
+
 '''Stressing the Network'''
 # Container_to_bandwidth maps Docker container id to the bandwidth that container should be throttled to.
 # Assumes that the container specified by container id is located in the machine for ssh_client

@@ -16,6 +16,23 @@ Returns the new bandwdith
 from modify_resources import *
 from remote_execution import *
 
+# Converts a change in resource provisioning to raw change
+# Example: 20% -> 24 Gbps
+def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
+    if mr.resource == 'CPU-CORE':
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
+    elif mr.resource == 'CPU-QUOTA':
+        return weighting_to_cpu_quota(weight_change, current_mr_allocation)
+    elif mr.resource == 'DISK':
+        return  weighting_to_blkio(weight_change, current_mr_allocation)
+    elif mr.resource == 'NET':
+        return weighting_to_net_bandwidth(weight_change, current_mr_allocation)
+    elif mr.resource == 'MEMORY':
+        return weighting_to_memory(weight_change, current_mr_allocation, mr.instances)
+    else:
+        print 'INVALID resource'
+        exit()
+
 # Change the networking capacity
 # Current Capacity in bits/p
 def weighting_to_net_bandwidth(weight_change, current_alloc):
