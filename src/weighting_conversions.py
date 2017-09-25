@@ -54,9 +54,9 @@ def weighting_to_blkio(weight_change, current_alloc):
 # Assumes a constant period
 def weighting_to_cpu_quota(weight_change, current_alloc):
     # We divide by 100 because CPU quota allocation is given as percentage
-    new_quota = current_alloc + int(current_alloc * weight_change/100.0)
+    new_quota = current_alloc + current_alloc * weight_change/100.0
     assert new_quota > 0 
-    return int(new_quota)
+    return new_quota
 
 # Alternative method of changing the CPU stresing
 # Reduces the number of cores
