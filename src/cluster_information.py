@@ -11,7 +11,8 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 '''
 
 ### Pre-defined blacklist (Temporary)
-quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest']
+quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
+                   'throttlebot/quilt:latest']
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
@@ -37,7 +38,7 @@ def get_actual_vms():
 # Gets all the services in the Quilt cluster
 # Identifies the services based on the COMMAND
 def get_actual_services():
-    services = parse_quilt_ps_col(3, machine_level=False)
+    services = parse_quilt_ps_col(2, machine_level=False)
     return services
 
 def parse_quilt_ps_col(column, machine_level=True):
@@ -87,12 +88,12 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
         'm3.large':    {'CPU-CORE': 1,  'DISK': 0,   'NET': 0,    'MEMORY': 7.5,  'STORAGE': '1 x 32 SSD'},
         'm3.xlarge':   {'CPU-CORE': 2,  'DISK': 0,   'NET': 0,    'MEMORY': 15,   'STORAGE': '2 x 40 SSD'},
         'm3.2xlarge':  {'CPU-CORE': 4,  'DISK': 0,   'NET': 0,    'MEMORY': 30,   'STORAGE': '2 x 40 SSD'},
-        'm4.large':    {'CPU-CORE': 1,  'DISK': 71,  'NET': 450,  'MEMORY': 8,    'STORAGE': 'ebsonly'},
-        'm4.xlarge':   {'CPU-CORE': 2,  'DISK': 119, 'NET': 750,  'MEMORY': 16,   'STORAGE': 'ebsonly'},
-        'm4.2xlarge':  {'CPU-CORE': 4,  'DISK': 159, 'NET': 1000, 'MEMORY': 32,   'STORAGE': 'ebsonly'},
-        'm4.4xlarge':  {'CPU-CORE': 8,  'DISK': 174, 'NET': 2000, 'MEMORY': 64,   'STORAGE': 'ebsonly'},
-        'm4.10xlarge': {'CPU-CORE': 20, 'DISK': 174, 'NET': 4000, 'MEMORY': 160,  'STORAGE': 'ebsonly'},
-        'm4.16xlarge': {'CPU-CORE': 32, 'DISK': 174, 'NET': 4700, 'MEMORY': 256,  'STORAGE': 'ebsonly'},
+        'm4.large':    {'CPU-CORE': 2,  'DISK': 71,  'NET': 450,  'MEMORY': 8,    'STORAGE': 'ebsonly'},
+        'm4.xlarge':   {'CPU-CORE': 4,  'DISK': 119, 'NET': 750,  'MEMORY': 16,   'STORAGE': 'ebsonly'},
+        'm4.2xlarge':  {'CPU-CORE': 8,  'DISK': 159, 'NET': 1000, 'MEMORY': 32,   'STORAGE': 'ebsonly'},
+        'm4.4xlarge':  {'CPU-CORE': 16, 'DISK': 174, 'NET': 2000, 'MEMORY': 64,   'STORAGE': 'ebsonly'},
+        'm4.10xlarge': {'CPU-CORE': 40, 'DISK': 174, 'NET': 4000, 'MEMORY': 160,  'STORAGE': 'ebsonly'},
+        'm4.16xlarge': {'CPU-CORE': 64, 'DISK': 174, 'NET': 4700, 'MEMORY': 256,  'STORAGE': 'ebsonly'},
         'c1.medium':   {'CPU-CORE': 2,  'DISK': 0,   'NET': 0},
         'c1.xlarge':   {'CPU-CORE': 8,  'DISK': 0,   'NET': 0},
         'cc2.8xlarge': {'CPU-CORE': 16, 'DISK': 0,   'NET': 0},
@@ -150,6 +151,9 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
     # Primarily, Storage is not a necessary field
     if 'STORAGE' in resource_capacity[machine_type]:
         del resource_capacity[machine_type]['STORAGE']
+    resource_capacity[machine_type]['MEMORY'] *= 1024
+    resource_capacity[machine_type]['NET'] *= 1024
+    resource_capacity[machine_type]['DISK'] *= 1048576
     resource_capacity[machine_type]['CPU-QUOTA'] = 100
     return resource_capacity[machine_type]
 
@@ -178,6 +182,8 @@ def get_service_placements(vm_ips):
 
         #Assume that the container ids and the service names are ordered in the same way
         for service_name, container_id in zipped_name_id:
+            if service_name[-4:] == '.git':
+                service_name = service_name[service_name.index('/')+1:]
             identifier_tuple = (vm_ip, container_id)
             if service_name not in service_to_deployment:
                 service_to_deployment[service_name] = [identifier_tuple]
@@ -198,7 +204,9 @@ def get_vm_to_service(vm_ips):
 
         #Assume that the container ids and the service names are ordered in the same way
         for service in service_names:
-            if service in vm_to_service:
+            if service in quilt_blacklist:
+                continue
+            if vm_ip in vm_to_service:
                 vm_to_service[vm_ip].append(service)
             else:
                 vm_to_service[vm_ip] = [service]
