@@ -140,7 +140,7 @@ def print_all_steps(redis_db, total_experiments):
         mimr,action_taken,perf_improvement = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
         net_improvement += float(perf_improvement)
-    print 'Net Improvement: {}'.format(perf_improvement)
+    print 'Net Improvement: {}'.format(net_improvement)
 
 # Writes a CSV that can be re-fed into Throttlebot as a configuration
 def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
@@ -181,17 +181,32 @@ def run(system_config, workload_config, default_mr_config):
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     redis_db.flushall()
 
+    print '\n' * 2
+    print '============================================'
+    print 'INITIALIZING RESOURCE CONFIG'
     # Initialize Redis and Cluster based on the default resource configuration
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type)
+    print '============================================'
+    print '\n' * 2
 
+    print '\n' * 2
+    print '============================================'
+    print 'INSTALLING DEPENDENCIES'
     # Install machine dependencies
     install_dependencies(workload_config)
+    print '============================================'
+    print '\n' * 2
 
+    print '\n' * 2
+    print '============================================'
+    print 'RUNNING BASELINE'
     # Run the baseline experiment
     experiment_count = 0
     baseline_performance = measure_baseline(workload_config, baseline_trials)
+    print '============================================'
+    print '\n' * 2
 
     # Initialize the current configurations
     # Invariant: MR are the same between iterations
@@ -200,9 +215,10 @@ def run(system_config, workload_config, default_mr_config):
     while experiment_count < 10:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(redis_db, stress_policy)
-        print mr_to_stress
         
         for mr in mr_to_stress:
+            print '\n' * 2
+            print '============================================'
             print 'Current MR is {}'.format(mr.to_string())
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
@@ -215,14 +231,17 @@ def run(system_config, workload_config, default_mr_config):
                 #Write results of experiment to Redis
                 mean_result = float(sum(experiment_results[preferred_performance_metric])) / len(experiment_results[preferred_performance_metric])
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
-                
+
                 # Remove the effect of the resource stressing
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
+                resource_modifier.set_mr_provision(mr, new_alloc)
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
-        
+            print '============================================'
+            print '\n' * 2
+
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
@@ -446,7 +465,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
         # and it is hard to solve...
 
     for mr in delete_queue:
-        print mr.to_string()
+        print 'Deleting MR: ', mr.to_string()
         del mr_allocation[mr]
     
     return mr_allocation
