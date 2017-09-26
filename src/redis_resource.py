@@ -8,10 +8,20 @@ Get Information relating to MRs
 '''
 
 # Returns a list of MR as MR objects
+# This returns all MRs, regardless if they are in the working set.
 def get_all_mrs(redis_db):
     mr_name = 'mr_alloc'
     all_mrs = redis_db.hgetall(mr_name)
     mr_list = list(all_mrs.keys())
+    return mr_str_to_obj(redis_db, mr_list)
+
+'''
+Utilities
+'''
+
+# Transform MRs from string representation (returned by Redis)
+# to MR objects
+def mr_str_to_obj(redis_db, mr_list):
     mr_object_list = []
     for mr in mr_list:
         service_name,resource = mr.split(',')
@@ -38,6 +48,7 @@ def read_mr_alloc(redis_db, mr):
     return float(redis_db.hget(mr_name, key))
 
 # Returns a list of MR objects with their current allocations
+# This returns all MRs, regardless of whether they are in the working set
 def read_all_mr_alloc(redis_db):
     mr_name = 'mr_alloc'
     mr_to_score = redis_db.hgetall(mr_name)
@@ -52,7 +63,25 @@ def read_all_mr_alloc(redis_db):
         mr_allocation_list[mr_object] = mr_to_score[mr]
         
     return mr_allocation_list
-    
+
+'''
+Generation information about the working set of the MR
+Working Set is defined as the set of MRs that are being considered by Throttlebot
+'''
+
+def get_working_set_key(redis_db, iteration):
+    return 'working_set_{}'.format(iteration)
+
+# Writes a list of MRs to the working set
+def write_MR_working_set(redis_db, mr_to_add, iteration):
+    list_name = get_working_set_key(redis_db, iteration)
+    redis_db.lpush(list_name, mr_to_add)
+
+# Reads all the MRs in the working set
+def read_MR_working_set(redis_db, iteration):
+    list_name = generate_working_set_key(redis_db, iteration)
+    mr_str_list = redis_db.lrange(list_name, 0, -1)
+    return mr_str_to_obj(redis_db, mr_list)
 
 '''
 Machine Consumption index maps a particular VM (identified by IP address) to 
