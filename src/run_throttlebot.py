@@ -23,7 +23,7 @@ from remote_execution import *
 from run_experiment import *
 from container_information import *
 from cluster_information import *
-
+from filter_policy import *
 from mr	import MR
 
 import redis.client
@@ -163,7 +163,7 @@ workload_config: Parameters about the workload in a dict
 default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(system_config, workload_config, default_mr_config):
+def run(system_config, workload_config, filter_config, default_mr_config):
     redis_host = system_config['redis_host']
     baseline_trials = system_config['baseline_trials']
     experiment_trials = system_config['trials']
@@ -211,7 +211,12 @@ def run(system_config, workload_config, default_mr_config):
 
     while experiment_count < 10:
         # Get a list of MRs to stress in the form of a list of MRs
-        mr_to_stress = generate_mr_from_policy(redis_db, stress_policy)
+        mr_to_stress = apply_filtering_policy(redis_db,
+                                              mr_working_set,
+                                              experiment_count,
+                                              workload_config,
+                                              filter_config,
+                                              filter_policy=filter_policy)
         
         for mr in mr_to_stress:
             print '\n' * 2
@@ -306,6 +311,7 @@ Parses Throttlebot config file and the Resource Allocation Configuration File
 def parse_config_file(config_file):
     sys_config = {}
     workload_config = {}
+    filter_config = {}
     
     config = ConfigParser.RawConfigParser()
     config.read(config_file)
@@ -322,6 +328,14 @@ def parse_config_file(config_file):
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
+
+    # Configuration parameters relating to the filter step
+    filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
+    filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
+    pipeline_string = config.get('Filter', 'pipeline_services')
+    pipelines = pipeline_string.split(',')
+    pipelines = pipeline.split('-') for pipeline in pipelines
+    filter_config['pipeline_services'] = pipelines
         
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
@@ -330,7 +344,7 @@ def parse_config_file(config_file):
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
     workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
-
+    
     #Additional experiment-specific arguments
     additional_args_dict = {}
     workload_args = config.get('Workload', 'additional_args').split(',')
@@ -339,7 +353,8 @@ def parse_config_file(config_file):
     for arg_index in range(len(workload_args)):
         additional_args_dict[workload_args[arg_index]] = workload_arg_vals[arg_index]
     workload_config['additional_args'] = additional_args_dict
-    return sys_config, workload_config
+    
+    return sys_config, workload_config, filter_config
 
 # Parse a default resource configuration
 # Gathers the information from directly querying the machines on the cluster
@@ -474,7 +489,7 @@ if __name__ == "__main__":
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     args = parser.parse_args()
     
-    sys_config, workload_config = parse_config_file(args.config_file)
+    sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
     
     # While stress policies can further filter MRs, the first filter is applied here
@@ -485,5 +500,5 @@ if __name__ == "__main__":
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
 
-    run(sys_config, workload_config, mr_allocation)
+    run(sys_config, workload_config, filter_config, mr_allocation)
 
