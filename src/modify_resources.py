@@ -51,14 +51,13 @@ def set_mr_provision(mr, new_mr_allocation):
 '''Stressing the Network'''
 # Container_to_bandwidth maps Docker container id to the bandwidth that container should be throttled to.
 # Assumes that the container specified by container id is located in the machine for ssh_client
-# Bandwidth units: bps
-def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
+# Bandwidth units: Kbps
+def set_egress_network_bandwidth(ssh_client, container_id, bandwidth_Kbps):
     interface_name = get_container_veth(ssh_client, container_id)
 
     # Execute the command within OVS
-    # OVS policy bandwidth accepts inputs in bps
-    bandwidth_kbps = bandwidth / (10 ** 3)
-    ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, int(bandwidth_kbps))
+    # OVS policy bandwidth accepts inputs in Kbps
+    ovs_policy_cmd = 'ovs-vsctl set interface {} ingress_policing_rate={}'.format(interface_name, int(bandwidth_Kbps))
     ovs_burst_cmd = 'ovs-vsctl set interface {} ingress_policing_burst={}'.format(interface_name, 0)
     docker_policing_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
     docker_burst_cmd = "docker exec ovs-vswitchd {}".format(ovs_burst_cmd)
@@ -73,7 +72,7 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Network stress of container id {} stressed to {}'.format(container_id, bandwidth)
+        print 'SUCCESS: Network stress of container id {} stressed to {} Kbps'.format(container_id, bandwidth_Kbps)
         return 1
 
 def reset_egress_network_bandwidth(ssh_client, container_id):
@@ -168,7 +167,6 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
     # Check for 202 or 252 for major device number
-    disk_bandwidth = convert_to_B((disk_bandwidth, "MiB"))
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 

@@ -60,15 +60,14 @@ def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_
 # A metric where lower is better would have get_lowest parameter set to True
 def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, optimize_for_lowest=True, num_results_returned=1):
     sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
-    print 'Recovering the MIMR'
+    print 'Recovering the MIMR from ', sorted_set_name
 
     # If improving performance means lowering the performance
     # increased performnace should be the MIMR
     if optimize_for_lowest is False:
         mr_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=False, withscores=True)
     else:
-        num_results_returned = -1 * num_results_returned
-        mr_score_list = redis_db.zrange(sorted_set_name, num_results_returned, -1, desc=True, withscores=True)
+        mr_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=True, withscores=True)
     assert len(mr_score_list) != 0
     print 'For experiment {}, the MIMR is {}'.format(experiment_iteration_count, mr_score_list[0][0])
     print 'The entire MR, score list is: {}'.format(mr_score_list)

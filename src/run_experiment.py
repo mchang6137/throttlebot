@@ -138,7 +138,6 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
 
     return all_results
 
-#container_id unused: see note in measure_runtime
 def measure_TODO_response_time(workload_configuration, iterations):
     REST_server_ip = workload_configuration['frontend'][0]
     traffic_generator_ip = workload_configuration['request_generator'][0]
@@ -152,15 +151,12 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    NUM_REQUESTS = 500
-    CONCURRENCY = 200
-    ACCEPTABLE_MS = 60
+    NUM_REQUESTS = 200
+    CONCURRENCY = 100
 
     post_cmd = 'ab -p post.json -T application/json -n {} -c {} -e results_file http://{}/api/todos > output.txt'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
 
     clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
-
-    print iterations
 
     for x in range(iterations):
         _, results,_ = traffic_client.exec_command(post_cmd)
@@ -171,14 +167,13 @@ def measure_TODO_response_time(workload_configuration, iterations):
         latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
         latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
         latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
-        requests_within_time_cmd = 'awk -F"," \'$2 > {} {{print $1}}\' results_file | sed -n \'2p\''.format(ACCEPTABLE_MS)
         latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
 
-        all_requests['latency_90'].append(execute_parse_results(ssh_client, latency_90_cmd))
-        all_requests['latency_99'].append(execute_parse_results(ssh_client, latency_99_cmd))
-        all_requests['latency'].append(execute_parse_results(ssh_client, latency_overall_cmd) * NUM_REQUESTS)
-        all_requests['latency_50'].append(execute_parse_results(ssh_client, latency_50_cmd))
-        all_requests['rps'].append(execute_parse_results(ssh_client, rps_cmd))
+        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
+        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
+        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
+        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
+        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
 
         _,cleared,_ = traffic_client.exec_command(clear_cmd)
         cleared.read()
