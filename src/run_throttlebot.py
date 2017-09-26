@@ -174,6 +174,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     vm_to_stress = system_config['stress_these_machines']
     machine_type = system_config['machine_type']
     quilt_overhead = system_config['quilt_overhead']
+    filter_policy = system_config['filter_policy']
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -328,6 +329,7 @@ def parse_config_file(config_file):
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
+    sys_config['filter_policy'] = config.get('Basic', 'filter_policy')
 
     # Configuration parameters relating to the filter step
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
