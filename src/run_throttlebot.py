@@ -182,26 +182,19 @@ def run(system_config, workload_config, default_mr_config):
     redis_db.flushall()
 
     print '\n' * 2
-    print '============================================'
-    print 'INITIALIZING RESOURCE CONFIG'
+    print '*' * 20
+    print 'INFO: INITIALIZING RESOURCE CONFIG'
     # Initialize Redis and Cluster based on the default resource configuration
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type)
-    print '============================================'
-    print '\n' * 2
-
-    print '\n' * 2
-    print '============================================'
-    print 'INSTALLING DEPENDENCIES'
-    # Install machine dependencies
+    
+    print '*' * 20
+    print 'INFO: INSTALLING DEPENDENCIES'
     install_dependencies(workload_config)
-    print '============================================'
-    print '\n' * 2
-
-    print '\n' * 2
-    print '============================================'
-    print 'RUNNING BASELINE'
+    
+    print '*' * 20
+    print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
     experiment_count = 0
     baseline_performance = measure_baseline(workload_config, baseline_trials)
