@@ -72,7 +72,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     quilt_usage = {}
 
     # Leave some resources available for Quilt containers to run (OVS, etc.)
-     # This is dictated by quilt overhead
+     # This is dictated by quilt overheads
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
         quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
@@ -205,13 +205,17 @@ def run(system_config, workload_config, default_mr_config):
     # Invariant: MR are the same between iterations
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
 
+    #Initialize the working set of MRs to all the MRs
+    mr_working_set = resource_datastore.get_all_mrs(redis_db)
+    resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+
     while experiment_count < 10:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = generate_mr_from_policy(redis_db, stress_policy)
         
         for mr in mr_to_stress:
             print '\n' * 2
-            print '============================================'
+            print '*' * 20
             print 'Current MR is {}'.format(mr.to_string())
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
@@ -232,7 +236,7 @@ def run(system_config, workload_config, default_mr_config):
 
             # Write the results of the iteration to Redis
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
-            print '============================================'
+            print '*' * 20
             print '\n' * 2
 
         # Recover the results of the experiment from Redis

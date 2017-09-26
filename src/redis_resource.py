@@ -73,12 +73,12 @@ def get_working_set_key(redis_db, iteration):
     return 'working_set_{}'.format(iteration)
 
 # Writes a list of MRs to the working set
-def write_MR_working_set(redis_db, mr_to_add, iteration):
+def write_mr_working_set(redis_db, mr_to_add, iteration):
     list_name = get_working_set_key(redis_db, iteration)
     redis_db.lpush(list_name, mr_to_add)
 
 # Reads all the MRs in the working set
-def read_MR_working_set(redis_db, iteration):
+def read_mr_working_set(redis_db, iteration):
     list_name = generate_working_set_key(redis_db, iteration)
     mr_str_list = redis_db.lrange(list_name, 0, -1)
     return mr_str_to_obj(redis_db, mr_list)
