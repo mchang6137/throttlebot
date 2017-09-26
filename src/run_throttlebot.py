@@ -333,9 +333,13 @@ def parse_config_file(config_file):
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
-    pipelines = pipeline_string.split(',')
-    pipelines = pipeline.split('-') for pipeline in pipelines
-    filter_config['pipeline_services'] = pipelines
+    # If pipeline_string is none, then each service is individually a pipeline
+    if pipeline_string is None:
+        filter_config['pipeline_services'] = None
+    else:
+        pipelines = pipeline_string.split(',')
+        pipelines = [pipeline.split('-') for pipeline in pipelines]
+        filter_config['pipeline_services'] = pipelines
         
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')

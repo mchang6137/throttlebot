@@ -41,15 +41,23 @@ def apply_pipeline_filter(redis_db,
                           experiment_iteration,
                           workload_config,
                           filter_config):
-    pipelined_services = filter_config['service_list']
+
     stress_amount = filter_config['stress_amount']
     experiment_trials = filter_config['filter_exp_trials']
-    
+    pipelined_services = filter_config['service_list']
+
+    # No specified pipelined services indicates that each pipeline is a service
+    if pipelined_services is None:
+        pipelined_services = []
+        pipelined_services.append([mr.service_name for mr in mr_working_set])
+        pipelined_services = list(set(pipelined_services))
+        
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     for services in pipelined_services:
         mr_list = search_mr_working_set(mr_working_set, services)
+        
         # Simultaneously stress the MRs in a pipeline
         for mr in mr_list:
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
