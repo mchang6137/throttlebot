@@ -19,8 +19,8 @@ def apply_filtering_policy(redis_db,
                            mr_working_set,
                            experiment_iteration,
                            workload_config,
-                           filter_config,
-                           filter_policy=None):
+                           filter_config):
+    filter_policy = filter_config['filter_policy']
     if filter_policy == 'pipeline':
         return apply_pipeline_filter(redis_db,
                                      mr_working_set,
@@ -44,7 +44,7 @@ def apply_pipeline_filter(redis_db,
 
     stress_amount = filter_config['stress_amount']
     experiment_trials = filter_config['filter_exp_trials']
-    pipelined_services = filter_config['service_list']
+    pipelined_services = filter_config['pipeline_services']
 
     # No specified pipelined services indicates that each pipeline is a service
     if pipelined_services is None:
@@ -65,10 +65,12 @@ def apply_pipeline_filter(redis_db,
             resource_modifier.set_mr_provision(mr, new_alloc)
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
-        exp_mean = mean_list(experiment_results[target_list])
+        exp_mean = mean_list(experiment_results[tbot_metric])
         repr_str = gen_pipeline_redis_repr(mr_list)
-        redis_client.write_filtered_results(redis_db, 'pipeline',
-                                             experiment_iteration, repr_string,
+        tbot_datastore.write_filtered_results(redis_db,
+                                              'pipeline',
+                                             experiment_iteration,
+                                             repr_str,
                                              exp_mean)
 
         # Revert the stressing
@@ -77,13 +79,15 @@ def apply_pipeline_filter(redis_db,
             new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
             resource_modifier.set_mr_provision(mr, new_alloc)
 
-    pipeline_score_list = get_top_n_filtered_results(redis_db,
-                                      experiment_iteration,
-                                      optimize_for_lowest)
+    pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
+                                                                    'pipeline',
+                                                                    experiment_iteration,
+                                                                    optimize_for_lowest)
 
     print 'INFO: The current pipeline score list is here {}'.format(pipeline_score_list)
     service_names = []
-    for pipeline_repr in pipeline_score_list:
+    for pipeline_score in pipeline_score_list:
+        pipeline_repr,score = pipeline_score
         service_names.append(parse_pipeline_redis_repr(pipeline_repr))
 
     local_working_set = []

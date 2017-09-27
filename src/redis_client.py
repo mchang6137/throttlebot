@@ -93,7 +93,8 @@ def write_filtered_results(redis_db, filter_type, exp_iteration, repr_string, ex
 # Redis sets are ordered from lowest score to the highest score
 # A metric where lower is better would have get_lowest parameter set to True
 def get_top_n_filtered_results(redis_db,
-                               experiment_iteration_count,
+                               filter_type,
+                               exp_iteration,
                                optimize_for_lowest=True,
                                num_results_returned=1):
     sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration)
