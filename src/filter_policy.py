@@ -96,11 +96,9 @@ def apply_pipeline_filter(redis_db,
     for pipeline_score in pipeline_score_list:
         pipeline_repr,score = pipeline_score
         service_names.append(parse_pipeline_redis_repr(pipeline_repr))
-    print 'service name {}'.format(service_names)
 
     local_working_set = []
     for mr in mr_working_set:
-        print 'mr {}'.format(mr)
         if mr.service_name in service_names:
             local_working_set.append(mr)
 
