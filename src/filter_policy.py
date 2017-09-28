@@ -42,27 +42,35 @@ def apply_pipeline_filter(redis_db,
                           workload_config,
                           filter_config):
 
-    stress_amount = filter_config['stress_amount']
+    print '*' * 20
+    print 'INFO: Applying Filtering Pipeline'
+    
+    stress_weight = filter_config['stress_amount']
     experiment_trials = filter_config['filter_exp_trials']
     pipelined_services = filter_config['pipeline_services']
 
     # No specified pipelined services indicates that each pipeline is a service
     if pipelined_services is None:
-        pipelined_services = []
-        pipelined_services.append([mr.service_name for mr in mr_working_set])
+        pipelined_services = [mr.service_name for mr in mr_working_set]
+        print 'step 1: {}'.format(pipelined_services)
         pipelined_services = list(set(pipelined_services))
+        print 'step 2: {}'.format(pipelined_services)
+    else:
+        print 'not none'
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     for services in pipelined_services:
+        print 'Mr working set is {}'.format(mr_working_set)
+        print services
         mr_list = search_mr_working_set(mr_working_set, services)
         
         # Simultaneously stress the MRs in a pipeline
         for mr in mr_list:
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             stress_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-            resource_modifier.set_mr_provision(mr, new_alloc)
+            resource_modifier.set_mr_provision(mr, stress_alloc)
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
         exp_mean = mean_list(experiment_results[tbot_metric])
@@ -83,15 +91,16 @@ def apply_pipeline_filter(redis_db,
                                                                     'pipeline',
                                                                     experiment_iteration,
                                                                     optimize_for_lowest)
-
     print 'INFO: The current pipeline score list is here {}'.format(pipeline_score_list)
     service_names = []
     for pipeline_score in pipeline_score_list:
         pipeline_repr,score = pipeline_score
         service_names.append(parse_pipeline_redis_repr(pipeline_repr))
+    print 'service name {}'.format(service_names)
 
     local_working_set = []
     for mr in mr_working_set:
+        print 'mr {}'.format(mr)
         if mr.service_name in service_names:
             local_working_set.append(mr)
 
@@ -105,7 +114,7 @@ def gen_pipeline_redis_repr(mr_list):
     return ','.join(services_seen)
 
 def parse_pipeline_redis_repr(str_repr):
-    return str_repr.split(',')
+    return str_repr.split(',')[0]
 
 '''
 Utilities - helper methods

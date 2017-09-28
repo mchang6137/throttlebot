@@ -23,7 +23,7 @@ def generate_mr_from_policy(redis_db, stress_policy):
 # Policy that returns all MRs subject to restrictions on
 # VMs, service names, and resources
 def get_all_mrs_cluster(vm_list, services, resources):
-    mr_schedule = [] 
+    mr_schedule = []
     service_to_deployment = get_service_placements(vm_list)
     
     for service in service_to_deployment:

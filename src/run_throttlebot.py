@@ -312,7 +312,7 @@ def parse_config_file(config_file):
     workload_config = {}
     filter_config = {}
     
-    config = ConfigParser.RawConfigParser()
+    config = ConfigParser.RawConfigParser(allow_no_value=True)
     config.read(config_file)
 
     #Configuration Parameters relating to Throttlebot
@@ -334,7 +334,7 @@ def parse_config_file(config_file):
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
     # If pipeline_string is none, then each service is individually a pipeline
-    if pipeline_string is None:
+    if pipeline_string == '':
         filter_config['pipeline_services'] = None
     else:
         pipelines = pipeline_string.split(',')
@@ -381,7 +381,6 @@ def parse_resource_config_file(resource_config_csv, sys_config):
     # half of the total resource capacity on the machine
     if resource_config_csv is None:
         vm_to_service = get_vm_to_service(vm_list)
-
         # DEFAULT_ALLOCATION sets the initial configuration
         # Ensure that we will not violate resource provisioning in the machine
         # Assign resources equally to services without exceeding machine resource limitations
@@ -390,11 +389,13 @@ def parse_resource_config_file(resource_config_csv, sys_config):
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
         default_alloc_percentage = 50.0 / max_num_services
+
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
             max_capacity = get_instance_specs(machine_type)[mr.resource]
             default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
             mr_allocation[mr] = default_raw_alloc
+        print mr_allocation
     else:
         # Manual Configuration Possible
         # Parse a CSV
@@ -495,7 +496,7 @@ if __name__ == "__main__":
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
-    
+
     # While stress policies can further filter MRs, the first filter is applied here
     # mr_allocation should include only the MRs that are included
     # mr_allocation will provision some percentage of the total resources
