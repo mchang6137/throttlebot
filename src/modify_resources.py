@@ -11,7 +11,6 @@ from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
-from max_resource_capacity import *
 
 
 quilt_machines = ("quilt", "ps")

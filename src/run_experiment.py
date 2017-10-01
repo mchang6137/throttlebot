@@ -204,8 +204,8 @@ def measure_GET_response_time(workload_configuration, iterations):
 
     traffic_client = get_client(traffic_generate_machine)
 
-    NUM_REQUESTS = 50
-    CONCURRENCY = 1
+    NUM_REQUESTS = 200
+    CONCURRENCY = 100
 
     all_requests = {}
     all_requests['rps'] = []

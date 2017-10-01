@@ -80,10 +80,44 @@ def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_wei
 
     return mr_object_score_list
 
-# After each iteration of Throttlebot, write a summary, essentially a record of what Throttlebot did
-# perf_gain should be the performance gain over the baseline
-# action_taken should be the amount of performance improvement given to the MIMR  in the form of +x, where x is a raw amount added to the MR
-# Currently assuming that there is only a single metric that a user would care about
+''' 
+Store the results of the filtered experiments
+'''
+def generate_ordered_filter_key(filter_name, exp_iteration):
+    return 'filter_{}.{}'.format(filter_name, exp_iteration)
+
+def write_filtered_results(redis_db, filter_type, exp_iteration, repr_string, exp_result): 
+    sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration) 
+    redis_db.zadd(sorted_set_name, exp_result, repr_string)
+
+# Redis sets are ordered from lowest score to the highest score
+# A metric where lower is better would have get_lowest parameter set to True
+def get_top_n_filtered_results(redis_db,
+                               filter_type,
+                               exp_iteration,
+                               optimize_for_lowest=True,
+                               num_results_returned=0):
+    sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration)
+    print 'INFO: Recovering the bottlenecked pipeline...'
+
+    # If improving performance means lowering the performance
+    # increased performnace should be the MIMR
+    if optimize_for_lowest is False:
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=False, withscores=True)
+    else:
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=True, withscores=True)
+
+    return pipeline_score_list
+
+'''
+Summary Operations!
+
+After each iteration of Throttlebot, write a summary, essentially a record of what Throttlebot did
+perf_gain should be the performance gain over the baseline
+action_taken should be the amount of performance improvement given to the MIMR  in the form of +x, where x is a raw amount added to the MR
+Currently assuming that there is only a single metric that a user would care about
+'''
+
 def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken):
     hash_name = '{}summary'.format(experiment_iteration_count)
     redis_db.hset(hash_name, 'mimr', mimr.to_string())
