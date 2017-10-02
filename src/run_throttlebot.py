@@ -198,7 +198,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     # Run the baseline experiment
     experiment_count = 0
     baseline_performance = measure_baseline(workload_config, baseline_trials)
-    print '============================================'
+    print '*' * 20
     print '\n' * 2
 
     # Initialize the current configurations
@@ -209,7 +209,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
 
-    while experiment_count < 10:
+    # Initialize time for data charts
+    time_id = str(datetime.datetime.now())
+
+    while experiment_count < 5:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = apply_filtering_policy(redis_db,
                                               mr_working_set,
@@ -242,6 +245,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
             print '*' * 20
             print '\n' * 2
+
+        # Save data in chart form
+        tbot_datastore.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
+                                               experiment_count, stress_weights, preferred_performance_metric, time_id)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -333,6 +340,9 @@ def parse_config_file(config_file):
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
+    # If filter_policy is none, will set to none
+    if filter_config['filter_policy'] == '':
+        filter_config['filter_policy'] = None
     # If pipeline_string is none, then each service is individually a pipeline
     if pipeline_string == '':
         filter_config['pipeline_services'] = None
