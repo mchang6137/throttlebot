@@ -11,7 +11,7 @@ All functions accept:
 - A positive number means to increase the resource provisioning by a certain amount. 
 - A negative numbers means to decrease the resource provisioning by a certain amount
 
-Returns the new bandwdith
+Returns the newly calculated provisioning, and -1 if the proposed weight change creates an invalid 
 
 '''
 from modify_resources import *
@@ -39,8 +39,10 @@ def convert_percent_to_raw(mr, current_alloc, instance_type, weight_change=0):
 def weighting_to_net_bandwidth(weight_change, current_alloc, instance_type):
     total_allocation = get_instance_specs(instance_type)['NET']
     new_bandwidth = current_alloc + ((weight_change / 100.0) * total_allocation)
-    assert new_bandwidth > 0 
-    return int(new_bandwidth)
+    if new_bandwidth > 0:
+        return int(new_bandwidth)
+    else:
+        return -1
 
 # Change the weighting on the blkio
 # Conducted for the disk stressing
@@ -49,8 +51,10 @@ def weighting_to_blkio(weight_change, current_alloc, instance_type):
         #Lower weighting must have lower bound on the blkio weight allocation
     total_allocation = 1000
     new_blkio = current_alloc + int((weight_change / 100.0) * total_allocation + 10)
-    assert new_blkio > 0
-    return int(new_blkio)
+    if new_blkio > 0:
+        return int(new_blkio)
+    else:
+        return -1
 
 # Change the weighting of the CPU Quota
 # TODO: Extend this to type of stressing to multiple cores
@@ -59,8 +63,10 @@ def weighting_to_cpu_quota(weight_change, current_alloc, instance_type):
     total_alloc = 100 * get_instance_specs(instance_type)['CPU-CORE']
     # We divide by 100 because CPU quota allocation is given as percentage
     new_quota = current_alloc + (total_alloc * weight_change/100.0)
-    assert new_quota > 0 
-    return int(new_quota)
+    if new_quota > 0:
+        return int(new_quota)
+    else:
+        return -1
 
 # Alternative method of changing the CPU stresing
 # Reduces the number of cores
@@ -84,9 +90,11 @@ def weighting_to_memory(weight_change, current_alloc, instance_type, instance):
     total_alloc = 100 * get_instance_specs(instance_type)['MEMORY']
     new_memory = current_alloc + int(total_alloc * weight_change/100.0)
     min_memory = get_min_memory(instance[0])
-    if new_memory < min_memory:
-        return min_memory
-    return new_memory
+    if new_memory > min_memory:
+        return int(new_memory)
+    else:
+        return -1
+    
 
 # Units in MB
 def get_min_memory(instance):
