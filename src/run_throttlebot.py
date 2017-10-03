@@ -88,6 +88,13 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 Tools that are used for experimental purposes in Throttlebot 
 '''
 
+def finalize_mr_provision(mr, new_alloc):
+    resource_modifier.set_mr_provision(mr, new_alloc)
+    old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+    resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
+    update_machine_consumption(redis_db, new_alloc, old_alloc)
+    current_mr_config = update_mr_config(redis_db, current_mr_config)
+
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.02):
     imr_list = []
@@ -135,19 +142,19 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 # Decrease resource provisions for co-located resources
 # Assures that every the reduction_proposal will allow every instance of the service to balloon
 # It assumes that given a particular IMR, it is not viable to improve that resource.
-# In the NIMR list for NIMRs to be de-allocated. Will return empty list if no viable solution is found
-def check_decrease_colocated_mr_viability(redis_db, mr, nimr_list):
+# In the NIMR list for NIMRs to be de-allocated.
+# Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
+def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     # Filter out NIMRs that are not the same resource type as mr
     for nimr in nimr_list:
-        if nimr.resource != mr.resource: nimr_list.remove(nimr)
+        if nimr.resource != imr.resource: nimr_list.remove(nimr)
     
-    nimr_service_name_list = [nimr.service_name for nimr in nimr_list]
     reduction_proposal = []
 
     # Ensure that every deployment has at least one service losing a machine
     vm_to_nimr = {}
     vm_to_service = get_vm_to_service(get_actual_vms())
-
+    
     for deployment in mr.instances:
 	vm_ip,container = deployment
         colocated_services = vm_to_service[vm_ip]
@@ -155,25 +162,31 @@ def check_decrease_colocated_mr_viability(redis_db, mr, nimr_list):
 
         vm_to_nimr[vm_ip] = []
         for colocated_service in colocated_services:
-            if colocated_service in nimr_service_name_list:
-                vm_to_nimr[vm_ip].append(colocated_service)
+            for nimr in nimr_list:
+                if colocated_service == nimr.service_name:
+                    vm_to_nimr[vm_ip].append(nimr)
 
-    # Brute Force Implementation to Start
-    for nimr in nimr_service_name_list:
-        for vm_ip in vm_to_nimr.keys():
-            if nimr in vm_to_nimr[vm_ip]:
-                reduction_proposal.append(nimr)
-                del vm_to_nimr[vm_ip]
-                
-    if len(vm_to_nimr) == 0:
-        return reduction_proposal
-    else:
-        return []
+    min_mr_removal = float('inf')
+    new_mr_alloc = {}
+    
+    for vm_ip in vm_to_nimr:
+        if len(vm_to_nimr[vm_ip]) == 0:
+            return []
+        total_removal_amount = 0
+        for nimr in vm_ip:
+            nimr_alloc = resource_datastore.read_mr_alloc(nimr, mr_resource)
+            new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
+            alloc_diff = nimr_alloc - new_alloc
+            new_mr_alloc[nimr] = alloc_diff
+            total_removal_amount += alloc_diff
+        min_mr_removal = total_removal_amount if total_removal_amount < min_mr_removal
+
+    return new_mr_alloc, min_mr_removal
 
 # Determine if mr still has an interval to decrease it to
-def mr_at_minimum(mr, instance_type, proposed_weight_change):
+def mr_at_minimum(mr, proposed_weight_change):
     current_alloc = mr.read_mr_alloc(redis_db)
-    new_alloc = convert_percent_to_raw(mr, current_alloc, instance_type, proposed_weight_change)
+    new_alloc = convert_percent_to_raw(mr, current_alloc, proposed_weight_change)
     if new_alloc == -1:
         return True
     else:
@@ -280,6 +293,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         mr_to_stress = apply_filtering_policy(redis_db,
                                               mr_working_set,
                                               experiment_count,
+                                              system_config,
                                               workload_config,
                                               filter_config)
         
@@ -291,7 +305,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
             for stress_weight in stress_weights:
-                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight, machine_type)
+                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
                 resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
@@ -300,7 +314,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
                 # Remove the effect of the resource stressing
-                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0, machine_type)
+                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
                 resource_modifier.set_mr_provision(mr, new_alloc)
                 increment_to_performance[stress_weight] = experiment_results
 
@@ -321,46 +335,36 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         mimr = None
         action_taken = 0
         
-        for mr in imr_list:
-            improvement_percent = improve_mr_by(redis_db, mr, max_stress_weight)
-            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-            new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent, machine_type)
-            improvement_amount = new_alloc - current_mr_allocation
-            action_taken = improvement_amount
+        for imr in imr_list:
+            imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
+            current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
+            new_imr_alloc = convert_percent_to_raw(imr, current_mr_alloc, imr_improvement_percent)
+            imr_improvement_proposal = new_imr_alloc = current_imr_alloc
 
-            nimr_proposal = []
-            if check_improve_mr_viability(redis_db, mr, improvement_amount) is False:
-                # Remove NIMRs that are already at a minimum
-                for nimr in nimr_list:
-                    if mr_at_minimum(nimr, machine_type, max_stress_weight):
-                        nimr_list.remove(nimr)
+            nimr_diff_proposal = {}
+            if check_improve_mr_viability(redis_db, mr, imr_improvement_proposal) is False:
                 # Calculate a plan to reduce the resource provisioning of NIMRs
-                nimr_proposal = check_decrease_colocated_mr_viability(redis_db, mr, nimr_list)
-
-                if len(nimr_proposal) == 0:
+                nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db, imr, nimr_list, max_stress_weight)
+                if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                     continue
 
             # Decrease the amount of resources provisioned to the NIMR
-            for nimr in nimr_proposal:
-                old_alloc = read_mr_alloc(redis_db, nimr)
-                new_alloc = convert_percent_to_raw(nimr, current_alloc, machine_type, max_stress_weight)
-                resource_datastore.write_mr_alloc(redis_db, nimr, new_alloc)
-                update_machine_consumption(redis_db, new_alloc, old_alloc)
+            for nimr in nimr_diff_proposal:
+                new_nimr_alloc = resource_datstore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
+                finalize_resource_provision(nimr, new_nimr_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
-                
 
             # Improving the resource should always be viable at this step
-            if check_improve_mr_viability(redis_db, mr, improvement_amount):
-                resource_modifier.set_mr_provision(mr, new_alloc)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
-                old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-                resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
-                update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
+            if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
+                new_imr_alloc = imr_improvement_proposal + current_imr_alloc
+                finalize_resource_provision(imr, new_imr_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
-                mimr = mr
+                mimr = imr
                 break
             else:
                 print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
+                print 'This case should never occur. Exiting...'
                 
         if mimr is None:
             print 'No viable improvement found'
