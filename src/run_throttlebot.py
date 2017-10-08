@@ -308,7 +308,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                                              0,
                                             MR('initial', 'initial', []),
                                              0,
-                                             0,
+                                             {},
                                              mean_list(baseline_performance[preferred_performance_metric]))
     
     print '============================================'
