@@ -114,15 +114,19 @@ Summary Operations!
 
 After each iteration of Throttlebot, write a summary, essentially a record of what Throttlebot did
 perf_gain should be the performance gain over the baseline
-action_taken should be the amount of performance improvement given to the MIMR  in the form of +x, where x is a raw amount added to the MR
+action_taken maps a MR to the amount that it was added to or removed from
 Currently assuming that there is only a single metric that a user would care about
 '''
 
 def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf):
+    action_taken_str = ''
+    for mr in action_taken:
+        action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
+    
     hash_name = '{}summary'.format(experiment_iteration_count)
     redis_db.hset(hash_name, 'mimr', mimr.to_string())
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
-    redis_db.hset(hash_name, 'action_taken', action_taken)
+    redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
