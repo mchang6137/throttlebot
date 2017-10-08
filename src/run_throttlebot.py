@@ -139,6 +139,19 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
             return False
     return True
 
+# Allow the MR to fill out the remainder of the resources on the machine
+# Returns the amount to increase the MR by
+def fill_out_resource(redis_db, imr):
+    improvement_proposal = float('inf')
+    for instance in imr.instances:
+        vm_ip,container = instance
+        consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
+        capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
+        diff = capacity[imr.resource] - consumption[imr.resource]
+        if diff < improvement_proposal: improvement_proposal = diff
+    assert improvement_proposal >= 0
+    return improvement_proposal
+
 # Decrease resource provisions for co-located resources
 # Assures that every the reduction_proposal will allow every instance of the service to balloon
 # It assumes that given a particular IMR, it is not viable to improve that resource.
@@ -379,15 +392,24 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
             imr_improvement_proposal = new_imr_alloc - current_imr_alloc
 
+            # If the the Proposed MR cannot be improved by the proposed amount, there are two options
+            # - Max out the resources to fill up the remaining resources on the machine
+            # - Resource Stealing from NIMRs
+            # Both functions will return VIABLE improvements to the IMR deployment
             nimr_diff_proposal = {}
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal) is False:
-                print 'INFO: Proposed MR improvement is not viable. Attempting to decrease NIMR'
-                # Calculate a plan to reduce the resource provisioning of NIMRs
-                nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db, imr, nimr_list, max_stress_weight)
-                print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
-                print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
-                if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
-                    continue
+                # First try to max out the resources
+                print 'INFO: Attempting to max out the machines resources...'
+                imr_improvement_proposal = fill_out_resource(redis_db, imr)
+
+                if imr_improvement_proposal <= 1:
+                    print 'INFO: Proposed MR improvement is not viable. Attempting to decrease NIMR'
+                    # Calculate a plan to reduce the resource provisioning of NIMRs
+                    nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db, imr, nimr_list, max_stress_weight)
+                    print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
+                    print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
+                    if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
+                        continue
 
             # Decrease the amount of resources provisioned to the NIMR
             for nimr in nimr_diff_proposal:
