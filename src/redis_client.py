@@ -118,11 +118,12 @@ action_taken should be the amount of performance improvement given to the MIMR  
 Currently assuming that there is only a single metric that a user would care about
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf):
     hash_name = '{}summary'.format(experiment_iteration_count)
     redis_db.hset(hash_name, 'mimr', mimr.to_string())
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
     redis_db.hset(hash_name, 'action_taken', action_taken)
+    redis_db.hset(hash_name, 'current_perf', current_perf)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -130,7 +131,8 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     mimr = redis_db.hget(hash_name, 'mimr')
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
-    return mimr, action_taken, perf_improvement
+    current_perf = redis_db.hget(hash_name, 'current_perf')
+    return mimr, action_taken, perf_improvement,current_perf
 
 '''
 This index is a mapping of a particular service (which is assumed to be
