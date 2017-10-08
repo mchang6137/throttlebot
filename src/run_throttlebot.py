@@ -368,13 +368,13 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
         mimr = None
-        action_taken = 0
+        action_taken = {}
         
         for imr in imr_list:
             imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
             current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
             new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
-            imr_improvement_proposal = new_imr_alloc = current_imr_alloc
+            imr_improvement_proposal = new_imr_alloc - current_imr_alloc
 
             nimr_diff_proposal = {}
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal) is False:
@@ -388,6 +388,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
             # Decrease the amount of resources provisioned to the NIMR
             for nimr in nimr_diff_proposal:
+                action_taken[nimr] = nimr_diff_proposal[nimr]
                 new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
                 finalize_mr_provision(redis_db, nimr, new_nimr_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
@@ -395,7 +396,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             # Improving the resource should always be viable at this step
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
                 new_imr_alloc = imr_improvement_proposal + current_imr_alloc
-                action_taken = new_imr_alloc
+                action_taken[imr] = imr_improvement_proposal
                 finalize_mr_provision(redis_db, imr, new_imr_alloc)
                 print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
