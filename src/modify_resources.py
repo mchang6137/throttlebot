@@ -38,13 +38,32 @@ def set_mr_provision(mr, new_mr_allocation):
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
         elif mr.resource == 'DISK':
-            change_container_blkio(ssh_client, container_id, new_mr_allocation)
+            set_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
             set_egress_network_bandwidth(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'MEMORY':
             set_memory_size(ssh_client, container_id, new_mr_allocation)
         else:
             print 'INVALID resource'
+        close_client(ssh_client)
+
+# Reset all mr provisions -- remove ALL resource constraints
+def reset_mr_provision(mr):
+    for vm_ip,container_id in mr.instances:
+        ssh_client = get_client(vm_ip)
+        print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
+        if mr.resource == 'CPU-CORE':
+            reset_cpu_cores(ssh_client, container_id)
+        elif mr.resource == 'CPU-QUOTA':
+            reset_cpu_quota(ssh_client, container_id)
+        elif mr.resource == 'DISK':
+            reset_container_blkio(ssh_client, container_id)
+        elif mr.resource == 'MEMORY':
+            reset_memory_size(ssh_client, container_id)
+        elif mr.resource == 'NET':
+            reset_egress_network_bandwidth(ssh_client, container_id)
+        else:
+            print 'Invalid Resource'
         close_client(ssh_client)
 
 '''Stressing the Network'''
@@ -162,7 +181,7 @@ def reset_cpu_cores(ssh_client, container_id):
 # Positive value to set a maximum for both disk write and disk read
 # 0 to reset the value
 # Units are in MB/s
-def change_container_blkio(ssh_client, container_id, disk_bandwidth):
+def set_container_blkio(ssh_client, container_id, disk_bandwidth):
     # Set Read and Write Conditions in real-time using cgroups
     # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
     # Check for 202 or 252 for major device number
@@ -175,6 +194,22 @@ def change_container_blkio(ssh_client, container_id, disk_bandwidth):
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
+    # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
+    sleep(1)
+
+def reset_container_blkio(ssh_client, container_id):
+    # Set Read and Write Conditions in real-time using cgroups
+    # Assumes the other containers default to write to device major number 252 (minor number arbitrary)
+    # Check for 202 or 252 for major device number
+    set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(0, container_id)
+    set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(0, container_id)
+
+    print set_cgroup_write_rate_cmd
+    print set_cgroup_read_rate_cmd
+    
+    ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
+    ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
+    
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
 
@@ -283,9 +318,9 @@ if __name__ == "__main__":
     if args.rst_cpu_quota:
         reset_cpu_quota(ssh_client, container_id)
     if args.set_blkio and set_blkio >= 0 and set_blkio <= 70000000:
-        change_container_blkio(ssh_client, container_id, set_blkio)
+        set_container_blkio(ssh_client, container_id, set_blkio)
     if args.rst_blkio:
-        change_container_blkio(ssh_client, container_id, 0)
+        reset_container_blkio(ssh_client, container_id)
     if args.set_network:
         set_egress_network_bandwidth(ssh_client, container_id, args.set_network)
     if args.rst_network:

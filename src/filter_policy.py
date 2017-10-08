@@ -18,6 +18,7 @@ None: Apply no filter policies
 def apply_filtering_policy(redis_db,
                            mr_working_set,
                            experiment_iteration,
+                           system_config,
                            workload_config,
                            filter_config):
     filter_policy = filter_config['filter_policy']
@@ -25,6 +26,7 @@ def apply_filtering_policy(redis_db,
         return apply_pipeline_filter(redis_db,
                                      mr_working_set,
                                      experiment_iteration,
+                                     system_config,
                                      workload_config,
                                      filter_config)
     elif filter_policy is None:
@@ -39,11 +41,14 @@ a set of services that are deemed to be part of the same pipeline
 def apply_pipeline_filter(redis_db,
                           mr_working_set,
                           experiment_iteration,
+                          system_config,
                           workload_config,
                           filter_config):
 
     print '*' * 20
     print 'INFO: Applying Filtering Pipeline'
+
+    machine_type = system_config['machine_type']
     
     stress_weight = filter_config['stress_amount']
     experiment_trials = filter_config['filter_exp_trials']

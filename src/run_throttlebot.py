@@ -22,8 +22,9 @@ from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
 from container_information import *
-from cluster_information import *
 from filter_policy import *
+from poll_cluster_state import *
+from instance_specs import *
 from mr	import MR
 
 import redis.client
@@ -87,6 +88,32 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 Tools that are used for experimental purposes in Throttlebot 
 '''
 
+def finalize_mr_provision(redis_db, mr, new_alloc):
+    resource_modifier.set_mr_provision(mr, new_alloc)
+    old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+    resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
+    update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
+
+# Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
+def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
+    imr_list = []
+    nimr_list = []
+    
+    for mr_result in mr_list:
+        mr,exp_performance = mr_result
+        perf_diff = exp_performance - baseline_performance
+        print 'perf diff is {}'.format(perf_diff)
+        print 'leeway is {}'.format(within_x * baseline_performance)
+
+        if (perf_diff > within_x * baseline_performance) and optimize_for_lowest:
+            imr_list.append(mr)
+        elif (perf_diff < within_x * baseline_performance) and optimize_for_lowest is False:
+            imr_list.append(mr)
+        else:
+            nimr_list.append(mr)
+            
+    return imr_list, nimr_list
+
 # Determine Amount to improve a MIMR
 def improve_mr_by(redis_db, mimr, weight_stressed):
     #Simple heuristic currently: Just improve by amount it was improved
@@ -113,6 +140,79 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
             return False
     return True
 
+# Decrease resource provisions for co-located resources
+# Assures that every the reduction_proposal will allow every instance of the service to balloon
+# It assumes that given a particular IMR, it is not viable to improve that resource.
+# In the NIMR list for NIMRs to be de-allocated.
+# Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
+def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
+    print 'IMR is {}'.format(imr.to_string())
+    
+    # Filter out NIMRs that are not the same resource type as mr
+    for nimr in list(nimr_list):
+        print 'NIMR resource: {} '.format(nimr.resource)
+        print 'IMR resource: {}'.format(imr.resource)
+        if nimr.resource != imr.resource: nimr_list.remove(nimr)
+
+    if len(nimr_list) == 0:
+        return {},0
+
+    print 'NIMR Debugging: Filtered nimr list is {}'.format([nimr.to_string() for nimr in nimr_list])
+        
+    reduction_proposal = []
+
+    # Ensure that every deployment has at least one service losing a machine
+    vm_to_nimr = {}
+    vm_to_service = get_vm_to_service(get_actual_vms())
+    
+    for deployment in imr.instances:
+	vm_ip,container = deployment
+        colocated_services = vm_to_service[vm_ip]
+        if imr.service_name in colocated_services: colocated_services.remove(imr.service_name)
+
+        vm_to_nimr[vm_ip] = []
+        for colocated_service in colocated_services:
+            for nimr in nimr_list:
+                if colocated_service == nimr.service_name:
+                    vm_to_nimr[vm_ip].append(nimr)
+
+    print 'NIMR Debugging: vm_to_nimr is below'.format(vm_to_nimr)
+    for vm in vm_to_nimr:
+        print 'VM IP {}'.format(vm)
+        print 'NIMR is {}'.format([nimr.to_string() for nimr in vm_to_nimr[vm]])
+
+    min_mr_removal = float('inf')
+    new_mr_alloc = {}
+    
+    for vm_ip in vm_to_nimr:
+        if len(vm_to_nimr[vm_ip]) == 0:
+            print 'no suitable NIMRs for substitution found'
+            return {}, 0
+        total_removal_amount = 0
+        for nimr in vm_to_nimr[vm_ip]:
+            nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
+            new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
+            alloc_diff = nimr_alloc - new_alloc
+            new_mr_alloc[nimr] = alloc_diff
+            total_removal_amount += alloc_diff
+        if total_removal_amount < min_mr_removal: min_mr_removal = total_removal_amount
+
+    print 'New MR alloc {}'.format(new_mr_alloc)
+    print 'Minimum MR Removal {}'.format(min_mr_removal)
+    return new_mr_alloc, min_mr_removal
+
+# Determine if mr still has an interval to decrease it to
+def mr_at_minimum(mr, proposed_weight_change):
+    current_alloc = mr.read_mr_alloc(redis_db)
+    new_alloc = convert_percent_to_raw(mr, current_alloc, proposed_weight_change)
+    if new_alloc == -1:
+        return True
+    else:
+        return False
+
+def mean_list(l):
+    return sum(l) / float(len(l))
+
 # Update the resource consumption of a machine after an MIMR has been improved
 # Assumes that the new allocation of resources is valid 
 def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
@@ -137,8 +237,8 @@ def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
     net_improvement = 0
     for experiment_count in range(total_experiments):
-        mimr,action_taken,perf_improvement = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement)
+        mimr,action_taken,perf_improvement,current_perf = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement,current_perf)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
 
@@ -196,8 +296,14 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
-    experiment_count = 0
     baseline_performance = measure_baseline(workload_config, baseline_trials)
+    tbot_datastore.write_summary_redis(redis_db,
+                                             0,
+                                            MR('initial', 'initial', []),
+                                             0,
+                                             0,
+                                             mean_list(baseline_performance[preferred_performance_metric]))
+    
     print '============================================'
     print '\n' * 2
 
@@ -209,14 +315,18 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
 
+    experiment_count = 1
     while experiment_count < 10:
+        print 'abbey says: {}'.format(mean_list(baseline_performance[preferred_performance_metric]))
+        
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = apply_filtering_policy(redis_db,
                                               mr_working_set,
                                               experiment_count,
+                                              system_config,
                                               workload_config,
                                               filter_config)
-        
+
         for mr in mr_to_stress:
             print '\n' * 2
             print '*' * 20
@@ -230,7 +340,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 experiment_results = measure_runtime(workload_config, experiment_trials)
 
                 #Write results of experiment to Redis
-                mean_result = float(sum(experiment_results[preferred_performance_metric])) / len(experiment_results[preferred_performance_metric])
+                mean_result = mean_list(experiment_results[preferred_performance_metric])
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
                 # Remove the effect of the resource stressing
@@ -246,31 +356,63 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
-                                   optimize_for_lowest=optimize_for_lowest, num_results_returned=10)
+                                                  optimize_for_lowest=optimize_for_lowest, num_results_returned=-1)
+
+        imr_list, nimr_list = seperate_mr(mimr_list, mean_list(baseline_performance[preferred_performance_metric]), optimize_for_lowest)
+        if len(imr_list) == 0:
+            print 'INFO: IMR list length is 0. Please choose a metric with more signal. Exiting...'
+            break
+        print 'INFO: IMR list is {}'.format([mr.to_string() for mr in imr_list])
+        print 'INFO: NIMR list is {}'.format([mr.to_string() for mr in nimr_list])
         
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
         mimr = None
         action_taken = 0
-        print 'The MR improvement is {}'.format(max_stress_weight)
-        for mr_score in mimr_list:
-            mr, score = mr_score
-            improvement_percent = improve_mr_by(redis_db, mr, max_stress_weight)
-            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-            new_alloc = convert_percent_to_raw(mr, current_mr_allocation, improvement_percent)
-            improvement_amount = new_alloc - current_mr_allocation
-            action_taken = improvement_amount
-            if check_improve_mr_viability(redis_db, mr, improvement_amount):
-                resource_modifier.set_mr_provision(mr, new_alloc)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
-                old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-                resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
-                update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
+        
+        for imr in imr_list:
+            imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
+            current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
+            new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
+            imr_improvement_proposal = new_imr_alloc = current_imr_alloc
+
+            nimr_diff_proposal = {}
+            if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal) is False:
+                print 'INFO: Proposed MR improvement is not viable. Attempting to decrease NIMR'
+                # Calculate a plan to reduce the resource provisioning of NIMRs
+                nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db, imr, nimr_list, max_stress_weight)
+                print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
+                print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
+                if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
+                    continue
+
+            # Decrease the amount of resources provisioned to the NIMR
+            for nimr in nimr_diff_proposal:
+                new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
+                finalize_mr_provision(redis_db, nimr, new_nimr_alloc)
                 current_mr_config = update_mr_config(redis_db, current_mr_config)
-                mimr = mr
+
+            # Improving the resource should always be viable at this step
+            if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
+                new_imr_alloc = imr_improvement_proposal + current_imr_alloc
+                action_taken = new_imr_alloc
+                finalize_mr_provision(redis_db, imr, new_imr_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
+                current_mr_config = update_mr_config(redis_db, current_mr_config)
+                mimr = imr
                 break
             else:
                 print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
+                print 'This IMR cannot be improved. Printing some debugging before exiting...'
+
+                print 'Current MR allocation is {}'.format(current_imr_alloc)
+                print 'Proposed (failed) allocation is {}, improved by {}'.format(new_imr_alloc, imr_improvement_proposal)
+
+                for deployment in imr.instances:
+                    vm_ip,container = deployment
+                    capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
+                    consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
+                    print 'Machine {} Capacity is {}, and consumption is currently {}'.format(vm_ip, capacity, consumption)
                 
         if mimr is None:
             print 'No viable improvement found'
@@ -278,13 +420,12 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
-        print improved_performance
-        improved_mean = sum(improved_performance[preferred_performance_metric]) / float(len(improved_performance[preferred_performance_metric]))
-        baseline_mean = sum(baseline_performance[preferred_performance_metric]) / float(len(baseline_performance[preferred_performance_metric]))                                                                           
+        improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
+        baseline_mean = mean_list(baseline_performance[preferred_performance_metric])
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean) 
         baseline_performance = improved_performance
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
@@ -330,6 +471,8 @@ def parse_config_file(config_file):
 
     # Configuration parameters relating to the filter step
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')
+    if filter_config['filter_policy'] == '':
+        filter_config['filter_policy'] = None
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
