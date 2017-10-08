@@ -48,7 +48,7 @@ def set_mr_provision(mr, new_mr_allocation):
         close_client(ssh_client)
 
 # Reset all mr provisions -- remove ALL resource constraints
-def reset_all_mr_provision(mr):
+def reset_mr_provision(mr):
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
@@ -57,7 +57,7 @@ def reset_all_mr_provision(mr):
         elif mr.resource == 'CPU-QUOTA':
             reset_cpu_quota(ssh_client, container_id)
         elif mr.resource == 'DISK':
-            reset_container_blkio(ssh_client, container_id, 0)
+            reset_container_blkio(ssh_client, container_id)
         elif mr.resource == 'MEMORY':
             reset_memory_size(ssh_client, container_id)
         elif mr.resource == 'NET':
