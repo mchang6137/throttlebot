@@ -3,7 +3,6 @@ import requests
 import json
 import numpy as np
 import datetime
-import numpy
 import timeit
 import re
 import csv
@@ -210,8 +209,15 @@ def mr_at_minimum(mr, proposed_weight_change):
     else:
         return False
 
+# Calculat ethe mean of a list
 def mean_list(l):
     return sum(l) / float(len(l))
+
+# Remove Outliers from a list
+def remove_outlier(l, n=1):
+    n = 1
+    no_outlier = [x for x in l if abs(x - np.mean(l)) < np.std(l) * n]
+    return no_outlier
 
 # Update the resource consumption of a machine after an MIMR has been improved
 # Assumes that the new allocation of resources is valid 
@@ -297,6 +303,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
     baseline_performance = measure_baseline(workload_config, baseline_trials)
+    baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
     tbot_datastore.write_summary_redis(redis_db,
                                              0,
                                             MR('initial', 'initial', []),
@@ -314,8 +321,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
     experiment_count = 1
     while experiment_count < 10:
-        print 'abbey says: {}'.format(mean_list(baseline_performance[preferred_performance_metric]))
-        
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = apply_filtering_policy(redis_db,
                                               mr_working_set,
@@ -335,9 +340,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
                 resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
-
+                
                 #Write results of experiment to Redis
-                mean_result = mean_list(experiment_results[preferred_performance_metric])
+                preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+                mean_result = mean_list(preferred_results)
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
                 # Remove the effect of the resource stressing
@@ -416,6 +422,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
+        improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
         improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
         baseline_mean = mean_list(baseline_performance[preferred_performance_metric])
         performance_improvement = improved_mean - baseline_mean
