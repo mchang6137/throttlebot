@@ -308,10 +308,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     print '\n' * 2
 
     # Initialize the current configurations
-    # Invariant: MR are the same between iterations
-    current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
-
-    #Initialize the working set of MRs to all the MRs
+    # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
 
@@ -391,7 +388,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 action_taken[nimr] = nimr_diff_proposal[nimr]
                 new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
                 finalize_mr_provision(redis_db, nimr, new_nimr_alloc)
-                current_mr_config = update_mr_config(redis_db, current_mr_config)
 
             # Improving the resource should always be viable at this step
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
@@ -399,7 +395,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 action_taken[imr] = imr_improvement_proposal
                 finalize_mr_provision(redis_db, imr, new_imr_alloc)
                 print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
-                current_mr_config = update_mr_config(redis_db, current_mr_config)
                 mimr = imr
                 break
             else:
@@ -431,6 +426,11 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
+
+        # Checkpoint MR configurations and print
+        current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
+        print_csv_configuration(current_mr_config)
+        
         experiment_count += 1
         
         # TODO: Handle False Positive
@@ -438,6 +438,8 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
     print '{} experiments completed'.format(experiment_count)
     print_all_steps(redis_db, experiment_count)
+
+    current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
         
