@@ -150,7 +150,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    NUM_REQUESTS = 25000
+    NUM_REQUESTS = 50000
     CONCURRENCY = 1000
 
     post_cmd = 'ab -p post.json -T application/json -n {} -c {} -e results_file http://{}/api/todos > output.txt'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)

@@ -97,6 +97,6 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
     resource_capacity[machine_type]['MEMORY'] *= 1024
     resource_capacity[machine_type]['NET'] *= 1024
     resource_capacity[machine_type]['DISK'] *= 1048576
-    resource_capacity[machine_type]['CPU-QUOTA'] = 100
+    resource_capacity[machine_type]['CPU-QUOTA'] = 100 * resource_capacity[machine_type]['CPU-CORE']
     return resource_capacity[machine_type]
 

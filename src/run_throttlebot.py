@@ -146,12 +146,18 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 # In the NIMR list for NIMRs to be de-allocated.
 # Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
 def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
+    print 'IMR is {}'.format(imr.to_string())
+    
     # Filter out NIMRs that are not the same resource type as mr
-    for nimr in nimr_list:
+    for nimr in list(nimr_list):
+        print 'NIMR resource: {} '.format(nimr.resource)
+        print 'IMR resource: {}'.format(imr.resource)
         if nimr.resource != imr.resource: nimr_list.remove(nimr)
 
     if len(nimr_list) == 0:
         return {},0
+
+    print 'NIMR Debugging: Filtered nimr list is {}'.format([nimr.to_string() for nimr in nimr_list])
         
     reduction_proposal = []
 
@@ -170,11 +176,17 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
                 if colocated_service == nimr.service_name:
                     vm_to_nimr[vm_ip].append(nimr)
 
+    print 'NIMR Debugging: vm_to_nimr is below'.format(vm_to_nimr)
+    for vm in vm_to_nimr:
+        print 'VM IP {}'.format(vm)
+        print 'NIMR is {}'.format([nimr.to_string() for nimr in vm_to_nimr[vm]])
+
     min_mr_removal = float('inf')
     new_mr_alloc = {}
     
     for vm_ip in vm_to_nimr:
         if len(vm_to_nimr[vm_ip]) == 0:
+            print 'no suitable NIMRs for substitution found'
             return {}, 0
         total_removal_amount = 0
         for nimr in vm_to_nimr[vm_ip]:
@@ -185,6 +197,8 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
             total_removal_amount += alloc_diff
         if total_removal_amount < min_mr_removal: min_mr_removal = total_removal_amount
 
+    print 'New MR alloc {}'.format(new_mr_alloc)
+    print 'Minimum MR Removal {}'.format(min_mr_removal)
     return new_mr_alloc, min_mr_removal
 
 # Determine if mr still has an interval to decrease it to
@@ -348,8 +362,8 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         if len(imr_list) == 0:
             print 'INFO: IMR list length is 0. Please choose a metric with more signal. Exiting...'
             break
-        print 'INFO: IMR list is {}'.format(imr_list)
-        print 'INFO: NIMR list is {}'.format(nimr_list)
+        print 'INFO: IMR list is {}'.format([mr.to_string() for mr in imr_list])
+        print 'INFO: NIMR list is {}'.format([mr.to_string() for mr in nimr_list])
         
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
@@ -363,7 +377,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             imr_improvement_proposal = new_imr_alloc = current_imr_alloc
 
             nimr_diff_proposal = {}
-            if check_improve_mr_viability(redis_db, mr, imr_improvement_proposal) is False:
+            if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal) is False:
                 print 'INFO: Proposed MR improvement is not viable. Attempting to decrease NIMR'
                 # Calculate a plan to reduce the resource provisioning of NIMRs
                 nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db, imr, nimr_list, max_stress_weight)
