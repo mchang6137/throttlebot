@@ -2,7 +2,8 @@ import argparse
 import numpy as np
 import remote_execution as remote_exec
 
-from cluster_information import *
+from poll_cluster_state import *
+from instance_specs import *
 from random import shuffle
 import redis_resource as resource_datastore
 
