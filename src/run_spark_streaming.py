@@ -8,12 +8,14 @@ EVENTS_PER_SEC=3000
 # Run the Spark Streaming Example
 def measure_spark_streaming(workload_configurations, experiment_iterations):
     all_vm_ip = get_actual_vms()
+    print 'Collecting information about service/deployment'
     service_to_deployment = get_service_placements(all_vm_ip)
 
     generator_instances = service_to_deployment['mchang6137/spark_streaming']
     kafka_instances = service_to_deployment['mchang6137/kafka']
     redis_instances = service_to_deployment['hantaowang/redis']
-    spark_instances = service_to_deployment['mchang6137/spark-yahoo']
+    spark_master_instances = service_to_deployment['mchang6137/spark-yahoo-master']
+    spark_worker_instances = service_to_deployment['mchang6137/spark-yahoo-worker']
     
     all_requests = {}
     all_requests['window_latency'] = []
@@ -37,12 +39,12 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
 
         flush_redis(redis_instances)
 
-    delete_spark_logs(spark_instances)
+    delete_spark_logs(spark_master_instances, spark_worker_instances)
 
     return all_requests
 
 # Delete spark logs so it doesn't run out of data
-def delete_spark_logs(spark_instances):
+def delete_spark_logs(spark_master_instances):
     delete_wk_logs_cmd = 'rm -r /spark/work/app*'
     delete_ms_logs_cmd = 'rm /spark/logs/spark.log'
     

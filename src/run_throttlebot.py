@@ -310,7 +310,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    install_dependencies(workload_config)
+    #install_dependencies(workload_config)
     
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
