@@ -94,7 +94,7 @@ def finalize_mr_provision(redis_db, mr, new_alloc):
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
-def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
+def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.001):
     imr_list = []
     nimr_list = []
     
@@ -317,6 +317,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     # Run the baseline experiment
     baseline_performance = measure_baseline(workload_config, baseline_trials)
     baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    print 'Baseline performance measured: {}'.format(baseline_performance)
     tbot_datastore.write_summary_redis(redis_db,
                                              0,
                                             MR('initial', 'initial', []),
@@ -653,13 +654,15 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
             delete_queue.append(mr)
         elif '*' not in acceptable_resources and mr.resource not in acceptable_resources:
             delete_queue.append(mr)
+        elif mr.service_name == 'mchang6137/spark_streaming':
+            delete_queue.append(mr)
         # Temporarily ignoring acceptable_machines since it might be unnecessary
         # and it is hard to solve...
 
     for mr in delete_queue:
         print 'Deleting MR: ', mr.to_string()
         del mr_allocation[mr]
-    
+
     return mr_allocation
 
 

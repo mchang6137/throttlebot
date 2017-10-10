@@ -21,37 +21,46 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     all_requests['window_latency'] = []
     all_requests['window_latency_std'] = []
     all_requests['total_results'] = []
-    
+
+    trial_count = 0 
     # Initialize the Spark Streaming Job
-    for trial in range(experiment_iterations):
+    while trial_count < experiment_iterations:
+        clean_files(generator_instances)
         # Start Sending Timed events through Kafka
         run_kafka_events(generator_instances)
         
         # Collect the results of the experiment
         results = collect_results(generator_instances)
+        clean_files(generator_instances)
         if results is None:
             print 'Result is none... retrying experiment'
-            trial += 1
             continue
+        else:
+            trial_count += 1
         all_requests['window_latency'].append(results['window_latency'])
         all_requests['window_latency_std'].append(results['window_latency_std'])
         all_requests['total_results'].append(results['total_results'])
 
         flush_redis(redis_instances)
 
-    delete_spark_logs(spark_master_instances, spark_worker_instances)
+    #delete_spark_logs(spark_master_instances, spark_worker_instances)
 
     return all_requests
 
 # Delete spark logs so it doesn't run out of data
-def delete_spark_logs(spark_master_instances):
+def delete_spark_logs(spark_master_instances, spark_worker_instances):
     delete_wk_logs_cmd = 'rm -r /spark/work/app*'
     delete_ms_logs_cmd = 'rm /spark/logs/spark.log'
     
-    for spark_instance in spark_instances:
+    for spark_instance in spark_worker_instances:
         spark_ip,spark_container = spark_instance
         spark_client = get_client(spark_ip)
+        run_cmd(delete_wk_logs_cmd, spark_client, spark_container, blocking=True, lein=False)
+        run_cmd(delete_ms_logs_cmd, spark_client, spark_container, blocking=True, lein=False)
 
+    for spark_instance in spark_master_instances:
+        spark_ip,spark_container = spark_instance
+        spark_client = get_client(spark_ip)
         run_cmd(delete_wk_logs_cmd, spark_client, spark_container, blocking=True, lein=False)
         run_cmd(delete_ms_logs_cmd, spark_client, spark_container, blocking=True, lein=False)
     
@@ -85,13 +94,16 @@ def collect_results(instances):
     if results['window_latency'] == -1 or results['total_results'] == -1:
         print 'ERROR: Latency values were not generated correctly'
         return None
+    print 'Results of Experiment are {}'.format(results)
+    return results
 
+def clean_files(instances):
+    send_events_ip,send_events_container = instances[0]
+    ssh_client = get_client(send_events_ip)
+    
     # Delete the latency.txt for safe-keeping
     clean_file_cmd = 'bash -c "rm /streaming-benchmarks/data/latency.txt && rm -f /streaming-benchmarks/data/seen.txt && rm -f /streaming-benchmarks/data/updated.txt"'
     run_cmd(clean_file_cmd, ssh_client, send_events_container, blocking=True, lein=False)
-
-    print results
-    return results
 
 # send_events_instances sends from instances in the list, where each instance is (vm_ip, container_id)
 def run_kafka_events(send_event_instances):
