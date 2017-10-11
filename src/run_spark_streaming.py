@@ -31,12 +31,24 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         
         # Collect the results of the experiment
         results = collect_results(generator_instances)
-        clean_files(generator_instances)
+
         if results is None:
             print 'Result is none... retrying experiment'
-            continue
+            
+            # One reason for this is that the results have not yet been collected.
+            for x in range(3):
+                results = collect_results(generator_instances)
+                if results != None:
+                    trial_count += 1
+                    break
         else:
             trial_count += 1
+
+        # If results are still none, continue
+        if results is None:
+            continue
+
+        clean_files(generator_instances)
         all_requests['window_latency'].append(results['window_latency'])
         all_requests['window_latency_std'].append(results['window_latency_std'])
         all_requests['total_results'].append(results['total_results'])
