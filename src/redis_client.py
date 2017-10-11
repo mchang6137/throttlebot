@@ -121,7 +121,7 @@ def get_summary_mimr_charts(redis_db, workload_config, baseline_perf, mr_to_stre
     max_stress = min(stress_weights)
     width = 0.8
     indices = np.arange(experiment_iteration_count + 1)
-    chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + time_id)
+    chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + str(time_id))
     # Save the image in the appropriate directory
     if not os.path.exists(chart_directory):
         os.makedirs(chart_directory)
@@ -152,6 +152,23 @@ def get_summary_mimr_charts(redis_db, workload_config, baseline_perf, mr_to_stre
         plt.savefig(chart_name, bbox_inches='tight')
         plt.clf()
 
+def get_summary_performance_charts(redis_db, workload_config, experiment_iteration_count, time_id):
+    # Creating general performance chart
+    chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + str(time_id))
+    x = []
+    y = []
+    for iteration in range(experiment_iteration_count):
+        _, _, _, curr_perf, elaps_time = read_summary_redis(redis_db, experiment_iteration_count)
+        x.append(elaps_time)
+        y.append(curr_perf)
+    plt.plot(x, y, drawstyle='steps-post')
+    plt.title('{} Performance Over Time'.format(workload_config['type']))
+    plt.xlabel('Elapsed Time (seconds)')
+    plt.ylabel('Latency_99 (ms)')
+    chart_name = '{}{}{}performance.png'.format(chart_directory, experiment_iteration_count, workload_config['type'])
+    plt.savefig(chart_name, bbox_inches='tight')
+    plt.clf()
+
 '''
 Summary Operations!
 
@@ -159,9 +176,10 @@ After each iteration of Throttlebot, write a summary, essentially a record of wh
 perf_gain should be the performance gain over the baseline
 action_taken maps a MR to the amount that it was added to or removed from
 Currently assuming that there is only a single metric that a user would care about
+Elapsed time is in seconds
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf, elaps_time):
     action_taken_str = ''
     for mr in action_taken:
         action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
@@ -171,6 +189,7 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
     redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
+    redis_db.hset(hash_name, 'elapsed_time', elaps_time)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -179,7 +198,8 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
     current_perf = redis_db.hget(hash_name, 'current_perf')
-    return mimr, action_taken, perf_improvement,current_perf
+    elaps_time = redis_db.hget(hash_name, 'elapsed_time')
+    return mimr, action_taken, perf_improvement, current_perf, elaps_time
 
 '''
 This index is a mapping of a particular service (which is assumed to be
