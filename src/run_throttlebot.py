@@ -256,8 +256,9 @@ def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
     net_improvement = 0
     for experiment_count in range(total_experiments):
-        mimr,action_taken,perf_improvement,current_perf = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement,current_perf)
+        mimr,action_taken,perf_improvement,current_perf, elapsed_time = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}, Elapsed Time = {}'\
+            .format(experiment_count, mimr, action_taken, perf_improvement,current_perf, elapsed_time)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
 
@@ -333,7 +334,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
 
     # Initialize time for data charts
-    time_id = str(datetime.datetime.now())
+    time_start = datetime.datetime.now()
 
     experiment_count = 1
     while experiment_count < 5:
@@ -372,9 +373,13 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             print '*' * 20
             print '\n' * 2
 
+        current_time_stop = datetime.datetime.now()
+        time_delta = current_time_stop - time_start
+
         # Save data in chart form
         tbot_datastore.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
-                                               experiment_count, stress_weights, preferred_performance_metric, time_id)
+                                               experiment_count, stress_weights, preferred_performance_metric,
+                                               time_start)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -457,8 +462,11 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds)
         baseline_performance = improved_performance
+
+        # Generating overall performance improvement
+        tbot_datastore.get_summary_performance_charts(redis_db, experiment_count)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
