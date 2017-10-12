@@ -152,10 +152,10 @@ def fill_out_resource(redis_db, imr):
 
         debug_statement = 'For vm ip {}, capacity {}, consumption {}, diff {}\n'.format(vm_ip, capacity, consumption, diff)
         with open("fill_out_resource_debug.txt", "a") as myfile:
-      	    myfile.write('imr is {}\n'.format(imr.resource))
-            myfile.write('current improvement proposal is {}\n'.format(improvement_proposal)
+            myfile.write('imr is {}\n'.format(imr.resource))
+            myfile.write('current improvement proposal is {}\n').format(improvement_proposal)
             myfile.write(debug_statement)
-
+                         
     if improvement_proposal < 0:
         print 'WARNING: Improvement proposal is less than 0'
         print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
@@ -311,7 +311,16 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
-    redis_db.flushall()
+    # Prompt the user to make sure they want to flush the db
+    ok_to_flush = raw_input("Are you sure you want to flush the results of your last experiment? Please respond with Y or N: ")
+    if ok_to_flush == 'Y':
+        redis_db.flushall()
+    elif ok_to_flush == 'N':
+        print 'OK you said it boss. Exiting...'
+        exit()
+    else:
+        print 'Only Y and N are acceptable responses. Exiting...'
+        exit()
 
     print '\n' * 2
     print '*' * 20
@@ -498,7 +507,7 @@ def parse_config_file(config_file):
     sys_config = {}
     workload_config = {}
     filter_config = {}
-    
+
     config = ConfigParser.RawConfigParser(allow_no_value=True)
     config.read(config_file)
 
