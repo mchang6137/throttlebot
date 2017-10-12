@@ -149,7 +149,20 @@ def fill_out_resource(redis_db, imr):
         capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
         diff = capacity[imr.resource] - consumption[imr.resource]
         if diff < improvement_proposal: improvement_proposal = diff
-    assert improvement_proposal >= 0
+
+        debug_statement = 'For vm ip {}, capacity {}, consumption {}, diff {}\n'.format(vm_ip, capacity, consumption, diff)
+        with open("fill_out_resource_debug.txt", "a") as myfile:
+      	    myfile.write('imr is {}\n'.format(imr.resource))
+            myfile.write('current improvement proposal is {}\n'.format(improvement_proposal)
+            myfile.write(debug_statement)
+
+    if improvement_proposal < 0:
+        print 'WARNING: Improvement proposal is less than 0'
+        print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
+
+        # get immediate results just by setting the proposal to zero in this case
+        improvement_proposal = 0
+        
     return improvement_proposal
 
 # Decrease resource provisions for co-located resources
