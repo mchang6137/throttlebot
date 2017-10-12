@@ -157,8 +157,8 @@ def get_summary_performance_charts(redis_db, workload_config, experiment_iterati
     chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + str(time_id))
     x = []
     y = []
-    for iteration in range(experiment_iteration_count):
-        _, _, _, curr_perf, elaps_time = read_summary_redis(redis_db, experiment_iteration_count)
+    for iteration in range(experiment_iteration_count + 1):
+        _, _, _, curr_perf, elaps_time = read_summary_redis(redis_db, iteration)
         x.append(elaps_time)
         y.append(curr_perf)
     plt.plot(x, y, drawstyle='steps-post')
@@ -166,7 +166,7 @@ def get_summary_performance_charts(redis_db, workload_config, experiment_iterati
     plt.xlabel('Elapsed Time (seconds)')
     plt.ylabel('Latency_99 (ms)')
     chart_name = '{}{}{}performance.png'.format(chart_directory, experiment_iteration_count, workload_config['type'])
-    plt.savefig(chart_name, bbox_inches='tight')
+    plt.savefig(chart_name)
     plt.clf()
 
 '''
