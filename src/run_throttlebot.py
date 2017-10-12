@@ -312,18 +312,24 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
     install_dependencies(workload_config)
+
+    # Initialize time for data charts
+    time_start = datetime.datetime.now()
     
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
     baseline_performance = measure_baseline(workload_config, baseline_trials)
     baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    current_time_stop = datetime.datetime.now()
+    time_delta = current_time_stop - time_start
     tbot_datastore.write_summary_redis(redis_db,
                                              0,
                                             MR('initial', 'initial', []),
                                              0,
                                              {},
-                                             mean_list(baseline_performance[preferred_performance_metric]))
+                                             mean_list(baseline_performance[preferred_performance_metric]),
+                                             time_delta.seconds)
     
     print '============================================'
     print '\n' * 2
@@ -332,9 +338,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
-
-    # Initialize time for data charts
-    time_start = datetime.datetime.now()
 
     experiment_count = 1
     while experiment_count < 5:
@@ -466,7 +469,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         baseline_performance = improved_performance
 
         # Generating overall performance improvement
-        tbot_datastore.get_summary_performance_charts(redis_db, experiment_count)
+        tbot_datastore.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
