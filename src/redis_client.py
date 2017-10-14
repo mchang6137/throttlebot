@@ -155,17 +155,38 @@ def get_summary_mimr_charts(redis_db, workload_config, baseline_perf, mr_to_stre
 def get_summary_performance_charts(redis_db, workload_config, experiment_iteration_count, time_id):
     # Creating general performance chart
     chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + str(time_id))
+    experiment_type = workload_config['type']
+    get_performance_over_time_chart(redis_db, experiment_type, experiment_iteration_count, chart_directory)
+    get_performance_over_mr_chart(redis_db, experiment_type, experiment_iteration_count, chart_directory)
+
+def get_performance_over_time_chart(redis_db, experiment_type, experiment_iteration_count, chart_directory):
+    # Creating performance over time chart
     x = []
     y = []
     for iteration in range(experiment_iteration_count + 1):
-        _, _, _, curr_perf, elaps_time = read_summary_redis(redis_db, iteration)
+        _, _, _, curr_perf, elaps_time, _ = read_summary_redis(redis_db, iteration)
         x.append(elaps_time)
         y.append(curr_perf)
     plt.plot(x, y, drawstyle='steps-post')
-    plt.title('{} Performance Over Time'.format(workload_config['type']))
+    plt.title('{} Performance Over Time'.format(experiment_type))
     plt.xlabel('Elapsed Time (seconds)')
     plt.ylabel('Latency_99 (ms)')
-    chart_name = '{}{}{}performance.png'.format(chart_directory, experiment_iteration_count, workload_config['type'])
+    chart_name = '{}{}{}performance_time.png'.format(chart_directory, experiment_iteration_count, experiment_type)
+    plt.savefig(chart_name)
+    plt.clf()
+
+def get_performance_over_mr_chart(redis_db, experiment_type, experiment_iteration_count, chart_directory):
+    x = []
+    y = []
+    for iteration in range(experiment_iteration_count + 1):
+        _, _, _, curr_perf, _, cumulative_mr = read_summary_redis(redis_db, iteration)
+        x.append(cumulative_mr)
+        y.append(curr_perf)
+    plt.plot(x, y, drawstyle='steps-post')
+    plt.title('{} Performance Over Number of MRs Stressed'.format(experiment_type))
+    plt.xlabel('Number of MRs Stressed')
+    plt.ylabel('Latency_99 (ms)')
+    chart_name = '{}{}{}performance_mr.png'.format(chart_directory, experiment_iteration_count, experiment_type)
     plt.savefig(chart_name)
     plt.clf()
 
@@ -179,7 +200,7 @@ Currently assuming that there is only a single metric that a user would care abo
 Elapsed time is in seconds
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf, elaps_time):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf, elaps_time, cumulative_mr):
     action_taken_str = ''
     for mr in action_taken:
         action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
@@ -190,6 +211,7 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
     redis_db.hset(hash_name, 'elapsed_time', elaps_time)
+    redis_db.hset(hash_name, 'cumulative_mr', cumulative_mr)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -199,7 +221,8 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     action_taken = redis_db.hget(hash_name, 'action_taken')
     current_perf = redis_db.hget(hash_name, 'current_perf')
     elaps_time = redis_db.hget(hash_name, 'elapsed_time')
-    return mimr, action_taken, perf_improvement, current_perf, elaps_time
+    cumulative_mr = redis_db.hget(hash_name, 'cumulative_mr')
+    return mimr, action_taken, perf_improvement, current_perf, elaps_time, cumulative_mr
 
 '''
 This index is a mapping of a particular service (which is assumed to be
