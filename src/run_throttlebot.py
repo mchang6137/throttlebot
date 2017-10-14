@@ -308,6 +308,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     vm_to_stress = system_config['stress_these_machines']
     machine_type = system_config['machine_type']
     quilt_overhead = system_config['quilt_overhead']
+    gradient_mode = system_config['gradient_mode']
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -341,15 +342,25 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
-    # Run the baseline experiment
-    baseline_performance = measure_baseline(workload_config, baseline_trials)
-    # baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    
+    # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
+    current_performance = measure_baseline(workload_config, baseline_trials)
+    current_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
-    print 'Baseline performance measured: {}'.format(baseline_performance)
-    tbot_datastore.write_summary_redis(redis_db, 0, MR('initial', 'initial', []), 0, {},
-                                       mean_list(baseline_performance[preferred_performance_metric]),time_delta.seconds,
+    
+    print 'Current (non-analytic) performance measured: {}'.format(current_performance)
+
+    tbot_datastore.write_summary_redis(redis_db,
+                                       0,
+                                       MR('initial', 'initial', []),
+                                       0,
+                                       {},
+                                       mean_list(baseline_performance[current_performance_metric]),
+                                       mean_list(baseline_performance[current_performance_metric]),
+                                       time_delta.seconds,
                                        0)
+
     
     print '============================================'
     print '\n' * 2
@@ -361,25 +372,40 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     cumulative_mr_count = 0
 
     experiment_count = 1
-    while experiment_count < 5:
+
+    while experiment_count < 10:
+        # Calculate the analytic baseline that is used to determine MRs
+        analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
+        for mr in analytic_provisions:
+            resource_modifier.set_mr_provision(mr, analytic_provisions[mr])
+
+        analytic_baseline = measure_runtime(workload_config, experiment_trials)
+        reverted_provision = revert_inverted_baseline(redis_db)
+        for mr in reverted_analytic_provisions:
+            resource_modifier.set_mr_provision(mr, reverted_provisions[mr])
+        
         # Get a list of MRs to stress in the form of a list of MRs
-        mr_to_stress = apply_filtering_policy(redis_db,
+        mr_to_consider = apply_filtering_policy(redis_db,
                                               mr_working_set,
                                               experiment_count,
                                               system_config,
                                               workload_config,
                                               filter_config)
 
-        for mr in mr_to_stress:
+        for mr in mr_to_consider:
             print '\n' * 2
             print '*' * 20
             print 'Current MR is {}'.format(mr.to_string())
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
+            
             for stress_weight in stress_weights:
-                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-                resource_modifier.set_mr_provision(mr, new_alloc)
+                # Calculate Gradient Schedule and provision resources accordingly
+                mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr], sys_config, stress_weight)
+                for change_mr in mr_gradient_schedule:
+                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr])
+                    
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
                 # Write results of experiment to Redis
@@ -388,9 +414,11 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 mean_result = mean_list(preferred_results)
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
-                # Remove the effect of the resource stressing
-                new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
-                resource_modifier.set_mr_provision(mr, new_alloc)
+                # Revert the Gradient schedule and provision resources accordingly
+                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db, [mr])
+                for change_mr in mr_revert_gradient_schedule:
+                    resource_modiier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr]
+                    
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
@@ -412,8 +440,11 @@ def run(system_config, workload_config, filter_config, default_mr_config):
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
-        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count, preferred_performance_metric, max_stress_weight, 
-                                                  optimize_for_lowest=optimize_for_lowest, num_results_returned=-1)
+        mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
+                                                  preferred_performance_metric,
+                                                  max_stress_weight, gradient_mode,
+                                                  optimize_for_lowest=optimize_for_lowest,
+                                                  num_results_returned=-1)
 
         imr_list, nimr_list = seperate_mr(mimr_list, mean_list(baseline_performance[preferred_performance_metric]), optimize_for_lowest)
         if len(imr_list) == 0:
@@ -544,6 +575,7 @@ def parse_config_file(config_file):
     sys_config['stress_policy'] = config.get('Basic', 'stress_policy')
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
+    sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
 
     # Configuration parameters relating to the filter step
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')
