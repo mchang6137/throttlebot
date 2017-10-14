@@ -58,7 +58,11 @@ def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_
 
 # Redis sets are ordered from lowest score to the highest score
 # A metric where lower is better would have get_lowest parameter set to True
-def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, optimize_for_lowest=True, num_results_returned=-1):
+def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, gradient_mode, optimize_for_lowest=True, num_results_returned=-1):
+    # Revert the optimality constraint for 'Inverted Gradient Mode' -- Ugly Hack.
+    if gradient_mode == 'inverted':
+        optimize_for_lowest = not optimize_for_lowest
+        
     sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
     print 'Recovering the MIMR from ', sorted_set_name
 
@@ -118,7 +122,7 @@ action_taken maps a MR to the amount that it was added to or removed from
 Currently assuming that there is only a single metric that a user would care about
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, analytic_perf, current_perf):
     action_taken_str = ''
     for mr in action_taken:
         action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
@@ -128,6 +132,7 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
     redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
+    redis_db.hset(hash_name, 'analytic_perf', analytic_perf)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -136,7 +141,8 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
     current_perf = redis_db.hget(hash_name, 'current_perf')
-    return mimr, action_taken, perf_improvement,current_perf
+    analytic_perf = redis_db.hget(hash_name, 'analytic_perf')
+    return mimr, action_taken, perf_improvement,analytic_perf,current_perf
 
 '''
 This index is a mapping of a particular service (which is assumed to be
