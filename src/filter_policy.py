@@ -6,6 +6,7 @@ import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
 
+from mr_gradient import *
 from run_experiment import *
 from weighting_conversions import *
 from mr import MR
@@ -57,25 +58,20 @@ def apply_pipeline_filter(redis_db,
     # No specified pipelined services indicates that each pipeline is a service
     if pipelined_services is None:
         pipelined_services = [mr.service_name for mr in mr_working_set]
-        print 'step 1: {}'.format(pipelined_services)
         pipelined_services = list(set(pipelined_services))
-        print 'step 2: {}'.format(pipelined_services)
-    else:
-        print 'not none'
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     for services in pipelined_services:
-        print 'Mr working set is {}'.format(mr_working_set)
-        print services
         mr_list = search_mr_working_set(mr_working_set, services)
-        
+        change_mr_schedule = calculate_mr_gradient_schedule(redis_db,
+                                                            mr_list,
+                                                            sys_config,
+                                                            stress_weight)
         # Simultaneously stress the MRs in a pipeline
-        for mr in mr_list:
-            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-            stress_alloc = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-            resource_modifier.set_mr_provision(mr, stress_alloc)
+        for mr in change_mr_schedule:
+            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
         exp_mean = mean_list(experiment_results[tbot_metric])
@@ -87,15 +83,18 @@ def apply_pipeline_filter(redis_db,
                                              exp_mean)
 
         # Revert the stressing
-        for mr in mr_list:
-            current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-            new_alloc = convert_percent_to_raw(mr, current_mr_allocation, 0)
-            resource_modifier.set_mr_provision(mr, new_alloc)
+        change_mr_schedule = revert_mr_gradient_schedule(redis_db,
+                                                         mr_list,
+                                                         sys_config,
+                                                         stress_weight)
+        for mr in change_mr_schedule:
+            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
 
     pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
                                                                     'pipeline',
                                                                     experiment_iteration,
                                                                     optimize_for_lowest)
+    
     print 'INFO: The current pipeline score list is here {}'.format(pipeline_score_list)
     service_names = []
     for pipeline_score in pipeline_score_list:

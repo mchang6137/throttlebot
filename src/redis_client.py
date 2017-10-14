@@ -99,17 +99,24 @@ def write_filtered_results(redis_db, filter_type, exp_iteration, repr_string, ex
 def get_top_n_filtered_results(redis_db,
                                filter_type,
                                exp_iteration,
+                               sys_config,
                                optimize_for_lowest=True,
                                num_results_returned=0):
+    if sys_config['gradient_mode'] == 'inverted': optimize_for_lowest = not optimize_for_lowest
+    
     sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration)
     print 'INFO: Recovering the bottlenecked pipeline...'
 
     # If improving performance means lowering the performance
     # increased performnace should be the MIMR
     if optimize_for_lowest is False:
-        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=False, withscores=True)
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0,
+                                              num_results_returned,
+                                              desc=False, withscores=True)
     else:
-        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=True, withscores=True)
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0,
+                                              num_results_returned,
+                                              desc=True, withscores=True)
 
     return pipeline_score_list
 
