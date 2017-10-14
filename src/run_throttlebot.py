@@ -231,6 +231,9 @@ def mean_list(l):
 def remove_outlier(l, n=1):
     n = 1
     no_outlier = [x for x in l if abs(x - np.mean(l)) < np.std(l) * n]
+    #hack 
+    if len(no_outlier) == 0:
+        return l
     return no_outlier
 
 # Update the resource consumption of a machine after an MIMR has been improved
@@ -319,7 +322,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     
     # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
     current_performance = measure_baseline(workload_config, baseline_trials)
-    current_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     print 'Current (non-analytic) performance measured: {}'.format(current_performance)
 
     tbot_datastore.write_summary_redis(redis_db,
@@ -327,8 +330,8 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                                             MR('initial', 'initial', []),
                                              0,
                                              {},
-                                             mean_list(baseline_performance[current_performance_metric]),
-                                             mean_list(baseline_performance[current_performance_metric]))
+                                             mean_list(current_performance[preferred_performance_metric]),
+                                             mean_list(current_performance[preferred_performance_metric]))
     
     print '============================================'
     print '\n' * 2
@@ -342,15 +345,19 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     while experiment_count < 10:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
+        print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
             resource_modifier.set_mr_provision(mr, analytic_provisions[mr])
         analytic_baseline = measure_runtime(workload_config, experiment_trials)
-        analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_performance[preferred_performance_metric])
+        analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
+        print 'The analytic baseline is {}'.format(analytic_baseline)
+        print 'This current performance is {}'.format(current_performance)
+        analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
 
         
         reverted_analytic_provisions = revert_inverted_baseline(redis_db)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_provisions[mr])
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr])
         
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_consider = apply_filtering_policy(redis_db,
@@ -386,7 +393,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                                                    mean_result, mr, stress_weight)
 
                 # Revert the Gradient schedule and provision resources accordingly
-                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db, [mr], stress_weight)
+                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db, [mr], sys_config, stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr])
                     
@@ -400,7 +407,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_provisions[mr])
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr])
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -561,6 +568,9 @@ def parse_config_file(config_file):
     workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
     workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
+    if sys_config['gradient_mode'] == 'inverted':
+        # kind of a hack. If we are doing the inverted stressing for gradient, we actually want to optimize for the most effective.
+        workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
     
     #Additional experiment-specific arguments
