@@ -4,8 +4,7 @@ Involves parsing the gradient_mode of the sys_config
 
 '''
 
-
-from weighting_converstions import *
+from weighting_conversions import *
 from mr import MR
 import redis_resource as resource_datastore
 
@@ -45,7 +44,7 @@ def prepare_analytic_baseline(redis_db, sys_config, stress_weight):
         # Single requires no special preparation of the resources
         return {}
     elif gradient_mode == 'inverted':
-        prepare_inverted_baseline(redis_db, stress_weight)
+        return prepare_inverted_baseline(redis_db, stress_weight)
     else:
         print 'Invalid Gradient Mode. Exiting...'
         exit()
@@ -55,11 +54,11 @@ Reverts the resource provisions for the analytic baseline
 (prepare_analytic_baseline does not use this so we do)
 '''
 def revert_analytic_baseline(redis_db, sys_config):
-    gradient_mode = sys_config(['gradient_mode'])
+    gradient_mode = sys_config['gradient_mode']
     if gradient_mode == 'single':
         return {}
     elif gradient_mode == 'inverted':
-        revert_inverted_baseline(redis_db)
+        return revert_inverted_baseline(redis_db)
     else:
         print 'Invalid gradient mode. Exiting...'
         exit()
@@ -72,18 +71,18 @@ def prepare_inverted_baseline(redis_db, stress_weight):
         current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         new_alloc = convert_percent_to_raw(mr, current_mr_alloc, stress_weight)
         mr_to_alloc[mr] = new_alloc
-    return all_mr_list
+    return mr_to_alloc
 
 # Reverts the changes in resource preparation
 # Leverages the fact that the original changes were not written to Redis
 def revert_inverted_baseline(redis_db):
     mr_to_alloc = {}
-    all_mr_list = resource_datastore.read_all_mrs(redis_db)
+    all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
         current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         new_alloc = convert_percent_to_raw(mr, current_mr_alloc, 0)
         mr_to_alloc[mr] = new_alloc
-    return_all_mr_list
+    return mr_to_alloc
     
 # Only schedule a single resource
 def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
@@ -116,6 +115,6 @@ def revert_inverted_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
     for mr in mr_candidates:
         original_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr_current_mr_alloc, stress_weight)
+        new_alloc = convert_percent_to_raw(mr, original_alloc, stress_weight)
         mr_to_alloc[mr] = new_alloc
     return mr_to_alloc
