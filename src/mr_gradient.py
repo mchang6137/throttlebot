@@ -27,7 +27,7 @@ def calculate_mr_gradient_schedule(redis_db, mr_candidates, sys_config, stress_w
         print 'Invalid Gradient Mode. Exiting...'
         exit()
 
-def revert_mr_gradient_schedule(redis_db, mr_candidates, sys_config):
+def revert_mr_gradient_schedule(redis_db, mr_candidates, sys_config, stress_weight):
     gradient_mode = sys_config['gradient_mode']
     if gradient_mode == 'single':
         return revert_single_gradient(redis_db, mr_candidates, stress_weight)
@@ -94,31 +94,28 @@ def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
         mr_to_alloc[mr_candidate] = new_alloc
     return mr_to_alloc
 
-def revert_single_gradient(redis_db, mr_candidates):
+def revert_single_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
     for mr_candidate in mr_candidates:
         original_mr_alloc = resource_datastore.read_mr_alloc(redis_db, 0)
         mr_to_alloc[mr_candidate] = original_mr_alloc
     return mr_to_alloc
         
-# Stress all resources besides the mr_candidate
+# Assumes the baseline stressing of other resources are already in place
 def schedule_inverted_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
-    all_mr_list = resource_datastore.get_all_mrs(redis_db)
-    for mr in all_mr_list:
-        if mr in mr_candidates:
-            continue
+    for mr in mr_candidates:
+        # Simulate ADDING a resource by reverting it to its original, non-stressed amount
+        # This is the amount recorded in Redis
         current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr, current_mr_alloc, stress_weight)
-        mr_to_alloc[mr] = new_alloc
+        mr_to_alloc[mr] = current_mr_alloc
     return mr_to_alloc
-            
-def revert_inverted_gradient(redis_db, mr_candidates):
+
+# Reverts the added resource to the remaining resources
+def revert_inverted_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
-    all_mr_list = resource_datastore.get_all_mrs(redis_db)
-    for mr in all_mr_list:
-        if mr in mr_candidates:
-            continue
+    for mr in mr_candidates:
         original_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        mr_to_alloc[mr] = original_alloc
+        new_alloc = convert_percent_to_raw(mr_current_mr_alloc, stress_weight)
+        mr_to_alloc[mr] = new_alloc
     return mr_to_alloc
