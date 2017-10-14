@@ -153,7 +153,7 @@ def fill_out_resource(redis_db, imr):
         debug_statement = 'For vm ip {}, capacity {}, consumption {}, diff {}\n'.format(vm_ip, capacity, consumption, diff)
         with open("fill_out_resource_debug.txt", "a") as myfile:
             myfile.write('imr is {}\n'.format(imr.resource))
-            myfile.write('current improvement proposal is {}\n').format(improvement_proposal)
+            myfile.write('current improvement proposal is {}\n'.format(improvement_proposal))
             myfile.write(debug_statement)
                          
     if improvement_proposal < 0:
@@ -269,9 +269,9 @@ def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
     net_improvement = 0
     for experiment_count in range(total_experiments):
-        mimr,action_taken,perf_improvement,current_perf, elapsed_time = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}, Elapsed Time = {}'\
-            .format(experiment_count, mimr, action_taken, perf_improvement,current_perf, elapsed_time)
+        mimr,action_taken,perf_improvement,current_perf, elapsed_time, cumulative_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}, Elapsed Time = {}, Cumulative MR = {}'\
+            .format(experiment_count, mimr, action_taken, perf_improvement,current_perf, elapsed_time, cumulative_mr)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
 
@@ -342,17 +342,13 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
     baseline_performance = measure_baseline(workload_config, baseline_trials)
-    baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    # baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
     print 'Baseline performance measured: {}'.format(baseline_performance)
-    tbot_datastore.write_summary_redis(redis_db,
-                                             0,
-                                            MR('initial', 'initial', []),
-                                             0,
-                                             {},
-                                             mean_list(baseline_performance[preferred_performance_metric]),
-                                             time_delta.seconds)
+    tbot_datastore.write_summary_redis(redis_db, 0, MR('initial', 'initial', []), 0, {},
+                                       mean_list(baseline_performance[preferred_performance_metric]),time_delta.seconds,
+                                       0)
     
     print '============================================'
     print '\n' * 2
@@ -361,6 +357,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+    cumulative_mr_count = 0
 
     experiment_count = 1
     while experiment_count < 5:
@@ -384,8 +381,9 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
-                #Write results of experiment to Redis
-                preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+                # Write results of experiment to Redis
+                # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+                preferred_results = experiment_results[preferred_performance_metric]
                 mean_result = mean_list(preferred_results)
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
@@ -399,8 +397,12 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             print '*' * 20
             print '\n' * 2
 
+        # Getting experiment time
         current_time_stop = datetime.datetime.now()
         time_delta = current_time_stop - time_start
+
+        # Incrementing cumulative MR count
+        cumulative_mr_count += len(mr_to_stress)
 
         # Save data in chart form
         tbot_datastore.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
@@ -475,20 +477,20 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                     capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
                     consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
                     print 'Machine {} Capacity is {}, and consumption is currently {}'.format(vm_ip, capacity, consumption)
-                
+
         if mimr is None:
             print 'No viable improvement found'
             break
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
-        improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
+        # improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
         improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
         baseline_mean = mean_list(baseline_performance[preferred_performance_metric])
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds)
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds, cumulative_mr_count)
         baseline_performance = improved_performance
 
         # Generating overall performance improvement
