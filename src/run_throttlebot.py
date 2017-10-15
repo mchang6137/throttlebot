@@ -30,6 +30,7 @@ import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
+import visualizer as chart_generator
 
 '''
 Initialization: 
@@ -153,7 +154,7 @@ def fill_out_resource(redis_db, imr):
         debug_statement = 'For vm ip {}, capacity {}, consumption {}, diff {}\n'.format(vm_ip, capacity, consumption, diff)
         with open("fill_out_resource_debug.txt", "a") as myfile:
             myfile.write('imr is {}\n'.format(imr.resource))
-            myfile.write('current improvement proposal is {}\n').format(improvement_proposal)
+            myfile.write('current improvement proposal is {}\n'.format(improvement_proposal))
             myfile.write(debug_statement)
                          
     if improvement_proposal < 0:
@@ -191,7 +192,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     vm_to_service = get_vm_to_service(get_actual_vms())
     
     for deployment in imr.instances:
-	vm_ip,container = deployment
+        vm_ip, container = deployment
         colocated_services = vm_to_service[vm_ip]
         if imr.service_name in colocated_services: colocated_services.remove(imr.service_name)
 
@@ -235,7 +236,7 @@ def mr_at_minimum(mr, proposed_weight_change):
     else:
         return False
 
-# Calculat ethe mean of a list
+# Calculate the mean of a list
 def mean_list(l):
     return sum(l) / float(len(l))
 
@@ -269,8 +270,9 @@ def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
     net_improvement = 0
     for experiment_count in range(total_experiments):
-        mimr,action_taken,perf_improvement,current_perf = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}'.format(experiment_count, mimr, action_taken, perf_improvement,current_perf)
+        mimr,action_taken,perf_improvement,current_perf, elapsed_time, cumulative_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Performance after improvement = {}, Elapsed Time = {}, Cumulative MR = {}'\
+            .format(experiment_count, mimr, action_taken, perf_improvement,current_perf, elapsed_time, cumulative_mr)
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
 
@@ -332,20 +334,22 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    #install_dependencies(workload_config)
+    install_dependencies(workload_config)
+
+    # Initialize time for data charts
+    time_start = datetime.datetime.now()
     
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
     # Run the baseline experiment
     baseline_performance = measure_baseline(workload_config, baseline_trials)
-    baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    # baseline_performance[preferred_performance_metric] = remove_outlier(baseline_performance[preferred_performance_metric])
+    current_time_stop = datetime.datetime.now()
+    time_delta = current_time_stop - time_start
     print 'Baseline performance measured: {}'.format(baseline_performance)
-    tbot_datastore.write_summary_redis(redis_db,
-                                             0,
-                                            MR('initial', 'initial', []),
-                                             0,
-                                             {},
-                                             mean_list(baseline_performance[preferred_performance_metric]))
+    tbot_datastore.write_summary_redis(redis_db, 0, MR('initial', 'initial', []), 0, {},
+                                       mean_list(baseline_performance[preferred_performance_metric]),time_delta.seconds,
+                                       0)
     
     print '============================================'
     print '\n' * 2
@@ -354,9 +358,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+    cumulative_mr_count = 0
 
     experiment_count = 1
-    while experiment_count < 10:
+    while experiment_count < 5:
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_stress = apply_filtering_policy(redis_db,
                                               mr_working_set,
@@ -377,8 +382,9 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 resource_modifier.set_mr_provision(mr, new_alloc)
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
-                #Write results of experiment to Redis
-                preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+                # Write results of experiment to Redis
+                # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+                preferred_results = experiment_results[preferred_performance_metric]
                 mean_result = mean_list(preferred_results)
                 tbot_datastore.write_redis_ranking(redis_db, experiment_count, preferred_performance_metric, mean_result, mr, stress_weight)
 
@@ -391,6 +397,18 @@ def run(system_config, workload_config, filter_config, default_mr_config):
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
             print '*' * 20
             print '\n' * 2
+
+        # Getting experiment time
+        current_time_stop = datetime.datetime.now()
+        time_delta = current_time_stop - time_start
+
+        # Incrementing cumulative MR count
+        cumulative_mr_count += len(mr_to_stress)
+
+        # Save data in chart form
+        chart_generator.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
+                                               experiment_count, stress_weights, preferred_performance_metric,
+                                               time_start)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -460,21 +478,24 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                     capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
                     consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
                     print 'Machine {} Capacity is {}, and consumption is currently {}'.format(vm_ip, capacity, consumption)
-                
+
         if mimr is None:
             print 'No viable improvement found'
             break
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
-        improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
+        # improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
         improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
         baseline_mean = mean_list(baseline_performance[preferred_performance_metric])
         performance_improvement = improved_mean - baseline_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean) 
+        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds, cumulative_mr_count)
         baseline_performance = improved_performance
+
+        # Generating overall performance improvement
+        chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
@@ -531,6 +552,9 @@ def parse_config_file(config_file):
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
+    # If filter_policy is none, will set to none
+    if filter_config['filter_policy'] == '':
+        filter_config['filter_policy'] = None
     # If pipeline_string is none, then each service is individually a pipeline
     if pipeline_string == '':
         filter_config['pipeline_services'] = None

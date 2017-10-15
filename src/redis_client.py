@@ -116,9 +116,10 @@ After each iteration of Throttlebot, write a summary, essentially a record of wh
 perf_gain should be the performance gain over the baseline
 action_taken maps a MR to the amount that it was added to or removed from
 Currently assuming that there is only a single metric that a user would care about
+Elapsed time is in seconds
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf, elaps_time, cumulative_mr):
     action_taken_str = ''
     for mr in action_taken:
         action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
@@ -128,6 +129,8 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
     redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
+    redis_db.hset(hash_name, 'elapsed_time', elaps_time)
+    redis_db.hset(hash_name, 'cumulative_mr', cumulative_mr)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -136,7 +139,9 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
     current_perf = redis_db.hget(hash_name, 'current_perf')
-    return mimr, action_taken, perf_improvement,current_perf
+    elaps_time = redis_db.hget(hash_name, 'elapsed_time')
+    cumulative_mr = redis_db.hget(hash_name, 'cumulative_mr')
+    return mimr, action_taken, perf_improvement, current_perf, elaps_time, cumulative_mr
 
 '''
 This index is a mapping of a particular service (which is assumed to be
