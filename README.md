@@ -28,6 +28,8 @@ stress_these_resources: The resources that are good to consider. Current options
 - stress_these_services: The names of the services you would want Throttlebot to stress. To stress all services,simply indicate *. Throttlebot will blacklist any non-application related services by default
 redis_host: The host where the Redis is located (Throttlebot uses Redis as it's data store)
 - stress_policy: The policy that is being used by Throttlebot to decide which containers to consider on each iteration. Note: the only policy implemented right now is 'ALL'
+- gradient_mode: This decides the gradient mode that is being used by Throttlebot. The two options \
+are 'single and 'inverted'.
 
 The "Workload" section describes several Workload specific parameters. Throttlebot will run the experiment in this manner on each iteration.
 
@@ -47,6 +49,21 @@ additional_args: The names of any additional arguments that would be used by thi
   - AMOUNT: The amount provisioned to the MR
   - REPR: This can be either RAW or PERCENT. RAW indicates the exact raw amount of resource being provisioned to the system, while PERCENT indicates the percent of the raw capacity of the machine. 
 There must be an entry for every MR present in the system
+
+3.) The "Filter" section describes Filter specific parameters that Throttlebot will use to prune the \
+search space. There is currently only a single filter_policy.
+- filter_policy: the type of filtering policy that you want. If there is no entry for the filter po\
+licy, then no filtering will be used.
+stress_amount: how much the resources that are being jointly stressed (i.e., the pipelines) are s\
+tressed.
+- filter_exp_trials: the number of trials you want to do for the filter policy
+pipeline_services: the services that should be stressed together. Separate the pipelines by comma\
+s, and the individual services within a pipeline by dashes. For example: "Sparkstreaming-haproxy-\
+mongo,nginx-redis". If you're too lazy to specify particular services to be in a pipeline, there \
+are defaults. The default options are as follows.
+    1.) BY_SERVICE will simply treat each service as a pipeline (i.e., stress all MRs that are part of each service).
+  2) RANDOM: This will create n groups of random partitions of MRs and stress those as MRs. n is set by pipeline_partitions
+- pipeline_partitions: see the pipeline_services option
 
 Once the configuration is set, ensure Redis is up and running, and then start Throttlebot with the following command.
 
