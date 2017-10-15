@@ -539,7 +539,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds, cumulative_mr_count)
-        baseline_performance = improved_performance
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
                                            performance_improvement, action_taken,
                                            analytic_mean, improved_mean,

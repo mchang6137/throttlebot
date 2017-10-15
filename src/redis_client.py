@@ -150,6 +150,7 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     analytic_perf = redis_db.hget(hash_name, 'analytic_perf')
     return mimr, action_taken, perf_improvement,analytic_perf, current_perf, elapsed_time, cumulative_mr
 
+
 '''
 This index is a mapping of a particular service (which is assumed to be
 constant for a run of Throttlebot to the (IP Address, docker container
