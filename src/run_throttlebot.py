@@ -442,7 +442,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         current_time_stop = datetime.datetime.now()
         time_delta = current_time_stop - time_start
         cumulative_mr_count += len(mr_to_stress)
-        chart_generator.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
+        chart_generator.get_summary_mimr_charts(redis_db, workload_config, current_performance, mr_working_set,
                                                experiment_count, stress_weights, preferred_performance_metric,
                                                time_start)
         
@@ -538,15 +538,13 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         performance_improvement = improved_mean - previous_mean
         
         # Write a summary of the experiment's iterations to Redis
-<<<<<<< 3c4ba6a59f06dfd9b097832ea4d9ff6c61e2b931
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds, cumulative_mr_count)
         baseline_performance = improved_performance
-=======
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
                                            performance_improvement, action_taken,
-                                           analytic_mean, improved_mean) 
+                                           analytic_mean, improved_mean,
+                                           time_delta.seconds, cumulative_mr_count) 
         current_performance = improved_performance
->>>>>>> record and compare against the corre baseline
 
         # Generating overall performance improvement
         chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
