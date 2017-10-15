@@ -386,11 +386,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         print 'The analytic baseline is {}'.format(analytic_baseline)
         print 'This current performance is {}'.format(current_performance)
         analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
-
-        
-        reverted_analytic_provisions = revert_inverted_baseline(redis_db)
-        for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr])
         
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_consider = apply_filtering_policy(redis_db,
@@ -427,7 +422,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                                                    mean_result, mr, stress_weight)
 
                 # Revert the Gradient schedule and provision resources accordingly
-                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db, [mr], sys_config, stress_weight)
+                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                          [mr],
+                                                                          sys_config,
+                                                                          stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr])
                     
@@ -442,9 +440,10 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         current_time_stop = datetime.datetime.now()
         time_delta = current_time_stop - time_start
         cumulative_mr_count += len(mr_to_consider)
-        chart_generator.get_summary_mimr_charts(redis_db, workload_config, current_performance, mr_working_set,
-                                               experiment_count, stress_weights, preferred_performance_metric,
-                                               time_start)
+        chart_generator.get_summary_mimr_charts(redis_db, workload_config,
+                                                current_performance, mr_working_set,
+                                                experiment_count, stress_weights,
+                                                preferred_performance_metric, time_start)
         
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
