@@ -30,6 +30,7 @@ import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
+import visualizer as chart_generator
 
 '''
 Initialization: 
@@ -405,7 +406,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         cumulative_mr_count += len(mr_to_stress)
 
         # Save data in chart form
-        tbot_datastore.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
+        chart_generator.get_summary_mimr_charts(redis_db, workload_config, baseline_performance, mr_working_set,
                                                experiment_count, stress_weights, preferred_performance_metric,
                                                time_start)
 
@@ -494,7 +495,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         baseline_performance = improved_performance
 
         # Generating overall performance improvement
-        tbot_datastore.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
+        chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Results from iteration {} are {}'.format(experiment_count, results)
