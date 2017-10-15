@@ -79,9 +79,9 @@ def write_mr_working_set(redis_db, mr_to_add, iteration):
 
 # Reads all the MRs in the working set
 def read_mr_working_set(redis_db, iteration):
-    list_name = generate_working_set_key(redis_db, iteration)
+    list_name = get_working_set_key(redis_db, iteration)
     mr_str_list = redis_db.lrange(list_name, 0, -1)
-    return mr_str_to_obj(redis_db, mr_list)
+    return mr_str_to_obj(redis_db, mr_str_list)
 
 '''
 Machine Consumption index maps a particular VM (identified by IP address) to 

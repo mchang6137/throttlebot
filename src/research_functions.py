@@ -26,6 +26,7 @@ def reset_resources():
 
     print 'All MRs reset'
 
+# INCOMPLETE
 # Must set preferred performance index
 def plot_cumm_mr(redis_db, num_iterations, workload_config, filter_config):
     mr_count = 0
@@ -33,31 +34,32 @@ def plot_cumm_mr(redis_db, num_iterations, workload_config, filter_config):
     all_mrs = get_all_mrs(redis_db)
 
     mr_to_performance = {}
-    
+
     for exp_index in range(num_iterations):
         current_performance = tbot_datastore.read_summary_redis(redis_db, exp_index)
         # Count the number of MRs considered the filtering process
         # Just doing this manually because Michael be lazy.
 	if filter_config['filter_policy'] == 'pipeline':
-            mr_to_performance[mr_count] = current_performance
-      	    mr_count += 1
-	elif filter_config['filter_policy'] is None:
-            mr_count += 0
-        
+        mr_to_performance[mr_count] = current_performance
+        mr_count += 1
+    elif filter_config['filter_policy'] is None:
+        mr_count += 0
+
         # Count number of MRs considered in the standard approach
         for mr in all_mrs:
             metric = tbot_datastore.read_redis_result(redis_db, exp_index, mr, tbot_metric)
             if len(metric) != 0:
                 mr_to_performance[mr_count] = current_performance
                 mr_count += 1
-                
+
     # Plot results from mr_to_performance
     get_by_mr_performance_charts(workload_config, num_iterations, mr_to_performance)
-    
+
+# INCOMPLETE
 # Plot the results of the by MR performance
 def get_by_mr_performance_charts(workload_config, num_iterations, mr_to_performance):
     experiment_type = workload_config['type']
-    
+
     # Creating general performance chart
     chart_directory = 'results/graphs/mr/{}/'.format(workload_config['type'] + str(time_id))
 
