@@ -551,6 +551,7 @@ def parse_config_file(config_file):
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')
     if filter_config['filter_policy'] == '':
         filter_config['filter_policy'] = None
+    filter_config['pipeline_partitions'] = config.getint('Filter', 'pipeline_partitions')
     filter_config['stress_amount'] = config.getint('Filter', 'stress_amount')
     filter_config['filter_exp_trials'] = config.getint('Filter', 'filter_exp_trials')
     pipeline_string = config.get('Filter', 'pipeline_services')
@@ -612,7 +613,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
-        default_alloc_percentage = 50.0 / max_num_services
+        default_alloc_percentage = 70.0 / max_num_services
 
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
