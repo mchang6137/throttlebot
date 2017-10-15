@@ -96,7 +96,7 @@ def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
 def revert_single_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
     for mr_candidate in mr_candidates:
-        original_mr_alloc = resource_datastore.read_mr_alloc(redis_db, 0)
+        original_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr_candidate)
         mr_to_alloc[mr_candidate] = original_mr_alloc
     return mr_to_alloc
         

@@ -441,7 +441,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         # Timing Information for the purpose of experiments
         current_time_stop = datetime.datetime.now()
         time_delta = current_time_stop - time_start
-        cumulative_mr_count += len(mr_to_stress)
+        cumulative_mr_count += len(mr_to_consider)
         chart_generator.get_summary_mimr_charts(redis_db, workload_config, current_performance, mr_working_set,
                                                experiment_count, stress_weights, preferred_performance_metric,
                                                time_start)
@@ -514,7 +514,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
                 mimr = imr
                 break
             else:
-                print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(mr.to_string(), current_mr_allocation, new_alloc)
+                print 'Improvement Calculated: MR {} failed to improve from {}'.format(mr.to_string(), current_mr_allocation)
                 print 'This IMR cannot be improved. Printing some debugging before exiting...'
 
                 print 'Current MR allocation is {}'.format(current_imr_alloc)
@@ -538,7 +538,6 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         performance_improvement = improved_mean - previous_mean
         
         # Write a summary of the experiment's iterations to Redis
-        tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr, performance_improvement, action_taken, improved_mean, time_delta.seconds, cumulative_mr_count)
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
                                            performance_improvement, action_taken,
                                            analytic_mean, improved_mean,
