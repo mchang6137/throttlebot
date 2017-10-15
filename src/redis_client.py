@@ -58,7 +58,7 @@ def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_
 
 # Redis sets are ordered from lowest score to the highest score
 # A metric where lower is better would have get_lowest parameter set to True
-def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, optimize_for_lowest=True, num_results_returned=-1):
+def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, gradient_mode, optimize_for_lowest=True, num_results_returned=-1):
     sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
     print 'Recovering the MIMR from ', sorted_set_name
 
@@ -95,6 +95,7 @@ def write_filtered_results(redis_db, filter_type, exp_iteration, repr_string, ex
 def get_top_n_filtered_results(redis_db,
                                filter_type,
                                exp_iteration,
+                               sys_config,
                                optimize_for_lowest=True,
                                num_results_returned=0):
     sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration)
@@ -103,9 +104,13 @@ def get_top_n_filtered_results(redis_db,
     # If improving performance means lowering the performance
     # increased performnace should be the MIMR
     if optimize_for_lowest is False:
-        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=False, withscores=True)
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0,
+                                              num_results_returned,
+                                              desc=False, withscores=True)
     else:
-        pipeline_score_list = redis_db.zrange(sorted_set_name, 0, num_results_returned, desc=True, withscores=True)
+        pipeline_score_list = redis_db.zrange(sorted_set_name, 0,
+                                              num_results_returned,
+                                              desc=True, withscores=True)
 
     return pipeline_score_list
 
@@ -119,7 +124,7 @@ Currently assuming that there is only a single metric that a user would care abo
 Elapsed time is in seconds
 '''
 
-def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, current_perf, elaps_time, cumulative_mr):
+def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, action_taken, analytic_perf, current_perf, elapsed_time, cumm_mr):
     action_taken_str = ''
     for mr in action_taken:
         action_taken_str += 'MR {} changed by {},'.format(mr.to_string(), action_taken[mr])
@@ -129,8 +134,9 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'perf_improvement', perf_gain)
     redis_db.hset(hash_name, 'action_taken', action_taken_str)
     redis_db.hset(hash_name, 'current_perf', current_perf)
-    redis_db.hset(hash_name, 'elapsed_time', elaps_time)
-    redis_db.hset(hash_name, 'cumulative_mr', cumulative_mr)
+    redis_db.hset(hash_name, 'elapsed_time', elapsed_time)
+    redis_db.hset(hash_name, 'cumulative_mr', cumm_mr)
+    redis_db.hset(hash_name, 'analytic_perf', analytic_perf)
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -139,9 +145,11 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     perf_improvement = redis_db.hget(hash_name, 'perf_improvement')
     action_taken = redis_db.hget(hash_name, 'action_taken')
     current_perf = redis_db.hget(hash_name, 'current_perf')
-    elaps_time = redis_db.hget(hash_name, 'elapsed_time')
+    elapsed_time = redis_db.hget(hash_name, 'elapsed_time')
     cumulative_mr = redis_db.hget(hash_name, 'cumulative_mr')
-    return mimr, action_taken, perf_improvement, current_perf, elaps_time, cumulative_mr
+    analytic_perf = redis_db.hget(hash_name, 'analytic_perf')
+    return mimr, action_taken, perf_improvement,analytic_perf, current_perf, elapsed_time, cumulative_mr
+
 
 '''
 This index is a mapping of a particular service (which is assumed to be
