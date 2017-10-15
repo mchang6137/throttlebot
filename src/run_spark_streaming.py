@@ -30,6 +30,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         run_kafka_events(generator_instances)
         
         # Collect the results of the experiment
+        clean_files(generator_instances)
         results = collect_results(generator_instances)
 
         if results is None:
@@ -37,6 +38,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
             
             # One reason for this is that the results have not yet been collected.
             for x in range(3):
+                clean_files(generator_instances)
                 results = collect_results(generator_instances)
                 if results != None:
                     trial_count += 1
@@ -110,12 +112,13 @@ def collect_results(instances):
     return results
 
 def clean_files(instances):
-    send_events_ip,send_events_container = instances[0]
-    ssh_client = get_client(send_events_ip)
+    for instance in instances:
+        send_events_ip,send_events_container = instance
+        ssh_client = get_client(send_events_ip)
     
-    # Delete the latency.txt for safe-keeping
-    clean_file_cmd = 'bash -c "rm /streaming-benchmarks/data/latency.txt && rm -f /streaming-benchmarks/data/seen.txt && rm -f /streaming-benchmarks/data/updated.txt"'
-    run_cmd(clean_file_cmd, ssh_client, send_events_container, blocking=True, lein=False)
+        # Delete the latency.txt for safe-keeping
+        clean_file_cmd = 'bash -c "rm /streaming-benchmarks/data/latency.txt && rm -f /streaming-benchmarks/data/seen.txt && rm -f /streaming-benchmarks/data/updated.txt"'
+        run_cmd(clean_file_cmd, ssh_client, send_events_container, blocking=True, lein=False)
 
 # send_events_instances sends from instances in the list, where each instance is (vm_ip, container_id)
 def run_kafka_events(send_event_instances):
