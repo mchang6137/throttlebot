@@ -12,6 +12,8 @@ from run_experiment import *
 from weighting_conversions import *
 from mr import MR
 
+FILTER_LOGS = 'filter_logs.txt'
+
 '''
 Filter Policy descriptions
 pipeline: Stress all the resources being described in a pipeline
@@ -70,10 +72,12 @@ def apply_pipeline_filter(redis_db,
             mr_list = search_mr_working_set(mr_working_set, services)
             pipeline_groups.append(mr_list)
     elif pipelined_services[0][0] == 'RANDOM':
-        print 'Yes it is RANDOM'
         pipeline_groups = gen_mr_random_split(mr_working_set, pipeline_partitions)
 
-    print "the pipeline groups are {}".format(pipeline_groups)
+    print "The pipeline groups are being printed below: "
+    for pipeline_group in pipeline_groups:
+        pipeline_group = [mr.to_string() for mr in pipeline_group]
+        print 'A pipeline is {}'.format(pipeline_group)
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -104,14 +108,21 @@ def apply_pipeline_filter(redis_db,
         for mr in change_mr_schedule:
             resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
 
-    pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
+    all_pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
                                                                     'pipeline',
                                                                     experiment_iteration,
                                                                     optimize_for_lowest)
     
-    print 'INFO: The current pipeline score list is here {}'.format(pipeline_score_list)
+    print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
+    
+    # Temporarily just choose the most impacted pipeline
+    if optimize_for_lowest:
+        selected_pipeline_score_list = [all_pipeline_score_list[0]]
+    else:
+        selected_pipeline_score_list = [all_pipeline_score_list[-1]]
+    
     service_names = []
-    for pipeline_score in pipeline_score_list:
+    for pipeline_score in selected_pipeline_score_list:
         pipeline_repr,score = pipeline_score
         service_names.append(parse_pipeline_redis_repr(pipeline_repr))
 
@@ -119,6 +130,17 @@ def apply_pipeline_filter(redis_db,
     for mr in mr_working_set:
         if mr.service_name in service_names:
             local_working_set.append(mr)
+
+    # Log results of the filtering
+    print 'About to log to {}'.format(FILTER_LOGS)
+    with open(FILTER_LOGS, "a") as myfile:
+        for pipeline_group in pipeline_groups:
+	    pipeline_group = [mr.to_string() for mr in pipeline_group]
+            myfile.write('A pipeline is {}'.format(pipeline_group))
+	myfile.write('\n\n')
+        myfile.write('The current pipeline score list is here {}'.format(all_pipeline_score_list))
+        myfile.write('\n\n*' * 20)
+        myfile.write('\n\n')
 
     return local_working_set
 
