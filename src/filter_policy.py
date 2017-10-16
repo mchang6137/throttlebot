@@ -50,6 +50,9 @@ def apply_pipeline_filter(redis_db,
     print '*' * 20
     print 'INFO: Applying Filtering Pipeline'
 
+    print 'Filter config is {}'.format(filter_config)
+    print 'MR working set is {}'.format(mr_working_set)
+    
     machine_type = system_config['machine_type']
 
     pipeline_partitions = filter_config['pipeline_partitions']
@@ -58,15 +61,19 @@ def apply_pipeline_filter(redis_db,
     pipelined_services = filter_config['pipeline_services']
 
     pipeline_groups = []
-    
+
+    print 'Pipelined services are {}'.format(pipelined_services)
     # No specified pipelined services indicates that each pipeline is a service
-    if pipelined_services == 'BY_SERVICE':
+    if pipelined_services[0][0] == 'BY_SERVICE':
         service_names = list(set([mr.service_name for mr in mr_working_set]))
         for service_name in service_names:
             mr_list = search_mr_working_set(mr_working_set, services)
             pipeline_groups.append(mr_list)
-    elif pipelined_services == 'RANDOM':
-        pipeline_groups = gen_mr_random_split(mr_working_set, pipelined_partitions)
+    elif pipelined_services[0][0] == 'RANDOM':
+        print 'Yes it is RANDOM'
+        pipeline_groups = gen_mr_random_split(mr_working_set, pipeline_partitions)
+
+    print "the pipeline groups are {}".format(pipeline_groups)
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -74,7 +81,7 @@ def apply_pipeline_filter(redis_db,
     for pipeline in pipeline_groups:
         change_mr_schedule = calculate_mr_gradient_schedule(redis_db,
                                                             pipeline,
-                                                            sys_config,
+                                                            system_config,
                                                             stress_weight)
         # Simultaneously stress the MRs in a pipeline
         for mr in change_mr_schedule:
@@ -92,7 +99,7 @@ def apply_pipeline_filter(redis_db,
         # Revert the stressing
         change_mr_schedule = revert_mr_gradient_schedule(redis_db,
                                                          pipeline,
-                                                         sys_config,
+                                                         system_config,
                                                          stress_weight)
         for mr in change_mr_schedule:
             resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
@@ -120,9 +127,9 @@ def apply_pipeline_filter(redis_db,
 # Returns a list of MRs to stress
 def gen_mr_random_split(mr_working_set, splits):
     # Shuffle the working set
-    shuffled_working_set = random.shuffle(mr_working_set)
+    random.shuffle(mr_working_set)
     # Split the list evenly and return
-    return split_list_evenly(shuffled_working_set, splits)
+    return split_list_evenly(mr_working_set, splits)
 
 def split_list_evenly(mr_working_set, splits):
     avg = len(mr_working_set) / float(splits)
@@ -130,7 +137,7 @@ def split_list_evenly(mr_working_set, splits):
     last = 0.0
 
     while last < len(mr_working_set):
-        out.append(seq[int(last):int(last + avg)])
+        out.append(mr_working_set[int(last):int(last + avg)])
         last += avg
 
     return out
