@@ -309,18 +309,18 @@ workload_config: Parameters about the workload in a dict
 default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(system_config, workload_config, filter_config, default_mr_config):
-    redis_host = system_config['redis_host']
-    baseline_trials = system_config['baseline_trials']
-    experiment_trials = system_config['trials']
-    stress_weights = system_config['stress_weights']
-    stress_policy = system_config['stress_policy']
-    resource_to_stress = system_config['stress_these_resources']
-    service_to_stress = system_config['stress_these_services']
-    vm_to_stress = system_config['stress_these_machines']
-    machine_type = system_config['machine_type']
-    quilt_overhead = system_config['quilt_overhead']
-    gradient_mode = system_config['gradient_mode']
+def run(sys_config, workload_config, filter_config, default_mr_config):
+    redis_host = sys_config['redis_host']
+    baseline_trials = sys_config['baseline_trials']
+    experiment_trials = sys_config['trials']
+    stress_weights = sys_config['stress_weights']
+    stress_policy = sys_config['stress_policy']
+    resource_to_stress = sys_config['stress_these_resources']
+    service_to_stress = sys_config['stress_these_services']
+    vm_to_stress = sys_config['stress_these_machines']
+    machine_type = sys_config['machine_type']
+    quilt_overhead = sys_config['quilt_overhead']
+    gradient_mode = sys_config['gradient_mode']
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -403,7 +403,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
         mr_to_consider = apply_filtering_policy(redis_db,
                                               mr_working_set,
                                               experiment_count,
-                                              system_config,
+                                              sys_config,
                                               workload_config,
                                               filter_config)
 
