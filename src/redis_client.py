@@ -97,7 +97,7 @@ def get_top_n_filtered_results(redis_db,
                                exp_iteration,
                                sys_config,
                                optimize_for_lowest=True,
-                               num_results_returned=0):
+                               num_results_returned=-1):
     sorted_set_name = generate_ordered_filter_key(filter_type, exp_iteration)
     print 'INFO: Recovering the bottlenecked pipeline...'
 
