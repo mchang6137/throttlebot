@@ -276,8 +276,17 @@ def print_all_steps(redis_db, total_experiments):
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
+
+        # Append results to log file
+        with open("experiment_logs.txt", "a") as myfile:
+            log_msg = '{},{}\n'.format(experiment_count, mimr)
+            myfile.write(log_msg)
+            
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
+
+    with open("experiment_logs.txt", "a") as myfile:
+        myfile.write('net_improvement,{}\n'.format(net_improvement))
 
 # Writes a CSV that can be re-fed into Throttlebot as a configuration
 def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
@@ -317,6 +326,8 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
+    redis_db.flushall()
+    '''
     # Prompt the user to make sure they want to flush the db
     ok_to_flush = raw_input("Are you sure you want to flush the results of your last experiment? Please respond with Y or N: ")
     if ok_to_flush == 'Y':
@@ -327,6 +338,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     else:
         print 'Only Y and N are acceptable responses. Exiting...'
         exit()
+    '''
 
     print '\n' * 2
     print '*' * 20
@@ -338,7 +350,7 @@ def run(system_config, workload_config, filter_config, default_mr_config):
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    install_dependencies(workload_config)
+    #install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
