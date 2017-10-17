@@ -15,7 +15,7 @@ from random import shuffle
 from time import sleep
 
 from collections import namedtuple
-
+from collections import Counter 
 from mr_gradient import *
 from stress_analyzer import *
 from weighting_conversions import *
@@ -131,13 +131,26 @@ def measure_baseline(workload_config, baseline_trials=10):
 def check_improve_mr_viability(redis_db, mr, improvement_amount):
     print 'Checking MR viability'
 
+    # Determines how many containers are on the instance
+    vm_occupancy = []
+    for instance in mr.instances:
+        vm_ip,container_id = instance
+        vm_occupancy.append(vm_ip)
+    vm_appearances = Counter(vm_occupancy).most_common(len(vm_occupancy))
+
+    improvement_multiplier = {}
+    for vm_count in vm_appearances:
+        vm_ip, count = vm_count
+        improvement_multiplier[vm_ip] = count
+
     # Check if available space on machines being tested
     for instance in mr.instances:
         vm_ip,container_id = instance
         machine_consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
         machine_capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
 
-        if machine_consumption[mr.resource] + improvement_amount > machine_capacity[mr.resource]:
+        proposed_alloc = machine_consumption[mr.resource] + (improvement_multiplier[vm_ip] * improvement_amount)
+        if proposed_alloc > machine_capacity[mr.resource]:
             return False
     return True
 
