@@ -125,24 +125,29 @@ def measure_baseline(workload_config, baseline_trials=10):
     baseline_runtime_array = measure_runtime(workload_config, baseline_trials)
     return baseline_runtime_array
 
-# Checks if the current system can support improvements in a particular MR
-# Improvement amount is the raw amount a resource is being improved by
-# Always leave 10% of system resources available for Quilt
-def check_improve_mr_viability(redis_db, mr, improvement_amount):
-    print 'Checking MR viability'
-
-    # Determines how many containers are on the instance
+# Gets the number of containers matching the service in the MR on a particular VM
+def containers_per_vm(mr):
     vm_occupancy = []
     for instance in mr.instances:
         vm_ip,container_id = instance
         vm_occupancy.append(vm_ip)
     vm_appearances = Counter(vm_occupancy).most_common(len(vm_occupancy))
-
+        
     improvement_multiplier = {}
     for vm_count in vm_appearances:
         vm_ip, count = vm_count
         improvement_multiplier[vm_ip] = count
 
+    return improvement_multiplier
+
+# Checks if the current system can support improvements in a particular MR
+# Improvement amount is the raw amount a resource is being improved by
+# Always leave 10% of system resources available for Quilt
+def check_improve_mr_viability(redis_db, mr, improvement_amount):
+    print 'Checking MR viability'
+    improvement_multiplier = containers_per_vm(mr)
+    print 'The containers for this mr per vm are {}'.format(improvement_multiplier)
+    
     # Check if available space on machines being tested
     for instance in mr.instances:
         vm_ip,container_id = instance
@@ -158,11 +163,15 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 # Returns the amount to increase the MR by
 def fill_out_resource(redis_db, imr):
     improvement_proposal = float('inf')
+    improvement_multiplier = containers_per_vm(imr)
+    
     for instance in imr.instances:
         vm_ip,container = instance
         consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
         capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
         diff = capacity[imr.resource] - consumption[imr.resource]
+        # Divide diff by the number of containers of that services on that machine
+        diff = diff / float(improvement_multiplier[vm_ip])
         if diff < improvement_proposal: improvement_proposal = diff
 
         debug_statement = 'For vm ip {}, capacity {}, consumption {}, diff {}\n'.format(vm_ip, capacity, consumption, diff)
@@ -204,11 +213,17 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     # Ensure that every deployment has at least one service losing a machine
     vm_to_nimr = {}
     vm_to_service = get_vm_to_service(get_actual_vms())
-    
+
+    # Identify an unique list of relevant NIMRs colocated with IMR instances
     for deployment in imr.instances:
         vm_ip, container = deployment
+        if vm_ip in vm_to_nimr:
+            continue
+        
         colocated_services = vm_to_service[vm_ip]
         if imr.service_name in colocated_services: colocated_services.remove(imr.service_name)
+        # Remove Duplicates
+        colocated_services = list(set(colocated_services))
 
         vm_to_nimr[vm_ip] = []
         for colocated_service in colocated_services:
@@ -230,16 +245,23 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
             return {}, 0
         total_removal_amount = 0
         for nimr in vm_to_nimr[vm_ip]:
+            reduction_multiplier = containers_per_vm(nimr)
+            
             nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
             new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
-            alloc_diff = nimr_alloc - new_alloc
+            # Multiply by reduction multiplier since you have multiple NIMR instances
+            alloc_diff = (nimr_alloc - new_alloc) * reduction_multiplier[vm_ip]
             new_mr_alloc[nimr] = alloc_diff
             total_removal_amount += alloc_diff
         if total_removal_amount < min_mr_removal: min_mr_removal = total_removal_amount
 
+    # Divide the min mr removal amount among the instances on the machine
+    improvement_multiplier = container_per_vm(imr)
+    proposed_imr_improvement = float(min_mr_removal) / improvement_multiplier[0][1]
     print 'New MR alloc {}'.format(new_mr_alloc)
     print 'Minimum MR Removal {}'.format(min_mr_removal)
-    return new_mr_alloc, min_mr_removal
+
+    return new_mr_alloc, proposed_imr_improvement
 
 # Determine if mr still has an interval to decrease it to
 def mr_at_minimum(mr, proposed_weight_change):
