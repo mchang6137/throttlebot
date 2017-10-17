@@ -109,6 +109,8 @@ def apply_pipeline_filter(redis_db,
         for mr in change_mr_schedule:
             resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
 
+        pipeline_index += 1
+
     all_pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
                                                                         'pipeline',
                                                                         experiment_iteration,
