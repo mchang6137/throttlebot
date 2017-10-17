@@ -82,6 +82,7 @@ def apply_pipeline_filter(redis_db,
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
+    pipeline_index = 0
     for pipeline in pipeline_groups:
         change_mr_schedule = calculate_mr_gradient_schedule(redis_db,
                                                             pipeline,
@@ -93,12 +94,12 @@ def apply_pipeline_filter(redis_db,
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
         exp_mean = mean_list(experiment_results[tbot_metric])
-        repr_str = gen_pipeline_redis_repr(pipeline)
+        repr_str = str(pipeline_index)
         tbot_datastore.write_filtered_results(redis_db,
                                               'pipeline',
-                                             experiment_iteration,
-                                             repr_str,
-                                             exp_mean)
+                                              experiment_iteration,
+                                              repr_str,
+                                              exp_mean)
 
         # Revert the stressing
         change_mr_schedule = revert_mr_gradient_schedule(redis_db,
@@ -109,9 +110,9 @@ def apply_pipeline_filter(redis_db,
             resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
 
     all_pipeline_score_list = tbot_datastore.get_top_n_filtered_results(redis_db,
-                                                                    'pipeline',
-                                                                    experiment_iteration,
-                                                                    optimize_for_lowest)
+                                                                        'pipeline',
+                                                                        experiment_iteration,
+                                                                        optimize_for_lowest)
     
     print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
     
@@ -120,29 +121,25 @@ def apply_pipeline_filter(redis_db,
         selected_pipeline_score_list = [all_pipeline_score_list[0]]
     else:
         selected_pipeline_score_list = [all_pipeline_score_list[-1]]
-    
-    service_names = []
+
+    # MIP = Most Impacted Pipeline
+    mip = []
     for pipeline_score in selected_pipeline_score_list:
         pipeline_repr,score = pipeline_score
-        service_names.append(parse_pipeline_redis_repr(pipeline_repr))
-
-    local_working_set = []
-    for mr in mr_working_set:
-        if mr.service_name in service_names:
-            local_working_set.append(mr)
+        mip += pipeline_groups[int(pipeline_repr)]
+    print mip
 
     # Log results of the filtering
     print 'About to log to {}'.format(FILTER_LOGS)
     with open(FILTER_LOGS, "a") as myfile:
-        for pipeline_group in pipeline_groups:
-	    pipeline_group = [mr.to_string() for mr in pipeline_group]
-            myfile.write('A pipeline is {}'.format(pipeline_group))
-	myfile.write('\n\n')
-        myfile.write('The current pipeline score list is here {}'.format(all_pipeline_score_list))
-        myfile.write('\n\n*' * 20)
-        myfile.write('\n\n')
-
-    return local_working_set
+        # First output the result
+        filter_str = '{},'.format(experiment_iteration)
+        for mr in mip:
+            filter_str += '{},'.format(mr.to_string())
+        filter_str += '\n\n'
+        myfile.write(filter_str)
+        
+    return mip
 
 # Find a random partition of MRs from the working set
 # Splits describes the number of partitions that you are seeking to split into
