@@ -315,7 +315,7 @@ def print_all_steps(redis_db, total_experiments):
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
-            log_msg = '{},{}\n'.format(experiment_count, mimr)
+            log_msg = '{},{},{}\n'.format(experiment_count, mimr,action_taken)
             myfile.write(log_msg)
             
         net_improvement += float(perf_improvement)
@@ -536,7 +536,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 print 'INFO: Attempting to max out the machines resources...'
                 imr_improvement_proposal = fill_out_resource(redis_db, imr)
 
-                if imr_improvement_proposal <= 1:
+                if imr_improvement_proposal <= 0:
                     print 'INFO: Proposed MR improvement is not viable. Attempting to decrease NIMR'
                     # Calculate a plan to reduce the resource provisioning of NIMRs
                     nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
