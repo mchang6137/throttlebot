@@ -96,7 +96,7 @@ def finalize_mr_provision(redis_db, mr, new_alloc):
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
-def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.001):
+def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
     imr_list = []
     nimr_list = []
     
@@ -542,7 +542,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config):
                                                                                                 max_stress_weight)
                     print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
                     print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
+                    
                     if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
+                        action_taken[imr] = 0
                         continue
 
             # Decrease the amount of resources provisioned to the NIMR
@@ -560,6 +562,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config):
                 mimr = imr
                 break
             else:
+                action_taken[imr] = 0
                 print 'Improvement Calculated: MR {} failed to improve from {}'.format(mr.to_string(), current_mr_allocation)
                 print 'This IMR cannot be improved. Printing some debugging before exiting...'
 
