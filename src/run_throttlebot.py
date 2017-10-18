@@ -345,7 +345,7 @@ workload_config: Parameters about the workload in a dict
 default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(sys_config, workload_config, filter_config, default_mr_config):
+def run(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0):
     redis_host = sys_config['redis_host']
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
@@ -362,7 +362,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config):
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
-    redis_db.flushall()
+    if last_completed_iter == 0:
+        redis_db.flushall()
+        
     '''
     # Prompt the user to make sure they want to flush the db
     ok_to_flush = raw_input("Are you sure you want to flush the results of your last experiment? Please respond with Y or N: ")
@@ -403,15 +405,16 @@ def run(sys_config, workload_config, filter_config, default_mr_config):
     
     print 'Current (non-analytic) performance measured: {}'.format(current_performance)
 
-    tbot_datastore.write_summary_redis(redis_db,
-                                             0,
-                                            MR('initial', 'initial', []),
-                                             0,
-                                             {},
-                                             mean_list(current_performance[preferred_performance_metric]),
-                                             mean_list(current_performance[preferred_performance_metric]),
-                                             time_delta.seconds, 0)
-    
+    if last_completed_iter != 0:
+        tbot_datastore.write_summary_redis(redis_db,
+                                           0,
+                                           MR('initial', 'initial', []),
+                                           0,
+                                           {},
+                                           mean_list(current_performance[preferred_performance_metric]),
+                                           mean_list(current_performance[preferred_performance_metric]),
+                                           time_delta.seconds, 0)
+        
     print '============================================'
     print '\n' * 2
 
@@ -420,8 +423,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config):
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
-
-    experiment_count = 1
+    experiment_count = last_completed_iter + 1
 
     while experiment_count < 10:
         # Calculate the analytic baseline that is used to determine MRs
@@ -818,6 +820,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
+    parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
     args = parser.parse_args()
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
@@ -831,5 +834,5 @@ if __name__ == "__main__":
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
 
-    run(sys_config, workload_config, filter_config, mr_allocation)
+    run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 
