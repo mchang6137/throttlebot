@@ -257,9 +257,10 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
 
     # Divide the min mr removal amount among the instances on the machine
     improvement_multiplier = containers_per_vm(imr)
-    proposed_imr_improvement = float(min_mr_removal) / improvement_multiplier[0][1]
+    max_multiplier = max(improvement_multiplier.values())
+    proposed_imr_improvement = float(min_mr_removal) / max_multiplier
     print 'New MR alloc {}'.format(new_mr_alloc)
-    print 'Minimum MR Removal {}'.format(min_mr_removal)
+    print 'Minimum MR Removal {}'.format(proposed_imr_improvement)
 
     return new_mr_alloc, proposed_imr_improvement
 
