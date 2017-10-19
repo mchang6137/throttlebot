@@ -202,15 +202,18 @@ def reset_container_blkio(ssh_client, container_id):
 ''' Configuring swap space as well'''
 # Units are in MB
 def set_memory_size(ssh_client, container_id, memory_alloc):
-    # Configure 2x swap memory
-    swap_memory = 2 * memory_alloc
     # Ensure that there is sufficient memory
     current_memory_util = get_current_memory_utilization(ssh_client, container_id)
     if memory_alloc <= current_memory_util:
         memory_alloc = 1.1 * current_memory_util
-        
-    set_memory_command = 'docker update --memory={}M --memory-swap {} {}'.format(memory_alloc,
-                                                                                 swap_memory,
+
+    # Configure 2x swap memory
+    swap_memory = 2 * memory_alloc
+
+    mem_str =  "%.2f" % (memory_alloc)
+    swap_str = "%.2f" % (swap_memory)
+    set_memory_command = 'docker update --memory={}b --memory-swap={}b {}'.format(mem_str,
+                                                                                 swap_str,
                                                                                  container_id)
         
     ssh_exec(ssh_client, set_memory_command)

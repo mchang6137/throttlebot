@@ -47,7 +47,7 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
         'c3.2xlarge':  {'CPU-CORE': 4,  'DISK': 0,   'NET': 0,    'MEMORY': 15,   'STORAGE': '2 x 80 SSD'},
         'c3.4xlarge':  {'CPU-CORE': 8,  'DISK': 0,   'NET': 0,    'MEMORY': 30,   'STORAGE': '2 x 160 SSD'},
         'c3.8xlarge':  {'CPU-CORE': 16, 'DISK': 0,   'NET': 0,    'MEMORY': 60,   'STORAGE': '2 x 320 SSD'},
-        'c4.large':    {'CPU-CORE': 2,  'DISK': 80,  'NET': 500,  'MEMORY': 3.75, 'STORAGE': 'ebsonly'},
+        'c4.large':    {'CPU-CORE': 2,  'DISK': 80,  'NET': 500,  'MEMORY': 3750000000, 'STORAGE': 'ebsonly'},
         'c4.xlarge':   {'CPU-CORE': 4,  'DISK': 119, 'NET': 1500,  'MEMORY': 7.5,  'STORAGE': 'ebsonly'},
         'c4.2xlarge':  {'CPU-CORE': 8,  'DISK': 158, 'NET': 1500, 'MEMORY': 15,   'STORAGE': 'ebsonly'},
         'c4.4xlarge':  {'CPU-CORE': 16, 'DISK': 174, 'NET': 2000, 'MEMORY': 30,   'STORAGE': 'ebsonly'},
