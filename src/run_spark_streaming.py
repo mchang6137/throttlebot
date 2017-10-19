@@ -22,7 +22,8 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     all_requests['window_latency_std'] = []
     all_requests['total_results'] = []
 
-    trial_count = 0 
+    trial_count = 0
+    failed_attempts = 0
     # Initialize the Spark Streaming Job
     while trial_count < experiment_iterations:
         flush_kafka_queues(kafka_instances)
@@ -35,9 +36,10 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         results = collect_results(generator_instances)
 
         if results is None:
+            failed_attempts += 1
             print 'Result is none... retrying experiment'
             
-            # One reason for this is that the results have not yet been collected.
+            # Try collecting a few times
             for x in range(3):
                 clean_files(generator_instances)
                 results = collect_results(generator_instances)
@@ -47,8 +49,10 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         else:
             trial_count += 1
 
-        # If results are still none, continue
         if results is None:
+            if failed_attempts > 3:
+                all_reset(kafka_instances)
+                failed_attempts = 0
             continue
 
         clean_files(generator_instances)
@@ -61,6 +65,15 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     delete_spark_logs(spark_master_instances, spark_worker_instances)
 
     return all_requests
+
+# Need this when the requests get too misaligned
+def all_reset(kafka_instances):
+    # Flush Queus
+    flush_kafka_queues(kafka_instances)
+
+    # Wait 5 minutes to allow for catching up
+    time.sleep(300)
+    
 
 def flush_kafka_queues(kafka_instances):
     for kafka_instance in kafka_instances:
@@ -160,7 +173,7 @@ def run_kafka_events(send_event_instances):
         run_cmd(send_event_cmd, ssh_client, container_id, blocking=False, lein=True)
         ssh_client.close()
 
-    time.sleep(SENDING_TIME)
+    time.sleep(SENDING_TIME + 20)
 
 def flush_redis(redis_instances):
     for redis_instance in redis_instances:
