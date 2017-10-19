@@ -11,6 +11,7 @@ from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
+from get_utilization import *
 
 
 quilt_machines = ("quilt", "ps")
@@ -80,8 +81,6 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth_Kbps):
     docker_policing_cmd = "docker exec ovs-vswitchd {}".format(ovs_policy_cmd)
     docker_burst_cmd = "docker exec ovs-vswitchd {}".format(ovs_burst_cmd)
 
-    print docker_policing_cmd
-
     #Should be no output if throttling is applied correctly
     _,_,err_val_rate = ssh_client.exec_command(docker_policing_cmd)
     _,_,err_val_burst = ssh_client.exec_command(docker_burst_cmd)
@@ -90,7 +89,6 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth_Kbps):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Network stress of container id {} stressed to {} Kbps'.format(container_id, bandwidth_Kbps)
         return 1
 
 def reset_egress_network_bandwidth(ssh_client, container_id):
@@ -106,7 +104,6 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
         print 'ERROR MESSAGE: {}'.format(err_val_rate)
         raise SystemError('Network Set Error')
     else:
-        print 'SUCCESS: Network stress of container id {} removed'.format(container_id)
         return 1
 
 # Unused
@@ -139,13 +136,9 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
     cpu_quota = int((cpu_quota_percent/100.0) * cpu_period)
     #cpu_quota *= get_num_cores(ssh_client)
 
-    print 'Adjusted CPU period: {}'.format(cpu_period)
-    print 'CPU Quota: {}'.format(cpu_quota)
-
     throttled_containers = []
     
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
-    print update_command
     ssh_exec(ssh_client, update_command)
     throttled_containers.append(container_id)
 
@@ -154,8 +147,6 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
 def reset_cpu_quota(ssh_client, container_id):
     # Reset only seems to work when both period and quota are high (and equal of course)
     update_command = 'docker update --cpu-quota=-1 {}'.format(container_id)
-    print 'reset_cpu_quota'
-    print update_command
     ssh_exec(ssh_client, update_command)
 
 
@@ -188,9 +179,6 @@ def set_container_blkio(ssh_client, container_id, disk_bandwidth):
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
-    print set_cgroup_write_rate_cmd
-    print set_cgroup_read_rate_cmd
-
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
 
@@ -204,25 +192,31 @@ def reset_container_blkio(ssh_client, container_id):
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(0, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(0, container_id)
 
-    print set_cgroup_write_rate_cmd
-    print set_cgroup_read_rate_cmd
-    
     ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
     ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
     
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
 
-'''Stressing the Memory Size'''
+''' Stressing the Memory Size '''
+''' Configuring swap space as well'''
 # Units are in MB
-def set_memory_size(ssh_client, container_id, memory):
-    set_memory_command = 'docker update --memory={}M {}'.format(memory, container_id)
-    print set_memory_command
+def set_memory_size(ssh_client, container_id, memory_alloc):
+    # Configure 2x swap memory
+    swap_memory = 2 * memory_alloc
+    # Ensure that there is sufficient memory
+    current_memory_util = get_current_memory_utilization(ssh_client, container_id)
+    if memory_alloc <= current_memory_util:
+        memory_alloc = 1.1 * current_memory_util
+        
+    set_memory_command = 'docker update --memory={}M --memory-swap {} {}'.format(memory_alloc,
+                                                                                 swap_memory,
+                                                                                 container_id)
+        
     ssh_exec(ssh_client, set_memory_command)
 
 def reset_memory_size(ssh_client, container_id):
     reset_memory_command = 'docker update --memory=0 {}'.format(container_id)
-    print reset_memory_command
     ssh_exec(ssh_client, reset_memory_command)
 
 '''Helper functions that are used for various reasons'''
