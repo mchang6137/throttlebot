@@ -3,6 +3,8 @@ Automate Many experiments of Throttlebot
 '''
 
 import argparse
+import traceback
+
 from run_throttlebot import *
 
 if __name__ == "__main__":
@@ -13,13 +15,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     for count in range(int(args.num_runs)):
-        sys_config, workload_config, filter_config = parse_config_file(args.config_file1)
-        
-        mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
+        try:
+            sys_config, workload_config, filter_config = parse_config_file(args.config_file1)
+            
+            mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
+            
+            mr_allocation = filter_mr(mr_allocation,
+                                      sys_config['stress_these_resources'],
+                                      sys_config['stress_these_services'],
+                                      sys_config['stress_these_machines'])
+            
+            run(sys_config, workload_config, filter_config, mr_allocation)
+        except Exception, err:
+            traceback.print_exc()
 
-        mr_allocation = filter_mr(mr_allocation,
-                                  sys_config['stress_these_resources'],
-                                  sys_config['stress_these_services'],
-                                  sys_config['stress_these_machines'])
+    print 'Completed!'
 
-        run(sys_config, workload_config, filter_config, mr_allocation)
