@@ -320,7 +320,7 @@ def print_all_steps(redis_db, total_experiments):
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
-            log_msg = '{},{},{}\n'.format(experiment_count, mimr,action_taken)
+            log_msg = '{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,action_taken)
             myfile.write(log_msg)
             
         net_improvement += float(perf_improvement)
