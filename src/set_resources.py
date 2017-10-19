@@ -69,32 +69,32 @@ if __name__ == "__main__":
             if ip_address not in ssh_clients:
                 ssh_clients[ip_address] = get_client(ip_address)
             ssh_client = ssh_clients[ip_address]
-
-            print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
-
-            # Setting CPU Cores
-            try:
-                cpu_cores = int(cpuc_value)
-            except:
-                error_message(line_numb, 'value')
-                exit()
-            if cpu_cores == 0:
-                reset_cpu_cores(ssh_client, container_id)
-            else:
-                set_cpu_cores(ssh_client, container_id, cpu_cores)
-
-            # Setting CPU throttling
-            try:
-                cpu_percentage = int(cpu_value)
-                if cpu_percentage > 100 or cpu_percentage < 0:
-                    raise ValueError('')
-            except:
-                error_message(line_numb, 'cpu')
-                exit()
-            if cpu_percentage == 0:
-                reset_cpu_quota(ssh_client, container_id)
-            else:
-                set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage * 1000000 / 100)
+            #
+            # print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
+            #
+            # # Setting CPU Cores
+            # try:
+            #     cpu_cores = int(cpuc_value)
+            # except:
+            #     error_message(line_numb, 'value')
+            #     exit()
+            # if cpu_cores == 0:
+            #     reset_cpu_cores(ssh_client, container_id)
+            # else:
+            #     set_cpu_cores(ssh_client, container_id, cpu_cores)
+            #
+            # # Setting CPU throttling
+            # try:
+            #     cpu_percentage = int(cpu_value)
+            #     if cpu_percentage > 100 or cpu_percentage < 0:
+            #         raise ValueError('')
+            # except:
+            #     error_message(line_numb, 'cpu')
+            #     exit()
+            # if cpu_percentage == 0:
+            #     reset_cpu_quota(ssh_client, container_id)
+            # else:
+            #     set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage * 1000000 / 100)
 
             # Setting DISK speeds
             try:
@@ -102,24 +102,24 @@ if __name__ == "__main__":
             except:
                 error_message(line_numb, 'value')
                 exit()
-            change_container_blkio(ssh_client, container_id, disk_bps)
+            set_container_blkio(ssh_client, container_id, disk_bps)
 
             # Setting network speeds
-            try:
-                net_bps = int(net_value)
-            except:
-                error_message(line_numb, 'value')
-                exit()
-            if net_bps == 0:
-                try:
-                    reset_egress_network_bandwidth(ssh_client, container_id)
-                except:
-                    print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
-            else:
-                try:
-                    set_egress_network_bandwidth(ssh_client, container_id, {container_id: net_bps})
-                except:
-                    print 'Warning: Container {}\'s network cannot be set'.format(container_id)
+            # try:
+            #     net_bps = int(net_value)
+            # except:
+            #     error_message(line_numb, 'value')
+            #     exit()
+            # if net_bps == 0:
+            #     try:
+            #         reset_egress_network_bandwidth(ssh_client, container_id)
+            #     except:
+            #         print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
+            # else:
+            #     try:
+            #         set_egress_network_bandwidth(ssh_client, container_id, {container_id: net_bps})
+            #     except:
+            #         print 'Warning: Container {}\'s network cannot be set'.format(container_id)
 
             line_numb += 1
 

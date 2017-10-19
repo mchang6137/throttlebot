@@ -842,6 +842,7 @@ if __name__ == "__main__":
                               sys_config['stress_these_resources'],
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
+    print 'blah2', mr_allocation
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 

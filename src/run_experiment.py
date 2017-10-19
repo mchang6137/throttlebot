@@ -150,8 +150,8 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    NUM_REQUESTS = 400
-    CONCURRENCY = 150
+    NUM_REQUESTS = 50
+    CONCURRENCY = 10
 
     post_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 200 -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
 
@@ -203,8 +203,8 @@ def measure_GET_response_time(workload_configuration, iterations):
 
     traffic_client = get_client(traffic_generate_machine)
 
-    NUM_REQUESTS = 200
-    CONCURRENCY = 100
+    NUM_REQUESTS = 5
+    CONCURRENCY = 1
 
     all_requests = {}
     all_requests['rps'] = []
@@ -214,24 +214,36 @@ def measure_GET_response_time(workload_configuration, iterations):
     all_requests['latency_90'] = []
 
     for x in range(iterations):
-        benchmark_cmd = 'ab -n {} -c {} -s 999999 -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS,
-                                                                                                   CONCURRENCY,
-                                                                                                   disknet_public_ip)
+        # benchmark_cmd = 'ab -n {} -c {} -s 999999 -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS,
+        #                                                                                            CONCURRENCY,
+        #                                                                                            disknet_public_ip)
+        # print benchmark_cmd
+        # _, results, _ = traffic_client.exec_command(benchmark_cmd)
+        # results.read()
+        #
+        # rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
+        # latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
+        # latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
+        # latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
+        # latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+        #
+        # all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
+        # all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
+        # all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
+        # all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
+        # all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+
+        benchmark_cmd = '(/usr/bin/time -f "%e" curl -so /dev/null {}) &> output.txt'.format(disknet_public_ip)
         print benchmark_cmd
         _, results, _ = traffic_client.exec_command(benchmark_cmd)
         results.read()
 
-        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
-        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
-        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
-        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
-        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
-
-        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
-        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
-        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
-        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
-        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+        time_cmd = 'cat output.txt'
+        time_elapsed = execute_parse_results(traffic_client, time_cmd)
+        all_requests['latency_90'].append(time_elapsed)
+        all_requests['latency_99'].append(time_elapsed)
+        all_requests['latency'].append(time_elapsed)
+        all_requests['latency_50'].append(time_elapsed)
 
     close_client(traffic_client)
 
