@@ -314,7 +314,7 @@ def update_mr_config(redis_db, mr_in_play):
 def print_all_steps(redis_db, total_experiments):
     print 'Steps towards improving performance'
     net_improvement = 0
-    for experiment_count in range(1,total_experiments):
+    for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
 
@@ -410,7 +410,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     
     print 'Current (non-analytic) performance measured: {}'.format(current_performance)
 
-    if last_completed_iter != 0:
+    if last_completed_iter == 0:
         tbot_datastore.write_summary_redis(redis_db,
                                            0,
                                            MR('initial', 'initial', []),
