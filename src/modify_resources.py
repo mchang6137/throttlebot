@@ -207,7 +207,7 @@ def set_memory_size(ssh_client, container_id, memory_alloc):
     if memory_alloc <= current_memory_util:
         memory_alloc = 1.1 * current_memory_util
 
-    # Configure 2x swap memory
+    # Configure 2x swap memory (swap amount = memory_alloc + swap space)
     swap_memory = 2 * memory_alloc
 
     mem_str =  "%.2f" % (memory_alloc)
