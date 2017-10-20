@@ -120,10 +120,7 @@ def apply_pipeline_filter(redis_db,
     print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
     
     # Temporarily just choose the most impacted pipeline
-    if optimize_for_lowest:
-        selected_pipeline_score_list = [all_pipeline_score_list[-1]]
-    else:
-        selected_pipeline_score_list = [all_pipeline_score_list[0]]
+    selected_pipeline_score_list = [all_pipeline_score_list[0]]
 
     # MIP = Most Impacted Pipeline
     mip = []
