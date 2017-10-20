@@ -22,6 +22,8 @@ def measure_runtime(workload_config, experiment_iterations):
         return measure_GET_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'spark-streaming':
         return measure_spark_streaming(workload_config, experiment_iterations)
+    elif experiment_type == 'apt-app':
+        return measure_apt_app(workload_config, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
@@ -246,5 +248,84 @@ def measure_GET_response_time(workload_configuration, iterations):
         all_requests['latency_50'].append(time_elapsed)
 
     close_client(traffic_client)
+
+    return all_requests
+
+def measure_apt_app(workload_config, experiment_iterations):
+    apt_app_public_ip = workload_config['frontend'][0]
+    traffic_gen_ips = workload_config['request_generator']
+
+    if len(traffic_gen_ips) != 6:
+        print 'Not enough traffic machines supplied. Please check config file. Exiting...'
+        exit()
+
+    traffic_clients = {}
+    # Getting traffic machines
+    for ip in traffic_gen_ips:
+        traffic_clients[ip] = get_client(ip)
+
+    all_requests = {}
+    all_requests['rps'] = []
+    all_requests['latency'] = []
+    all_requests['latency_50'] = []
+    all_requests['latency_99'] = []
+    all_requests['latency_90'] = []
+
+    NUM_REQUESTS = 5
+    CONCURRENCY = 1
+
+    postgress_get = 'ab -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    postgress_post = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    mysql_get = 'ab -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    mysql_post = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    welcome = 'ab -n {} -c {} -s 9999 -e results_file http://{}:3000/app/users > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    elastic = 'ab -n {} -c {} -s 9999 -e results_file http://{}:3000/app/elastic/count > output.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+
+    benchmark_commands = [postgress_get, postgress_post, mysql_get, mysql_post, welcome, elastic]
+
+    for x in range(experiment_iterations):
+        # Initiating requests
+        for a in range(6):
+            traffic_clients[a].exec_command(benchmark_commands[a])
+
+        # Checking for task completion
+        finished = 0
+        while finished != 6:
+            finished = 0
+            file_exist_command = '[ -f ./output.txt ] && echo "1" || echo "0"'
+            for b in range(6):
+                if execute_parse_results(traffic_clients[b], file_exist_command) == '1':
+                    finished += 1
+
+        rps = 0
+        latency = 0
+        latency_50 = 0
+        latency_90 = 0
+        latency_99 = 0
+        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
+        latency_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
+        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
+        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
+
+
+        # Grabbing data and removing files
+        for c in range(6):
+            rps += float(execute_parse_results(traffic_clients[c], rps_cmd))
+            latency += float(execute_parse_results(traffic_clients[c], latency_cmd))
+            latency_50 += float(execute_parse_results(traffic_clients[c], latency_50_cmd))
+            latency_90 += float(execute_parse_results(traffic_clients[c], latency_90_cmd))
+            latency_99 += float(execute_parse_results(traffic_clients[c], latency_99_cmd))
+            traffic_clients[c].exec_command('rm output.txt')
+
+        all_requests['rps'].append(rps)
+        all_requests['latency'].append(latency)
+        all_requests['latency_50'].append(latency_50)
+        all_requests['latency_90'].append(latency_90)
+        all_requests['latency_99'].append(latency_99)
+
+    # Closing clients
+    for ip, client in traffic_clients.iteritems():
+        close_client(client)
 
     return all_requests
