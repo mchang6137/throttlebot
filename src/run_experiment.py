@@ -86,7 +86,7 @@ def median(lst):
         return sum(sorted(lst)[n // 2 - 1:n // 2 + 1]) / 2.0
 
 
-def is_finished(latency):
+def is_finished(latency, experiment_iterations):
     if len(latency) < experiment_iterations:
         print "LENGTH: latency is only {0} items but needs {1}".format(len(latency), experiment_iterations)
         return len(latency)
@@ -99,12 +99,12 @@ def is_finished(latency):
 def measure_bcd(workload_configuration, experiment_iterations):
     traffic_generate_machine = workload_configuration['request_generator'][0]
     traffic_generate_container = workload_configuration['additional_args']['container_id']
-    cmd = "./spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --driver-class-path /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.1.jar spark://spark-ms.q:7077 500 100 100 3 1"
+    cmd = "./spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --num-executors 6 --driver-class-path /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.1.jar spark://spark-ms.q:7077 500 100 100 3 1"
     parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt\" | awk \'{{print $3}}\''
     ssh_client = get_client(traffic_generate_machine)
     latency = latencyResult()
 
-    stop = is_finished(latency)
+    stop = is_finished(latency, experiment_iterations)
 
     while stop != -1:
         print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
@@ -116,7 +116,7 @@ def measure_bcd(workload_configuration, experiment_iterations):
         r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
         print "Results: {0}".format(r)
         latency.add(float(r), status == 0, stop)
-        stop = is_finished(latency)
+        stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
     print latency.latency, x[0]
@@ -146,7 +146,7 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
     ssh_client = get_client(traffic_generate_machine)
     latency = latencyResult()
 
-    stop = is_finished(latency)
+    stop = is_finished(latency, experiment_iterations)
 
     while stop != -1:
         print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
@@ -158,7 +158,7 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
         r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
         print "Results: {0}".format(r)
         latency.add(float(r), status == 0, stop)
-        stop = is_finished(latency)
+        stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
     print latency.latency, x[0]
