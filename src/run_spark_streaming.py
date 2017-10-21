@@ -51,7 +51,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
 
         if results is None:
             if failed_attempts > 3:
-                all_reset(kafka_instances)
+                all_reset(kafka_instances, redis_instances)
                 failed_attempts = 0
             continue
 
@@ -62,17 +62,21 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
 
         flush_redis(redis_instances)
 
+    print 'Results from this experiment are {}'.format(all_requests)
     delete_spark_logs(spark_master_instances, spark_worker_instances)
 
     return all_requests
 
 # Need this when the requests get too misaligned
-def all_reset(kafka_instances):
+def all_reset(kafka_instances,redis_instances):
     # Flush Queus
     flush_kafka_queues(kafka_instances)
 
     # Wait 5 minutes to allow for catching up
     time.sleep(300)
+
+    # Flush Redis DB
+    flush_redis(redis_instances)
     
 
 def flush_kafka_queues(kafka_instances):
