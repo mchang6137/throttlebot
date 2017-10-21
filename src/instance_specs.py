@@ -94,7 +94,6 @@ def get_instance_specs(machine_type, provider='aws-ec2'):
     # Primarily, Storage is not a necessary field
     if 'STORAGE' in resource_capacity[machine_type]:
         del resource_capacity[machine_type]['STORAGE']
-    resource_capacity[machine_type]['MEMORY'] *= 1024
     resource_capacity[machine_type]['NET'] *= 1024
     resource_capacity[machine_type]['DISK'] *= 1048576
     resource_capacity[machine_type]['CPU-QUOTA'] = 100 * resource_capacity[machine_type]['CPU-CORE']
