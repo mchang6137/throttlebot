@@ -37,7 +37,7 @@ def getall_mr_at_min(redis_db, mr):
     mr_str_list = redis_db.lrange(list_name, 0, -1)
     return mr_str_to_obj(redis_db, mr_str_list)
 
-def remote_mr_at_min(redis_db, mr):
+def remove_mr_at_min(redis_db, mr):
     list_name = generate_mr_at_min()
     redis_db.lrem(list_name, 0, mr.to_string())
 

@@ -15,7 +15,6 @@ from random import shuffle
 
 from time import sleep
 
-from config_functions import *
 from collections import namedtuple
 from collections import Counter 
 from mr_gradient import *
@@ -33,6 +32,7 @@ import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
+import modify_configs as config_modifier
 import visualizer as chart_generator
 
 '''
@@ -817,6 +817,7 @@ if __name__ == "__main__":
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     workload_config = generate_conf_function(workload_config)
+    config_modifier.init_bcd_config(workload_config)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
     # While stress policies can further filter MRs, the first filter is applied here
@@ -828,4 +829,5 @@ if __name__ == "__main__":
                               sys_config['stress_these_machines'])
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
+
 
