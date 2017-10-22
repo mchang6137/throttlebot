@@ -4,7 +4,7 @@ import re
 from subprocess import Popen, PIPE
 import sys
 from time import sleep
-
+import math
 import threading
 
 from weighting_conversions import *
@@ -28,11 +28,61 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
+
+# writes all config of vm_ip
+def spark_rewrite_conf(vm_ip, search, replace):
+    correct = []
+    for vi in vm_ip:
+        client = get_client(vi[0])
+        cmd = 'sed -i \'s;{0};{1};\' ./spark/conf/spark-defaults.conf'.format(search, replace)
+        _, results, _ = client.exec_command(
+            'docker exec {0} sh -c \"{1}\"'.format(vi[1], cmd))
+        correct.append(results.channel.recv_exit_status() == 0)
+        _ = results.channel.recv_exit_status()
+    print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
+
 # Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation):
+def set_mr_provision(mr, new_mr_allocation, wc):
+    print mr.resource, new_mr_allocation
+    # Spark BCD rewrite config files
+    execores = wc['resources']['spark.executor.cores']
+    exemem = wc['resources']['spark.executor.memory']
+    dricores = wc['resources']['spark.driver.cores']
+    drimem = wc['resources']['spark.driver.memory']
+    coremax = wc['resources']['spark.cores.max']
+    vm_ip_all = wc['instances']
+    if mr.service_name == 'hantaowang/bcd-spark':
+        if mr.resource == 'CPU-CORE':
+            newer_mr_allocation = int(new_mr_allocation)
+            spark_rewrite_conf(vm_ip_all, 'spark.executor.cores {0}'.format(execores),
+                               'spark.executor.cores {0}'.format(newer_mr_allocation))
+            spark_rewrite_conf(vm_ip_all, 'spark.cores.max {0}'.format(coremax),
+                               'spark.cores.max {0}'.format(newer_mr_allocation * 6))
+            wc['resources']['spark.executor.cores'] = str(newer_mr_allocation)
+            wc['resources']['spark.cores.max'] = str(newer_mr_allocation * 6)
+
+        elif mr.resource == 'MEMORY':
+            memg = new_mr_allocation / (1024 ** 3)
+            memg = str(int(memg*0.8)) + "g"
+            spark_rewrite_conf(vm_ip_all, 'spark.executor.memory {0}'.format(exemem),
+                               'spark.executor.memory {0}'.format(memg))
+            wc['resources']['spark.executor.memory'] = memg
+    elif mr.service_name == 'hantaowang/bcd-spark-master':
+        if mr.resource == 'CPU-CORE':
+            newer_mr_allocation = int(new_mr_allocation)
+            spark_rewrite_conf(vm_ip_all, 'spark.driver.cores {0}'.format(dricores),
+                               'spark.driver.cores {0}'.format(newer_mr_allocation))
+            wc['resources']['spark.driver.cores'] = str(newer_mr_allocation)
+        elif mr.resource == 'MEMORY':
+            memg = new_mr_allocation / (1024 ** 3)
+            memg = str(int(memg*0.8)) + "g"
+            spark_rewrite_conf(vm_ip_all, 'spark.driver.memory {0}'.format(drimem),
+                               'spark.driver.memory {0}'.format(memg))
+            wc['resources']['spark.driver.memory'] = memg
+
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
-        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+        print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
         if mr.resource == 'CPU-CORE':
             set_cpu_cores(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
@@ -48,12 +98,14 @@ def set_mr_provision(mr, new_mr_allocation):
             print 'INVALID resource'
         close_client(ssh_client)
 
+
 # Reset all mr provisions -- remove ALL resource constraints
-def reset_mr_provision(mr):
+def reset_mr_provision(mr, wc):
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORE':
+            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
             reset_cpu_cores(ssh_client, container_id)
         elif mr.resource == 'CPU-QUOTA':
             reset_cpu_quota(ssh_client, container_id)
