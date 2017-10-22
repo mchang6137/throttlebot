@@ -148,7 +148,6 @@ def containers_per_vm(mr):
 
 # Checks if the current system can support improvements in a particular MR
 # Improvement amount is the raw amount a resource is being improved by
-# Always leave 10% of system resources available for Quilt
 def check_improve_mr_viability(redis_db, mr, improvement_amount):
     print 'Checking MR viability'
     improvement_multiplier = containers_per_vm(mr)
@@ -160,9 +159,29 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
         machine_consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
         machine_capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
 
-        proposed_alloc = machine_consumption[mr.resource] + (improvement_multiplier[vm_ip] * improvement_amount)
-        if proposed_alloc > machine_capacity[mr.resource]:
-            return False
+        # CPU Stressing has two constraints
+        # 1.) The machine's number of cores >= "software cores"
+        if mr.resource == 'CPU-CORE':
+            previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+            previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
+            quota_per_core = float(previous_quota_alloc / previous_core_alloc)
+            new_quota_alloc = int(quota_per_core * new_mr_allocation)
+
+            # Check if Cores is below the limit. We don't care how much the other containers are using
+            proposed_alloc = (previous_core_alloc + improvement_amount) * improvement_multiplier[vm_ip] 
+            if proposed_alloc > machine_capacity[mr.resource]:
+                return False
+
+            # Check if the Quota is below the limit. We do care how much the other containers are using
+            quota_improvement = new_quota_alloc - previous_quota_alloc
+            proposed_alloc = machine_consumption['CPU-QUOTA'] + (improvement_multiplier[vm_ip] * quota_improvement)
+            if proposed_alloc > machine_capacity['CPU-QUOTA']:
+                return False
+        else:
+            proposed_alloc = machine_consumption[mr.resource] + (improvement_multiplier[vm_ip] * improvement_amount)
+            if proposed_alloc > machine_capacity[mr.resource]:
+                return False
+            
     return True
 
 # Allow the MR to fill out the remainder of the resources on the machine
