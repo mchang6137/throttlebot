@@ -68,8 +68,7 @@ def prepare_inverted_baseline(redis_db, stress_weight):
     mr_to_alloc = {}
     all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
-        current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr, current_mr_alloc, stress_weight)
+        new_alloc = convert_percent_to_raw(mr, redis_db, stress_weight)
         mr_to_alloc[mr] = new_alloc
     return mr_to_alloc
 
@@ -79,8 +78,7 @@ def revert_inverted_baseline(redis_db):
     mr_to_alloc = {}
     all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
-        current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr, current_mr_alloc, 0)
+        new_alloc = convert_percent_to_raw(mr, redis_db, 0)
         mr_to_alloc[mr] = new_alloc
     return mr_to_alloc
     
@@ -88,8 +86,7 @@ def revert_inverted_baseline(redis_db):
 def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
     for mr_candidate in mr_candidates:
-        current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr_candidate)
-        new_alloc = convert_percent_to_raw(mr_candidate, current_mr_alloc, stress_weight)
+        new_alloc = convert_percent_to_raw(mr_candidate, redis_db, stress_weight)
         mr_to_alloc[mr_candidate] = new_alloc
     return mr_to_alloc
 
@@ -114,7 +111,6 @@ def schedule_inverted_gradient(redis_db, mr_candidates, stress_weight):
 def revert_inverted_gradient(redis_db, mr_candidates, stress_weight):
     mr_to_alloc = {}
     for mr in mr_candidates:
-        original_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr, original_alloc, stress_weight)
+        new_alloc = convert_percent_to_raw(mr, redis_db, stress_weight)
         mr_to_alloc[mr] = new_alloc
     return mr_to_alloc

@@ -15,6 +15,7 @@ from random import shuffle
 
 from time import sleep
 
+from config_functions import *
 from collections import namedtuple
 from collections import Counter 
 from mr_gradient import *
@@ -241,8 +242,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
         total_removal_amount = 0
         for nimr in vm_to_nimr[vm_ip]:
             reduction_multiplier = containers_per_vm(nimr)
-            nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-            new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
+            new_alloc = convert_percent_to_raw(nimr, redis_db, stress_weight)
             # Multiply by reduction multiplier since you have multiple NIMR instances
             alloc_diff = (nimr_alloc - new_alloc) * reduction_multiplier[vm_ip]
             total_removal_amount += alloc_diff
@@ -254,8 +254,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     total_change = 0
     for nimr in vm_to_nimr[target_vm]:
         reduction_multiplier = containers_per_vm(nimr)
-        nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-        new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
+        new_alloc = convert_percent_to_raw(nimr, redis_db, stress_weight)
         # Multiply by reduction multiplier since you have multiple NIMR instances
         alloc_diff = (new_alloc - nimr_alloc) * reduction_multiplier[target_vm]
         new_nimr_change[nimr] = alloc_diff
@@ -272,8 +271,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
 
 # Determine if mr still has an interval to decrease it to
 def mr_at_minimum(mr, proposed_weight_change):
-    current_alloc = mr.read_mr_alloc(redis_db)
-    new_alloc = convert_percent_to_raw(mr, current_alloc, proposed_weight_change)
+    new_alloc = convert_percent_to_raw(mr, redis_db, proposed_weight_change)
     if new_alloc == -1:
         return True
     else:
@@ -371,19 +369,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     if last_completed_iter == 0:
         redis_db.flushall()
         
-    '''
-    # Prompt the user to make sure they want to flush the db
-    ok_to_flush = raw_input("Are you sure you want to flush the results of your last experiment? Please respond with Y or N: ")
-    if ok_to_flush == 'Y':
-        redis_db.flushall()
-    elif ok_to_flush == 'N':
-        print 'OK you said it boss. Exiting...'
-        exit()
-    else:
-        print 'Only Y and N are acceptable responses. Exiting...'
-        exit()
-    '''
-
     print '\n' * 2
     print '*' * 20
     print 'INFO: INITIALIZING RESOURCE CONFIG'
@@ -528,8 +513,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
         for imr in imr_list:
             imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
-            current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
-            new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
+            new_imr_alloc = convert_percent_to_raw(imr, redis_db, imr_improvement_percent)
             imr_improvement_proposal = new_imr_alloc - current_imr_alloc
 
             # If the the Proposed MR cannot be improved by the proposed amount, there are two options
@@ -571,12 +555,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 new_imr_alloc = imr_improvement_proposal + current_imr_alloc
                 action_taken[imr] = imr_improvement_proposal
                 finalize_mr_provision(redis_db, imr, new_imr_alloc, workload_config)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(imr.to_string(), current_imr_alloc, new_imr_alloc)
                 mimr = imr
                 break
             else:
                 action_taken[imr] = 0
-                print 'Improvement Calculated: MR {} failed to improve from {}'.format(mr.to_string(), current_mr_allocation)
+                print 'Improvement Calculated: MR {} failed to improve from {}'.format(imr.to_string(), current_mr_allocation)
                 print 'This IMR cannot be improved. Printing some debugging before exiting...'
 
                 print 'Current MR allocation is {}'.format(current_imr_alloc)
@@ -808,9 +792,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
             delete_queue.append(mr)
         elif '*' not in acceptable_services and mr.service_name not in acceptable_services:
             delete_queue.append(mr)
-        # Cannot have both CPU and Quota Stressing
-        # Default to using quota
-        elif '*' in acceptable_resources and mr.resource == 'CPU-CORE':
+        elif '*' in acceptable_resources:
             delete_queue.append(mr)
         elif '*' not in acceptable_resources and mr.resource not in acceptable_resources:
             delete_queue.append(mr)
@@ -834,6 +816,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
+    workload_config = generate_conf_function(workload_config)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
     # While stress policies can further filter MRs, the first filter is applied here
@@ -843,21 +826,6 @@ if __name__ == "__main__":
                               sys_config['stress_these_resources'],
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
-    if workload_config['type'] == 'bcd':
-        all_vm_ip = get_actual_vms()
-        service_to_deployment = get_service_placements(all_vm_ip)
-        workload_config['request_generator'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
-        workload_config['frontend'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
-        workload_config['additional_args'] = {'container_id': service_to_deployment['hantaowang/bcd-spark-master'][0][1]}
-        workload_config['resources'] = {
-            'spark.executor.cores': '8',
-            'spark.driver.cores': '8',
-            'spark.executor.memory': str(int(32 * 0.8)) + 'g',
-            'spark.driver.memory': str(int(32 * 0.8)) + 'g',
-            'spark.cores.max': '48'
-        }
-        workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
-        print workload_config
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 

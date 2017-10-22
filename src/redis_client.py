@@ -1,5 +1,6 @@
 import redis.client
 
+from redis_resource import *
 from mr import MR
 
 '''
@@ -22,6 +23,23 @@ def generate_mr_from_hashkey(redis_db, hashkey):
     
 def generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_percent):
     return '{},{},{}'.format(experiment_iteration_count, perf_metric, stress_percent)
+
+def generate_mr_at_min():
+    return 'at_min'
+
+# Resources that are at a minimum are recorded here and taken care of
+def write_mr_at_min(redis_db, mr):
+    list_name = generate_mr_at_min()
+    redis_db.lpush(list_name, mr.to_string())
+
+def getall_mr_at_min(redis_db, mr):
+    list_name = generate_mr_at_min()
+    mr_str_list = redis_db.lrange(list_name, 0, -1)
+    return mr_str_to_obj(redis_db, mr_str_list)
+
+def remote_mr_at_min(redis_db, mr):
+    list_name = generate_mr_at_min()
+    redis_db.lrem(list_name, 0, mr.to_string())
 
 # Writes result of the experiments to Redis for one particular MR
 # Result should be a map of {Increment -> [experiment_results]}

@@ -11,11 +11,20 @@ Returns the new bandwdith
 from modify_resources import *
 from remote_execution import *
 
+import redis_resource as resource_datastore
+
 # Converts a change in resource provisioning to raw change
+# If current_mr_allocation is None, just stress relative to the current provision
 # Example: 20% -> 24 Gbps
-def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
+def convert_percent_to_raw(mr, redis_db, weight_change=0, current_mr_allocation=None):
+    # Recover the current allocation for a MR
+    if current_mr_allocation is None:
+        current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
+    
     if mr.resource == 'CPU-CORE':
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
+        # Also recover aggregate CPU Quota
+        quota_alloc = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation, quota_alloc)
     elif mr.resource == 'CPU-QUOTA':
         return weighting_to_cpu_quota(weight_change, current_mr_allocation)
     elif mr.resource == 'DISK':
@@ -54,32 +63,34 @@ def weighting_to_cpu_quota(weight_change, current_alloc):
     return new_quota
 
 # Alternative method of changing the CPU stresing
-# Reduces the number of cores
-# This is a special case, unlike the other types of stressing
-def weighting_to_cpu_cores(weight_change, current_alloc):
-    assert current_alloc > 0
+# If stress level is negative, reduce one core no matter what.
+# If stress level is positive, add one core no matter what
+# Returns a CPU-QUOTA
+def weighting_to_cpu_cores(weight_change, core_alloc, quota_alloc):
+    # If the core alloc is already at minimum, return -1
+    if core_alloc == 1:
+        return -1
+    
+    quota_per_core = int(core_alloc / quota_alloc)
+    assert quota_per_core > 0
+    
+    if weight_change < 0:
+        new_core_alloc = quota_per_core * (core_alloc - 1)
+    if weight_change > 0:
+        new_core_alloc = quota_per_core * (core_alloc + 1)
+    elif weight_change == 0:
+        new_core_alloc = quota_per_core * core_alloc
 
-    new_cores = round(current_alloc + (weight_change / 100.0) * current_alloc)
-    if new_cores == current_alloc:
-        if weight_change < 0:
-            new_cores = current_alloc - 1
-        else:
-            new_cores = current_alloc + 1
-            if new_cores <= 0:
-                print 'Cannot shrink the number of cores anymore'
-            return 1
-    return new_cores
+    print 'DEBUG for weighting_to_cpu_cores(). Previously: {} cores, {} total quota. New agg quota: {}'.format(core_alloc, quota_alloc, new_core_alloc)
+    
+    return new_core_alloc
 
 def weighting_to_memory(weight_change, current_alloc, instance):
+    current_allocation = current_alloc['MEMORY']
     new_memory = current_alloc + int(current_alloc * weight_change/100.0)
     return new_memory
 
-# This probably belongs in a different function
-# Leaving here for convenience
-def get_num_cores(ssh_client):
-    num_cores_cmd = 'nproc --all'
-    _, stdout, _ = ssh_client.exec_command(num_cores_cmd)
-    return int(stdout.read())
+
 
 
 
