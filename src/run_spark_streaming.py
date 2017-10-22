@@ -22,10 +22,13 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     all_requests['window_latency'] = []
     all_requests['window_latency_std'] = []
     all_requests['total_results'] = []
+    
+    # Initialization
+    clean_files(generator_instances)
+    flush_redis(redis_instance)
 
+    # Run the Experiment 
     trial_count = 0
-    failed_attempts = 0
-    # Initialize the Spark Streaming Job
     while trial_count < experiment_iterations:
         # Start Sending Timed events through Kafka
         run_kafka_events(generator_instances)
