@@ -67,7 +67,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             config_modifier.set_mr_conf(mr, default_cores)
         else:
             # Enact the change in resource provisioning
-            resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
+            resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -96,7 +96,7 @@ Tools that are used for experimental purposes in Throttlebot
 '''
 
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
-    resource_modifier.set_mr_provision(mr, new_alloc, wc)
+    resource_modifier.set_mr_provision(mr, new_alloc, wc, redis_db)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
@@ -425,7 +425,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
-            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
+            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config, redis_db)
         analytic_baseline = measure_runtime(workload_config, experiment_trials)
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
         print 'The analytic baseline is {}'.format(analytic_baseline)
@@ -454,7 +454,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                       sys_config,
                                                                       stress_weight)
                 for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config, redis_db)
                     
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
@@ -472,7 +472,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                           sys_config,
                                                                           stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config, redis_db)
                     
                 increment_to_performance[stress_weight] = experiment_results
 
@@ -493,7 +493,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config, redis_db)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)

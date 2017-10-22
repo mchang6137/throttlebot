@@ -6,13 +6,15 @@ import sys
 from time import sleep
 import math
 import threading
+import redis_resource as resource_datastore
 
 from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
 from get_utilization import *
-
+from modify_configs import *
+from mr import MR
 
 quilt_machines = ("quilt", "ps")
 
@@ -27,7 +29,7 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 
 # Sets the resource provision for all containers in a service
 # Passing in the Workload Configuration by reference 
-def set_mr_provision(mr, new_mr_allocation, wc):
+def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     # A new MR allocation of -1 indicates that the proposed resource is at minimum already
     # Add to a queue and deal with later in the process
     if new_mr_allocation == -1:
@@ -37,9 +39,16 @@ def set_mr_provision(mr, new_mr_allocation, wc):
     # Start by stressing the resource provisions
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
-        # Stressing by cores only sets the quota.
         if mr.resource == 'CPU-CORE':
-            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
+            previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+            quota_aggregate = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
+            quota_per_core = float(quota_aggregate / previous_core_alloc)
+            new_quota_alloc = int(quota_per_core * new_mr_allocation)
+            print 'DEBUG: Going from {} cores to {} cores means, {} quota to {} quota'.format(previous_core_alloc,
+                                                                                              new_mr_allocation,
+                                                                                              quota_aggregate,
+                                                                                              new_quota_alloc)
+            set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)

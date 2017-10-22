@@ -22,9 +22,7 @@ def convert_percent_to_raw(mr, redis_db, weight_change=0, current_mr_allocation=
         current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
     
     if mr.resource == 'CPU-CORE':
-        # Also recover aggregate CPU Quota
-        quota_alloc = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
-        return weighting_to_cpu_cores(weight_change, current_mr_allocation, quota_alloc)
+        return weighting_to_cpu_cores(weight_change, current_mr_allocation)
     elif mr.resource == 'CPU-QUOTA':
         return weighting_to_cpu_quota(weight_change, current_mr_allocation)
     elif mr.resource == 'DISK':
@@ -66,22 +64,17 @@ def weighting_to_cpu_quota(weight_change, current_alloc):
 # If stress level is negative, reduce one core no matter what.
 # If stress level is positive, add one core no matter what
 # Returns a CPU-QUOTA
-def weighting_to_cpu_cores(weight_change, core_alloc, quota_alloc):
+def weighting_to_cpu_cores(weight_change, core_alloc):
     # If the core alloc is already at minimum, return -1
     if core_alloc == 1:
         return -1
     
-    quota_per_core = int(core_alloc / quota_alloc)
-    assert quota_per_core > 0
-    
     if weight_change < 0:
-        new_core_alloc = quota_per_core * (core_alloc - 1)
+        return core_alloc - 1
     if weight_change > 0:
-        new_core_alloc = quota_per_core * (core_alloc + 1)
+        return core_alloc + 1
     elif weight_change == 0:
-        new_core_alloc = quota_per_core * core_alloc
-
-    print 'DEBUG for weighting_to_cpu_cores(). Previously: {} cores, {} total quota. New agg quota: {}'.format(core_alloc, quota_alloc, new_core_alloc)
+        return core_alloc
     
     return new_core_alloc
 
