@@ -61,9 +61,13 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
         if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
             print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
             exit()
-            
-        # Enact the change in resource provisioning
-        resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
+
+        # Only set the software configuration when stressing CPU cores
+        if mr.resource == 'CPU-CORE':
+            config_modifier.set_mr_conf(mr, default_cores)
+        else:
+            # Enact the change in resource provisioning
+            resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -708,7 +712,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
-        default_alloc_percentage = 70.0 / max_num_services
+        default_alloc_percentage = 50.0 / max_num_services
 
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
