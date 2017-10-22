@@ -39,6 +39,7 @@ def spark_rewrite_conf(vm_ip, search, replace):
             'docker exec {0} sh -c \"{1}\"'.format(vi[1], cmd))
         correct.append(results.channel.recv_exit_status() == 0)
         _ = results.channel.recv_exit_status()
+        close_client(ssh_client)
     print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
 
 # Sets the resource provision for all containers in a service

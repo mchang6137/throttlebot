@@ -119,6 +119,8 @@ def measure_bcd(workload_configuration, experiment_iterations):
         stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
+    close_client(ssh_client)
+
     print latency.latency, x[0]
     return {'latency': x,
             'latency_50': x,
@@ -160,6 +162,8 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
         latency.add(float(r), status == 0, stop)
         stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
+
+    close_client(ssh_client)
 
     print latency.latency, x[0]
     return {'latency': x,
