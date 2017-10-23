@@ -7,13 +7,14 @@ from time import sleep
 import math
 import threading
 import redis_resource as resource_datastore
+import redis_client as tbot_datastore
+import modify_configs as config_modifier
 
 from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
 from get_utilization import *
-from modify_configs import *
 from mr import MR
 
 quilt_machines = ("quilt", "ps")

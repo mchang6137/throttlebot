@@ -10,7 +10,7 @@ import redis_resource as resource_datastore
 
 from instance_specs import *
 from poll_cluster_state import *
-from MR import *
+from mr import MR
 
 # Initializes the Configuration functions for a job
 # Updates the MRs that have configurations in Redis
@@ -24,7 +24,7 @@ def init_conf_functions(workload_config, redis_db, default_mr_config):
 # Modifies the workload_config based on the services
 # Return the workload_config by reference
 def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
-    if mr not in redis_datastore.read_tunable_mr(redis_db):
+    if mr not in resource_datastore.read_tunable_mr(redis_db):
         return workload_config
     if workload_config['type'] == 'bcd':
         return modify_bcd_config(workload_config, mr, new_mr_allocation)
@@ -60,12 +60,12 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
     sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
     sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
 
-    wc['resource_fct'][sparkms_core]['spark.driver.cores'] = '8'
-    wc['resource_fct'][sparkwk_core]['spark.executor.cores'] = '8'
-    wc['resource_fct'][sparkwk_core]['spark.cores.max'] = '48'
+    workload_config['resource_fct'][sparkms_core]['spark.driver.cores'] = '8'
+    workload_config['resource_fct'][sparkwk_core]['spark.executor.cores'] = '8'
+    workload_config['resource_fct'][sparkwk_core]['spark.cores.max'] = '48'
     
-    wc['resource_fct'][sparkwk_memory]['spark.executor.memory'] = '25g'
-    wc['resource_fct'][sparkms_memory]['spark.driver.memory'] = '25g'
+    workload_config['resource_fct'][sparkwk_memory]['spark.executor.memory'] = '25g'
+    workload_config['resource_fct'][sparkms_memory]['spark.driver.memory'] = '25g'
 
     max_capacity = get_instance_specs(machine_type)[mr.resource]
     
@@ -74,17 +74,15 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
         if mr == sparkms_core or mr == sparkwk_core:
             for instance in mr.instances:
                 vm_ip,container_id = instance
-                resource_datastore.write_config_consumption(redis_db, vm_ip, mr, default_mr_config[mr])
                 resource_datastore.write_config_capacity(redis_db, vm_ip, mr, max_capacity['CPU-CORE'])
-        for mr == sparkms_memory or mr == sparkwk_memory:
+        if mr == sparkms_memory or mr == sparkwk_memory:
             for instance in mr.instances:
                 vm_ip,container_id = instance
-                resource_datastore.write_config_consumption(redis_db, vm_ip, mr, default_mr_config[mr])
                 resource_datastore.write_config_capacity(redis_db, vm_ip, max_capacity['MEMORY'])
 
     # Add MRs to the tunable MR list
     resource_datastore.write_tunable_mr(redis_db, mr)
-    return wc
+    return workload_config
 
 # bcd has two services that need to generate configurations
 # 1.) bcd-spark-master (master service)

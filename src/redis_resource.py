@@ -45,7 +45,11 @@ def write_mr_alloc(redis_db, mr, new_allocation):
 def read_mr_alloc(redis_db, mr):
     mr_name = 'mr_alloc'
     key = generate_mr_key(mr.service_name, mr.resource)
-    return float(redis_db.hget(mr_name, key))
+    result = redis_db.hget(mr_name, key)
+    if result is None:
+        return None
+    else:
+        return float(result)
 
 # Returns a list of MR objects with their current allocations
 # This returns all MRs, regardless of whether they are in the working set
@@ -123,17 +127,6 @@ def read_machine_capacity(redis_db, machine_ip):
 Store the configuration capacity and current consumption
 Only store something in here if there is something to set
 '''
-
-def write_config_consumption(redis_db, machine_ip, mr, config_util):
-    name = 'config_consumption'
-    instance ='{},{}'.format(mr.to_string(), machine_ip)
-    redis_db.hset(name, instance, config_util)
-
-def read_config_consumption(redis_db, machine_ip, mr):
-    name = 'config_consumption'
-    instance = '{},{}'.format(mr.to_string(), machine_ip)
-    return float(redis_db.hget(name, instance))
-    
 def write_config_capacity(redis_db, machine_ip, mr, config_cap):
     name = 'config_capacity'
     instance = '{},{}'.format(mr.to_string(), machine_ip)

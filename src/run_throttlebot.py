@@ -58,14 +58,17 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
         new_resource_provision = default_mr_config[mr]
-        if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
-            print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
-            exit()
+
+        # Removing this because I'm a dangerous motherfucker
+        #if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
+        #    print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
+        #    exit()
 
         # Only set the software configuration when stressing CPU cores
         if mr.resource == 'CPU-CORE':
             print 'DEBUG: init_resource_config has a {} cores'.format(new_resource_provision)
-            config_modifier.modify_mr_conf(mr, new_resource_provision, wc)
+            config_modifier.modify_mr_conf(mr, new_resource_provision, wc, redis_db)
+            resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
         else:
             # Enact the change in resource provisioning
             resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
@@ -239,7 +242,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
         imr_quota = None
         all_mrs = get_all_mrs(redis_db)
         for mr in all_mrs:
-            if mr.resource == 'CPU-QUOTA' and mr.service_name = imr.service_name:
+            if mr.resource == 'CPU-QUOTA' and mr.service_name == imr.service_name:
                 imr_quota = mr
                 break
         if imr_quota is None:
@@ -380,10 +383,9 @@ def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
 
 # No need for old_alloc
 def update_config_consumption(redis_db, mr, new_alloc):
-    assert mr in resource_datastore.read_tunable_mr(redis_db)
     for instance in mr.instances:
         vm_ip,container_id = instance
-        resource_datastore.write_config_consumption(redis_db, vm_ip, mr, new_alloc)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
 
 # Updates the MR configuration from resource datastore
 def update_mr_config(redis_db, mr_in_play):
@@ -391,6 +393,21 @@ def update_mr_config(redis_db, mr_in_play):
     for mr in mr_in_play:
         updated_configuration[mr] = resource_datastore.read_mr_alloc(redis_db, mr)
     return updated_configuration
+
+# Prepare the working set
+# Keep CPU-CORE stressing only if it has a corresponding CPU configuration
+def prepare_working_set(redis_db):
+    all_mr_list = resource_datastore.get_all_mrs(redis_db)
+    tunable_mrs = resource_datastore.read_tunable_mr(redis_db)
+
+    working_set = []
+    
+    for mr in all_mr_list:
+        if mr.resource != 'CPU-CORE': working_set.append(mr)
+        elif mr.resource == 'CPU-CORE' and mr in working_set:
+            working_set.append(mr)
+            
+    return working_set
 
 # Prints all improvements attempted by Throttlebot
 def print_all_steps(redis_db, total_experiments):
@@ -402,7 +419,7 @@ def print_all_steps(redis_db, total_experiments):
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
-            log_msg = '{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,action_taken)
+            log_msg = '{},{},{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,elapsed_time,cumm_mr,action_taken)
             myfile.write(log_msg)
             
         net_improvement += float(perf_improvement)
@@ -456,13 +473,13 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     print '*' * 20
     print 'INFO: INITIALIZING RESOURCE CONFIG'
 
+    # Initialize the configuration
+    workload_config = config_modifier.init_conf_functions(workload_config, redis_db, default_mr_config)
+    
     # Initialize the cluster resource and service allocations
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type, workload_config)
-
-    # Initialize the service software-level configurations
-    workload_config = config_modifier.init_conf_functions(workload_config, redis_db)
     
     # Initialize time for data charts
     time_start = datetime.datetime.now()
@@ -494,7 +511,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
-    mr_working_set = resource_datastore.get_all_mrs(redis_db)
+    mr_working_set = prepare_working_set(redis_db)s
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
@@ -605,6 +622,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
         for imr in imr_list:
             imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
+            current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
             new_imr_alloc = convert_percent_to_raw(imr, redis_db, imr_improvement_percent)
             imr_improvement_proposal = new_imr_alloc - current_imr_alloc
 
@@ -803,6 +821,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
                 max_num_services = len(vm_to_service[vm])
         default_alloc_percentage = STARTING_TOTAL / max_num_services
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
+
         for mr in mr_list:
             max_capacity = get_instance_specs(machine_type)[mr.resource]
             if mr.resource == 'CPU-CORE':
@@ -911,9 +930,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
-    workload_config= config_modifier.init_conf_functions(workload_config)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
-
+    
     # While stress policies can further filter MRs, the first filter is applied here
     # mr_allocation should include only the MRs that are included
     # mr_allocation will provision some percentage of the total resources
@@ -921,6 +939,7 @@ if __name__ == "__main__":
                               sys_config['stress_these_resources'],
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
+
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 
