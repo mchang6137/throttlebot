@@ -1,0 +1,9 @@
+SERVICE,RESOURCE,AMOUNT,REPR
+hantaowang/bcd-spark,DISK,116706508.8,RAW
+hantaowang/bcd-spark,NET,921600.0,RAW
+hantaowang/bcd-spark-master,CPU-CORE,5.6,RAW
+hantaowang/bcd-spark-master,MEMORY,24051816857.6,RAW
+hantaowang/bcd-spark-master,DISK,116706508.8,RAW
+hantaowang/bcd-spark-master,NET,716800.0,RAW
+hantaowang/bcd-spark,CPU-CORE,5.6,RAW
+hantaowang/bcd-spark,MEMORY,24051816857.6,RAW

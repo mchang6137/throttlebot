@@ -65,7 +65,7 @@ def weighting_to_cpu_cores(weight_change, current_alloc):
             new_cores = current_alloc - 1
         else:
             new_cores = current_alloc + 1
-            if num_cores <= 0:
+            if new_cores <= 0:
                 print 'Cannot shrink the number of cores anymore'
             return 1
     return new_cores

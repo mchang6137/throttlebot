@@ -10,6 +10,7 @@ import ast
 import os
 import socket
 import ConfigParser
+import math
 from random import shuffle
 
 from time import sleep
@@ -51,7 +52,7 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 
 # Set the current resource configurations within the actual containers
 # Data points in resource_config are expressed in percentage change
-def init_resource_config(redis_db, default_mr_config, machine_type):
+def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
@@ -61,7 +62,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type):
             exit()
             
         # Enact the change in resource provisioning
-        resource_modifier.set_mr_provision(mr, new_resource_provision)
+        resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -89,8 +90,8 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 Tools that are used for experimental purposes in Throttlebot 
 '''
 
-def finalize_mr_provision(redis_db, mr, new_alloc):
-    resource_modifier.set_mr_provision(mr, new_alloc)
+def finalize_mr_provision(redis_db, mr, new_alloc, wc):
+    resource_modifier.set_mr_provision(mr, new_alloc, wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
@@ -389,7 +390,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     # Initialize Redis and Cluster based on the default resource configuration
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
-    init_resource_config(redis_db, default_mr_config, machine_type)
+    init_resource_config(redis_db, default_mr_config, machine_type, workload_config)
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
@@ -437,7 +438,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
-            resource_modifier.set_mr_provision(mr, analytic_provisions[mr])
+            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
         analytic_baseline = measure_runtime(workload_config, experiment_trials)
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
         print 'The analytic baseline is {}'.format(analytic_baseline)
@@ -466,7 +467,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                       sys_config,
                                                                       stress_weight)
                 for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr])
+                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
                     
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
@@ -484,7 +485,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                           sys_config,
                                                                           stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr])
+                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                     
                 increment_to_performance[stress_weight] = experiment_results
 
@@ -505,7 +506,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr])
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -565,13 +566,13 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
                 print 'NIMR stealing: imposing a change of {} on {}'.format(action_taken[nimr],
                                                                             nimr.to_string())
-                finalize_mr_provision(redis_db, nimr, new_nimr_alloc)
+                finalize_mr_provision(redis_db, nimr, new_nimr_alloc, workload_config)
 
             # Improving the resource should always be viable at this step
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
                 new_imr_alloc = imr_improvement_proposal + current_imr_alloc
                 action_taken[imr] = imr_improvement_proposal
-                finalize_mr_provision(redis_db, imr, new_imr_alloc)
+                finalize_mr_provision(redis_db, imr, new_imr_alloc, workload_config)
                 print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
                 mimr = imr
                 break
@@ -845,6 +846,21 @@ if __name__ == "__main__":
                               sys_config['stress_these_resources'],
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
+    if workload_config['type'] == 'bcd':
+        all_vm_ip = get_actual_vms()
+        service_to_deployment = get_service_placements(all_vm_ip)
+        workload_config['request_generator'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+        workload_config['frontend'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+        workload_config['additional_args'] = {'container_id': service_to_deployment['hantaowang/bcd-spark-master'][0][1]}
+        workload_config['resources'] = {
+            'spark.executor.cores': '8',
+            'spark.driver.cores': '8',
+            'spark.executor.memory': str(int(32 * 0.8)) + 'g',
+            'spark.driver.memory': str(int(32 * 0.8)) + 'g',
+            'spark.cores.max': '48'
+        }
+        workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
+        print workload_config
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 
