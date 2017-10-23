@@ -11,12 +11,13 @@ import os
 import socket
 import ConfigParser
 import math
+
 from random import shuffle
-
 from time import sleep
-
+from copy import deepcopy
 from collections import namedtuple
-from collections import Counter 
+from collections import Counter
+
 from mr_gradient import *
 from stress_analyzer import *
 from weighting_conversions import *
@@ -520,9 +521,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
-        for mr in analytic_provisions:
-            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config, redis_db)
-        analytic_baseline = measure_runtime(workload_config, experiment_trials)
+        if len(analytic_provision) != 0:
+            for mr in analytic_provisions:
+                resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config, redis_db)
+            analytic_baseline = measure_runtime(workload_config, experiment_trials)
+        else:
+            analytic_baseline = deepcopy(current_performance)    
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
         print 'The analytic baseline is {}'.format(analytic_baseline)
         print 'This current performance is {}'.format(current_performance)
