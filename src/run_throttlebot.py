@@ -121,8 +121,8 @@ def improve_mr_by(redis_db, mimr, weight_stressed):
     return (weight_stressed * -1)
 
 # Run baseline
-def measure_baseline(workload_config, baseline_trials=10):
-    baseline_runtime_array = measure_runtime(workload_config, baseline_trials)
+def measure_baseline(workload_config, baseline_trials=10, include_warmup=False):
+    baseline_runtime_array = measure_runtime(workload_config, baseline_trials, include_warmup)
     return baseline_runtime_array
 
 # Gets the number of containers matching the service in the MR on a particular VM
@@ -402,7 +402,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     print 'INFO: RUNNING BASELINE'
     
     # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
-    current_performance = measure_baseline(workload_config, baseline_trials)
+    current_performance = measure_baseline(workload_config,
+                                           baseline_trials,
+                                           workload_config['include_warmup'])
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     current_time_stop = datetime.datetime.now()
@@ -683,6 +685,7 @@ def parse_config_file(config_file):
         # kind of a hack. If we are doing the inverted stressing for gradient, we actually want to optimize for the most effective.
         workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
+    workload_config['include_warmup'] = config.getboolean('Workload', 'include_warmup')
     
     #Additional experiment-specific arguments
     additional_args_dict = {}

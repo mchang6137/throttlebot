@@ -8,7 +8,7 @@ from run_spark_streaming import *
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
-def measure_runtime(workload_config, experiment_iterations):
+def measure_runtime(workload_config, experiment_iterations, include_warmups=False):
     experiment_type = workload_config['type']
     if experiment_type == 'spark-ml-matrix':
         return measure_ml_matrix(workload_config, experiment_iterations)
@@ -21,6 +21,8 @@ def measure_runtime(workload_config, experiment_iterations):
     elif experiment_type == 'basic-get':
         return measure_GET_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'spark-streaming':
+        if include_warmups:
+            measure_spark_streaming(workload_config, experiment_iterations)
         return measure_spark_streaming(workload_config, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
