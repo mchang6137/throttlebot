@@ -64,7 +64,8 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
         # Only set the software configuration when stressing CPU cores
         if mr.resource == 'CPU-CORE':
-            config_modifier.set_mr_conf(mr, default_cores)
+            print 'DEBUG: init_resource_config has a {} cores'.format(new_resource_provision)
+            config_modifier.modify_mr_conf(mr, new_resource_provision, wc)
         else:
             # Enact the change in resource provisioning
             resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
@@ -80,7 +81,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     quilt_usage = {}
 
     # Leave some resources available for Quilt containers to run (OVS, etc.)
-     # This is dictated by quilt overheads
+    # This is dictated by quilt overheads
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
         quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
@@ -167,7 +168,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
             quota_per_core = float(previous_quota_alloc / previous_core_alloc)
             new_quota_alloc = int(quota_per_core * new_mr_allocation)
 
-            # Check if Cores is below the limit. We don't care how much the other containers are using
+            # Check if Cores is below. We don't care how much the other containers are using
             proposed_alloc = (previous_core_alloc + improvement_amount) * improvement_multiplier[vm_ip] 
             if proposed_alloc > machine_capacity[mr.resource]:
                 return False
@@ -189,7 +190,11 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 def fill_out_resource(redis_db, imr):
     improvement_proposal = float('inf')
     improvement_multiplier = containers_per_vm(imr)
-    
+
+    # Cannot fill out more CPU Cores unless we change the quota allocated/core
+    if imr.resource == 'CPU-CORE':
+        return 0
+
     for instance in imr.instances:
         vm_ip,container = instance
         consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
@@ -214,14 +219,65 @@ def fill_out_resource(redis_db, imr):
         
     return improvement_proposal
 
+def calculate_quota_per_core(redis_db, mr):
+    if mr.resource == 'CPU-CORE' or mr.resource == 'CPU-QUOTA':
+        previous_core = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-CORE', []))
+        previous_quota = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
+
+        return int(previous_quota/previous_core)
+    else:
+        return 0
+
+# Wrapper to handle special case of NIMR stealing for CPU Cores
+def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
+    if imr.resource != 'CPU-CORE':
+        return nimr_stealing(redis_db, imr, nimr_list, stress_weight)
+    else:
+        # Find NIMRs with CPU-QUOTA MR
+        imr_quota = None
+        all_mrs = get_all_mrs(redis_db)
+        for mr in all_mrs:
+            if mr.resource == 'CPU-QUOTA' and mr.service_name = imr.service_name:
+                imr_quota = mr
+                break
+        if imr_quota is None:
+            return {},0
+
+        # Convert to standard unit of Quota
+        core_nimr_change,core_improve = nimr_stealing(redis_db, imr, nimr_list, stress_weight)
+        cummulative_quota = 0
+        for nimr in core_nimr_change:
+            cummulative_quota += core_nimr_change[nimr] * calculate_quota_per_core(redis_db, nimr)
+
+        quota_nimr_change,quota_improve = nimr_stealing(redis_db, imr_quota, nimr_list, stress_weight)
+        cummulative_quota += quota_improve
+        
+        nimr_change = dict(core_nimr_change.items() + quota_nimr_change.items())
+        
+        # Ensure that there is enough quota stolen to improve the CPU cores
+        imr_quota_per_core = calculate_quota_per_core(redis_db, imr)
+        core_improvement = int(cummulative_quota / imr_quota_per_core)
+
+        if core_improvement == 0:
+            nimr_change = {}
+        else:
+            # Just improve by a single core
+            core_improvement = 1
+            
+        return nimr_change,core_improvement
+
 # Decrease resource provisions for co-located resources
 # Assures that every the reduction_proposal will allow every instance of the service to balloon
 # It assumes that given a particular IMR, it is not viable to improve that resource.
 # In the NIMR list for NIMRs to be de-allocated.
 # Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
-def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
+def nimr_stealing(redis_db, imr, nimr_list, stress_weight):
     print 'IMR is {}'.format(imr.to_string())
-    
+
+    #Hack: Special case for imr.resource == CPU-CORE
+    # This case only occurs when software threads = number of cores (nothing we can do about that)
+    # or when there is insufficient CPU-QUOTA to support the change. We try to move stuff from
+    # CPU Quotas to Cores
     # Filter out NIMRs that are not the same resource type as mr
     for nimr in list(nimr_list):
         print 'NIMR resource: {} '.format(nimr.resource)
@@ -840,7 +896,7 @@ if __name__ == "__main__":
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     workload_config = generate_conf_function(workload_config)
-    config_modifier.init_bcd_config(workload_config)
+    config_modifier.init_conf_functions(workload_config)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
     # While stress policies can further filter MRs, the first filter is applied here
