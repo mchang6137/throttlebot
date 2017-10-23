@@ -119,6 +119,40 @@ def read_machine_capacity(redis_db, machine_ip):
         machine_capacity[resource] = float(machine_capacity[resource])
     return machine_capacity
 
+'''
+Store the configuration capacity and current consumption
+Only store something in here if there is something to set
+'''
 
+def write_config_consumption(redis_db, machine_ip, mr, config_util):
+    name = 'config_consumption'
+    instance ='{},{}'.format(mr.to_string(), machine_ip)
+    redis_db.hset(name, instance, config_util)
+
+def read_config_consumption(redis_db, machine_ip, mr):
+    name = 'config_consumption'
+    instance = '{},{}'.format(mr.to_string(), machine_ip)
+    return float(redis_db.hget(name, instance))
     
+def write_config_capacity(redis_db, machine_ip, mr, config_cap):
+    name = 'config_capacity'
+    instance = '{},{}'.format(mr.to_string(), machine_ip)
+    redis_db.hset(name, instance, config_cap)
 
+def read_config_capacity(redis_db, machine_ip, mr):
+    name = 'config_capacity'
+    instance = '{},{}'.format(mr.to_string(), machine_ip)
+    return float(redis_db.hget(name, instance))
+
+'''
+Store list of MRs that should be jointly tuned with software configurations
+'''
+
+def write_tunable_mr(redis_db, mr):
+    list_name = 'tunable_mrs'
+    redis_db.lpush(list_name, mr.to_string())
+
+def read_tunable_mr(redis_db):
+    list_name = 'tunable_mrs'
+    mr_str_list = redis_db.lrange(list_name, 0, -1)
+    return mr_str_to_obj(redis_db, mr_str_list)

@@ -35,6 +35,9 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     if new_mr_allocation == -1:
         tbot_datastore.write_mr_at_min(redis_db, mr)
         return
+
+    # Modify the resources
+    config_modifier.modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
     
     # Start by stressing the resource provisions
     for vm_ip,container_id in mr.instances:
@@ -61,9 +64,6 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
         else:
             print 'INVALID resource'
         close_client(ssh_client)
-
-    # Modify MR Configurations accordingly
-    modify_mr_conf(mr, new_mr_allocation, wc)
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):

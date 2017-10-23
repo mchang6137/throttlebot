@@ -69,10 +69,10 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
         else:
             # Enact the change in resource provisioning
             resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
-
-        # Reflect the change in Redis
-        resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
-        update_machine_consumption(redis_db, mr, new_resource_provision, 0)
+            
+            # Reflect the change in Redis
+            resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
+            update_machine_consumption(redis_db, mr, new_resource_provision, 0)
 
 # Initializes the maximum capacity and current consumption of Quilt
 def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
@@ -100,6 +100,7 @@ def finalize_mr_provision(redis_db, mr, new_alloc, wc):
     resource_modifier.set_mr_provision(mr, new_alloc, wc, redis_db)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
+    update_config_consumption(redis_db, mr, new_alloc)
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
@@ -160,8 +161,9 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
         machine_consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
         machine_capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
 
-        # CPU Stressing has two constraints
-        # 1.) The machine's number of cores >= "software cores"
+        # CPU improvement amount has two conditions
+        # 1.) "Max software cores" > improved core. Return False
+        # 2.)  Quota improvement is also feasible. Return False
         if mr.resource == 'CPU-CORE':
             previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
             previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
@@ -170,7 +172,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 
             # Check if Cores is below. We don't care how much the other containers are using
             proposed_alloc = (previous_core_alloc + improvement_amount) * improvement_multiplier[vm_ip] 
-            if proposed_alloc > machine_capacity[mr.resource]:
+            if proposed_alloc > resource_datastore.read_config_capacity(redis_db, vm_ip, mr)['CPU-CORE']:
                 return False
 
             # Check if the Quota is below the limit. We do care how much the other containers are using
@@ -274,11 +276,6 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
 def nimr_stealing(redis_db, imr, nimr_list, stress_weight):
     print 'IMR is {}'.format(imr.to_string())
 
-    #Hack: Special case for imr.resource == CPU-CORE
-    # This case only occurs when software threads = number of cores (nothing we can do about that)
-    # or when there is insufficient CPU-QUOTA to support the change. We try to move stuff from
-    # CPU Quotas to Cores
-    # Filter out NIMRs that are not the same resource type as mr
     for nimr in list(nimr_list):
         print 'NIMR resource: {} '.format(nimr.resource)
         print 'IMR resource: {}'.format(imr.resource)
@@ -381,6 +378,13 @@ def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
         utilization_dict[mr.resource] = new_consumption
         resource_datastore.write_machine_consumption(redis_db, vm_ip,  utilization_dict)
 
+# No need for old_alloc
+def update_config_consumption(redis_db, mr, new_alloc):
+    assert mr in resource_datastore.read_tunable_mr(redis_db)
+    for instance in mr.instances:
+        vm_ip,container_id = instance
+        resource_datastore.write_config_consumption(redis_db, vm_ip, mr, new_alloc)
+
 # Updates the MR configuration from resource datastore
 def update_mr_config(redis_db, mr_in_play):
     updated_configuration = {}
@@ -451,15 +455,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     print '\n' * 2
     print '*' * 20
     print 'INFO: INITIALIZING RESOURCE CONFIG'
-    # Initialize Redis and Cluster based on the default resource configuration
+
+    # Initialize the cluster resource and service allocations
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type, workload_config)
-    
-    print '*' * 20
-    print 'INFO: INSTALLING DEPENDENCIES'
-    #install_dependencies(workload_config)
 
+    # Initialize the service software-level configurations
+    workload_config = config_modifier.init_conf_functions(workload_config, redis_db)
+    
     # Initialize time for data charts
     time_start = datetime.datetime.now()
     
@@ -529,7 +533,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                       sys_config,
                                                                       stress_weight)
                 for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config, redis_db)
+                    resource_modifier.set_mr_provision(change_mr,
+                                                       mr_gradient_schedule[change_mr],
+                                                       workload_config,
+                                                       redis_db)
                     
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
@@ -547,7 +554,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                           sys_config,
                                                                           stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config, redis_db)
+                    resource_modifier.set_mr_provision(change_mr,
+                                                       mr_revert_gradient_schedule[change_mr],
+                                                       workload_config,
+                                                       redis_db)
                     
                 increment_to_performance[stress_weight] = experiment_results
 
@@ -568,7 +578,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config, redis_db)
+            resource_modifier.set_mr_provision(mr,
+                                               reverted_analytic_provisions[mr],
+                                               workload_config,
+                                               redis_db)
 
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -784,16 +797,19 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         # Ensure that we will not violate resource provisioning in the machine
         # Assign resources equally to services without exceeding machine resource limitations
         max_num_services = 0
+        STARTING_TOTAL = 50.0
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
-        default_alloc_percentage = 50.0 / max_num_services
-
+        default_alloc_percentage = STARTING_TOTAL / max_num_services
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
         for mr in mr_list:
             max_capacity = get_instance_specs(machine_type)[mr.resource]
-            default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
-            mr_allocation[mr] = default_raw_alloc
+            if mr.resource == 'CPU-CORE':
+                default_raw_alloc = (STARTING_TOTAL / 100.0) * max_capacity
+            else:
+                default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
+            mr_allocation[mr] = int(default_raw_alloc)
         print mr_allocation
     else:
         # Manual Configuration Possible
@@ -895,8 +911,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
-    workload_config = generate_conf_function(workload_config)
-    config_modifier.init_conf_functions(workload_config)
+    workload_config= config_modifier.init_conf_functions(workload_config)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
     # While stress policies can further filter MRs, the first filter is applied here
