@@ -8,7 +8,7 @@ from run_spark_streaming import *
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
-def measure_runtime(workload_config, experiment_iterations):
+def measure_runtime(workload_config, experiment_iterations, include_warmups=False):
     experiment_type = workload_config['type']
     if experiment_type == 'spark-ml-matrix':
         return measure_ml_matrix(workload_config, experiment_iterations)
@@ -21,7 +21,13 @@ def measure_runtime(workload_config, experiment_iterations):
     elif experiment_type == 'basic-get':
         return measure_GET_response_time(workload_config, experiment_iterations)
     elif experiment_type == 'spark-streaming':
+        if include_warmups:
+            measure_spark_streaming(workload_config, experiment_iterations)
         return measure_spark_streaming(workload_config, experiment_iterations)
+    elif experiment_type == 'elk':
+        return measure_elk_stack(workload_config, experiment_iterations)
+    elif experiment_type == 'bcd':
+        return measure_bcd(workload_config, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
@@ -46,8 +52,131 @@ def execute_parse_results(ssh_client, cmd):
         results_float = 0
     return results_float
 
-#Use the Apache Benchmarking suite to hit a single container
-#experiment_args = [nginx_public_ip, pinging_machine]
+
+# helper objects
+class latencyResult():
+    def __init__(self):
+        self.latency = []
+        self.success = []
+
+    def __len__(self):
+        return len(self.latency)
+
+    def add(self, lat, suc, index):
+        if index == len(self.latency):
+            self.latency.append(lat)
+            self.success.append(suc)
+        else:
+            self.latency[index] = lat
+            self.success[index] = suc
+
+    def failure(self):
+        for i in range(0, len(self.success)):
+            if self.success[i] == False:
+                print "FAILURE: index {0} was False".format(i)
+                return i
+        return -1
+
+
+def median(lst):
+    n = len(lst)
+    if n < 1:
+        return None
+    if n % 2 == 1:
+        return sorted(lst)[n // 2]
+    else:
+        return sum(sorted(lst)[n // 2 - 1:n // 2 + 1]) / 2.0
+
+
+def is_finished(latency, experiment_iterations):
+    if len(latency) < experiment_iterations:
+        print "LENGTH: latency is only {0} items but needs {1}".format(len(latency), experiment_iterations)
+        return len(latency)
+    elif latency.failure() != -1:
+        return latency.failure()
+    return -1
+
+
+# Block Coordinate Descent
+def measure_bcd(workload_configuration, experiment_iterations):
+    traffic_generate_machine = workload_configuration['request_generator'][0]
+    traffic_generate_container = workload_configuration['additional_args']['container_id']
+    cmd = "./spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --num-executors 6 --driver-class-path /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.1.jar spark://spark-ms.q:7077 500 100 100 3 1"
+    parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt\" | awk \'{{print $3}}\''
+    ssh_client = get_client(traffic_generate_machine)
+    latency = latencyResult()
+
+    stop = is_finished(latency, experiment_iterations)
+
+    while stop != -1:
+        print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
+        _, results, error = ssh_client.exec_command(
+            'docker exec {0} sh -c "{1} > ~/out.txt"'.format(traffic_generate_container, cmd))
+        status = results.channel.recv_exit_status()
+        print "Test command was run successfully: {0}".format(status == 0)
+        print  parse_cmd.format(traffic_generate_container)
+        r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
+        print "Results: {0}".format(r)
+        latency.add(float(r), status == 0, stop)
+        stop = is_finished(latency, experiment_iterations)
+    x = [median(latency.latency)]
+
+    close_client(ssh_client)
+
+    print latency.latency, x[0]
+    return {'latency': x,
+            'latency_50': x,
+            'latency_99': x,
+            'latency_90': x,
+            'success': all(latency.success)}
+
+
+# ELK
+def measure_elk_stack(workload_configuration, experiment_iterations):
+    traffic_generate_machine = workload_configuration['request_generator'][0]
+    traffic_generate_container = workload_configuration['additional_args']['container_id']
+    cmd_type = workload_configuration['additional_args']['command']
+    if cmd_type == 'load':
+        cmd = 'lumbersexual --load --rate 500 --timeout 30'
+        parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt | grep \'Sent\'\" | awk \'{{print $2}}\''
+    elif cmd_type == 'latency':
+        cmd = 'lumbersexual --latency --uri http://elasticsearch.q:9200'
+        parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt | grep \'Measured\'\" | awk \'{{print $3}}\''
+    elif cmd_type == 'load_latency':
+        cmd = 'lumbersexual --load --latency --uri http://elasticsearch.q:9200 --count 50000'
+        parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt | grep \'Measured\'\" | awk \'{{print $3}}\''
+    else:
+        raise Exception("{0} is not a valid command type".format(cmd_type))
+    ssh_client = get_client(traffic_generate_machine)
+    latency = latencyResult()
+
+    stop = is_finished(latency, experiment_iterations)
+
+    while stop != -1:
+        print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
+        _, results, error = ssh_client.exec_command(
+            'docker exec {0} sh -c "{1} > ~/out.txt"'.format(traffic_generate_container, cmd))
+        status = results.channel.recv_exit_status()
+        print "Test command was run successfully: {0}".format(status == 0)
+        print parse_cmd.format(traffic_generate_container)
+        r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
+        print "Results: {0}".format(r)
+        latency.add(float(r), status == 0, stop)
+        stop = is_finished(latency, experiment_iterations)
+    x = [median(latency.latency)]
+
+    close_client(ssh_client)
+
+    print latency.latency, x[0]
+    return {'latency': x,
+            'latency_50': x,
+            'latency_99': x,
+            'latency_90': x,
+            'success': all(latency.success)}
+
+
+# Use the Apache Benchmarking suite to hit a single container
+# experiment_args = [nginx_public_ip, pinging_machine]
 def measure_nginx_single_machine(workload_configuration, experiment_iterations):
     nginx_public_ip = workload_configuration['frontend'][0]
     traffic_generate_machine = workload_configuration['request_generator'][0]
