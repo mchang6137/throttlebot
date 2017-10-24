@@ -56,7 +56,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
-        new_resource_provision = default_mr_config[mr]
+        new_resource_provision = int(default_mr_config[mr])
         if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
             print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
             exit()
@@ -78,7 +78,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
      # This is dictated by quilt overheads
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
-        quilt_usage[resource] = ((quilt_overhead)/100.0) * max_cap
+        quilt_usage[resource] = int(((quilt_overhead)/100.0) * max_cap)
     
     all_vms = get_actual_vms()
 
@@ -91,9 +91,9 @@ Tools that are used for experimental purposes in Throttlebot
 '''
 
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
-    resource_modifier.set_mr_provision(mr, new_alloc, wc)
+    resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-    resource_datastore.write_mr_alloc(redis_db, mr, new_alloc)
+    resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
@@ -145,6 +145,7 @@ def containers_per_vm(mr):
 # Improvement amount is the raw amount a resource is being improved by
 # Always leave 10% of system resources available for Quilt
 def check_improve_mr_viability(redis_db, mr, improvement_amount):
+    improvement_amount = int(improvement_amount)
     print 'Checking MR viability'
     improvement_multiplier = containers_per_vm(mr)
     print 'The containers for this mr per vm are {}'.format(improvement_multiplier)
@@ -156,7 +157,8 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
         machine_capacity = resource_datastore.read_machine_capacity(redis_db, vm_ip)
 
         proposed_alloc = machine_consumption[mr.resource] + (improvement_multiplier[vm_ip] * improvement_amount)
-        if proposed_alloc > machine_capacity[mr.resource]:
+        # Greater than or equal to ensure a meaningless improvement is not attempted
+        if proposed_alloc  >= machine_capacity[mr.resource] + (0.01 * machine_capacity[mr.resource]):
             return False
     return True
 
@@ -188,7 +190,7 @@ def fill_out_resource(redis_db, imr):
         # get immediate results just by setting the proposal to zero in this case
         improvement_proposal = 0
         
-    return improvement_proposal
+    return int(improvement_proposal)
 
 # Decrease resource provisions for co-located resources
 # Assures that every the reduction_proposal will allow every instance of the service to balloon
@@ -258,7 +260,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
         new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
         # Multiply by reduction multiplier since you have multiple NIMR instances
         alloc_diff = (new_alloc - nimr_alloc) * reduction_multiplier[target_vm]
-        new_nimr_change[nimr] = alloc_diff
+        new_nimr_change[nimr] = int(alloc_diff)
         total_change += alloc_diff
 
     # Divide the min mr removal amount among the instances on the machine
@@ -268,7 +270,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     print 'New MR alloc {}'.format(new_nimr_change)
     print 'Minimum MR Removal {}'.format(proposed_imr_improvement)
 
-    return new_nimr_change, proposed_imr_improvement
+    return new_nimr_change, int(proposed_imr_improvement)
 
 # Determine if mr still has an interval to decrease it to
 def mr_at_minimum(mr, proposed_weight_change):
@@ -375,19 +377,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     if last_completed_iter == 0:
         redis_db.flushall()
-        
-    '''
-    # Prompt the user to make sure they want to flush the db
-    ok_to_flush = raw_input("Are you sure you want to flush the results of your last experiment? Please respond with Y or N: ")
-    if ok_to_flush == 'Y':
-        redis_db.flushall()
-    elif ok_to_flush == 'N':
-        print 'OK you said it boss. Exiting...'
-        exit()
-    else:
-        print 'Only Y and N are acceptable responses. Exiting...'
-        exit()
-    '''
 
     print '\n' * 2
     print '*' * 20
@@ -537,7 +526,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
             current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
             new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
-            imr_improvement_proposal = new_imr_alloc - current_imr_alloc
+            imr_improvement_proposal = int(new_imr_alloc - current_imr_alloc)
 
             # If the the Proposed MR cannot be improved by the proposed amount, there are two options
             # - Max out the resources to fill up the remaining resources on the machine
@@ -573,17 +562,22 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                             nimr.to_string())
                 finalize_mr_provision(redis_db, nimr, new_nimr_alloc, workload_config)
 
+            print 'Taking an accounting before decreasing...'
+            print 'IMR {} is currently at {}, trying to improve by {}'.format(imr.to_string(), current_imr_alloc, imr_improvement_proposal)
             # Improving the resource should always be viable at this step
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
                 new_imr_alloc = imr_improvement_proposal + current_imr_alloc
                 action_taken[imr] = imr_improvement_proposal
                 finalize_mr_provision(redis_db, imr, new_imr_alloc, workload_config)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(mr.to_string(), current_imr_alloc, new_imr_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(imr.to_string(), current_imr_alloc, new_imr_alloc)
                 mimr = imr
                 break
             else:
                 action_taken[imr] = 0
-                print 'Improvement Calculated: MR {} failed to improve from {}'.format(mr.to_string(), current_mr_allocation)
+                new_imr_alloc = imr_improvement_proposal + current_imr_alloc
+                print 'Improvement Calculated: MR {} failed to improve from {} to {}'.format(imr.to_string(),
+                                                                                             current_imr_alloc,
+                                                                                             imr_improvement_proposal)
                 print 'This IMR cannot be improved. Printing some debugging before exiting...'
 
                 print 'Current MR allocation is {}'.format(current_imr_alloc)
@@ -622,8 +616,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
-        
-        experiment_count += 1
+                experiment_count += 1
 
     print '{} experiments completed'.format(experiment_count)
     print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
