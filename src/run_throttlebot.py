@@ -311,16 +311,21 @@ def update_mr_config(redis_db, mr_in_play):
     return updated_configuration
 
 # Prints all improvements attempted by Throttlebot
-def print_all_steps(redis_db, total_experiments):
+def print_all_steps(redis_db, total_experiments, sys_config, workload_config, filter_config):
     print 'Steps towards improving performance'
     net_improvement = 0
+
+    with open("experiment_logs.txt", "a") as myfile:
+        log_msg = '{},{},{}\n'.format(sys_config, workload_config, filter_config)
+        myfile.write(log_msg)
+        
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
-            log_msg = '{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,action_taken)
+            log_msg = '{},{},{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,elapsed_time, cumm_mr,action_taken)
             myfile.write(log_msg)
             
         net_improvement += float(perf_improvement)
@@ -618,7 +623,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         experiment_count += 1
 
     print '{} experiments completed'.format(experiment_count)
-    print_all_steps(redis_db, experiment_count)
+    print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
