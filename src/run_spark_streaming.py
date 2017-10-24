@@ -3,7 +3,7 @@ from poll_cluster_state import *
 import time
 
 SENDING_TIME = 30
-EVENTS_PER_SEC = 300
+EVENTS_PER_SEC = 500
 EVENTS_PER_CONTAINER = 5000
 
 # Run the Spark Streaming Example
@@ -19,40 +19,55 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     spark_worker_instances = service_to_deployment['mchang6137/spark-yahoo-worker']
     
     all_requests = {}
+    all_requests['latency_99'] = []
+    all_requests['latency_95'] = []
     all_requests['window_latency'] = []
     all_requests['window_latency_std'] = []
     all_requests['total_results'] = []
     
     # Initialization
-    print 'Stopping Spark Job'
     stop_spark_job(spark_master_instances)
     clean_files(generator_instances)
     flush_redis(redis_instances)
-    print 'Starting Spark Job'
     start_spark_job(spark_master_instances)
-    print 'Stopping spark job'
+    
     stop_spark_job(spark_master_instances)
-    print 'Starting Spark job'
     start_spark_job(spark_master_instances)
     
     # Warmup JVM
-    for warmup_count in range(3):
+    warmup_count = 0
+    while warmup_count < 1:
         run_kafka_events(generator_instances)
         results = collect_results(generator_instances, redis_instances)
+        if results is None:
+            stop_spark_job(spark_master_instances)
+            start_spark_job(spark_master_instances)
+            stop_spark_job(spark_master_instances)
+            start_spark_job(spark_master_instances)
+            continue
         clean_files(generator_instances)
         flush_redis(redis_instances)
+        warmup_count += 1
 
     # Run the Experiment 
     trial_count = 0
     while trial_count < experiment_iterations:
         run_kafka_events(generator_instances)
+        print 'Attempting to collect results\n'
         results = collect_results(generator_instances, redis_instances)
-
+        if results is None:
+            stop_spark_job(spark_master_instances)
+            start_spark_job(spark_master_instances)
+            stop_spark_job(spark_master_instances)
+            start_spark_job(spark_master_instances)
+            continue
         # Clean up Files and collect results
         clean_files(generator_instances)
         all_requests['window_latency'].append(results['window_latency'])
         all_requests['window_latency_std'].append(results['window_latency_std'])
         all_requests['total_results'].append(results['total_results'])
+        all_requests['latency_99'].append(results['latency_99'])
+        all_requests['latency_95'].append(results['latency_95'])
 
         flush_redis(redis_instances)
         trial_count += 1
@@ -65,14 +80,16 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     return all_requests
 
 def start_spark_job(spark_master_instances):
+    print 'Starting Spark job\n'
     vm_ip,container_id = spark_master_instances[0]
     start_spark_cmd = 'bash -c "spark-submit --executor-memory 2g --class de.codecentric.spark.streaming.example.spark-submit --class de.codecentric.spark.streaming.example.YahooStreamingBenchmark --master spark://spark-ms2.q:7077 --conf spark.executor.extraClassPath=/spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar --deploy-mode client spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar kafka_broker0.q:9092 ad-events redis-ms.q 1000"'
     ssh_client = get_client(vm_ip)
     run_cmd(start_spark_cmd, ssh_client, container_id, blocking=False, lein=False)
-    time.sleep(50)
+    time.sleep(120)
     ssh_client.close()
 
 def stop_spark_job(spark_master_instances):
+    print 'Stopping Spark job\n'
     vm_ip,container_id = spark_master_instances[0]
     
     stop_spark_cmd = "ps -ef | grep java | grep YahooStreamingBenchmark | awk '{print \$2}' | xargs kill -SIGTERM"
@@ -80,7 +97,7 @@ def stop_spark_job(spark_master_instances):
     ssh_client = get_client(vm_ip)
     run_cmd(stop_spark_cmd, ssh_client, container_id, blocking=False, lein=True)
     ssh_client.close()
-    time.sleep(30)
+    time.sleep(15)
 
 # Need this when the requests get too misaligned
 def all_reset(kafka_instances,redis_instances):
@@ -135,23 +152,24 @@ def collect_results(instances, redis_instances):
 
     # Only need to collect results from one instance
     send_events_ip,send_events_container = instances[0]
-    print 'DEBUG: Collecting results from {}'.format(send_events_ip, send_events_container)
+    print 'DEBUG: Collecting results from {}'.format(send_events_container)
     ssh_client = get_client(send_events_ip)
     results = {}
 
     attempts_required = 10
 
     for attempt in range(attempts_required):
+        print 'Attempt number {}\n'.format(attempt)
         # Clean the results of the file from the old experiment
         clean_files(instances)
         
         # Collect the results
-        lein_collect_cmd = 'bash -c "cd /streaming-benchmarks/data && /bin/lein run -g --configPath /streaming-benchmarks/conf/localConf.yaml"'.format(send_events_container)
+        lein_collect_cmd = 'bash -c "cd /streaming-benchmarks/data && /bin/lein run -g --configPath /streaming-benchmarks/conf/localConf.yaml"'
         run_cmd(lein_collect_cmd, ssh_client, send_events_container, blocking=True, lein=False)
         time.sleep(10)
 
         # Parse the results
-        parse_results_cmd = 'bash -c "cd /streaming-benchmarks/data && sh parse_results.sh"'.format(send_events_container)
+        parse_results_cmd = 'bash -c "cd /streaming-benchmarks/data && sh parse_results.sh"'
         run_cmd(parse_results_cmd, ssh_client, send_events_container, blocking=True, lein=False)
 
         # Copy files into host machine
@@ -160,20 +178,22 @@ def collect_results(instances, redis_instances):
         data = data_exec.read()
 
         clean_files(instances)
-        print 'INFO: Collected results are {}'.format(repr(data))
-        average_latency,latency_std,nsum,_ = data.split('\n')
+        print 'INFO: Collected results are {}\n'.format(repr(data))
+        latency_95, latency_99,average_latency,latency_std,nsum,_ = data.split('\n')
         results_seen = float(nsum.split(': ')[1])
 
         if results_seen != total_num_events:
-            print 'Events seen: {}, Expected Events: {}'.format(results_seen, total_num_events)
+            print 'Events seen: {}, Expected Events: {}\n'.format(results_seen, total_num_events)
             # Sleep for 15 seconds and wait for future results
             time.sleep(15)
             continue
         else:
+            results['latency_99'] = float(latency_99.split(': ')[1])
+            results['latency_95'] = float(latency_95.split(': ')[1])
             results['window_latency'] = float(average_latency.split(': ')[1])
             results['window_latency_std'] = float(latency_std.split(': ')[1])
             results['total_results'] = results_seen
-            print 'All results received. Results are as follows: {}'.format(results)
+            print 'All results received. Results are as follows: {}\n'.format(results)
             return results
         
     print "Error: Something bad happened, so we need to flush out all the old messages"
@@ -182,11 +202,7 @@ def collect_results(instances, redis_instances):
     
     # This presumably caused some something to crash so let's set this arbitrarily high
     # Set the other two fields as zero
-    results['window_latency'] = 100000
-    results['window_latency_std'] = 0
-    results['total_results'] = 0
-    
-    return results
+    return None
 
 def clean_files(instances):
     for instance in instances:
