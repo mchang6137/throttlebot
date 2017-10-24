@@ -47,29 +47,27 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
 
+    # Specify the MRs that will require joint tuning with software configurations
     spark_master_image = 'hantaowang/bcd-spark-master'
     spark_worker_image = 'hantaowang/bcd-spark'
 
-    workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
-    workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
-    workload_config['additional_args'] = {'container_id': service_to_deployment[spark_master_image][0][1]}
-
-    # Creating Dummy MRs here since the instances are not considered in the hashing
     sparkms_core = MR(spark_master_image, 'CPU-CORE', [])
     sparkms_memory = MR(spark_master_image, 'MEMORY', [])
     sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
     sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
 
-    workload_config['resource_fct'][sparkms_core]['spark.driver.cores'] = '8'
-    workload_config['resource_fct'][sparkwk_core]['spark.executor.cores'] = '8'
-    workload_config['resource_fct'][sparkwk_core]['spark.cores.max'] = '48'
+    # Save the configuration variables as some function of the default configurtion values
+    # For Spark, it is just the current configuration
+    # NOTE: GET THE RIGHT UNITS HERE
+    workload_config['resource_fct'][sparkms_core]['spark.driver.cores'] = str(default_mr_config[sparkms_core])
+    workload_config['resource_fct'][sparkwk_core]['spark.executor.cores'] = str(default_mr_config[sparkwk_core])
+    workload_config['resource_fct'][sparkwk_core]['spark.cores.max'] = str(default_mr_config[sparkwk_core * 6])
     
-    workload_config['resource_fct'][sparkwk_memory]['spark.executor.memory'] = '25g'
-    workload_config['resource_fct'][sparkms_memory]['spark.driver.memory'] = '25g'
+    workload_config['resource_fct'][sparkwk_memory]['spark.executor.memory'] = str(default_mr_config[sparkwk_memory] + 'g')
+    workload_config['resource_fct'][sparkms_memory]['spark.driver.memory'] = str(default_mr_config[sparkms_memory] + 'g')
 
+    # Write the maximum provisining that the resources can be provisioned to
     max_capacity = get_instance_specs(machine_type)[mr.resource]
-    
-    # Write the configuration maximum capacities to Redis
     for mr in default_mr_config:
         if mr == sparkms_core or mr == sparkwk_core:
             for instance in mr.instances:
@@ -78,7 +76,7 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
         if mr == sparkms_memory or mr == sparkwk_memory:
             for instance in mr.instances:
                 vm_ip,container_id = instance
-                resource_datastore.write_config_capacity(redis_db, vm_ip, max_capacity['MEMORY'])
+                resource_datastore.write_config_capacity(redis_db, vm_ip, mr, max_capacity['MEMORY'])
 
     # Add MRs to the tunable MR list
     resource_datastore.write_tunable_mr(redis_db, mr)
