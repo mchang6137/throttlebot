@@ -184,7 +184,7 @@ def fill_out_resource(redis_db, imr):
             myfile.write(debug_statement)
                          
     if improvement_proposal < 0:
-        print 'WARNING: Improvement proposal is less than 0'
+        print 'WARNING: Improvement proposal is less than 0 (it is P{})'.format(improvement_proposal)
         print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
 
         # get immediate results just by setting the proposal to zero in this case
@@ -350,6 +350,60 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
             result_dict['AMOUNT'] = final_configuration[mr]
             result_dict['REPR'] = 'RAW'
             writer.writerow(result_dict)
+
+# Iterate through all the colocated imrs of the same resource
+def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
+    experiment_trials = sys_config['trials']
+    stress_weights = sys_config['stress_weights']
+    stress_weight = min(stress_weights)
+    
+    preferred_performance_metric = workload_config['tbot_metric']
+    optimize_for_lowest = workload_config['optimize_for_lowest']
+    
+    vm_to_service = get_vm_to_service(get_actual_vms())
+    
+    colocated_services = []
+    # Identify an unique list of relevant MRs colocated with IMR instances
+    for deployment in imr.instances:
+        vm_ip, container = deployment
+        colocated_services = colocated_services + vm_to_service[vm_ip]
+
+    candidate_mrs = []
+    for mr in mr_working_set:
+        if mr.service_name in colocated_services and mr.resource == imr.resource:
+            candidate_mrs.append(mr)
+
+    nimr_list = []
+    for mr in candidate_mrs:
+        mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+                                                              sys_config,
+                                                              stress_weight)
+            
+        for change_mr in mr_gradient_schedule:
+            resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                
+        experiment_results = measure_runtime(workload_config, experiment_trials)
+        preferred_results = experiment_results[preferred_performance_metric]
+        mean_result = mean_list(preferred_results)
+
+        perf_diff = mean_result - baseline_mean
+        if (perf_diff > 0.03 * baseline_performance) and optimize_for_lowest:
+            print 'Do noting'
+        elif (perf_diff < 0.03 * baseline_performance) and optimize_for_lowest is False:
+            print 'Do nothing'
+        else:
+            nimr_list.append(mr)
+            
+        # Revert the Gradient schedule and provision resources accordingly
+        mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                  [mr],
+                                                                  sys_config,
+                                                                  stress_weight)
+            
+        for change_mr in mr_revert_gradient_schedule:
+            resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+
+    return nimr_list
     
 '''
 Primary Run method that is called from the main
@@ -373,6 +427,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
+
+    filter_policy= filter_config['filter_policy']
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     if last_completed_iter == 0:
@@ -551,9 +607,19 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                     print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
                     
                     if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
-                        action_taken[imr] = 0
-                        continue
+                        if filter_policy is None:
+                            action_taken[imr] = 0
+                            continue
 
+                        # Special actions for Filtered results
+                        filtered_nimr_list = find_colocated_nimrs(redis_db, imr, mr_working_set, analytic_mean, sys_config, workload_config)
+                        nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
+                                                                                                    imr,
+                                                                                                    filtered_nimr_list,
+                                                                                                    max_stress_weight)
+                        if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
+                            continue
+                        
             # Decrease the amount of resources provisioned to the NIMR
             for nimr in nimr_diff_proposal:
                 action_taken[nimr] = nimr_diff_proposal[nimr]
@@ -616,7 +682,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
-                experiment_count += 1
+        experiment_count += 1
 
     print '{} experiments completed'.format(experiment_count)
     print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
@@ -654,6 +720,7 @@ def parse_config_file(config_file):
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
+    sys_config['setting_mode'] = config.get('Basic', 'graient_mode')
 
     # Configuration parameters relating to the filter step
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')
