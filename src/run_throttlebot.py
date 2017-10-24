@@ -176,7 +176,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 
             # Check if Cores is below. We don't care how much the other containers are using
             proposed_alloc = (previous_core_alloc + improvement_amount) * improvement_multiplier[vm_ip] 
-            if proposed_alloc > resource_datastore.read_config_capacity(redis_db, vm_ip, mr)['CPU-CORE']:
+            if proposed_alloc > resource_datastore.read_config_capacity(redis_db, vm_ip, mr):
                 return False
 
             # Check if the Quota is below the limit. We do care how much the other containers are using
@@ -357,10 +357,6 @@ def mr_at_minimum(mr, proposed_weight_change):
     else:
         return False
 
-# Calculate the mean of a list
-def mean_list(l):
-    return sum(l) / float(len(l))
-
 # Remove Outliers from a list
 def remove_outlier(l, n=1):
     n = 1
@@ -512,7 +508,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
-    mr_working_set = prepare_working_set(redis_db)s
+    mr_working_set = prepare_working_set(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1

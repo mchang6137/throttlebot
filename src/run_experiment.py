@@ -97,6 +97,10 @@ def is_finished(latency, experiment_iterations):
 
 # Block Coordinate Descent
 def measure_bcd(workload_configuration, experiment_iterations):
+    workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
+    workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
+    workload_config['additional_args'] = {'container_id': service_to_deployment[spark_master_image][0][1]}
+    
     traffic_generate_machine = workload_configuration['request_generator'][0]
     traffic_generate_container = workload_configuration['additional_args']['container_id']
     cmd = "./spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --num-executors 6 --driver-class-path /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.1.jar spark://spark-ms.q:7077 500 100 100 3 1"
@@ -273,8 +277,8 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    NUM_REQUESTS = 400
-    CONCURRENCY = 150
+    NUM_REQUESTS = 200
+    CONCURRENCY = 50
 
     post_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 200 -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
 
