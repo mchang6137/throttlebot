@@ -179,8 +179,8 @@ def collect_results(instances, redis_instances):
 
         clean_files(instances)
         print 'INFO: Collected results are {}\n'.format(repr(data))
-        latency_95, latency_99,average_latency,latency_std,nsum,_ = data.split('\n')
-        results_seen = float(nsum.split(': ')[1])
+        latency_50,latency_75,latency_95,latency_99,latency100,std,total_results,_ = data.split('\n')
+        results_seen = float(total_results.split(': ')[1])
 
         if results_seen != total_num_events:
             print 'Events seen: {}, Expected Events: {}\n'.format(results_seen, total_num_events)
@@ -188,10 +188,12 @@ def collect_results(instances, redis_instances):
             time.sleep(15)
             continue
         else:
-            results['latency_99'] = float(latency_99.split(': ')[1])
+            results['latency_50'] = float(latency_50.split(': ')[1])
+            results['latency_75'] = float(latency_75.split(': ')[1])
             results['latency_95'] = float(latency_95.split(': ')[1])
-            results['window_latency'] = float(average_latency.split(': ')[1])
-            results['window_latency_std'] = float(latency_std.split(': ')[1])
+            results['latency_99'] = float(latency_99.split(': ')[1])
+            results['latency_100'] = float(latency_100.split(': ')[1])
+            results['window_latency_std'] = float(std.split(': ')[1])
             results['total_results'] = results_seen
             print 'All results received. Results are as follows: {}\n'.format(results)
             return results
