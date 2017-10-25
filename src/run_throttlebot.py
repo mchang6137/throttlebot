@@ -424,6 +424,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     machine_type = sys_config['machine_type']
     quilt_overhead = sys_config['quilt_overhead']
     gradient_mode = sys_config['gradient_mode']
+    setting_mode = sys_config['setting_mode']
+    fill_services_first = sys_config['fill_services_first']
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -441,6 +443,24 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type, workload_config)
+
+    # In the on-prem mode, fill out resources
+    if setting_mode == 'prem':
+        all_mrs = resource_datastore.get_all_mrs(redis_db)
+        priority_mr = []
+        
+        for mr in all_mrs:
+            if mr.service_name in fill_services_first:
+                priority_mr.append(mr)
+
+        for mr in priority_mrs:
+            mr_improvement_proposal = fill_out_resource(redis_db, imr)
+            if check_improve_mr_viability(redis_db, mr, mr_improvement_proposal):
+                current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+                new_mr_alloc = mr_improvement_proposal + current_mr_alloc
+                finalize_mr_provision(redis_db, mr, new_mr_alloc, workload_config)
+                print 'Maxing our resources for on-prem: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_alloc, new_mr_alloc)
+    print 'Filled out resources for on-prem mode'
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
@@ -720,7 +740,19 @@ def parse_config_file(config_file):
     sys_config['machine_type'] = config.get('Basic', 'machine_type')
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
-    sys_config['setting_mode'] = config.get('Basic', 'graient_mode')
+    sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
+    fill_services_first = config.get('Basic', 'fill_services_first')
+    if fill_services_first == '':
+        if sys_config['setting_mode'] == 'on_prem':
+            print 'You need to specify some services to try to fill first!'
+        fill_services_first = None
+    else:
+        sys_config['fill_services_first'] = fill_services_first.split(',')
+        all_services = get_actual_services()
+        for service in sys_config['fill_services_first']:
+            if service not in all_services:
+                print 'Invalid service name {}. Change your field fill_services_first'.format(service)
+                exit()
 
     # Configuration parameters relating to the filter step
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')

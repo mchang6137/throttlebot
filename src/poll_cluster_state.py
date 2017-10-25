@@ -38,7 +38,7 @@ def get_actual_vms():
 # Gets all the services in the Quilt cluster
 # Identifies the services based on the COMMAND
 def get_actual_services():
-    services = parse_quilt_ps_col(2, machine_level=False)
+    services = parse_quilt_ps_col(3, machine_level=False)
     return services
 
 def parse_quilt_ps_col(column, machine_level=True):
