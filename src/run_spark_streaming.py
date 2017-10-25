@@ -64,7 +64,6 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
             continue
         # Clean up Files and collect results
         clean_files(generator_instances)
-        all_requests['window_latency'].append(results['window_latency'])
         all_requests['window_latency_std'].append(results['window_latency_std'])
         all_requests['total_results'].append(results['total_results'])
         all_requests['latency_50'].append(results['latency_50'])
