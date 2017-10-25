@@ -38,7 +38,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     # Warmup JVM
     warmup_count = 0
     while warmup_count < 1:
-        run_kafka_events(generator_instances, EVENTS_PER_SECOND, EVENTS_PER_CONTAINER)
+        run_kafka_events(generator_instances, 1000, 10000)
         results = collect_results(generator_instances, redis_instances)
         if results is None:
             stop_spark_job(spark_master_instances)
