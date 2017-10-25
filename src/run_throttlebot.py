@@ -109,7 +109,7 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
 
         if (perf_diff > within_x * baseline_performance) and optimize_for_lowest:
             imr_list.append(mr)
-        elif (perf_diff < within_x * baseline_performance) and optimize_for_lowest is False:
+        elif (perf_diff < -1 * within_x * baseline_performance) and optimize_for_lowest is False:
             imr_list.append(mr)
         else:
             nimr_list.append(mr)
@@ -387,9 +387,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         mean_result = mean_list(preferred_results)
 
         perf_diff = mean_result - baseline_mean
-        if (perf_diff > 0.03 * baseline_performance) and optimize_for_lowest:
+        if (perf_diff > 0.03 * baseline_mean) and optimize_for_lowest:
             print 'Do noting'
-        elif (perf_diff < 0.03 * baseline_performance) and optimize_for_lowest is False:
+        elif (perf_diff < -0.03 * baseline_mean) and optimize_for_lowest is False:
             print 'Do nothing'
         else:
             nimr_list.append(mr)
