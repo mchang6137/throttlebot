@@ -15,6 +15,7 @@ from random import shuffle
 
 from time import sleep
 
+from copy import deepcopy
 from collections import namedtuple
 from collections import Counter 
 from mr_gradient import *
@@ -353,6 +354,7 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
 
 # Iterate through all the colocated imrs of the same resource
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
+    print 'Finding colocated NIMRs'
     experiment_trials = sys_config['trials']
     stress_weights = sys_config['stress_weights']
     stress_weight = min(stress_weights)
@@ -367,14 +369,17 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     for deployment in imr.instances:
         vm_ip, container = deployment
         colocated_services = colocated_services + vm_to_service[vm_ip]
-
+    print 'Colocated services are {}'.format(colocated_services)
+        
     candidate_mrs = []
     for mr in mr_working_set:
         if mr.service_name in colocated_services and mr.resource == imr.resource:
             candidate_mrs.append(mr)
+    print 'Candidate MRs are {}'.format([mr.to_string() for mr in candidate_mrs])
 
     nimr_list = []
     for mr in candidate_mrs:
+        print 'MR being considered is {}'.format(mr.to_string())
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                               sys_config,
                                                               stress_weight)
@@ -388,9 +393,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
 
         perf_diff = mean_result - baseline_mean
         if (perf_diff > 0.03 * baseline_mean) and optimize_for_lowest:
-            print 'Do noting'
+            print 'Do nothing for optimize lowest'
         elif (perf_diff < -0.03 * baseline_mean) and optimize_for_lowest is False:
-            print 'Do nothing'
+            print 'Do nothing for optimize lowest'
         else:
             nimr_list.append(mr)
             
@@ -453,8 +458,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             if mr.service_name in fill_services_first:
                 priority_mr.append(mr)
 
-        for mr in priority_mrs:
-            mr_improvement_proposal = fill_out_resource(redis_db, imr)
+        for mr in priority_mr:
+            mr_improvement_proposal = fill_out_resource(redis_db, mr)
             if check_improve_mr_viability(redis_db, mr, mr_improvement_proposal):
                 current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 new_mr_alloc = mr_improvement_proposal + current_mr_alloc
@@ -509,7 +514,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
             resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
-        analytic_baseline = measure_runtime(workload_config, experiment_trials)
+
+        if len(analytic_provisions) != 0:
+            analytic_baseline = measure_runtime(workload_config, experiment_trials)
+        else:
+            analytic_baseline = deepcopy(current_performance)
+
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
         print 'The analytic baseline is {}'.format(analytic_baseline)
         print 'This current performance is {}'.format(current_performance)
