@@ -573,11 +573,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 experiment_count, stress_weights,
                                                 preferred_performance_metric, time_start)
         
-        # Move back into the normal operating basis by removing the baseline prep stresses
-        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
-
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
@@ -678,6 +673,11 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         if mimr is None:
             print 'No viable improvement found'
             break
+
+        # Move back into the normal operating basis by removing the baseline prep stresses
+        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
+        for mr in reverted_analytic_provisions:
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
 
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
