@@ -183,7 +183,7 @@ def collect_results(instances, redis_instances, events_per_container):
 
         clean_files(instances)
         print 'INFO: Collected results are {}\n'.format(repr(data))
-        latency_50,latency_75,latency_95,latency_99,latency100,std,total_results,_ = data.split('\n')
+        latency_50,latency_75,latency_95,latency_99,latency_100,std,total_results,_ = data.split('\n')
         results_seen = float(total_results.split(': ')[1])
 
         if results_seen != total_num_events:
