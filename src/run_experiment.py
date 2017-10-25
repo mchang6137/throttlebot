@@ -256,7 +256,8 @@ def measure_apt_app(workload_config, experiment_iterations):
     apt_app_public_ip = workload_config['frontend'][0]
     traffic_gen_ips = workload_config['request_generator']
 
-    NUM_REQUESTS = 1000
+    POSTGRES_REQUESTS = 1600
+    NUM_REQUESTS = 1100
     CONCURRENCY = 500
 
     # traffic_clients = []
@@ -266,26 +267,6 @@ def measure_apt_app(workload_config, experiment_iterations):
 
     traffic_client = get_client(traffic_gen_ips[0])
 
-    # Initializing machine db
-    print 'Initializing Machines'
-    init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/'.format(
-        NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    print init_cmd
-    # _, results, _ = traffic_clients[0].exec_command(init_cmd)
-    _, results, _ = traffic_client.exec_command(init_cmd)
-    init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/'.format(
-        NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    print init_cmd
-    # _, results, _ = traffic_clients[0].exec_command(init_cmd)
-    _, results, _ = traffic_client.exec_command(init_cmd)
-
-    print "Sleeping for 3 seconds"
-    sleep(3)
-
-    #Checkpoint 1 (initialize machines)
-    #print 'Reached Checkpoint 1! Check all traffic machines for post.json and db for entries'
-    #exit()
-
     all_requests = {}
     all_requests['rps'] = []
     all_requests['latency'] = []
@@ -293,16 +274,37 @@ def measure_apt_app(workload_config, experiment_iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output0.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output1.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
     mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:3000/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 1)
+    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:3000/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, NUM_REQUESTS/100)
 
-    benchmark_commands = [elastic, postgres_get, postgres_post, mysql_get, mysql_post, welcome]
+    benchmark_commands = [postgres_get, postgres_post, mysql_get, mysql_post, welcome, elastic]
 
     for x in range(experiment_iterations):
+
+        # Initializing machine db
+        print 'Initializing Machines'
+        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/'.format(
+            NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+        print init_cmd
+        # _, results, _ = traffic_clients[0].exec_command(init_cmd)
+        _, results, _ = traffic_client.exec_command(init_cmd)
+        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/'.format(
+            NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+        print init_cmd
+        # _, results, _ = traffic_clients[0].exec_command(init_cmd)
+        _, results, _ = traffic_client.exec_command(init_cmd)
+
+        print "Sleeping for 2 seconds"
+        sleep(2)
+
+        # Checkpoint 1 (initialize machines)
+        # print 'Reached Checkpoint 1! Check all traffic machines for post.json and db for entries'
+        # exit()
+
         # Initiating requests
         for a in range(6):
             print benchmark_commands[a]
@@ -323,6 +325,8 @@ def measure_apt_app(workload_config, experiment_iterations):
                 # print 'test', complete
                 if complete != -1:
                     finished += 1
+                else:
+                    break
 
         rps = 0
         latency = 0
@@ -364,9 +368,9 @@ def measure_apt_app(workload_config, experiment_iterations):
             latency += float(execute_parse_results(traffic_client, latency_cmd))
 
             if latency_50t == -1:
-                latency_50 += latencyt
-                latency_90 += latencyt
-                latency_99 += latencyt
+                latency_50 += latencyt * 0.33
+                latency_90 += latencyt * 0.33
+                latency_99 += latencyt * 0.33
             else:
                 latency_50 += latency_50t
                 latency_90 += latency_90t
@@ -380,6 +384,7 @@ def measure_apt_app(workload_config, experiment_iterations):
         # Removing entries
         curl1 = 'curl -X "DELETE" http://{}:3000/app/mysql/users'.format(apt_app_public_ip)
         curl2 = 'curl -X "DELETE" http://{}:3000/app/psql/users'.format(apt_app_public_ip)
+        curl3 = 'curl http://{}:3000/app/elastic/reset'.format(apt_app_public_ip)
         # fcurl1 = "for i in `seq {}`; do {}; done".format(NUM_REQUESTS, curl1)
         # fcurl2 = "for i in `seq {}`; do {}; done".format(NUM_REQUESTS, curl2)
         # traffic_clients[0].exec_command(curl1)
@@ -387,6 +392,10 @@ def measure_apt_app(workload_config, experiment_iterations):
 
         traffic_client.exec_command(curl1)
         traffic_client.exec_command(curl2)
+        traffic_client.exec_command(curl3)
+
+        print 'Sleeping for 2 seconds'
+        sleep(2)
 
         all_requests['rps'].append(rps)
         all_requests['latency'].append(latency)
