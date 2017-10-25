@@ -743,9 +743,10 @@ def parse_config_file(config_file):
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
+        sys_config['fill_services_first'] = None
         if sys_config['setting_mode'] == 'on_prem':
             print 'You need to specify some services to try to fill first!'
-        fill_services_first = None
+            exit()
     else:
         sys_config['fill_services_first'] = fill_services_first.split(',')
         all_services = get_actual_services()
