@@ -455,7 +455,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 priority_mr.append(mr)
 
         for mr in priority_mr:
-            mr_improvement_proposal = fill_out_resource(redis_db, imr)
+            mr_improvement_proposal = fill_out_resource(redis_db, mr)
             if check_improve_mr_viability(redis_db, mr, mr_improvement_proposal):
                 current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 new_mr_alloc = mr_improvement_proposal + current_mr_alloc
