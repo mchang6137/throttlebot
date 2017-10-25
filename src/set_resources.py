@@ -24,7 +24,7 @@ NET: network speed (bps) (0 to reset)
 def generate_empty_file(name):
     output_file_name = '{}.csv'.format(name)
     with open(output_file_name, 'wb') as csvfile:
-        fieldnames = ['IP', 'Container', 'CPUC', 'CPU', 'DISK', 'NET']
+        fieldnames = ['IP', 'Container', 'CPUC', 'CPU', 'DISK', 'NET', 'MEMORY']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -60,6 +60,7 @@ if __name__ == "__main__":
             cpu_value = row['CPU']
             disk_value = row['DISK']
             net_value = row['NET']
+            memory = row['MEMORY']
 
             try:
                 socket.inet_aton(ip_address)
@@ -72,7 +73,7 @@ if __name__ == "__main__":
             #
             # print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
             #
-            # # Setting CPU Cores
+            # Setting CPU Cores
             # try:
             #     cpu_cores = int(cpuc_value)
             # except:
@@ -82,19 +83,19 @@ if __name__ == "__main__":
             #     reset_cpu_cores(ssh_client, container_id)
             # else:
             #     set_cpu_cores(ssh_client, container_id, cpu_cores)
-            #
-            # # Setting CPU throttling
-            # try:
-            #     cpu_percentage = int(cpu_value)
-            #     if cpu_percentage > 100 or cpu_percentage < 0:
-            #         raise ValueError('')
-            # except:
-            #     error_message(line_numb, 'cpu')
-            #     exit()
-            # if cpu_percentage == 0:
-            #     reset_cpu_quota(ssh_client, container_id)
-            # else:
-            #     set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage * 1000000 / 100)
+
+            # Setting CPU throttling
+            try:
+                cpu_percentage = int(cpu_value)
+                if cpu_percentage > 100 or cpu_percentage < 0:
+                    raise ValueError('')
+            except:
+                error_message(line_numb, 'cpu')
+                exit()
+            if cpu_percentage == 0:
+                reset_cpu_quota(ssh_client, container_id)
+            else:
+                set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage)
 
             # Setting DISK speeds
             try:
@@ -105,23 +106,31 @@ if __name__ == "__main__":
             set_container_blkio(ssh_client, container_id, disk_bps)
 
             # Setting network speeds
-            # try:
-            #     net_bps = int(net_value)
-            # except:
-            #     error_message(line_numb, 'value')
-            #     exit()
-            # if net_bps == 0:
-            #     try:
-            #         reset_egress_network_bandwidth(ssh_client, container_id)
-            #     except:
-            #         print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
-            # else:
-            #     try:
-            #         set_egress_network_bandwidth(ssh_client, container_id, {container_id: net_bps})
-            #     except:
-            #         print 'Warning: Container {}\'s network cannot be set'.format(container_id)
+            try:
+                net_bps = int(net_value)
+            except:
+                error_message(line_numb, 'value')
+                exit()
+            if net_bps == 0:
+                try:
+                    reset_egress_network_bandwidth(ssh_client, container_id)
+                except:
+                    print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
+            else:
+                try:
+                    set_egress_network_bandwidth(ssh_client, container_id, net_bps)
+                except:
+                    print 'Warning: Container {}\'s network cannot be set'.format(container_id)
 
             line_numb += 1
+
+            # Setting Memory Allocation
+            try:
+                memory_b = int(memory)
+            except:
+                error_message(line_numb, 'value')
+                exit()
+            set_memory_size(ssh_client, container_id, memory_b)
 
         print "Container resources were applied."
         exit()
