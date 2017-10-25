@@ -66,21 +66,14 @@ def weighting_to_cpu_cores(weight_change, current_alloc):
             new_cores = current_alloc - 1
         else:
             new_cores = current_alloc + 1
-    if new_cores <= 0:
-        print 'Cannot shrink the number of cores anymore'
-        return 1
+            if new_cores <= 0:
+                print 'Cannot shrink the number of cores anymore'
+            return 1
     return new_cores
 
 def weighting_to_memory(weight_change, current_alloc, instance):
     new_memory = current_alloc + int(current_alloc * weight_change/100.0)
-    min_memory = get_min_memory(instance[0])
-    if new_memory < min_memory:
-        return min_memory
     return new_memory
-
-# Units in MB
-def get_min_memory(instance):
-    return 200  # Hardcoded for now
 
 # This probably belongs in a different function
 # Leaving here for convenience

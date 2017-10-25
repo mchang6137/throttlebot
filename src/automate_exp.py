@@ -14,20 +14,20 @@ if __name__ == "__main__":
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     args = parser.parse_args()
 
-    for count in range(int(args.num_runs)):
-        try:
-            sys_config, workload_config, filter_config = parse_config_file(args.config_file1)
+    conf_files = ['todo_config4.cfg', 'todo_config2.cfg', 'todo_config1.cfg']
+    for conf_file in conf_files:
+        for count in range(int(args.num_runs)):
+            try:
+                sys_config, workload_config, filter_config = parse_config_file(conf_file)
+                mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
+                mr_allocation = filter_mr(mr_allocation,
+                                          sys_config['stress_these_resources'],
+                                          sys_config['stress_these_services'],
+                                          sys_config['stress_these_machines'])
             
-            mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
+                run(sys_config, workload_config, filter_config, mr_allocation)
+            except Exception, err:
+                traceback.print_exc()
             
-            mr_allocation = filter_mr(mr_allocation,
-                                      sys_config['stress_these_resources'],
-                                      sys_config['stress_these_services'],
-                                      sys_config['stress_these_machines'])
-            
-            run(sys_config, workload_config, filter_config, mr_allocation)
-        except Exception, err:
-            traceback.print_exc()
-
     print 'Completed!'
 

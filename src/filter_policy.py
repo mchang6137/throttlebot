@@ -90,7 +90,7 @@ def apply_pipeline_filter(redis_db,
                                                             stress_weight)
         # Simultaneously stress the MRs in a pipeline
         for mr in change_mr_schedule:
-            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
+            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr], workload_config)
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
         exp_mean = mean_list(experiment_results[tbot_metric])
@@ -107,7 +107,7 @@ def apply_pipeline_filter(redis_db,
                                                          system_config,
                                                          stress_weight)
         for mr in change_mr_schedule:
-            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr])
+            resource_modifier.set_mr_provision(mr, change_mr_schedule[mr], workload_config)
 
         pipeline_index += 1
 
@@ -120,10 +120,7 @@ def apply_pipeline_filter(redis_db,
     print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
     
     # Temporarily just choose the most impacted pipeline
-    if optimize_for_lowest:
-        selected_pipeline_score_list = [all_pipeline_score_list[-1]]
-    else:
-        selected_pipeline_score_list = [all_pipeline_score_list[0]]
+    selected_pipeline_score_list = [all_pipeline_score_list[0]]
 
     # MIP = Most Impacted Pipeline
     mip = []
