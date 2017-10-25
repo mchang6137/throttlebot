@@ -393,7 +393,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    #install_dependencies(workload_config)
+    install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
@@ -797,6 +797,18 @@ def install_dependencies(workload_config):
         ssh_exec(traffic_client, 'sudo apt-get install apache2-utils -y')
         close_client(traffic_client)
 
+    # Hardcoded for apt-app, initializing databases
+    if workload_config['type'] == 'apt-app':
+        # if len(traffic_machines) != 6:
+        #     print 'Not enough traffic machines supplied. Please check config file. Exiting...'
+        #     exit()
+        # for traffic_machine in traffic_machines:
+        #     traffic_client = get_client(traffic_machine)
+        #     ssh_exec(traffic_client, 'touch post.json')
+        #     close_client(traffic_client)
+        traffic_client = get_client(traffic_machines[0])
+        ssh_exec(traffic_client, 'touch post.json')
+        close_client(traffic_client)
 
 # Filter out resources, services, and machines that shouldn't be stressed on this iteration
 # Automatically Filter out Quilt-specific modules
