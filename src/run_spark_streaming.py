@@ -39,7 +39,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     warmup_count = 0
     while warmup_count < 1:
         run_kafka_events(generator_instances, 1000, 10000)
-        results = collect_results(generator_instances, redis_instances)
+        results = collect_results(generator_instances, redis_instances, 10000)
         if results is None:
             stop_spark_job(spark_master_instances)
             start_spark_job(spark_master_instances)
@@ -55,7 +55,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     while trial_count < experiment_iterations:
         run_kafka_events(generator_instances, EVENTS_PER_SECOND, EVENTS_PER_CONTAINER)
         print 'Attempting to collect results\n'
-        results = collect_results(generator_instances, redis_instances)
+        results = collect_results(generator_instances, redis_instances, EVENTS_PER_CONTAINER)
         if results is None:
             stop_spark_job(spark_master_instances)
             start_spark_job(spark_master_instances)
@@ -67,6 +67,9 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         all_requests['window_latency'].append(results['window_latency'])
         all_requests['window_latency_std'].append(results['window_latency_std'])
         all_requests['total_results'].append(results['total_results'])
+        all_requests['latency_50'].append(results['latency_50'])
+        all_requests['latency_75'].append(results['latency_75'])
+        all_requests['latency_100'].append(results['latency_100'])
         all_requests['latency_99'].append(results['latency_99'])
         all_requests['latency_95'].append(results['latency_95'])
 
@@ -147,9 +150,9 @@ def delete_spark_logs(spark_master_instances, spark_worker_instances):
         spark_client.close()
     
 # Parse_results script parses results from updated.txt and seen.txt before removing the files so as to not corrupt future experiments
-def collect_results(instances, redis_instances):
+def collect_results(instances, redis_instances, events_per_container):
     # Number of events that are sent among all producer instances
-    total_num_events = EVENTS_PER_CONTAINER * len(instances)
+    total_num_events = events_per_container * len(instances)
 
     # Only need to collect results from one instance
     send_events_ip,send_events_container = instances[0]
@@ -249,16 +252,6 @@ def flush_redis(redis_instances):
         # Flush redis db
         run_cmd("redis-cli flushdb", redis_client, redis_container, True, False)
         redis_client.close()
-
-commands = {"set_kafka": "/opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh --zookeeper kafka_host.q --create --replication-factor 1 --partitions 1 --topic ad-events",
-"spark-submit": "spark-submit --class de.codecentric.spark.streaming.example.spark-submit --class de.codecentric.spark.streaming.example.YahooStreamingBenchmark --master spark://spark-ms2.q:7077 --conf spark.executor.extraClassPath=/spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar --deploy-mode cluster spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar kafka_broker0.q:9092 ad-events redis_master.q 1000",
-"start_exp": "bash -c 'cd /streaming-benchmarks/data && /bin/lein run -n --configPath ../conf/localConf.yaml && sleep 5 && timeout {}s /bin/lein run -r -t {} --configPath ../conf/localConf.yaml'".format(SENDING_TIME, EVENTS_PER_SEC),
-"init_exp": "timeout {}s /bin/lein run -r -t {} --config Path ../conf/localConf.yaml'".format(SENDING_TIME, EVENTS_PER_SEC),
-"collect_results": "/bin/lein run -g --configPath ../conf/localConf.yaml || true",
-"clear_kafka_1":  "/opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh --zookeeper kafka_host.q --alter --topic ad-events --config retention.ms=1000",
-"clear_kafka_2": "/opt/kafka_2.11-0.10.1.0/bin/kafka-topics.sh --zookeeper kafka_host.q --alter --topic ad-events --delete-config retention.ms"
-}
-
 
 def run_cmd(cmd, cli, cid, blocking=False, lein=False):
     if lein:
