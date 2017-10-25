@@ -354,6 +354,7 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
 
 # Iterate through all the colocated imrs of the same resource
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
+    print 'Finding colocated NIMRs'
     experiment_trials = sys_config['trials']
     stress_weights = sys_config['stress_weights']
     stress_weight = min(stress_weights)
@@ -368,14 +369,17 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     for deployment in imr.instances:
         vm_ip, container = deployment
         colocated_services = colocated_services + vm_to_service[vm_ip]
-
+    print 'Colocated services are {}'.format(colocated_services)
+        
     candidate_mrs = []
     for mr in mr_working_set:
         if mr.service_name in colocated_services and mr.resource == imr.resource:
             candidate_mrs.append(mr)
+    print 'Candidate MRs are {}'.format([mr.to_string() for mr in candidate_mrs])
 
     nimr_list = []
     for mr in candidate_mrs:
+        print 'MR being considered is {}'.format(mr.to_string())
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                               sys_config,
                                                               stress_weight)
@@ -389,9 +393,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
 
         perf_diff = mean_result - baseline_mean
         if (perf_diff > 0.03 * baseline_mean) and optimize_for_lowest:
-            print 'Do noting'
+            print 'Do nothing for optimize lowest'
         elif (perf_diff < -0.03 * baseline_mean) and optimize_for_lowest is False:
-            print 'Do nothing'
+            print 'Do nothing for optimize lowest'
         else:
             nimr_list.append(mr)
             
