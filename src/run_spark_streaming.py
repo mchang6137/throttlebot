@@ -2,12 +2,11 @@ from remote_execution import *
 from poll_cluster_state import *
 import time
 
-SENDING_TIME = 30
-EVENTS_PER_SEC = 500
-EVENTS_PER_CONTAINER = 5000
-
 # Run the Spark Streaming Example
 def measure_spark_streaming(workload_configurations, experiment_iterations):
+    EVENTS_PER_SECOND = 3500
+    EVENTS_PER_CONTAINER = 60000
+    
     all_vm_ip = get_actual_vms()
     print 'Collecting information about service/deployment'
     service_to_deployment = get_service_placements(all_vm_ip)
@@ -17,11 +16,13 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     redis_instances = service_to_deployment['hantaowang/redis']
     spark_master_instances = service_to_deployment['mchang6137/spark-yahoo-master']
     spark_worker_instances = service_to_deployment['mchang6137/spark-yahoo-worker']
-    
+
     all_requests = {}
+    all_requests['latency_50'] = []
+    all_requests['latency_75'] = []
     all_requests['latency_99'] = []
     all_requests['latency_95'] = []
-    all_requests['window_latency'] = []
+    all_requests['latency_100'] = []
     all_requests['window_latency_std'] = []
     all_requests['total_results'] = []
     
@@ -37,7 +38,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     # Warmup JVM
     warmup_count = 0
     while warmup_count < 1:
-        run_kafka_events(generator_instances)
+        run_kafka_events(generator_instances, EVENTS_PER_SECOND, EVENTS_PER_CONTAINER)
         results = collect_results(generator_instances, redis_instances)
         if results is None:
             stop_spark_job(spark_master_instances)
@@ -52,7 +53,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     # Run the Experiment 
     trial_count = 0
     while trial_count < experiment_iterations:
-        run_kafka_events(generator_instances)
+        run_kafka_events(generator_instances, EVENTS_PER_SECOND, EVENTS_PER_CONTAINER)
         print 'Attempting to collect results\n'
         results = collect_results(generator_instances, redis_instances)
         if results is None:
@@ -217,13 +218,13 @@ def clean_files(instances):
         ssh_client.close()
 
 # send_events_instances sends from instances in the list, where each instance is (vm_ip, container_id)
-def run_kafka_events(send_event_instances):
+def run_kafka_events(send_event_instances, events_per_second, events_per_container):
     assert len(send_event_instances) > 0
     
     # Initializes Data in Redis
     create_data_cmd = 'bash -c "cd /streaming-benchmarks/data && /bin/lein run -n --configPath ../conf/localConf.yaml"'
     # Start Sending Data
-    send_event_cmd = 'bash -c "cd /streaming-benchmarks/data && /bin/lein run -r -t {} -b {} --configPath ../conf/localConf.yaml"'.format(EVENTS_PER_SEC, EVENTS_PER_CONTAINER)
+    send_event_cmd = 'bash -c "cd /streaming-benchmarks/data && /bin/lein run -r -t {} -b {} --configPath ../conf/localConf.yaml"'.format(events_per_second, events_per_container)
 
     first_instance_ip,first_instance_id = send_event_instances[0]
     ssh_client = get_client(first_instance_ip)
@@ -237,7 +238,7 @@ def run_kafka_events(send_event_instances):
         ssh_client.close()
 
     # Sleep to finish sending events. Will require even more time to process.
-    time.sleep(EVENTS_PER_CONTAINER/EVENTS_PER_SEC)
+    time.sleep(events_per_container/events_per_second)
 
 def flush_redis(redis_instances):
     for redis_instance in redis_instances:
