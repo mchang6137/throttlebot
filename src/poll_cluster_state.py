@@ -12,7 +12,7 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 
 ### Pre-defined blacklist (Temporary)
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
-                   'throttlebot/quilt:latest']
+                   'throttlebot/quilt:latest', 'hantaowang/lumbersexual']
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
