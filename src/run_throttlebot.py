@@ -1001,6 +1001,5 @@ if __name__ == "__main__":
         workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
         print workload_config
 
-
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 
