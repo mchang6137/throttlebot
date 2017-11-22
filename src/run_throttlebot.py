@@ -431,6 +431,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     quilt_overhead = sys_config['quilt_overhead']
     gradient_mode = sys_config['gradient_mode']
     setting_mode = sys_config['setting_mode']
+    rerun_baseline = sys_config['rerun_baseline']
     fill_services_first = sys_config['fill_services_first']
     
     preferred_performance_metric = workload_config['tbot_metric']
@@ -715,29 +716,30 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
 
-        print "Running Baseline Again as Sanity Check"
-
-        for mr in mr_working_set:
-            baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config, "baseline_alloc")
-            resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
-
-        current_performance = measure_baseline(workload_config,
-                                               baseline_trials // 2,
-                                               workload_config['include_warmup'])
-        current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
-        
-        acceptable_deviation = 0.05
-
-        if (abs(current_performance - baseline_performance) / baseline_performance) > acceptable_deviation.05:
-            print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
-            print "Current: {0}, Initial: {1}".format(current_performance, baseline_performance)
-            sys.exit("System state has changed since baseline.")
-        else:
-            print "OK"
-
-        for mr in mr_working_set:
-            previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config)
-            resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+        if rerun_baseline:
+            print "Running Baseline Again as Sanity Check"
+    
+            for mr in mr_working_set:
+                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config, "baseline_alloc")
+                resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+    
+            current_performance = measure_baseline(workload_config,
+                                                   baseline_trials // 2,
+                                                   workload_config['include_warmup'])
+            current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
+            
+            acceptable_deviation = 0.05
+    
+            if (abs(current_performance - baseline_performance) / baseline_performance) > acceptable_deviation:
+                print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
+                print "Current: {0}, Initial: {1}".format(current_performance, baseline_performance)
+                sys.exit("System state has changed since baseline.")
+            else:
+                print "OK"
+    
+            for mr in mr_working_set:
+                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config)
+                resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
 
         experiment_count += 1
 
@@ -778,6 +780,8 @@ def parse_config_file(config_file):
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
+    sys_config['rerun_baseline'] = config.getboolean('Basic', 'rerun_baseline')
+
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
         sys_config['fill_services_first'] = None
@@ -996,6 +1000,7 @@ if __name__ == "__main__":
         }
         workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
         print workload_config
+
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
 
