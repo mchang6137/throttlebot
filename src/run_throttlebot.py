@@ -67,6 +67,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision, "baseline_alloc")
         update_machine_consumption(redis_db, mr, new_resource_provision, 0)
 
 # Initializes the maximum capacity and current consumption of Quilt
@@ -483,6 +484,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            workload_config['include_warmup'])
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
+    baseline_performance = current_performance[preferred_performance_metric]
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
     
@@ -712,6 +714,31 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
+
+        print "Running Baseline Again as Sanity Check"
+
+        for mr in mr_working_set:
+            baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config, "baseline_alloc")
+            resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+
+        current_performance = measure_baseline(workload_config,
+                                               baseline_trials // 2,
+                                               workload_config['include_warmup'])
+        current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
+        
+        acceptable_deviation = 0.05
+
+        if (abs(current_performance - baseline_performance) / baseline_performance) > acceptable_deviation.05:
+            print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
+            print "Current: {0}, Initial: {1}".format(current_performance, baseline_performance)
+            sys.exit("System state has changed since baseline.")
+        else:
+            print "OK"
+
+        for mr in mr_working_set:
+            previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config)
+            resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+
         experiment_count += 1
 
     print '{} experiments completed'.format(experiment_count)
