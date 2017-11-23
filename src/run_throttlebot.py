@@ -717,28 +717,29 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print_csv_configuration(current_mr_config)
 
         if rerun_baseline:
-            print "Running Baseline Again as Sanity Check"
-    
+            print "\n\nRunning Baseline Again as Sanity Check"
+
             for mr in mr_working_set:
-                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config, "baseline_alloc")
+                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
                 resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
-    
-            current_performance = measure_baseline(workload_config,
-                                                   baseline_trials // 2,
+
+            performance = measure_baseline(workload_config,
+                                                   max(baseline_trials // 2, 1),
                                                    workload_config['include_warmup'])
-            current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
-            
-            acceptable_deviation = 0.05
-    
-            if (abs(current_performance - baseline_performance) / baseline_performance) > acceptable_deviation:
+            performance = remove_outlier(performance[preferred_performance_metric])
+
+            acceptable_deviation = 0.1
+
+            if (abs(mean_list(performance) - mean_list(baseline_performance))
+                    / mean_list(baseline_performance)) > acceptable_deviation:
                 print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
-                print "Current: {0}, Initial: {1}".format(current_performance, baseline_performance)
+                print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
                 sys.exit("System state has changed since baseline.")
             else:
                 print "OK"
-    
+
             for mr in mr_working_set:
-                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr, workload_config)
+                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
 
         experiment_count += 1
