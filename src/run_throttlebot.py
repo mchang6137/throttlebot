@@ -723,9 +723,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
                 resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
 
-            performance = measure_baseline(workload_config,
-                                                   max(baseline_trials // 2, 1),
-                                                   workload_config['include_warmup'])
+            performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
             performance = remove_outlier(performance[preferred_performance_metric])
 
             acceptable_deviation = 0.1
