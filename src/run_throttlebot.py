@@ -586,6 +586,33 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 experiment_count, stress_weights,
                                                 preferred_performance_metric, time_start)
         
+        
+        # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
+        if rerun_baseline:
+            print "\n\nRunning Baseline Again as Sanity Check"
+
+            for mr in mr_working_set:
+                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
+                resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+
+            performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
+            performance = remove_outlier(performance[preferred_performance_metric])
+
+            acceptable_deviation = 0.1
+
+            if (abs(mean_list(performance) - mean_list(baseline_performance))
+                    / mean_list(baseline_performance)) > acceptable_deviation:
+                print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
+                print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
+                sys.exit("System state has changed since baseline.")
+            else:
+                print "OK"
+
+            for mr in mr_working_set:
+                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+                resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+        
+        
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
@@ -715,30 +742,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
-
-        if rerun_baseline:
-            print "\n\nRunning Baseline Again as Sanity Check"
-
-            for mr in mr_working_set:
-                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
-                resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
-
-            performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
-            performance = remove_outlier(performance[preferred_performance_metric])
-
-            acceptable_deviation = 0.1
-
-            if (abs(mean_list(performance) - mean_list(baseline_performance))
-                    / mean_list(baseline_performance)) > acceptable_deviation:
-                print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
-                print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
-                sys.exit("System state has changed since baseline.")
-            else:
-                print "OK"
-
-            for mr in mr_working_set:
-                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-                resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
 
         experiment_count += 1
 
