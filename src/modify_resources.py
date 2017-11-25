@@ -20,7 +20,8 @@ connected_pattern = re.compile(".+Connected}$")
 ip_pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
 
 # Container blacklist for container names whose placements should not move
-container_blacklist = ['ovn-controller', 'minion', 'ovs-vswitchd', 'ovsdb-server', 'etcd', 'hantaowang/lumbersexual']
+quilt_blacklist = ['ovn-controller', 'minion', 'ovs-vswitchd', 'ovsdb-server', 'etcd']
+service_blacklist = ['hantaowang/lumbersexual']
 
 # Conversion factor from unit KEY to KiB
 CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
