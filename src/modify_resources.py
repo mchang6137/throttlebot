@@ -31,6 +31,7 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # Sets the resource provision for all containers in a service
 # Passing in the Workload Configuration by reference 
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
+    print mr.service_name, mr.resource
     # A new MR allocation of -1 indicates that the proposed resource is at minimum already
     # Add to a queue and deal with later in the process
     if new_mr_allocation == -1:

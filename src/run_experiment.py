@@ -75,7 +75,6 @@ class latencyResult():
                 return i
         return -1
 
-
 def median(lst):
     n = len(lst)
     if n < 1:
@@ -84,7 +83,6 @@ def median(lst):
         return sorted(lst)[n // 2]
     else:
         return sum(sorted(lst)[n // 2 - 1:n // 2 + 1]) / 2.0
-
 
 def is_finished(latency, experiment_iterations):
     if len(latency) < experiment_iterations:
@@ -97,10 +95,7 @@ def is_finished(latency, experiment_iterations):
 
 # Block Coordinate Descent
 def measure_bcd(workload_configuration, experiment_iterations):
-    workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
-    workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
-    workload_config['additional_args'] = {'container_id': service_to_deployment[spark_master_image][0][1]}
-    
+
     traffic_generate_machine = workload_configuration['request_generator'][0]
     traffic_generate_container = workload_configuration['additional_args']['container_id']
     cmd = "./spark/bin/spark-submit --class edu.berkeley.cs.amplab.mlmatrix.BlockCoordinateDescent --num-executors 6 --driver-class-path /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.jar /ml-matrix/target/scala-2.10/mlmatrix-assembly-0.1.1.jar spark://spark-ms.q:7077 500 100 100 3 1"
@@ -116,7 +111,7 @@ def measure_bcd(workload_configuration, experiment_iterations):
             'docker exec {0} sh -c "{1} > ~/out.txt"'.format(traffic_generate_container, cmd))
         status = results.channel.recv_exit_status()
         print "Test command was run successfully: {0}".format(status == 0)
-        print  parse_cmd.format(traffic_generate_container)
+        print parse_cmd.format(traffic_generate_container)
         r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
         print "Results: {0}".format(r)
         latency.add(float(r), status == 0, stop)

@@ -73,7 +73,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
         else:
             # Enact the change in resource provisioning
             resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
-            
+
             # Reflect the change in Redis
             resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
             update_machine_consumption(redis_db, mr, new_resource_provision, 0)
@@ -456,6 +456,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     service_to_stress = sys_config['stress_these_services']
     vm_to_stress = sys_config['stress_these_machines']
     machine_type = sys_config['machine_type']
+    workload_config['machine_type'] = machine_type
     quilt_overhead = sys_config['quilt_overhead']
     gradient_mode = sys_config['gradient_mode']
     
