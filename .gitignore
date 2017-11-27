@@ -1,2 +1,9 @@
 *.pyc
 .DS_Store
+.idea/
+results/
+plots/
+test_config.cfg
+tuned_config.csv
+fill_out_resource_debug.txt
+experiment_logs.txt

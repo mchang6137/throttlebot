@@ -10,7 +10,7 @@ import redis_resource as resource_datastore
 from mr import MR
 
 ### Pre-defined blacklist (Temporary)
-blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest']
+blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest', 'hantaowang/lumbersexual']
 
 # Returns a list of MRs to stress in following iterations
 def generate_mr_from_policy(redis_db, stress_policy):

@@ -37,13 +37,11 @@ relating to the current resource allocation of a MR
 def generate_mr_key(mr_service, mr_resource):
     return '{},{}'.format(mr_service, mr_resource)
 
-def write_mr_alloc(redis_db, mr, new_allocation):
-    mr_name = 'mr_alloc'
+def write_mr_alloc(redis_db, mr, new_allocation, mr_name = 'mr_alloc'):
     key = generate_mr_key(mr.service_name, mr.resource)
     redis_db.hset(mr_name, key, new_allocation)
 
-def read_mr_alloc(redis_db, mr):
-    mr_name = 'mr_alloc'
+def read_mr_alloc(redis_db, mr, mr_name = 'mr_alloc'):
     key = generate_mr_key(mr.service_name, mr.resource)
     return float(redis_db.hget(mr_name, key))
 

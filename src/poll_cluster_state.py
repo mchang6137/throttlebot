@@ -13,6 +13,7 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 ### Pre-defined blacklist (Temporary)
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
                    'throttlebot/quilt:latest']
+service_blacklist = ['hantaowang/lumbersexual']
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
@@ -65,7 +66,7 @@ def parse_quilt_ps_col(column, machine_level=True):
         return result_list[1:]
 
 def get_quilt_services():
-    return quilt_blacklist
+    return quilt_blacklist.extend(service_blacklist)
 
 # Returns all stressable resources available for this
 def get_stressable_resources(cloud_provider='aws-ec2'):
@@ -111,7 +112,7 @@ def get_vm_to_service(vm_ips):
 
         #Assume that the container ids and the service names are ordered in the same way
         for service in service_names:
-            if service in quilt_blacklist:
+            if service in quilt_blacklist or service in service_blacklist:
                 continue
             if vm_ip in vm_to_service:
                 vm_to_service[vm_ip].append(service)
