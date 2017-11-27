@@ -76,7 +76,7 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
     sparkms_memory = MR(spark_master_image, 'MEMORY', [])
     sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
     sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
-    
+
     # Easy master container identification
     workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
     workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
@@ -108,12 +108,11 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
 
     spark_master_image = 'hantaowang/bcd-spark-master'
     spark_worker_image = 'hantaowang/bcd-spark'
-    
+
     # need some way of finding the correct instances.
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
     instances = service_to_deployment[spark_master_image] + service_to_deployment[spark_worker_image]
-    print mr.service_name, mr.resource
 
     if mr.service_name == 'hantaowang/bcd-spark':
         if mr.resource == 'CPU-CORE':
@@ -123,7 +122,7 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
             memg = new_mr_allocation / (1024 ** 3)
             memg = str(int(memg*DEFAULT_MEM)) + "g"
             spark_rewrite_conf(instances, 'spark.executor.memory', memg)
-            
+
     elif mr.service_name == 'hantaowang/bcd-spark-master':
         if mr.resource == 'CPU-CORE':
             mr_allocation_int = int(new_mr_allocation)
@@ -134,6 +133,3 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
             spark_rewrite_conf(instances, 'spark.driver.memory', memg)
 
     return workload_config
-
-
-    

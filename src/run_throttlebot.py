@@ -473,25 +473,25 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     # Initialize the configuration
     workload_config = config_modifier.init_conf_functions(workload_config, redis_db, default_mr_config)
-    
+
     # Initialize the cluster resource and service allocations
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
     init_resource_config(redis_db, default_mr_config, machine_type, workload_config)
-    
+
     # Initialize time for data charts
     time_start = datetime.datetime.now()
-    
+
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
-    
+
     # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
     current_performance = measure_baseline(workload_config, baseline_trials)
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
-    
+
     print 'Current (non-analytic) performance measured: {}'.format(current_performance)
 
     if last_completed_iter == 0:
@@ -503,7 +503,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            mean_list(current_performance[preferred_performance_metric]),
                                            mean_list(current_performance[preferred_performance_metric]),
                                            time_delta.seconds, 0)
-        
+
     print '============================================'
     print '\n' * 2
 
@@ -518,17 +518,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
-        if len(analytic_provision) != 0:
+        if len(analytic_provisions) != 0:
             for mr in analytic_provisions:
                 resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config, redis_db)
             analytic_baseline = measure_runtime(workload_config, experiment_trials)
         else:
-            analytic_baseline = deepcopy(current_performance)    
+            analytic_baseline = deepcopy(current_performance)
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
         print 'The analytic baseline is {}'.format(analytic_baseline)
         print 'This current performance is {}'.format(current_performance)
         analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
-        
+
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_consider = apply_filtering_policy(redis_db,
                                               mr_working_set,
@@ -544,7 +544,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
-            
+
             for stress_weight in stress_weights:
                 # Calculate Gradient Schedule and provision resources accordingly
                 mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
@@ -555,7 +555,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                        mr_gradient_schedule[change_mr],
                                                        workload_config,
                                                        redis_db)
-                    
+
                 experiment_results = measure_runtime(workload_config, experiment_trials)
                 
                 # Write results of experiment to Redis
@@ -576,7 +576,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                        mr_revert_gradient_schedule[change_mr],
                                                        workload_config,
                                                        redis_db)
-                    
+
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
@@ -592,7 +592,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 current_performance, mr_working_set,
                                                 experiment_count, stress_weights,
                                                 preferred_performance_metric, time_start)
-        
+
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
