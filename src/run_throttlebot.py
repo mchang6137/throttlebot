@@ -59,12 +59,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     instance_specs = get_instance_specs(machine_type)
     
     # Get max_num_services
-    vm_list = get_actual_vms()
-    max_num_services = 0
-    vm_to_service = get_vm_to_service(vm_list)
-    for vm in vm_to_service:
-        if len(vm_to_service[vm]) > max_num_services:
-            max_num_services = len(vm_to_service[vm])
+    max_num_services = get_max_num_services()
                 
     for mr in default_mr_config:
         new_resource_provision = default_mr_config[mr]
@@ -431,6 +426,16 @@ def prepare_working_set(redis_db):
             working_set.append(mr)
             
     return working_set
+
+# Retrieves the maximum number of services on any VM
+def get_max_num_services():
+    vm_list = get_actual_vms()
+    max_num_services = 0
+    vm_to_service = get_vm_to_service(vm_list)
+    for vm in vm_to_service:
+        if len(vm_to_service[vm]) > max_num_services:
+            max_num_services = len(vm_to_service[vm])
+    return max_num_services
 
 # Prints all improvements attempted by Throttlebot
 def print_all_steps(redis_db, total_experiments):
@@ -831,23 +836,19 @@ def parse_resource_config_file(resource_config_csv, sys_config):
     service_placements = get_service_placements(vm_list)
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
-    
+
     mr_allocation = {}
     
     # Empty Config means that we should default resource allocation to only use
     # half of the total resource capacity on the machine
     if resource_config_csv is None:
-        vm_to_service = get_vm_to_service(vm_list)
         # DEFAULT_ALLOCATION sets the initial configuration
         # Ensure that we will not violate resource provisioning in the machine
         # Assign resources equally to services without exceeding machine resource limitations
-        max_num_services = 0
-        STARTING_TOTAL = 50.0
-        for vm in vm_to_service:
-            if len(vm_to_service[vm]) > max_num_services:
-                max_num_services = len(vm_to_service[vm])
-        default_alloc_percentage = STARTING_TOTAL / max_num_services
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
+        max_num_services = get_max_num_services()
+        STARTING_TOTAL = 50.0
+        default_alloc_percentage = STARTING_TOTAL / max_num_services
 
         for mr in mr_list:
             max_capacity = get_instance_specs(machine_type)[mr.resource]
