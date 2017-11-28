@@ -57,6 +57,15 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
+    
+    # Get max_num_services
+    vm_list = get_actual_vms()
+    max_num_services = 0
+    vm_to_service = get_vm_to_service(vm_list)
+    for vm in vm_to_service:
+        if len(vm_to_service[vm]) > max_num_services:
+            max_num_services = len(vm_to_service[vm])
+                
     for mr in default_mr_config:
         new_resource_provision = default_mr_config[mr]
 
@@ -67,7 +76,24 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
         # Only set the software configuration when stressing CPU cores
         if mr.resource == 'CPU-CORE':
-            print 'DEBUG: init_resource_config has a {} cores'.format(new_resource_provision)
+            print '\nSETTING MR: {0} {1}'.format(mr.service_name, mr.resource)
+            
+            core_raw_alloc = (100.0 / max_num_services) * get_instance_specs(machine_type)['CPU-QUOTA']
+            previous_core_alloc = instance_specs['CPU-CORE']
+            quota_aggregate = core_raw_alloc
+            quota_per_core = float(quota_aggregate / previous_core_alloc)
+            new_quota_alloc = int(quota_per_core * new_resource_provision)
+
+            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), core_raw_alloc)
+            print 'DEBUG: Going from {} cores to {} cores means, {} quota to {} quota'.format(previous_core_alloc,
+                                                                                              new_resource_provision,
+                                                                                              quota_aggregate,
+                                                                                              new_quota_alloc)
+            for vm_ip, container_id in mr.instances:
+                ssh_client = get_client(vm_ip)
+                set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
+                close_client(ssh_client)
+
             config_modifier.modify_mr_conf(mr, new_resource_provision, wc, redis_db)
             resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
         else:

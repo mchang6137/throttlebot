@@ -27,7 +27,7 @@ def init_conf_functions(workload_config, redis_db, default_mr_config):
 # Return the workload_config by reference
 def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
     if mr not in resource_datastore.read_tunable_mr(redis_db):
-        print "NOT TUNABLE"
+        print "MR has no software configuration"
         return workload_config
     if workload_config['type'] == 'bcd':
         return modify_bcd_config(mr, new_mr_allocation, workload_config)
@@ -104,7 +104,7 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
 def modify_bcd_config(mr, new_mr_allocation, workload_config):
     # HARDCODED TO THE SPEC
     NUM_WORKERS = 6
-    DEFAULT_MEM = 0.8
+    DEFAULT_MEM = 1
 
     spark_master_image = 'hantaowang/bcd-spark-master'
     spark_worker_image = 'hantaowang/bcd-spark'

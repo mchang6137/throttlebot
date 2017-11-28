@@ -31,7 +31,7 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # Sets the resource provision for all containers in a service
 # Passing in the Workload Configuration by reference 
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
-    print mr.service_name, mr.resource
+    print "\nSETTING MR: {0} {1}".format(mr.service_name, mr.resource)
     # A new MR allocation of -1 indicates that the proposed resource is at minimum already
     # Add to a queue and deal with later in the process
     if new_mr_allocation == -1:
@@ -54,6 +54,7 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                               quota_aggregate,
                                                                                               new_quota_alloc)
             set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
+            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_quota_alloc)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
@@ -73,7 +74,6 @@ def reset_mr_provision(mr, wc):
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
             reset_cpu_cores(ssh_client, container_id)
         elif mr.resource == 'CPU-QUOTA':
             reset_cpu_quota(ssh_client, container_id)
