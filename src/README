@@ -12,6 +12,7 @@ stress_these_services: The names of the services you would want Throttlebot to s
 redis_host: The host where the Redis is located (Throttlebot uses Redis as it's data store)
 stress_policy: The policy that is being used by Throttlebot to decide which containers to consider on each iteration.
 gradient_mode: This decides the gradient mode that is being used by Throttlebot. The two options are 'single and 'inverted'. 
+rerun_baseline: Boolean that decides if a shortened baseline is rerun at the end of every iteration to ensure pipeline state has not changed
 
 The "Workload" section describes several Workload specific parameters. Throttlebot will run the experiment in this manner on each iteration.
 

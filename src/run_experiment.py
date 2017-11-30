@@ -385,8 +385,8 @@ def measure_apt_app(workload_config, experiment_iterations):
     apt_app_public_ip = workload_config['frontend'][0]
     traffic_gen_ips = workload_config['request_generator']
 
-    POSTGRES_REQUESTS = 1600
-    NUM_REQUESTS = 1100
+    POSTGRES_REQUESTS = 1500
+    NUM_REQUESTS = 1000
     CONCURRENCY = 500
 
     # traffic_clients = []
@@ -442,11 +442,24 @@ def measure_apt_app(workload_config, experiment_iterations):
 
         # Checking for task completion
         finished = 0
+        repetitions = 0
         # finished_benchmark_cmd = "cat output.txt | grep 'Requests per second' | awk {{'print $4'}}"
         print 'Please ignore the following new lines (if any)'
+        sleep(5)
         while finished != 6:
             sleep(2)
+            repetitions += 1
             finished = 0
+            # Call again...
+            if repetitions > 150:
+                print 'Calling commands again due to unresponsiveness'
+                for a in range(6):
+                    print benchmark_commands[a]
+                    # traffic_clients[a].exec_command(benchmark_commands[a])
+                    traffic_client.exec_command(benchmark_commands[a])
+                repetitions = 0
+                sleep(5)
+
             for b in range(6):
                 finished_benchmark_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(b)
                 # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)

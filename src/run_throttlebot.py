@@ -67,6 +67,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision, "baseline_alloc")
         update_machine_consumption(redis_db, mr, new_resource_provision, 0)
 
 # Initializes the maximum capacity and current consumption of Quilt
@@ -430,6 +431,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     quilt_overhead = sys_config['quilt_overhead']
     gradient_mode = sys_config['gradient_mode']
     setting_mode = sys_config['setting_mode']
+    rerun_baseline = sys_config['rerun_baseline']
     fill_services_first = sys_config['fill_services_first']
     
     preferred_performance_metric = workload_config['tbot_metric']
@@ -483,6 +485,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            workload_config['include_warmup'])
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
+    baseline_performance = current_performance[preferred_performance_metric]
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
     
@@ -582,6 +585,33 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 current_performance, mr_working_set,
                                                 experiment_count, stress_weights,
                                                 preferred_performance_metric, time_start)
+        
+        
+        # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
+        if rerun_baseline:
+            print "\n\nRunning Baseline Again as Sanity Check"
+
+            for mr in mr_working_set:
+                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
+                resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+
+            performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
+            performance = remove_outlier(performance[preferred_performance_metric])
+
+            acceptable_deviation = 0.1
+
+            if (abs(mean_list(performance) - mean_list(baseline_performance))
+                    / mean_list(baseline_performance)) > acceptable_deviation:
+                print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
+                print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
+                sys.exit("System state has changed since baseline.")
+            else:
+                print "OK"
+
+            for mr in mr_working_set:
+                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+                resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+        
         
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
@@ -712,6 +742,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
         print_csv_configuration(current_mr_config)
+
         experiment_count += 1
 
     print '{} experiments completed'.format(experiment_count)
@@ -751,6 +782,8 @@ def parse_config_file(config_file):
     sys_config['quilt_overhead'] = config.getint('Basic', 'quilt_overhead')
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
+    sys_config['rerun_baseline'] = config.getboolean('Basic', 'rerun_baseline')
+
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
         sys_config['fill_services_first'] = None
