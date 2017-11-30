@@ -17,7 +17,7 @@ from time import sleep
 
 from copy import deepcopy
 from collections import namedtuple
-from collections import Counter 
+from collections import Counter
 from mr_gradient import *
 from stress_analyzer import *
 from weighting_conversions import *
@@ -36,7 +36,7 @@ import modify_resources as resource_modifier
 import visualizer as chart_generator
 
 '''
-Initialization: 
+Initialization:
 Set Default resource allocations and initialize Redis to reflect those initial allocations
 '''
 
@@ -61,7 +61,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
         if check_improve_mr_viability(redis_db, mr, new_resource_provision) is False:
             print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
             exit()
-            
+
         # Enact the change in resource provisioning
         resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
 
@@ -81,15 +81,15 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     for resource in resource_alloc:
         max_cap = resource_alloc[resource]
         quilt_usage[resource] = int(((quilt_overhead)/100.0) * max_cap)
-    
+
     all_vms = get_actual_vms()
 
     for vm_ip in all_vms:
         resource_datastore.write_machine_consumption(redis_db, vm_ip, quilt_usage)
         resource_datastore.write_machine_capacity(redis_db, vm_ip, resource_alloc)
 
-''' 
-Tools that are used for experimental purposes in Throttlebot 
+'''
+Tools that are used for experimental purposes in Throttlebot
 '''
 
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
@@ -102,7 +102,7 @@ def finalize_mr_provision(redis_db, mr, new_alloc, wc):
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
     imr_list = []
     nimr_list = []
-    
+
     for mr_result in mr_list:
         mr,exp_performance = mr_result
         perf_diff = exp_performance - baseline_performance
@@ -115,7 +115,7 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
             imr_list.append(mr)
         else:
             nimr_list.append(mr)
-            
+
     return imr_list, nimr_list
 
 # Determine Amount to improve a MIMR
@@ -135,7 +135,7 @@ def containers_per_vm(mr):
         vm_ip,container_id = instance
         vm_occupancy.append(vm_ip)
     vm_appearances = Counter(vm_occupancy).most_common(len(vm_occupancy))
-        
+
     improvement_multiplier = {}
     for vm_count in vm_appearances:
         vm_ip, count = vm_count
@@ -151,7 +151,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
     print 'Checking MR viability'
     improvement_multiplier = containers_per_vm(mr)
     print 'The containers for this mr per vm are {}'.format(improvement_multiplier)
-    
+
     # Check if available space on machines being tested
     for instance in mr.instances:
         vm_ip,container_id = instance
@@ -169,7 +169,7 @@ def check_improve_mr_viability(redis_db, mr, improvement_amount):
 def fill_out_resource(redis_db, imr):
     improvement_proposal = float('inf')
     improvement_multiplier = containers_per_vm(imr)
-    
+
     for instance in imr.instances:
         vm_ip,container = instance
         consumption = resource_datastore.read_machine_consumption(redis_db, vm_ip)
@@ -184,14 +184,14 @@ def fill_out_resource(redis_db, imr):
             myfile.write('imr is {}\n'.format(imr.resource))
             myfile.write('current improvement proposal is {}\n'.format(improvement_proposal))
             myfile.write(debug_statement)
-                         
+
     if improvement_proposal < 0:
         print 'WARNING: Improvement proposal is less than 0 (it is P{})'.format(improvement_proposal)
         print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
 
         # get immediate results just by setting the proposal to zero in this case
         improvement_proposal = 0
-        
+
     return int(improvement_proposal)
 
 # Decrease resource provisions for co-located resources
@@ -201,7 +201,7 @@ def fill_out_resource(redis_db, imr):
 # Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
 def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     print 'IMR is {}'.format(imr.to_string())
-    
+
     # Filter out NIMRs that are not the same resource type as mr
     for nimr in list(nimr_list):
         print 'NIMR resource: {} '.format(nimr.resource)
@@ -212,7 +212,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
         return {},0
 
     print 'NIMR Debugging: Filtered nimr list is {}'.format([nimr.to_string() for nimr in nimr_list])
-        
+
     reduction_proposal = []
 
     # Ensure that every deployment has at least one service losing a machine
@@ -224,7 +224,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
         vm_ip, container = deployment
         if vm_ip in vm_to_nimr:
             continue
-        
+
         colocated_services = vm_to_service[vm_ip]
         if imr.service_name in colocated_services: colocated_services.remove(imr.service_name)
         # Remove Duplicates
@@ -237,7 +237,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
 
     min_mr_removal = float('inf')
     target_vm = None
-    
+
     for vm_ip in vm_to_nimr:
         if len(vm_to_nimr[vm_ip]) == 0:
             print 'no suitable NIMRs for substitution found'
@@ -291,13 +291,13 @@ def mean_list(l):
 def remove_outlier(l, n=1):
     n = 1
     no_outlier = [x for x in l if abs(x - np.mean(l)) < np.std(l) * n]
-    #hack 
+    #hack
     if len(no_outlier) == 0:
         return l
     return no_outlier
 
 # Update the resource consumption of a machine after an MIMR has been improved
-# Assumes that the new allocation of resources is valid 
+# Assumes that the new allocation of resources is valid
 def update_machine_consumption(redis_db, mr, new_alloc, old_alloc):
     for instance in mr.instances:
         vm_ip,container_id = instance
@@ -323,7 +323,7 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
     with open("experiment_logs.txt", "a") as myfile:
         log_msg = '{},{},{}\n'.format(sys_config, workload_config, filter_config)
         myfile.write(log_msg)
-        
+
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
@@ -332,7 +332,7 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
         with open("experiment_logs.txt", "a") as myfile:
             log_msg = '{},{},{},{},{},{}\n'.format(experiment_count, mimr,perf_improvement,elapsed_time, cumm_mr,action_taken)
             myfile.write(log_msg)
-            
+
         net_improvement += float(perf_improvement)
     print 'Net Improvement: {}'.format(net_improvement)
 
@@ -359,19 +359,19 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     experiment_trials = sys_config['trials']
     stress_weights = sys_config['stress_weights']
     stress_weight = min(stress_weights)
-    
+
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
-    
+
     vm_to_service = get_vm_to_service(get_actual_vms())
-    
+
     colocated_services = []
     # Identify an unique list of relevant MRs colocated with IMR instances
     for deployment in imr.instances:
         vm_ip, container = deployment
         colocated_services = colocated_services + vm_to_service[vm_ip]
     print 'Colocated services are {}'.format(colocated_services)
-        
+
     candidate_mrs = []
     for mr in mr_working_set:
         if mr.service_name in colocated_services and mr.resource == imr.resource:
@@ -384,10 +384,10 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                               sys_config,
                                                               stress_weight)
-            
+
         for change_mr in mr_gradient_schedule:
             resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
-                
+
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
         mean_result = mean_list(preferred_results)
@@ -399,18 +399,18 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
             print 'Do nothing for optimize lowest'
         else:
             nimr_list.append(mr)
-            
+
         # Revert the Gradient schedule and provision resources accordingly
         mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
                                                                   [mr],
                                                                   sys_config,
                                                                   stress_weight)
-            
+
         for change_mr in mr_revert_gradient_schedule:
             resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
 
     return nimr_list
-    
+
 '''
 Primary Run method that is called from the main
 system_config: Throttlebot related General parameters in a dict
@@ -433,7 +433,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     setting_mode = sys_config['setting_mode']
     rerun_baseline = sys_config['rerun_baseline']
     fill_services_first = sys_config['fill_services_first']
-    
+
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
@@ -455,7 +455,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     if setting_mode == 'prem':
         all_mrs = resource_datastore.get_all_mrs(redis_db)
         priority_mr = []
-        
+
         for mr in all_mrs:
             if mr.service_name in fill_services_first:
                 priority_mr.append(mr)
@@ -468,17 +468,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 finalize_mr_provision(redis_db, mr, new_mr_alloc, workload_config)
                 print 'Maxing our resources for on-prem: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_alloc, new_mr_alloc)
     print 'Filled out resources for on-prem mode'
-    
+
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
     install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
-    
+
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
-    
+
     # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
     current_performance = measure_baseline(workload_config,
                                            baseline_trials,
@@ -488,7 +488,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     baseline_performance = current_performance[preferred_performance_metric]
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
-    
+
     print 'Current (non-analytic) performance measured: {}'.format(current_performance)
 
     if last_completed_iter == 0:
@@ -500,7 +500,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            mean_list(current_performance[preferred_performance_metric]),
                                            mean_list(current_performance[preferred_performance_metric]),
                                            time_delta.seconds, 0)
-        
+
     print '============================================'
     print '\n' * 2
 
@@ -511,7 +511,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
 
-    while experiment_count < 10:
+    while experiment_count < 2:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -527,7 +527,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print 'The analytic baseline is {}'.format(analytic_baseline)
         print 'This current performance is {}'.format(current_performance)
         analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
-        
+
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_consider = apply_filtering_policy(redis_db,
                                               mr_working_set,
@@ -543,7 +543,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
-            
+
             for stress_weight in stress_weights:
                 # Calculate Gradient Schedule and provision resources accordingly
                 mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
@@ -551,9 +551,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                       stress_weight)
                 for change_mr in mr_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
-                    
+
                 experiment_results = measure_runtime(workload_config, experiment_trials)
-                
+
                 # Write results of experiment to Redis
                 # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
                 preferred_results = experiment_results[preferred_performance_metric]
@@ -569,7 +569,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                           stress_weight)
                 for change_mr in mr_revert_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
-                    
+
                 increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
@@ -585,8 +585,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 current_performance, mr_working_set,
                                                 experiment_count, stress_weights,
                                                 preferred_performance_metric, time_start)
-        
-        
+
+
         # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
         if rerun_baseline:
             print "\n\nRunning Baseline Again as Sanity Check"
@@ -611,8 +611,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             for mr in mr_working_set:
                 previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
-        
-        
+
+
         # Recover the results of the experiment from Redis
         max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
@@ -627,12 +627,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             break
         print 'INFO: IMR list is {}'.format([mr.to_string() for mr in imr_list])
         print 'INFO: NIMR list is {}'.format([mr.to_string() for mr in nimr_list])
-        
+
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
         mimr = None
         action_taken = {}
-        
+
         for imr in imr_list:
             imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
             current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
@@ -660,7 +660,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                                                 max_stress_weight)
                     print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
                     print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
-                    
+
                     if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                         if filter_policy is None:
                             action_taken[imr] = 0
@@ -674,7 +674,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                                                     max_stress_weight)
                         if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                             continue
-                        
+
             # Decrease the amount of resources provisioned to the NIMR
             for nimr in nimr_diff_proposal:
                 action_taken[nimr] = nimr_diff_proposal[nimr]
@@ -722,15 +722,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
         # improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
-        improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
+        improved_mean = mean_list(improved_performance[preferred_performance_metric])
         previous_mean = mean_list(current_performance[preferred_performance_metric])
         performance_improvement = improved_mean - previous_mean
-        
+
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
                                            performance_improvement, action_taken,
                                            analytic_mean, improved_mean,
-                                           time_delta.seconds, cumulative_mr_count) 
+                                           time_delta.seconds, cumulative_mr_count)
         current_performance = improved_performance
 
         # Generating overall performance improvement
@@ -740,7 +740,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print 'Results from iteration {} are {}'.format(experiment_count, results)
 
         # Checkpoint MR configurations and print
-        current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
+        current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
         print_csv_configuration(current_mr_config)
 
         experiment_count += 1
@@ -751,7 +751,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
-        
+
     print_csv_configuration(current_mr_config)
 
 '''
@@ -816,7 +816,7 @@ def parse_config_file(config_file):
         pipelines = pipeline_string.split(',')
         pipelines = [pipeline.split('-') for pipeline in pipelines]
         filter_config['pipeline_services'] = pipelines
-        
+
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
     workload_config['request_generator'] = config.get('Workload', 'request_generator').split(',')
@@ -828,7 +828,7 @@ def parse_config_file(config_file):
         workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
     workload_config['include_warmup'] = config.getboolean('Workload', 'include_warmup')
-    
+
     #Additional experiment-specific arguments
     additional_args_dict = {}
     workload_args = config.get('Workload', 'additional_args').split(',')
@@ -837,7 +837,7 @@ def parse_config_file(config_file):
     for arg_index in range(len(workload_args)):
         additional_args_dict[workload_args[arg_index]] = workload_arg_vals[arg_index]
     workload_config['additional_args'] = additional_args_dict
-    
+
     return sys_config, workload_config, filter_config
 
 # Parse a default resource configuration
@@ -849,14 +849,14 @@ def parse_config_file(config_file):
 # Returns a mapping of a MR to its current resource allocation (in terms of the raw amount)
 def parse_resource_config_file(resource_config_csv, sys_config):
     machine_type = sys_config['machine_type']
-    
+
     vm_list = get_actual_vms()
     service_placements = get_service_placements(vm_list)
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
-    
+
     mr_allocation = {}
-    
+
     # Empty Config means that we should default resource allocation to only use
     # half of the total resource capacity on the machine
     if resource_config_csv is None:
@@ -988,7 +988,7 @@ if __name__ == "__main__":
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
     args = parser.parse_args()
-    
+
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
@@ -1017,4 +1017,3 @@ if __name__ == "__main__":
         print workload_config
 
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
-

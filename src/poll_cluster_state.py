@@ -93,6 +93,10 @@ def get_service_placements(vm_ips):
             if service_name[-4:] == '.git':
                 service_name = service_name[service_name.index('/')+1:]
             identifier_tuple = (vm_ip, container_id)
+            if service_name == 'postgres:9.4':
+                service_name = 'library/postgres:9.4'
+            if service_name == 'osalpekar/spark-image-compressor':
+                service_name = 'osalpekar/spark-image-compress...'
             if service_name not in service_to_deployment:
                 service_to_deployment[service_name] = [identifier_tuple]
             else:
