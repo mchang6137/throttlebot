@@ -91,6 +91,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
             config_modifier.modify_mr_conf(mr, new_resource_provision, wc, redis_db)
             resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
+            update_machine_consumption(redis_db, mr, new_resource_provision, 0)
         else:
             # Enact the change in resource provisioning
             resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
@@ -568,6 +569,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                               workload_config,
                                               filter_config)
 
+        ignore_mrs = []
+
         for mr in mr_to_consider:
             print '\n' * 2
             print '*' * 20
@@ -576,39 +579,45 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
 
-            for stress_weight in stress_weights:
-                # Calculate Gradient Schedule and provision resources accordingly
-                mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+            stress_weight = stress_weights[0]
+
+            # Calculate Gradient Schedule and provision resources accordingly
+            mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+                                                                  sys_config,
+                                                                  stress_weight)
+            try:
+                for change_mr in mr_gradient_schedule:
+                        resource_modifier.set_mr_provision(change_mr,
+                                                           mr_gradient_schedule[change_mr],
+                                                           workload_config,
+                                                           redis_db)
+            except ValueError as e:
+                print e.message
+                ignore_mrs.append(mr)
+                continue
+
+            experiment_results = measure_runtime(workload_config, experiment_trials)
+
+            # Write results of experiment to Redis
+            # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+            preferred_results = experiment_results[preferred_performance_metric]
+            mean_result = mean_list(preferred_results)
+            tbot_datastore.write_redis_ranking(redis_db, experiment_count,
+                                               preferred_performance_metric,
+                                               mean_result, mr, stress_weight)
+
+            # Revert the Gradient schedule and provision resources accordingly
+            mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                      [mr],
                                                                       sys_config,
                                                                       stress_weight)
-                for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr,
-                                                       mr_gradient_schedule[change_mr],
-                                                       workload_config,
-                                                       redis_db)
+            for change_mr in mr_revert_gradient_schedule:
+                resource_modifier.set_mr_provision(change_mr,
+                                                   mr_revert_gradient_schedule[change_mr],
+                                                   workload_config,
+                                                   redis_db)
 
-                experiment_results = measure_runtime(workload_config, experiment_trials)
-                
-                # Write results of experiment to Redis
-                # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
-                preferred_results = experiment_results[preferred_performance_metric]
-                mean_result = mean_list(preferred_results)
-                tbot_datastore.write_redis_ranking(redis_db, experiment_count,
-                                                   preferred_performance_metric,
-                                                   mean_result, mr, stress_weight)
-
-                # Revert the Gradient schedule and provision resources accordingly
-                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                          [mr],
-                                                                          sys_config,
-                                                                          stress_weight)
-                for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr,
-                                                       mr_revert_gradient_schedule[change_mr],
-                                                       workload_config,
-                                                       redis_db)
-
-                increment_to_performance[stress_weight] = experiment_results
+            increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
