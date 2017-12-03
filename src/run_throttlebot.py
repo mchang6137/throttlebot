@@ -92,13 +92,15 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             config_modifier.modify_mr_conf(mr, new_resource_provision, wc, redis_db)
             resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
             update_machine_consumption(redis_db, mr, new_resource_provision, 0)
-        else:
-            # Enact the change in resource provisioning
-            resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
+            print "Set all {0}, {1} to {2}".format(mr.service_name, mr.resource, new_resource_provision)
 
+        else:
             # Reflect the change in Redis
             resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
             update_machine_consumption(redis_db, mr, new_resource_provision, 0)
+
+            # Enact the change in resource provisioning
+            resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
 
 # Initializes the maximum capacity and current consumption of Quilt
 def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):

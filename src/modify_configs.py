@@ -27,7 +27,6 @@ def init_conf_functions(workload_config, redis_db, default_mr_config):
 # Return the workload_config by reference
 def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
     if mr not in resource_datastore.read_tunable_mr(redis_db):
-        print "MR has no software configuration"
         return workload_config
     if workload_config['type'] == 'bcd':
         return modify_bcd_config(mr, new_mr_allocation, workload_config)
@@ -62,7 +61,7 @@ def spark_rewrite_conf(vm_ip, config, new_value):
         correct.append(results.channel.recv_exit_status() == 0)
         close_client(client)
 
-    print "Set all {0} to {1}: {2}".format(config, new_value, all(correct))
+    print "Set all {0} to {1}".format(config, new_value)
 
 def init_bcd_config(workload_config, redis_db, default_mr_config):
     all_vm_ip = get_actual_vms()

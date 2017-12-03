@@ -42,22 +42,37 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     # Modify the resources
     config_modifier.modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
     
+    
     # Check that new_mr_allocation does not exceed machine maximum or minimum
     delta = float(new_mr_allocation) - float(resource_datastore.read_mr_alloc(redis_db, mr))
-    instances_on_machine = get_vm_to_service(mr.instances)
-    for machine_ip in mr.instances:
+    for machine_ip, _ in mr.instances:
+
+        # GET/SET num instances on machines
+        redis_cache = resource_datastore.read_machine_instances(redis_db, machine_ip)
+        if redis_cache is not None and len(redis_cache) > 0:
+            instances_on_machine = redis_cache
+        else:
+            instances_on_machine = get_vm_to_service([machine_ip])[machine_ip]
+            resource_datastore.write_machine_instances(redis_db, machine_ip, instances_on_machine)
+        
         machine_max = resource_datastore.read_machine_capacity(redis_db, machine_ip)[mr.resource]
-        consumption = resource_datastore.read_machine_consumption(redis_db, machine_ip)[mr.resource]
-        machine_delta = delta * instances_on_machine[machine_ip].count(mr.service_name)
-        if consumption + machine_delta >= machine_max:
-            raise ValueError("{0} can not be stressed pass 100% utilization".format(mr.service_name))
-    
+        
+        if mr.resource == 'CPU-CORE':
+            if int(new_mr_allocation) > int(machine_max):
+                raise ValueError(
+                    "{0}:{1} can not be stressed pass 100% utilization".format(mr.service_name, mr.resource))
+            elif new_mr_allocation == 0:
+                raise ValueError("CPU Cores can not be stressed to 0")
+        else:
+            consumption = resource_datastore.read_machine_consumption(redis_db, machine_ip)[mr.resource]
+            machine_delta = delta * instances_on_machine.count(mr.service_name)
+            if consumption + machine_delta >= machine_max:
+                raise ValueError("{0} can not be stressed pass 100% utilization".format(mr.service_name))
+        
     # Start by stressing the resource provisions
-    for vm_ip,container_id in mr.instances:
+    for vm_ip, container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         if mr.resource == 'CPU-CORE':
-            if new_mr_allocation == 0:
-                raise ValueError("CPU Cores can not be stressed to 0")
             previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
             quota_aggregate = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
             quota_per_core = float(quota_aggregate / previous_core_alloc)
@@ -80,6 +95,9 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
         else:
             print 'INVALID resource'
         close_client(ssh_client)
+        
+    print "Set all {0}, {1} to {2}".format(mr.service_name, mr.resource, new_mr_allocation)
+
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):
