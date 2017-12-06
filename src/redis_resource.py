@@ -123,6 +123,15 @@ def read_machine_capacity(redis_db, machine_ip):
         machine_capacity[resource] = float(machine_capacity[resource])
     return machine_capacity
 
+def write_machine_instances(redis_db, machine_ip, instances):
+    name = '{}machine_instances'.format(machine_ip)
+    for i in instances:
+        redis_db.lpush(name, i)
+
+def read_machine_instances(redis_db, machine_ip):
+    name = '{}machine_instances'.format(machine_ip)
+    return redis_db.lrange(name, 0, -1)
+
 '''
 Store the configuration capacity and current consumption
 Only store something in here if there is something to set

@@ -10,6 +10,8 @@ import redis_resource as resource_datastore
 
 from instance_specs import *
 from poll_cluster_state import *
+from remote_execution import *
+
 from mr import MR
 
 # Initializes the Configuration functions for a job
@@ -27,21 +29,39 @@ def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
     if mr not in resource_datastore.read_tunable_mr(redis_db):
         return workload_config
     if workload_config['type'] == 'bcd':
-        return modify_bcd_config(workload_config, mr, new_mr_allocation)
+        return modify_bcd_config(mr, new_mr_allocation, workload_config)
     else:
         return workload_config
 
 # writes all config of vm_ip
-def spark_rewrite_conf(vm_ip, search, replace):
+def spark_rewrite_conf(vm_ip, config, new_value):
+
+    read = "cat spark/conf/spark-defaults.conf"
+
+    vm = vm_ip[0]
+    client = get_client(vm[0])
+    _, results, _ = client.exec_command(
+        'docker exec {0} sh -c \"{1}\"'.format(vm[1], read))
+    _ = results.channel.recv_exit_status()
+    current_conf = results.read().split("\n")
+    for i in range(len(current_conf)):
+        line = current_conf[i].strip().split()
+        if len(line) == 0:
+            continue
+        if line[0] == config:
+            line[1] = str(new_value)
+        current_conf[i] = line[0] + " " + line[1]
+    write = "echo '{0}' > spark/conf/spark-defaults.conf".format("\n".join(current_conf).strip())
+    close_client(client)
     correct = []
     for vi in vm_ip:
         client = get_client(vi[0])
-        cmd = 'sed -i \'s;{0};{1};\' ./spark/conf/spark-defaults.conf'.format(search, replace)
         _, results, _ = client.exec_command(
-            'docker exec {0} sh -c \"{1}\"'.format(vi[1], cmd))
+            'docker exec {0} sh -c \"{1}\"'.format(vi[1], write))
         correct.append(results.channel.recv_exit_status() == 0)
-        _ = results.channel.recv_exit_status()
-    print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
+        close_client(client)
+
+    print "Set all {0} to {1}".format(config, new_value)
 
 def init_bcd_config(workload_config, redis_db, default_mr_config):
     all_vm_ip = get_actual_vms()
@@ -56,30 +76,25 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
     sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
     sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
 
-    # Save the configuration variables as some function of the default configurtion values
-    # For Spark, it is just the current configuration
-    # NOTE: GET THE RIGHT UNITS HERE
-    workload_config['resource_fct'][sparkms_core]['spark.driver.cores'] = str(default_mr_config[sparkms_core])
-    workload_config['resource_fct'][sparkwk_core]['spark.executor.cores'] = str(default_mr_config[sparkwk_core])
-    workload_config['resource_fct'][sparkwk_core]['spark.cores.max'] = str(default_mr_config[sparkwk_core * 6])
-    
-    workload_config['resource_fct'][sparkwk_memory]['spark.executor.memory'] = str(default_mr_config[sparkwk_memory] + 'g')
-    workload_config['resource_fct'][sparkms_memory]['spark.driver.memory'] = str(default_mr_config[sparkms_memory] + 'g')
+    # Easy master container identification
+    workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
+    workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
+    workload_config['additional_args'] = {'container_id': service_to_deployment[spark_master_image][0][1]}
 
     # Write the maximum provisining that the resources can be provisioned to
-    max_capacity = get_instance_specs(machine_type)[mr.resource]
     for mr in default_mr_config:
+        max_capacity = get_instance_specs(workload_config['machine_type'])
         if mr == sparkms_core or mr == sparkwk_core:
             for instance in mr.instances:
-                vm_ip,container_id = instance
+                vm_ip, container_id = instance
                 resource_datastore.write_config_capacity(redis_db, vm_ip, mr, max_capacity['CPU-CORE'])
+            resource_datastore.write_tunable_mr(redis_db, mr)
         if mr == sparkms_memory or mr == sparkwk_memory:
             for instance in mr.instances:
-                vm_ip,container_id = instance
+                vm_ip, container_id = instance
                 resource_datastore.write_config_capacity(redis_db, vm_ip, mr, max_capacity['MEMORY'])
+            resource_datastore.write_tunable_mr(redis_db, mr)
 
-    # Add MRs to the tunable MR list
-    resource_datastore.write_tunable_mr(redis_db, mr)
     return workload_config
 
 # bcd has two services that need to generate configurations
@@ -88,47 +103,32 @@ def init_bcd_config(workload_config, redis_db, default_mr_config):
 def modify_bcd_config(mr, new_mr_allocation, workload_config):
     # HARDCODED TO THE SPEC
     NUM_WORKERS = 6
-    DEFAULT_MEM = 0.8
+    DEFAULT_MEM = 1
 
     spark_master_image = 'hantaowang/bcd-spark-master'
     spark_worker_image = 'hantaowang/bcd-spark'
-    
-    previous_allocation_dict = wc['resource_fct'][mr]
 
-    #### need some way of finding the correct instances.
+    # need some way of finding the correct instances.
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
-    instances = service_to_deployment[spark_master_image] + spark_to_deployment[spark_worker_image]
-    
+    instances = service_to_deployment[spark_master_image] + service_to_deployment[spark_worker_image]
+
     if mr.service_name == 'hantaowang/bcd-spark':
         if mr.resource == 'CPU-CORE':
-            spark_rewrite_conf(instances, 'spark.executor.cores {0}'.format(previous_allocation_dict['spark.executor.cores']),
-                               'spark.executor.cores {0}'.format(int(new_mr_allocation)))
-            spark_rewrite_conf(instances, 'spark.cores.max {0}'.format(previous_allocation_dict['spark.cores.max']),
-                               'spark.cores.max {0}'.format(int(new_mr_allocation * NUM_WORKERS)))
-            wc['resource_fct'][mr]['spark.executor.cores'] = str(new_mr_allocation)
-            wc['resource_fct'][mr]['spark.cores.max'] = str(int(new_mr_allocation * NUM_WORKERS))
+            spark_rewrite_conf(instances, 'spark.executor.cores', int(new_mr_allocation))
+            spark_rewrite_conf(instances, 'spark.cores.max', int(new_mr_allocation) * NUM_WORKERS)
         elif mr.resource == 'MEMORY':
             memg = new_mr_allocation / (1024 ** 3)
             memg = str(int(memg*DEFAULT_MEM)) + "g"
-            spark_rewrite_conf(instances, 'spark.executor.memory {0}'.format(previous_allocation_dict['spark.executor.memory']),
-                               'spark.executor.memory {0}'.format(memg))
-            wc['resource_fct'][mr]['spark.executor.memory'] = memg
-            
+            spark_rewrite_conf(instances, 'spark.executor.memory', memg)
+
     elif mr.service_name == 'hantaowang/bcd-spark-master':
         if mr.resource == 'CPU-CORE':
             mr_allocation_int = int(new_mr_allocation)
-            spark_rewrite_conf(instances, 'spark.driver.cores {0}'.format(previous_allocation_dict['spark.driver.cores']),
-                            'spark.driver.cores {0}'.format(mr_allocation_int))
-            wc['resource_fct'][mr]['spark.driver.cores'] = str(mr_allocation_int)
+            spark_rewrite_conf(instances, 'spark.driver.cores', mr_allocation_int)
         elif mr.resource == 'MEMORY':
             memg = new_mr_allocation / (1024 ** 3)
             memg = str(int(memg*DEFAULT_MEM)) + "g"
-            spark_rewrite_conf(instances, 'spark.driver.memory {0}'.format(previous_alloation_dict['spark.driver.memory']),
-                               'spark.driver.memory {0}'.format(memg))
-            wc['resource_fct'][mr]['spark.driver.memory'] = memg
+            spark_rewrite_conf(instances, 'spark.driver.memory', memg)
 
     return workload_config
-
-
-    

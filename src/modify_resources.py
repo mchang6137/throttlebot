@@ -14,6 +14,7 @@ from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
+from poll_cluster_state import get_vm_to_service
 from get_utilization import *
 from mr import MR
 
@@ -31,6 +32,7 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # Sets the resource provision for all containers in a service
 # Passing in the Workload Configuration by reference 
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
+    print "\nSETTING MR: {0} {1}".format(mr.service_name, mr.resource)
     # A new MR allocation of -1 indicates that the proposed resource is at minimum already
     # Add to a queue and deal with later in the process
     if new_mr_allocation == -1:
@@ -40,8 +42,35 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     # Modify the resources
     config_modifier.modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
     
+    
+    # Check that new_mr_allocation does not exceed machine maximum or minimum
+    delta = float(new_mr_allocation) - float(resource_datastore.read_mr_alloc(redis_db, mr))
+    for machine_ip, _ in mr.instances:
+
+        # GET/SET num instances on machines
+        redis_cache = resource_datastore.read_machine_instances(redis_db, machine_ip)
+        if redis_cache is not None and len(redis_cache) > 0:
+            instances_on_machine = redis_cache
+        else:
+            instances_on_machine = get_vm_to_service([machine_ip])[machine_ip]
+            resource_datastore.write_machine_instances(redis_db, machine_ip, instances_on_machine)
+        
+        machine_max = resource_datastore.read_machine_capacity(redis_db, machine_ip)[mr.resource]
+        
+        if mr.resource == 'CPU-CORE':
+            if int(new_mr_allocation) > int(machine_max):
+                raise ValueError(
+                    "{0}:{1} can not be stressed pass 100% utilization".format(mr.service_name, mr.resource))
+            elif new_mr_allocation == 0:
+                raise ValueError("CPU Cores can not be stressed to 0")
+        else:
+            consumption = resource_datastore.read_machine_consumption(redis_db, machine_ip)[mr.resource]
+            machine_delta = delta * instances_on_machine.count(mr.service_name)
+            if consumption + machine_delta >= machine_max:
+                raise ValueError("{0} can not be stressed pass 100% utilization".format(mr.service_name))
+        
     # Start by stressing the resource provisions
-    for vm_ip,container_id in mr.instances:
+    for vm_ip, container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         if mr.resource == 'CPU-CORE':
             previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
@@ -53,6 +82,7 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                               quota_aggregate,
                                                                                               new_quota_alloc)
             set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
+            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_quota_alloc)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
@@ -65,6 +95,9 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
         else:
             print 'INVALID resource'
         close_client(ssh_client)
+        
+    print "Set all {0}, {1} to {2}".format(mr.service_name, mr.resource, new_mr_allocation)
+
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):
@@ -72,7 +105,6 @@ def reset_mr_provision(mr, wc):
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
             reset_cpu_cores(ssh_client, container_id)
         elif mr.resource == 'CPU-QUOTA':
             reset_cpu_quota(ssh_client, container_id)

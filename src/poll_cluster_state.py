@@ -1,6 +1,5 @@
 import subprocess
 import remote_execution as remote_exec
-
 '''
 Queries information about the cluster directly from the true state
 Currently retrieves the information from quilt ps
@@ -118,4 +117,5 @@ def get_vm_to_service(vm_ips):
             else:
                 vm_to_service[vm_ip] = [service]
         remote_exec.close_client(ssh_client)
+
     return vm_to_service
