@@ -66,7 +66,7 @@ def parse_quilt_ps_col(column, machine_level=True):
         return result_list[1:]
 
 def get_quilt_services():
-    return quilt_blacklist.extend(service_blacklist)
+    return quilt_blacklist + service_blacklist
 
 # Returns all stressable resources available for this
 def get_stressable_resources(cloud_provider='aws-ec2'):

@@ -10,8 +10,8 @@ import redis_client as tbot_datastore
 '''
 Get charts of the results of the experiments
 '''
-def get_summary_mimr_charts(redis_db, workload_config, baseline_perf, mr_to_stress, experiment_iteration_count, stress_weights, preferred_performance_metric, time_id):
-    max_stress = min(stress_weights)
+def get_summary_mimr_charts(redis_db, workload_config, baseline_perf, mr_to_stress, experiment_iteration_count, stress_weight, preferred_performance_metric, time_id):
+    max_stress = stress_weight
     width = 0.8
     indices = np.arange(experiment_iteration_count + 1)
     chart_directory = 'results/graphs/{}/'.format(workload_config['type'] + str(time_id))
