@@ -511,7 +511,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
 
-    while experiment_count < 2:
+    # Modified while condition for completion
+    # while experiment_count < 2:
+    while True:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -907,9 +909,9 @@ def parse_resource_config_file(resource_config_csv, sys_config):
 # Throttlebot allows regex * to represent ALL
 def resolve_config_wildcards(sys_config, workload_config):
     if sys_config['stress_these_services'][0] == '*':
-        sys_config['stress_these_services'] = get_actual_vms()
+        sys_config['stress_these_services'] = get_actual_services()
     if sys_config['stress_these_machines'] == '*':
-        sys_config['stress_these_machines'] = get_actual_services()
+        sys_config['stress_these_machines'] = get_actual_vms()
 
 def validate_configs(sys_config, workload_config):
     #Validate Address related configuration arguments

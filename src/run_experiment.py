@@ -5,6 +5,7 @@ from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
+import numpy as np
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
@@ -385,7 +386,7 @@ def measure_apt_app(workload_config, experiment_iterations):
     apt_app_public_ip = workload_config['frontend'][0]
     traffic_gen_ips = workload_config['request_generator']
 
-    POSTGRES_REQUESTS = 1500
+    POSTGRES_REQUESTS = 1000
     NUM_REQUESTS = 1000
     CONCURRENCY = 500
 
@@ -403,12 +404,12 @@ def measure_apt_app(workload_config, experiment_iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:3000/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:3000/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, NUM_REQUESTS/100)
+    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:80/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 1)
 
     benchmark_commands = [postgres_get, postgres_post, mysql_get, mysql_post, welcome, elastic]
 
@@ -416,12 +417,12 @@ def measure_apt_app(workload_config, experiment_iterations):
 
         # Initializing machine db
         print 'Initializing Machines'
-        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/psql/users/'.format(
+        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/'.format(
             NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
         print init_cmd
         # _, results, _ = traffic_clients[0].exec_command(init_cmd)
         _, results, _ = traffic_client.exec_command(init_cmd)
-        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:3000/app/mysql/users/'.format(
+        init_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/'.format(
             NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
         print init_cmd
         # _, results, _ = traffic_clients[0].exec_command(init_cmd)
@@ -439,6 +440,7 @@ def measure_apt_app(workload_config, experiment_iterations):
             print benchmark_commands[a]
             #traffic_clients[a].exec_command(benchmark_commands[a])
             traffic_client.exec_command(benchmark_commands[a])
+            sleep(0.2)
 
         # Checking for task completion
         finished = 0
@@ -451,12 +453,13 @@ def measure_apt_app(workload_config, experiment_iterations):
             repetitions += 1
             finished = 0
             # Call again...
-            if repetitions > 150:
+            if repetitions > 50:
                 print 'Calling commands again due to unresponsiveness'
                 for a in range(6):
                     print benchmark_commands[a]
                     # traffic_clients[a].exec_command(benchmark_commands[a])
                     traffic_client.exec_command(benchmark_commands[a])
+                    sleep(0.2)
                 repetitions = 0
                 sleep(5)
 
@@ -464,6 +467,7 @@ def measure_apt_app(workload_config, experiment_iterations):
                 finished_benchmark_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(b)
                 # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)
                 complete = execute_parse_results(traffic_client, finished_benchmark_cmd)
+                sleep(0.3)
                 # print 'test', complete
                 if complete != -1:
                     finished += 1
@@ -501,9 +505,13 @@ def measure_apt_app(workload_config, experiment_iterations):
             # latency += float(execute_parse_results(traffic_clients[c], latency_cmd))
 
             rpst = execute_parse_results(traffic_client, rps_cmd)
+            sleep(0.3)
             latencyt = execute_parse_results(traffic_client, latency_cmd)
+            sleep(0.3)
             latency_50t = execute_parse_results(traffic_client, latency_50_cmd)
+            sleep(0.3)
             latency_90t = execute_parse_results(traffic_client, latency_90_cmd)
+            sleep(0.3)
             latency_99t = execute_parse_results(traffic_client, latency_99_cmd)
 
             rps += float(execute_parse_results(traffic_client, rps_cmd))
@@ -520,24 +528,30 @@ def measure_apt_app(workload_config, experiment_iterations):
             # traffic_clients[c].exec_command('rm output.txt')
             rm_out_cmd = 'rm output{}.txt'.format(c)
             traffic_client.exec_command(rm_out_cmd)
+            sleep(0.3)
             print '{},{},{},{},{}'.format(rpst, latencyt, latency_50t, latency_90t, latency_99t)
         print 'total:{},{},{},{},{}'.format(rps, latency, latency_50, latency_90, latency_99)
 
         # Removing entries
-        curl1 = 'curl -X "DELETE" http://{}:3000/app/mysql/users'.format(apt_app_public_ip)
-        curl2 = 'curl -X "DELETE" http://{}:3000/app/psql/users'.format(apt_app_public_ip)
-        curl3 = 'curl http://{}:3000/app/elastic/reset'.format(apt_app_public_ip)
+        curl1 = 'curl -X "DELETE" http://{}:80/app/mysql/users'.format(apt_app_public_ip)
+        curl2 = 'curl -X "DELETE" http://{}:80/app/psql/users'.format(apt_app_public_ip)
+        curl3 = 'curl http://{}:80/app/elastic/reset'.format(apt_app_public_ip)
         # fcurl1 = "for i in `seq {}`; do {}; done".format(NUM_REQUESTS, curl1)
         # fcurl2 = "for i in `seq {}`; do {}; done".format(NUM_REQUESTS, curl2)
         # traffic_clients[0].exec_command(curl1)
         # traffic_clients[0].exec_command(curl2)
 
         traffic_client.exec_command(curl1)
+        sleep(0.3)
         traffic_client.exec_command(curl2)
+        sleep(0.3)
         traffic_client.exec_command(curl3)
+        print 'Sleeping for 15 seconds for proper deletion'
+        sleep(15)
+        traffic_client.exec_command(curl2)
 
-        print 'Sleeping for 2 seconds'
-        sleep(2)
+        print 'Sleeping for 5 more seconds for proper deletion'
+        sleep(5)
 
         all_requests['rps'].append(rps)
         all_requests['latency'].append(latency)
@@ -551,6 +565,30 @@ def measure_apt_app(workload_config, experiment_iterations):
         # print all_requests
         # print 'Checkpoint 2, Baseline and iteration done'
         # exit()
+
+    # Remove outliers (all outside of 1 standard deviation)
+    median = np.median(all_requests['rps'])
+    std = np.std(all_requests['rps'])
+    all_requests['rps'] = [i for i in all_requests['rps'] if (i > (median - std) and i < (median + std))]
+
+    median = np.median( all_requests['latency'])
+    std = np.std( all_requests['latency'])
+    all_requests['latency'] = [i for i in all_requests['latency'] if (i > (median - std) and i < (median + std))]
+
+    median = np.median(all_requests['latency_50'])
+    std = np.std(all_requests['latency_50'])
+    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i > (median - std) and i < (median + std))]
+
+    median = np.median(all_requests['latency_90'])
+    std = np.std(all_requests['latency_90'])
+    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i > (median - std) and i < (median + std))]
+
+    median = np.median(all_requests['latency_99'])
+    std = np.std(all_requests['latency_99'])
+    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
+
+    print all_requests
+    exit()
 
     # Closing clients
     # for client in traffic_clients:
