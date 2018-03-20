@@ -59,7 +59,7 @@ def get_performance_over_time_chart(redis_db, experiment_type, experiment_iterat
     x = []
     y = []
     for iteration in range(experiment_iteration_count + 1):
-        _, _, _,_, curr_perf, elaps_time, _ = tbot_datastore.read_summary_redis(redis_db, iteration)
+        _, _, _,_, curr_perf, elaps_time, _, _ = tbot_datastore.read_summary_redis(redis_db, iteration)
         x.append(elaps_time)
         y.append(curr_perf)
     plt.plot(x, y, drawstyle='steps-post')
@@ -75,7 +75,7 @@ def get_performance_over_mr_chart(redis_db, experiment_type, experiment_iteratio
     x = []
     y = []
     for iteration in range(experiment_iteration_count + 1):
-        _, _, _, _,curr_perf, _, cumulative_mr = tbot_datastore.read_summary_redis(redis_db, iteration)
+        _, _, _, _,curr_perf, _, cumulative_mr,_ = tbot_datastore.read_summary_redis(redis_db, iteration)
         x.append(cumulative_mr)
         y.append(curr_perf)
     plt.plot(x, y, drawstyle='steps-post')
