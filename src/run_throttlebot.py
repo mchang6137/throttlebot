@@ -99,11 +99,9 @@ def finalize_mr_provision(redis_db, mr, new_alloc, wc):
 
 # Assesses the relative performnace between initial_perf and after_perf
 def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x=0):
-    perf_diff = after_perf - initial_perf
-
-    if (perf_diff > within_x * initial_perf) and optimize_for_lowest:
+    if after_perf > initial_perf + (initial_perf * within_x) and optimize_for_lowest is False:
         return True
-    elif (perf_diff < -1 * within_x * initial_perf) and optimize_for_lowest is False:
+    elif after_perf < initial_perf - (initial_perf * within_x) and optimize_for_lowest:
         return True
     else:
         return False
@@ -119,7 +117,7 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
         print 'perf diff is {}'.format(perf_diff)
         print 'leeway is {}'.format(within_x * baseline_performance)
 
-        if is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x):
+        if is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x) is False:
             imr_list.append(mr)
         else:
             nimr_list.append(mr)
@@ -278,17 +276,13 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     return new_nimr_change, int(proposed_imr_improvement)
 
 # Determine if mr still has an interval to decrease it to
-def mr_at_minimum(mr, proposed_weight_change):
+def mr_at_minimum(redis_db, mr, proposed_weight_change):
     current_alloc = mr.read_mr_alloc(redis_db)
     new_alloc = convert_percent_to_raw(mr, current_alloc, proposed_weight_change)
     if new_alloc == -1:
         return True
     else:
         return False
-
-# Calculate the mean of a list
-def mean_list(l):
-    return sum(l) / float(len(l))
 
 # Remove Outliers from a list
 def remove_outlier(l, n=1):
@@ -329,10 +323,10 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
         
     for experiment_count in range(total_experiments):
         mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr, is_backtrack = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        if is_backtrack:
+        is_backtrack_string = 'normal'
+        if is_backtrack == 'True':
             is_backtrack_string = 'backtrack'
-        else:
-            is_backtrack_string = ''
+            
         print 'Iteration {}_{}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, is_backtrack_string, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
 
         # Append results to log file
@@ -478,7 +472,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    #install_dependencies(workload_config)
+    install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
@@ -604,7 +598,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
             performance = remove_outlier(performance[preferred_performance_metric])
 
-            acceptable_deviation = 0.1
+            acceptable_deviation = 0.2
 
             if (abs(mean_list(performance) - mean_list(baseline_performance))
                     / mean_list(baseline_performance)) > acceptable_deviation:
@@ -667,7 +661,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                     nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
                                                                                                 imr,
                                                                                                 nimr_list,
-                                                                                                max_stress_weight)
+                                                                                                stress_weight)
                     print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
                     print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
                     
@@ -681,7 +675,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                         nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
                                                                                                     imr,
                                                                                                     filtered_nimr_list,
-                                                                                                    max_stress_weight)
+                                                                                                    stress_weight)
                         if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                             continue
                         
@@ -758,24 +752,25 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
         minimum_step_gap = 0.15
-        if is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01)
+        if is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01) is False:
             print 'Net performance improvement reported as 0, so initiating a backtrack step'
             new_performance = backtrack_overstep(redis_db,
+                                                 workload_config,
                                                  experiment_count,
-                                                 optimize_for_lowest,
                                                  current_performance,
                                                  action_taken,
                                                  minimum_step_gap)
 
-            if new_performance != -1:
+            if new_performance:
                 current_performance = new_performance
             
-            # Checkpoint MR configurations and print
-            current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
-            print_csv_configuration(current_mr_config)
-            experiment_count += 1
+                # Checkpoint MR configurations and print
+                current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
+                print_csv_configuration(current_mr_config)
+                experiment_count += 1
 
-        print 'Backtrack completed, referred to as experiment {}'.format(experiment_count)
+                print 'Backtrack completed, referred to as experiment {}'.format(experiment_count)
+                
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print 'Convergence achieved'
@@ -785,8 +780,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
     print_csv_configuration(current_mr_config)
 
-def backtrack_overstep(redis_db, experiment_count, optimize_for_lowest,
+def backtrack_overstep(redis_db, workload_config, experiment_count,
                        current_perf, action_taken, minimum_step_gap=0.15):
+    metric = workload_config['tbot_metric']
+    optimize_for_lowest = workload_config['optimize_for_lowest']
+    current_perf_float = mean_list(current_perf[metric])
+    
     for mr in action_taken:
         # Skip if action taken was to steal from a NIMR
         if action_taken[mr] < 0:
@@ -796,19 +795,21 @@ def backtrack_overstep(redis_db, experiment_count, optimize_for_lowest,
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc + old_mr_alloc) / 2
         resource_modifier.set_mr_provision(mr, median_alloc, None)
-        median_alloc_perf = mean_list(measure_runtime(workload_config, experiment_trials))
-
+        median_alloc_perf = measure_runtime(workload_config, experiment_count)
+        median_alloc_mean = mean_list(median_alloc_perf[metric])
+        
         # If the median alloc performance is better, rewind the improvement back to this point
-        if is_performance_improved(current_perf, median_alloc_perf, optimize_for_lowest, within_x=0.01):
+        if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=0.01):
             finalize_mr_provision(redis_db, mr, median_alloc, workload_config)
+
             # Write a summary of the experiment's iterations to Redis
-            perf_improvement = median_alloc_perf - current_perf
+            perf_improvement = median_alloc_mean - current_perf_float
             new_action = {}
             new_action[mr] = median_alloc - new_mr_alloc
             tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
                                                perf_improvement, new_action,
-                                               median_alloc_perf, median_alloc_perf,
-                                               0, 0)
+                                               median_alloc_mean, median_alloc_mean,
+                                               0, 0, is_backtrack=True)
 
             results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
             print 'Results from backtrack are {}'.format(results)
@@ -817,7 +818,7 @@ def backtrack_overstep(redis_db, experiment_count, optimize_for_lowest,
             # Revert to the most recent MR allocation
             resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
 
-    return -1
+    return None
 
 '''
 Functions to parse configuration files
