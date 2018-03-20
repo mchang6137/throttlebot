@@ -788,7 +788,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
     
     for mr in action_taken:
         # Skip if action taken was to steal from a NIMR
-        if action_taken[mr] < 0:
+        if action_taken[mr] <= 0:
             continue
         
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
