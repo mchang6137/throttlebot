@@ -91,12 +91,22 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 ''' 
 Tools that are used for experimental purposes in Throttlebot 
 '''
-
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
     resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
+
+# Assesses the relative performnace between initial_perf and after_perf
+def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x=0):
+    perf_diff = after_perf - initial_perf
+
+    if (perf_diff > within_x * initial_perf) and optimize_for_lowest:
+        return True
+    elif (perf_diff < -1 * within_x * initial_perf) and optimize_for_lowest is False:
+        return True
+    else:
+        return False
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
@@ -109,9 +119,7 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
         print 'perf diff is {}'.format(perf_diff)
         print 'leeway is {}'.format(within_x * baseline_performance)
 
-        if (perf_diff > within_x * baseline_performance) and optimize_for_lowest:
-            imr_list.append(mr)
-        elif (perf_diff < -1 * within_x * baseline_performance) and optimize_for_lowest is False:
+        if is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x):
             imr_list.append(mr)
         else:
             nimr_list.append(mr)
@@ -749,55 +757,67 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
-        minimum_step_size = 0.15
-        if performance_improvement >= 0:
-            print 'Net performance improvement reported as 0'
-            for mr in action_taken:
-                # Skip if action taken was a nimr
-                if action_taken[mr] < 0:
-                    continue
-                else:
-                    new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-                    old_mr_alloc = new_mr_alloc - action_taken[mr]
-                    median_alloc = old_mr_alloc + (new_mr_alloc + old_mr_alloc) / 2
+        minimum_step_gap = 0.15
+        if is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01)
+            print 'Net performance improvement reported as 0, so initiating a backtrack step'
+            new_performance = backtrack_overstep(redis_db,
+                                                 experiment_count,
+                                                 optimize_for_lowest,
+                                                 current_performance,
+                                                 action_taken,
+                                                 minimum_step_gap)
 
-                    while median_alloc > (old_mr_alloc + minimum_step_size * old_mr_alloc) and median_alloc < (new_mr_alloc - minimum_step_size * new_mr_alloc):
-                        resource_modifier.set_mr_provision(mr, median_alloc, None)
-                        median_alloc_perf = mean_list(measure_runtime(workload_config, experiment_trials))
-                        if median_alloc_perf <= improved_mean:
-                            finalize_mr_provision(redis_db, mr, median_alloc, workload_config)
-                            # Write a summary of the experiment's iterations to Redis
-	                    tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
-                                                               performance_improvement, action_taken,
-                                                               analytic_mean, improved_mean,
-                                                               time_delta.seconds, cumulative_mr_count)
-                            break
-                        else:
-                            # Revert to the most recent MR allocation
-                            resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
-
-            current_performance = improved_performance
-
-            # Generating overall performance improvement
-            chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
-
-            results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-            print 'Results from iteration {} are {}'.format(experiment_count, results)
-
+            if new_performance != -1:
+                current_performance = new_performance
+            
             # Checkpoint MR configurations and print
-            current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
+            current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
             print_csv_configuration(current_mr_config)
-
             experiment_count += 1
 
-    print '{} experiments completed'.format(experiment_count)
-    print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
+        print 'Backtrack completed, referred to as experiment {}'.format(experiment_count)
+        print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
+    print 'Convergence achieved'
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
         
     print_csv_configuration(current_mr_config)
+
+def backtrack_overstep(redis_db, experiment_count, optimize_for_lowest,
+                       current_perf, action_taken, minimum_step_gap=0.15):
+    for mr in action_taken:
+        # Skip if action taken was to steal from a NIMR
+        if action_taken[mr] < 0:
+            continue
+        
+        new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+        old_mr_alloc = new_mr_alloc - action_taken[mr]
+        median_alloc = old_mr_alloc + (new_mr_alloc + old_mr_alloc) / 2
+        resource_modifier.set_mr_provision(mr, median_alloc, None)
+        median_alloc_perf = mean_list(measure_runtime(workload_config, experiment_trials))
+
+        # If the median alloc performance is better, rewind the improvement back to this point
+        if is_performance_improved(current_perf, median_alloc_perf, optimize_for_lowest, within_x=0.01):
+            finalize_mr_provision(redis_db, mr, median_alloc, workload_config)
+            # Write a summary of the experiment's iterations to Redis
+            perf_improvement = median_alloc_perf - current_perf
+            new_action = {}
+            new_action[mr] = median_alloc - new_mr_alloc
+            tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
+                                               perf_improvement, new_action,
+                                               median_alloc_perf, median_alloc_perf,
+                                               0, 0)
+
+            results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+            print 'Results from backtrack are {}'.format(results)
+            return median_alloc_perf
+        else:
+            # Revert to the most recent MR allocation
+            resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
+
+    return -1
 
 '''
 Functions to parse configuration files
