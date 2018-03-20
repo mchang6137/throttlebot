@@ -91,12 +91,20 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 ''' 
 Tools that are used for experimental purposes in Throttlebot 
 '''
-
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
     resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
+
+# Assesses the relative performnace between initial_perf and after_perf
+def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x=0):
+    if after_perf > initial_perf + (initial_perf * within_x) and optimize_for_lowest is False:
+        return True
+    elif after_perf < initial_perf - (initial_perf * within_x) and optimize_for_lowest:
+        return True
+    else:
+        return False
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
@@ -109,19 +117,12 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
         print 'perf diff is {}'.format(perf_diff)
         print 'leeway is {}'.format(within_x * baseline_performance)
 
-        if (perf_diff > within_x * baseline_performance) and optimize_for_lowest:
-            imr_list.append(mr)
-        elif (perf_diff < -1 * within_x * baseline_performance) and optimize_for_lowest is False:
+        if is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x) is False:
             imr_list.append(mr)
         else:
             nimr_list.append(mr)
             
     return imr_list, nimr_list
-
-# Determine Amount to improve a MIMR
-def improve_mr_by(redis_db, mimr, weight_stressed):
-    #Simple heuristic currently: Just improve by amount it was improved
-    return (weight_stressed * -1)
 
 # Run baseline
 def measure_baseline(workload_config, baseline_trials=10, include_warmup=False):
@@ -275,17 +276,13 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight):
     return new_nimr_change, int(proposed_imr_improvement)
 
 # Determine if mr still has an interval to decrease it to
-def mr_at_minimum(mr, proposed_weight_change):
+def mr_at_minimum(redis_db, mr, proposed_weight_change):
     current_alloc = mr.read_mr_alloc(redis_db)
     new_alloc = convert_percent_to_raw(mr, current_alloc, proposed_weight_change)
     if new_alloc == -1:
         return True
     else:
         return False
-
-# Calculate the mean of a list
-def mean_list(l):
-    return sum(l) / float(len(l))
 
 # Remove Outliers from a list
 def remove_outlier(l, n=1):
@@ -325,8 +322,12 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
         myfile.write(log_msg)
         
     for experiment_count in range(total_experiments):
-        mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Iteration {}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
+        mimr,action_taken,perf_improvement,analytic_perf,current_perf,elapsed_time, cumm_mr, is_backtrack = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+        is_backtrack_string = 'normal'
+        if is_backtrack == 'True':
+            is_backtrack_string = 'backtrack'
+            
+        print 'Iteration {}_{}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, is_backtrack_string, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
@@ -357,8 +358,7 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
     print 'Finding colocated NIMRs'
     experiment_trials = sys_config['trials']
-    stress_weights = sys_config['stress_weights']
-    stress_weight = min(stress_weights)
+    stress_weight = sys_config['stress_weight']
     
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -422,7 +422,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     redis_host = sys_config['redis_host']
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
-    stress_weights = sys_config['stress_weights']
+    stress_weight = sys_config['stress_weight']
+    improve_weight = sys_config['improve_weight']
     stress_policy = sys_config['stress_policy']
     resource_to_stress = sys_config['stress_these_resources']
     service_to_stress = sys_config['stress_these_services']
@@ -471,7 +472,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     
     print '*' * 20
     print 'INFO: INSTALLING DEPENDENCIES'
-    #install_dependencies(workload_config)
+    install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
@@ -513,7 +514,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     while experiment_count < 10:
         # Calculate the analytic baseline that is used to determine MRs
-        analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, min(stress_weights))
+        analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
             resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
@@ -530,12 +531,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
         # Get a list of MRs to stress in the form of a list of MRs
         mr_to_consider = apply_filtering_policy(redis_db,
-                                              mr_working_set,
-                                              experiment_count,
-                                              sys_config,
-                                              workload_config,
-                                              filter_config)
-
+                                                mr_working_set,
+                                                experiment_count,
+                                                sys_config,
+                                                workload_config,
+                                                filter_config)
+        
         for mr in mr_to_consider:
             print '\n' * 2
             print '*' * 20
@@ -544,33 +545,32 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
             print 'Current MR allocation is {}'.format(current_mr_allocation)
             
-            for stress_weight in stress_weights:
-                # Calculate Gradient Schedule and provision resources accordingly
-                mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+            # Calculate Gradient Schedule and provision resources accordingly
+            mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+                                                                  sys_config,
+                                                                  stress_weight)
+            for change_mr in mr_gradient_schedule:
+                resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                    
+            experiment_results = measure_runtime(workload_config, experiment_trials)
+                
+            # Write results of experiment to Redis
+            # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
+            preferred_results = experiment_results[preferred_performance_metric]
+            mean_result = mean_list(preferred_results)
+            tbot_datastore.write_redis_ranking(redis_db, experiment_count,
+                                               preferred_performance_metric,
+                                               mean_result, mr, stress_weight)
+
+            # Revert the Gradient schedule and provision resources accordingly
+            mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                      [mr],
                                                                       sys_config,
                                                                       stress_weight)
-                for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+            for change_mr in mr_revert_gradient_schedule:
+                resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                     
-                experiment_results = measure_runtime(workload_config, experiment_trials)
-                
-                # Write results of experiment to Redis
-                # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
-                preferred_results = experiment_results[preferred_performance_metric]
-                mean_result = mean_list(preferred_results)
-                tbot_datastore.write_redis_ranking(redis_db, experiment_count,
-                                                   preferred_performance_metric,
-                                                   mean_result, mr, stress_weight)
-
-                # Revert the Gradient schedule and provision resources accordingly
-                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                          [mr],
-                                                                          sys_config,
-                                                                          stress_weight)
-                for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
-                    
-                increment_to_performance[stress_weight] = experiment_results
+            increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
@@ -583,7 +583,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         cumulative_mr_count += len(mr_to_consider)
         chart_generator.get_summary_mimr_charts(redis_db, workload_config,
                                                 current_performance, mr_working_set,
-                                                experiment_count, stress_weights,
+                                                experiment_count, stress_weight,
                                                 preferred_performance_metric, time_start)
         
         
@@ -598,7 +598,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
             performance = remove_outlier(performance[preferred_performance_metric])
 
-            acceptable_deviation = 0.1
+            acceptable_deviation = 0.2
 
             if (abs(mean_list(performance) - mean_list(baseline_performance))
                     / mean_list(baseline_performance)) > acceptable_deviation:
@@ -614,10 +614,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
         
         # Recover the results of the experiment from Redis
-        max_stress_weight = min(stress_weights)
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
                                                   preferred_performance_metric,
-                                                  max_stress_weight, gradient_mode,
+                                                  stress_weight, gradient_mode,
                                                   optimize_for_lowest=optimize_for_lowest,
                                                   num_results_returned=-1)
 
@@ -627,14 +626,19 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             break
         print 'INFO: IMR list is {}'.format([mr.to_string() for mr in imr_list])
         print 'INFO: NIMR list is {}'.format([mr.to_string() for mr in nimr_list])
+
+        # Move back into the normal operating basis by removing the baseline prep stresses
+        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
+        for mr in reverted_analytic_provisions:
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
         
         # Try all the MIMRs in the list until a viable improvement is determined
         # Improvement Amount
         mimr = None
         action_taken = {}
-        
+
         for imr in imr_list:
-            imr_improvement_percent = improve_mr_by(redis_db, imr, max_stress_weight)
+            imr_improvement_percent = improve_weight
             current_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
             new_imr_alloc = convert_percent_to_raw(imr, current_imr_alloc, imr_improvement_percent)
             imr_improvement_proposal = int(new_imr_alloc - current_imr_alloc)
@@ -657,7 +661,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                     nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
                                                                                                 imr,
                                                                                                 nimr_list,
-                                                                                                max_stress_weight)
+                                                                                                stress_weight)
                     print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
                     print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
                     
@@ -671,7 +675,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                         nimr_diff_proposal,imr_improvement_proposal = create_decrease_nimr_schedule(redis_db,
                                                                                                     imr,
                                                                                                     filtered_nimr_list,
-                                                                                                    max_stress_weight)
+                                                                                                    stress_weight)
                         if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                             continue
                         
@@ -684,13 +688,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 finalize_mr_provision(redis_db, nimr, new_nimr_alloc, workload_config)
 
             print 'Taking an accounting before decreasing...'
-            print 'IMR {} is currently at {}, trying to improve by {}'.format(imr.to_string(), current_imr_alloc, imr_improvement_proposal)
+            print 'IMR {} is currently at {}, trying to improve by {}'.format(imr.to_string(),
+                                                                              current_imr_alloc,
+                                                                              imr_improvement_proposal)
             # Improving the resource should always be viable at this step
             if check_improve_mr_viability(redis_db, imr, imr_improvement_proposal):
                 new_imr_alloc = imr_improvement_proposal + current_imr_alloc
                 action_taken[imr] = imr_improvement_proposal
                 finalize_mr_provision(redis_db, imr, new_imr_alloc, workload_config)
-                print 'Improvement Calculated: MR {} increase from {} to {}'.format(imr.to_string(), current_imr_alloc, new_imr_alloc)
+                print 'Improvement Calculated: MR {} increase from {} to {}'.format(imr.to_string(),
+                                                                                    current_imr_alloc,
+                                                                                    new_imr_alloc)
                 mimr = imr
                 break
             else:
@@ -702,7 +710,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 print 'This IMR cannot be improved. Printing some debugging before exiting...'
 
                 print 'Current MR allocation is {}'.format(current_imr_alloc)
-                print 'Proposed (failed) allocation is {}, improved by {}'.format(new_imr_alloc, imr_improvement_proposal)
+                print 'Proposed (failed) allocation is {}, improved by {}'.format(new_imr_alloc,
+                                                                                  imr_improvement_proposal)
 
                 for deployment in imr.instances:
                     vm_ip,container = deployment
@@ -714,23 +723,19 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             print 'No viable improvement found'
             break
 
-        # Move back into the normal operating basis by removing the baseline prep stresses
-        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
-
         #Compare against the baseline at the beginning of the program
         improved_performance = measure_runtime(workload_config, baseline_trials)
-        # improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
+        improved_performance[preferred_performance_metric] = remove_outlier(improved_performance[preferred_performance_metric])
         improved_mean = mean_list(improved_performance[preferred_performance_metric]) 
         previous_mean = mean_list(current_performance[preferred_performance_metric])
         performance_improvement = improved_mean - previous_mean
-        
+
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, mimr,
                                            performance_improvement, action_taken,
                                            analytic_mean, improved_mean,
-                                           time_delta.seconds, cumulative_mr_count) 
+                                           time_delta.seconds, cumulative_mr_count)
+
         current_performance = improved_performance
 
         # Generating overall performance improvement
@@ -740,19 +745,80 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print 'Results from iteration {} are {}'.format(experiment_count, results)
 
         # Checkpoint MR configurations and print
-        current_mr_config = resource_datastore.read_all_mr_alloc(redis_db) 
+        current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
         print_csv_configuration(current_mr_config)
-
         experiment_count += 1
 
-    print '{} experiments completed'.format(experiment_count)
-    print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
+        # Potentially adapt step size if no performance gains observed
+        # Do this after step summary for easy debugging
+        minimum_step_gap = 0.15
+        if is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01) is False:
+            print 'Net performance improvement reported as 0, so initiating a backtrack step'
+            new_performance = backtrack_overstep(redis_db,
+                                                 workload_config,
+                                                 experiment_count,
+                                                 current_performance,
+                                                 action_taken,
+                                                 minimum_step_gap)
 
+            if new_performance:
+                current_performance = new_performance
+            
+                # Checkpoint MR configurations and print
+                current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
+                print_csv_configuration(current_mr_config)
+                experiment_count += 1
+
+                print 'Backtrack completed, referred to as experiment {}'.format(experiment_count)
+                
+        print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
+
+    print 'Convergence achieved'
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
         
     print_csv_configuration(current_mr_config)
+
+def backtrack_overstep(redis_db, workload_config, experiment_count,
+                       current_perf, action_taken, minimum_step_gap=0.15):
+    metric = workload_config['tbot_metric']
+    optimize_for_lowest = workload_config['optimize_for_lowest']
+    current_perf_float = mean_list(current_perf[metric])
+    
+    for mr in action_taken:
+        # Skip if action taken was to steal from a NIMR
+        if action_taken[mr] <= 0:
+            continue
+        
+        new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+        old_mr_alloc = new_mr_alloc - action_taken[mr]
+        median_alloc = old_mr_alloc + (new_mr_alloc + old_mr_alloc) / 2
+        resource_modifier.set_mr_provision(mr, median_alloc, None)
+        median_alloc_perf = measure_runtime(workload_config, experiment_count)
+        median_alloc_mean = mean_list(median_alloc_perf[metric])
+        
+        # If the median alloc performance is better, rewind the improvement back to this point
+        if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=0.01):
+            finalize_mr_provision(redis_db, mr, median_alloc, workload_config)
+
+            # Write a summary of the experiment's iterations to Redis
+            perf_improvement = median_alloc_mean - current_perf_float
+            new_action = {}
+            new_action[mr] = median_alloc - new_mr_alloc
+            tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
+                                               perf_improvement, new_action,
+                                               median_alloc_mean, median_alloc_mean,
+                                               0, 0, is_backtrack=True)
+
+            results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
+            print 'Results from backtrack are {}'.format(results)
+            return median_alloc_perf
+        else:
+            # Revert to the most recent MR allocation
+            resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
+
+    return None
 
 '''
 Functions to parse configuration files
@@ -771,8 +837,8 @@ def parse_config_file(config_file):
     #Configuration Parameters relating to Throttlebot
     sys_config['baseline_trials'] = config.getint('Basic', 'baseline_trials')
     sys_config['trials'] = config.getint('Basic', 'trials')
-    stress_weights = config.get('Basic', 'stress_weights').split(',')
-    sys_config['stress_weights'] = [int(x) for x in stress_weights]
+    sys_config['stress_weight'] = config.getint('Basic', 'stress_weight')
+    sys_config['improve_weight'] = config.getint('Basic', 'improve_weight')
     sys_config['stress_these_resources'] = config.get('Basic', 'stress_these_resources').split(',')
     sys_config['stress_these_services'] = config.get('Basic', 'stress_these_services').split(',')
     sys_config['stress_these_machines'] = config.get('Basic', 'stress_these_machines').split(',')
