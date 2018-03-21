@@ -123,10 +123,12 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.0
         print 'perf diff is {}'.format(perf_diff)
         print 'leeway is {}'.format(within_x * baseline_performance)
 
-        if is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x) is False:
-            imr_list.append(mr)
-        else:
+        if is_performance_constant(baseline_performance, exp_performance, within_x):
             nimr_list.append(mr)
+        elif is_performance_improved(baseline_performance, exp_performance, optimize_for_lowest, within_x):
+            nimr_list.append(mr)
+        else:
+            imr_list.append(mr)
             
     return imr_list, nimr_list
 
@@ -519,7 +521,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
 
-    while experiment_count < 10:
+    while experiment_count < 8:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -627,8 +629,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                   optimize_for_lowest=optimize_for_lowest,
                                                   num_results_returned=-1)
 
-        imr_list, nimr_list = seperate_mr(mimr_list, mean_list(analytic_baseline[preferred_performance_metric]), optimize_for_lowest)
-        current_nimr_list = nimr_list
+        imr_list, nimr_list = seperate_mr(mimr_list, mean_list(analytic_baseline[preferred_performance_metric]), optimize_for_lowest, within_x=0.2)
+        current_nimr_list = deepcopy(nimr_list)
         if len(imr_list) == 0:
             print 'INFO: IMR list length is 0. Please choose a metric with more signal. Exiting...'
             break
@@ -793,21 +795,22 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         
     print_csv_configuration(current_mr_config)
 
-# Squeeze NIMRs from existing NIMRs
+# Squeeze down NIMRs from existing NIMRs
 def squeeze_nimrs(redis_db, sys_config,
                   workload_config,
                   current_nimr_list,
                   current_performance):
-    
+
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
     stress_weight = sys_config['stress_weight']
     improve_weight = sys_config['improve_weight']
 
-    preferred_performance_metric = workload_config['tbot_metric']
+    metric = workload_config['tbot_metric']
     current_performance_mean = mean_list(current_performance[metric])
 
     for nimr in current_nimr_list:
+        print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
         resource_modifier.set_mr_provision(nimr, new_alloc, None)
@@ -821,7 +824,7 @@ def squeeze_nimrs(redis_db, sys_config,
                                                                              current_nimr_alloc,
                                                                              new_alloc)
         else:
-            resource_modifier.set_mr_provision(mr, current_nimr_allocation, None)
+            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
