@@ -106,6 +106,12 @@ def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, withi
     else:
         return False
 
+def is_performance_constant(initial_perf, after_perf, within_x=0):
+    if abs(initial_perf - after_perf) < initial_perf * within_x:
+        return True
+    else:
+        return False
+
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
     imr_list = []
@@ -484,7 +490,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     current_performance = measure_baseline(workload_config,
                                            baseline_trials,
                                            workload_config['include_warmup'])
-
+    
+    current_nimr_list = []
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     baseline_performance = current_performance[preferred_performance_metric]
     current_time_stop = datetime.datetime.now()
@@ -621,6 +628,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                   num_results_returned=-1)
 
         imr_list, nimr_list = seperate_mr(mimr_list, mean_list(analytic_baseline[preferred_performance_metric]), optimize_for_lowest)
+        current_nimr_list = nimr_list
         if len(imr_list) == 0:
             print 'INFO: IMR list length is 0. Please choose a metric with more signal. Exiting...'
             break
@@ -773,13 +781,49 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
-    print 'Convergence achieved'
+    print 'Convergence achieved - start squeezing NIMRs'
+    squeeze_nimrs(redis_db, sys_config,
+                  workload_config, current_nimr_list,
+                  current_performance)
+    
+    print 'NIMRs have now also been squeezed, printing final values.'
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
         
     print_csv_configuration(current_mr_config)
 
+# Squeeze NIMRs from existing NIMRs
+def squeeze_nimrs(redis_db, sys_config,
+                  workload_config,
+                  current_nimr_list,
+                  current_performance):
+    
+    baseline_trials = sys_config['baseline_trials']
+    experiment_trials = sys_config['trials']
+    stress_weight = sys_config['stress_weight']
+    improve_weight = sys_config['improve_weight']
+
+    preferred_performance_metric = workload_config['tbot_metric']
+    current_performance_mean = mean_list(current_performance[metric])
+
+    for nimr in current_nimr_list:
+        current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
+        new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
+        resource_modifier.set_mr_provision(nimr, new_alloc, None)
+        
+        nimr_results = measure_runtime(workload_config, experiment_trials)
+        nimr_mean = mean_list(nimr_results[metric])
+
+        if is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2):
+            finalize_mr_provision(redis_db, nimr, new_alloc, workload_config)
+            print 'Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
+                                                                             current_nimr_alloc,
+                                                                             new_alloc)
+        else:
+            resource_modifier.set_mr_provision(mr, current_nimr_allocation, None)
+
+# Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
                        current_perf, action_taken, minimum_step_gap=0.15):
     metric = workload_config['tbot_metric']
@@ -793,7 +837,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         old_mr_alloc = new_mr_alloc - action_taken[mr]
-        median_alloc = old_mr_alloc + (new_mr_alloc + old_mr_alloc) / 2
+        median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
         resource_modifier.set_mr_provision(mr, median_alloc, None)
         median_alloc_perf = measure_runtime(workload_config, experiment_count)
         median_alloc_mean = mean_list(median_alloc_perf[metric])
