@@ -409,7 +409,7 @@ def measure_apt_app(workload_config, experiment_iterations):
     mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:80/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 1)
+    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:80/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 100)
 
     benchmark_commands = [postgres_get, postgres_post, mysql_get, mysql_post, welcome, elastic]
 
@@ -586,9 +586,6 @@ def measure_apt_app(workload_config, experiment_iterations):
     median = np.median(all_requests['latency_99'])
     std = np.std(all_requests['latency_99'])
     all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
-
-    print all_requests
-    exit()
 
     # Closing clients
     # for client in traffic_clients:
