@@ -1009,6 +1009,7 @@ def install_dependencies(workload_config):
         if workload_config['type'] == 'todo-app':
             ssh_exec(traffic_client, 'curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master%20Node%20Files/clear_entries.py')
             ssh_exec(traffic_client, 'curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master%20Node%20Files/post.json')
+
         close_client(traffic_client)
 
 
