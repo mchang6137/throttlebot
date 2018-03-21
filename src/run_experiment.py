@@ -548,6 +548,7 @@ def measure_apt_app(workload_config, experiment_iterations):
         traffic_client.exec_command(curl3)
         print 'Sleeping for 15 seconds for proper deletion'
         sleep(15)
+        traffic_client.exec_command(curl1)
         traffic_client.exec_command(curl2)
 
         print 'Sleeping for 5 more seconds for proper deletion'
