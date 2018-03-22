@@ -113,6 +113,7 @@ def is_performance_constant(initial_perf, after_perf, within_x=0):
         return False
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
+# Deprecated
 def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
     imr_list = []
     nimr_list = []
@@ -539,12 +540,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
         
         # Get a list of MRs to stress in the form of a list of MRs
-        mr_to_consider = apply_filtering_policy(redis_db,
-                                                mr_working_set,
-                                                experiment_count,
-                                                sys_config,
-                                                workload_config,
-                                                filter_config)
+        mr_to_consider = apply_filtering_policy(redis_db, mr_working_set, experiment_count,
+                                                sys_config, workload_config, filter_config)
         
         for mr in mr_to_consider:
             print '\n' * 2
@@ -563,15 +560,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                     
             experiment_results = measure_runtime(workload_config, experiment_trials)
                 
-            # Write results of experiment to Redis
-            # preferred_results = remove_outlier(experiment_results[preferred_performance_metric])
             preferred_results = experiment_results[preferred_performance_metric]
             mean_result = mean_list(preferred_results)
             tbot_datastore.write_redis_ranking(redis_db, experiment_count,
                                                preferred_performance_metric,
                                                mean_result, mr, stress_weight)
 
-            # Revert the Gradient schedule and provision resources accordingly
             mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
                                                                       [mr],
                                                                       sys_config,
@@ -582,7 +576,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             increment_to_performance[stress_weight] = experiment_results
 
             # Write the results of the iteration to Redis
-            tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance, experiment_count, preferred_performance_metric)
+            tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance,
+                                               experiment_count, preferred_performance_metric)
             print '*' * 20
             print '\n' * 2
 
@@ -599,28 +594,14 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
         if rerun_baseline:
             print "\n\nRunning Baseline Again as Sanity Check"
+            acceptable_baseline = 0.3
+            baseline_constant = is_baseline_constant(mr_working_set, workload_config, sys_config,
+                                                    baseline_performance, acceptable_baseline)
 
-            for mr in mr_working_set:
-                baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
-                resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
-
-            performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
-            performance = remove_outlier(performance[preferred_performance_metric])
-
-            acceptable_deviation = 0.2
-
-            if (abs(mean_list(performance) - mean_list(baseline_performance))
-                    / mean_list(baseline_performance)) > acceptable_deviation:
+            if baseline_constant is False:
                 print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
                 print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
                 sys.exit("System state has changed since baseline.")
-            else:
-                print "OK"
-
-            for mr in mr_working_set:
-                previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-                resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
-        
         
         # Recover the results of the experiment from Redis
         mimr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
@@ -672,8 +653,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                                                 imr,
                                                                                                 nimr_list,
                                                                                                 stress_weight)
-                    print 'INFO: Proposed NIMR {}'.format(nimr_diff_proposal)
-                    print 'INFO: New IMR improvement {}'.format(imr_improvement_proposal)
                     
                     if len(nimr_diff_proposal) == 0 or imr_improvement_proposal == 0:
                         if filter_policy is None:
@@ -794,6 +773,35 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
         
     print_csv_configuration(current_mr_config)
+
+def is_baseline_constant(mr_working_set,
+                         workload_config,
+                         sys_config,
+                         baseline_performance,
+                         acceptable_deviation=0.1):
+    
+    baseline_trials = sys_config['baseline_trials']
+    preferred_performance_metric = workload_config['tbot_metric']
+
+    # Revert to the fixed baseline_alloc
+    for mr in mr_working_set:
+        baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
+        resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+
+    performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
+    performance = remove_outlier(performance[preferred_performance_metric])
+
+    # Revert back to the most updated resource configuration
+    for mr in mr_working_set:
+        previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+        resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+    
+    if (abs(mean_list(performance) - mean_list(baseline_performance))
+                    / mean_list(baseline_performance)) > acceptable_deviation:
+        return False
+    else:
+        return True
+
 
 # Squeeze down NIMRs from existing NIMRs
 def squeeze_nimrs(redis_db, sys_config,
