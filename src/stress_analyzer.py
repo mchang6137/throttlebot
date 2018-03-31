@@ -7,6 +7,8 @@ from instance_specs import *
 from random import shuffle
 import redis_resource as resource_datastore
 
+import logging
+
 from mr import MR
 
 ### Pre-defined blacklist (Temporary)
@@ -18,7 +20,7 @@ def generate_mr_from_policy(redis_db, stress_policy):
     if stress_policy == 'ALL':
         return resource_datastore.get_all_mrs(redis_db)
     else:
-        print 'This stress policy does not exist; defaulting to ALL stress'
+        logging.info('This stress policy does not exist; defaulting to ALL stress')
         return resource_datastore.get_all_mrs(redis_db)
 
 # Policy that returns all MRs subject to restrictions on

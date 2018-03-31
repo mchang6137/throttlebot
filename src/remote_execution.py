@@ -1,4 +1,5 @@
 import paramiko
+import logging
 
 def get_client(ip):
     client = paramiko.SSHClient()
@@ -10,7 +11,7 @@ def ssh_exec(ssh_client, cmd):
     _, _, stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
-        print ("Error execing {}: {}".format(cmd, err))
+        logging.warning("Error execing {}: {}".format(cmd, err))
 
 def close_client(ssh_client):
     ssh_client.close()
