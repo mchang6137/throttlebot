@@ -12,6 +12,8 @@ from run_experiment import *
 from weighting_conversions import *
 from mr import MR
 
+import logging
+
 FILTER_LOGS = 'filter_logs.txt'
 
 '''
@@ -49,11 +51,11 @@ def apply_pipeline_filter(redis_db,
                           workload_config,
                           filter_config):
 
-    print '*' * 20
-    print 'INFO: Applying Filtering Pipeline'
+    logging.info('*' * 20)
+    logging.info('INFO: Applying Filtering Pipeline')
 
-    print 'Filter config is {}'.format(filter_config)
-    print 'MR working set is {}'.format(mr_working_set)
+    logging.info('Filter config is {}'.format(filter_config))
+    logging.info('MR working set is {}'.format(mr_working_set))
     
     machine_type = system_config['machine_type']
 
@@ -64,7 +66,7 @@ def apply_pipeline_filter(redis_db,
 
     pipeline_groups = []
 
-    print 'Pipelined services are {}'.format(pipelined_services)
+    logging.info('Pipelined services are {}'.format(pipelined_services))
     # No specified pipelined services indicates that each pipeline is a service
     if pipelined_services[0][0] == 'BY_SERVICE':
         service_names = list(set([mr.service_name for mr in mr_working_set]))
@@ -74,10 +76,10 @@ def apply_pipeline_filter(redis_db,
     elif pipelined_services[0][0] == 'RANDOM':
         pipeline_groups = gen_mr_random_split(mr_working_set, pipeline_partitions)
 
-    print "The pipeline groups are being printed below: "
+    logging.info("The pipeline groups are being printed below: ")
     for pipeline_group in pipeline_groups:
         pipeline_group = [mr.to_string() for mr in pipeline_group]
-        print 'A pipeline is {}'.format(pipeline_group)
+        logging.info('A pipeline is {}'.format(pipeline_group))
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -117,7 +119,7 @@ def apply_pipeline_filter(redis_db,
                                                                         system_config,
                                                                         optimize_for_lowest=optimize_for_lowest)
     
-    print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
+    logging.info('INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list))
     
     # Temporarily just choose the most impacted pipeline
     selected_pipeline_score_list = [all_pipeline_score_list[0]]
@@ -127,10 +129,10 @@ def apply_pipeline_filter(redis_db,
     for pipeline_score in selected_pipeline_score_list:
         pipeline_repr,score = pipeline_score
         mip += pipeline_groups[int(pipeline_repr)]
-    print mip
+    logging.info(mip)
 
     # Log results of the filtering
-    print 'About to log to {}'.format(FILTER_LOGS)
+    logging.info('About to log to {}'.format(FILTER_LOGS))
     with open(FILTER_LOGS, "a") as myfile:
         # First output the result
         filter_str = '{},'.format(experiment_iteration)

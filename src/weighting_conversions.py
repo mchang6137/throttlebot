@@ -11,6 +11,8 @@ Returns the new bandwdith
 from modify_resources import *
 from remote_execution import *
 
+import logging
+
 # Converts a change in resource provisioning to raw change
 # Example: 20% -> 24 Gbps
 def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
@@ -25,7 +27,7 @@ def convert_percent_to_raw(mr, current_mr_allocation, weight_change=0):
     elif mr.resource == 'MEMORY':
         return weighting_to_memory(weight_change, current_mr_allocation, mr.instances)
     else:
-        print 'INVALID resource'
+        logging.warning('INVALID resource')
         exit()
         
 # Change the networking capacity
@@ -66,7 +68,7 @@ def weighting_to_cpu_cores(weight_change, current_alloc):
         else:
             new_cores = current_alloc + 1
             if new_cores <= 0:
-                print 'Cannot shrink the number of cores anymore'
+                logging.warning('Cannot shrink the number of cores anymore')
             return 1
     return new_cores
 
