@@ -570,7 +570,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            baseline_trials,
                                            workload_config['include_warmup'])
     
-    current_nimr_list = []
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     baseline_performance = current_performance[preferred_performance_metric]
     current_time_stop = datetime.datetime.now()
@@ -597,6 +596,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
+    recent_nimr_list = []
 
     while experiment_count < 8:
         # Calculate the analytic baseline that is used to determine MRs
@@ -697,6 +697,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         for mr_index in range(len(sorted_mr_list) - 1):
             current_mimr = sorted_mr_list[mr_index][0]
             nimr_list = [nimr_tuple[0] for nimr_tuple in sorted_mr_list[mr_index+1:][::-1]]
+            recent_nimr_list = nimr_list
 
             print 'Current MIMR is {}'.format(current_mimr.to_string())
             print 'NIMR list consists of {}'.format([nimr.to_string() for nimr in nimr_list])
@@ -821,7 +822,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     print 'Convergence achieved - start squeezing NIMRs'
     squeeze_nimrs(redis_db, sys_config,
-                  workload_config, current_nimr_list,
+                  workload_config, recent_nimr_list,
                   current_performance)
     
     print 'NIMRs have now also been squeezed, printing final values.'
