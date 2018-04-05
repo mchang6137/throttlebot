@@ -229,7 +229,7 @@ def fill_out_resource(redis_db, imr):
             myfile.write(debug_statement)
                          
     if improvement_proposal < 0:
-        print 'WARNING: Improvement proposal is less than 0 (it is P{})'.format(improvement_proposal)
+        print 'WARNING: Improvement proposal is less than 0 (it is {})'.format(improvement_proposal)
         print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
 
         # get immediate results just by setting the proposal to zero in this case
@@ -256,7 +256,6 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
     if len(pruned_nimr_list) == 0:
         return {},0
 
-    print 'NIMR Debugging: Filtered nimr list is {}'.format([nimr.to_string() for nimr in pruned_nimr_list])
     reduction_proposal = []
 
     # Ensure that every deployment has at least one service losing a machine
@@ -279,8 +278,16 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
             if nimr.service_name in colocated_services:
                 vm_to_nimr[vm_ip].append(nimr)
 
-    min_mr_removal = float('inf')
-    target_vm = None
+    colocated_nimr_list = []
+    for nimr in pruned_nimr_list:
+        is_nimr_colocated = False
+        for deployment in imr.instances:
+            vm_ip, container = deployment
+            if nimr in vm_to_nimr[vm_ip]:
+                is_nimr_colocated = True
+                break
+        if is_nimr_colocated:
+            colocated_nimr_list.append(nimr)
 
     vm_to_removal = {}
     for deployment in imr.instances:
@@ -290,13 +297,15 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
     min_vm_removal = 0
     nimr_reduction = {}
 
+    print 'The colocated  nimr list is {}'.format([nimr.to_string() for nimr in colocated_nimr_list])
     # Try to steal from the resources that are least impacted
-    for nimr in pruned_nimr_list:
+    for nimr in colocated_nimr_list:
         reduction_multiplier = containers_per_vm(nimr)
         nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
         
         valid_change, valid_change_amount = check_change_mr_viability(redis_db, nimr, new_alloc - nimr_alloc)
+        print 'For NIMR {}, the valid change amount is {}'.format(nimr.to_string(), valid_change_amount)
         assert valid_change_amount <= 0
         
         if valid_change_amount == 0:
@@ -307,15 +316,21 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
                 continue
             
             vm_to_removal[vm_ip] += valid_change_amount * reduction_multiplier[vm_ip]
+            print 'For vm {}, we are adding {}'.format(vm_ip, valid_change_amount * reduction_multiplier[vm_ip])
             
         nimr_reduction[nimr] = valid_change_amount
-        min_vm_removal = max([vm_to_removal[vm_ip] for vm_ip in vm_to_removal])
+        min_vm_removal = min([abs(vm_to_removal[vm_ip]) for vm_ip in vm_to_removal])
 
         if abs(min_vm_removal) >= abs(target_imr_increase):
             break
 
-    proposed_imr_improvement = abs(min_vm_removal)
+    machine_to_imr = containers_per_vm(imr)
+    max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
+    proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
+    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
     assert proposed_imr_improvement >= 0
+    if proposed_imr_improvement == 0:
+        return {}, 0
     for imr in nimr_reduction:
         assert nimr_reduction[imr] < 0
     return nimr_reduction, proposed_imr_improvement
@@ -324,10 +339,12 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
 def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
+        print 'Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc)
         resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc))
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
+    print 'changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc)
     resource_modifier.set_mr_provision(imr, int(new_imr_alloc))
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
@@ -344,10 +361,12 @@ def commit_mr_provision(redis_db, imr, imr_proposal, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         old_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_nimr_alloc = old_alloc + nimr_diff_proposal[nimr]
+        resource_datastore.write_mr_alloc(redis_db, nimr, new_nimr_alloc)
         update_machine_consumption(redis_db, nimr, new_nimr_alloc, old_alloc)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
+    resource_datastore.write_mr_alloc(redis_db, imr, new_imr_alloc)
     update_machine_consumption(redis_db, imr, new_imr_alloc, old_imr_alloc)
         
 # Remove Outliers from a list
@@ -737,8 +756,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             if (is_perf_improved or is_perf_constant) is False:
                 print 'Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean)
                 revert_simulate_mr_provisions(redis_db, current_mimr, nimr_diff_proposal)
+                action_taken[current_mimr] = 0
                 continue
             else:
+                print 'Performance is constant, so committing the changes'
                 commit_mr_provision(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal)
                 action_taken = nimr_diff_proposal
                 action_taken[current_mimr] = imr_improvement_proposal
@@ -861,7 +882,7 @@ def assess_improvement_proposal(redis_db,
         if imr_improvement == 0 and len(nimr_diff_proposal.keys()) == 0:
             return -1, {}
         else:
-            return imr_improvement_proposal, nimr_diff_proposal
+            return imr_improvement, nimr_diff_proposal
         
 # Squeeze down NIMRs from existing NIMRs
 def squeeze_nimrs(redis_db, sys_config,
