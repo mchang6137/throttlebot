@@ -752,7 +752,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
             current_perf_mean = mean_list(current_performance[preferred_performance_metric])
             is_perf_improved = is_performance_improved(current_perf_mean, simulated_mean, optimize_for_lowest, within_x=0.5)
-            is_perf_constant = is_performance_constant(current_perf_mean, simulated_mean, within_x=0.5)
+            is_perf_constant = is_performance_constant(current_perf_mean, simulated_mean, within_x=0.3)
 
             if (is_perf_improved or is_perf_constant) is False:
                 print 'Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean)
