@@ -63,6 +63,11 @@ def set_mr_provision(mr, new_mr_allocation, wc=None):
             print 'INVALID resource'
         close_client(ssh_client)
 
+# Set the resource allocation for multiple MRs
+# without committing the change in provisions to Redis
+def set_multiple_mr_provision(mr_to_allocation):
+    for mr in mr_to_allocation:
+        set_mr_provision(mr, mr_to_allocation[mr])
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):
