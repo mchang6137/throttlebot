@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     args = parser.parse_args()
 
-    conf_files = ['todo_config4.cfg', 'todo_config2.cfg', 'todo_config1.cfg']
+    conf_files = ['MIMR1.cfg', 'MIMR1INV.cfg', 'MIMR2.cfg']
     for conf_file in conf_files:
         for count in range(int(args.num_runs)):
             try:
@@ -24,10 +24,9 @@ if __name__ == "__main__":
                                           sys_config['stress_these_resources'],
                                           sys_config['stress_these_services'],
                                           sys_config['stress_these_machines'])
-            
+
                 run(sys_config, workload_config, filter_config, mr_allocation)
             except Exception, err:
                 traceback.print_exc()
-            
-    print 'Completed!'
 
+    print 'Completed!'
