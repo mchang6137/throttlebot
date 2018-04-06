@@ -26,14 +26,14 @@ def generate_mr_from_policy(redis_db, stress_policy):
 def get_all_mrs_cluster(vm_list, services, resources):
     mr_schedule = []
     service_to_deployment = get_service_placements(vm_list)
+    print 'printing service to deployment {}'.format(service_to_deployment)
     
     for service in service_to_deployment:
-        if service not in services:
-            continue
         deployments = service_to_deployment[service]
         for resource in resources:
             mr_schedule.append(MR(service, resource, deployments))
-            
+
+    print 'mr schedule is {}'.format(mr_schedule)
     return mr_schedule
 
 # Temporary main method to test get_container_ids function

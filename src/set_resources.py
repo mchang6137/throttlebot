@@ -24,7 +24,7 @@ NET: network speed (bps) (0 to reset)
 def generate_empty_file(name):
     output_file_name = '{}.csv'.format(name)
     with open(output_file_name, 'wb') as csvfile:
-        fieldnames = ['IP', 'Container', 'CPUC', 'CPU', 'DISK', 'NET']
+        fieldnames = ['IP', 'Container', 'CPUC', 'CPU', 'DISK', 'NET', 'MEMORY']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -60,6 +60,7 @@ if __name__ == "__main__":
             cpu_value = row['CPU']
             disk_value = row['DISK']
             net_value = row['NET']
+            memory = row['MEMORY']
 
             try:
                 socket.inet_aton(ip_address)
@@ -69,19 +70,19 @@ if __name__ == "__main__":
             if ip_address not in ssh_clients:
                 ssh_clients[ip_address] = get_client(ip_address)
             ssh_client = ssh_clients[ip_address]
-
-            print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
-
+            #
+            # print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
+            #
             # Setting CPU Cores
-            try:
-                cpu_cores = int(cpuc_value)
-            except:
-                error_message(line_numb, 'value')
-                exit()
-            if cpu_cores == 0:
-                reset_cpu_cores(ssh_client, container_id)
-            else:
-                set_cpu_cores(ssh_client, container_id, cpu_cores)
+            # try:
+            #     cpu_cores = int(cpuc_value)
+            # except:
+            #     error_message(line_numb, 'value')
+            #     exit()
+            # if cpu_cores == 0:
+            #     reset_cpu_cores(ssh_client, container_id)
+            # else:
+            #     set_cpu_cores(ssh_client, container_id, cpu_cores)
 
             # Setting CPU throttling
             try:
@@ -94,7 +95,7 @@ if __name__ == "__main__":
             if cpu_percentage == 0:
                 reset_cpu_quota(ssh_client, container_id)
             else:
-                set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage * 1000000 / 100)
+                set_cpu_quota(ssh_client, container_id, 1000000, cpu_percentage)
 
             # Setting DISK speeds
             try:
@@ -102,7 +103,7 @@ if __name__ == "__main__":
             except:
                 error_message(line_numb, 'value')
                 exit()
-            change_container_blkio(ssh_client, container_id, disk_bps)
+            set_container_blkio(ssh_client, container_id, disk_bps)
 
             # Setting network speeds
             try:
@@ -117,11 +118,19 @@ if __name__ == "__main__":
                     print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
             else:
                 try:
-                    set_egress_network_bandwidth(ssh_client, container_id, {container_id: net_bps})
+                    set_egress_network_bandwidth(ssh_client, container_id, net_bps)
                 except:
                     print 'Warning: Container {}\'s network cannot be set'.format(container_id)
 
             line_numb += 1
+
+            # Setting Memory Allocation
+            try:
+                memory_b = int(memory)
+            except:
+                error_message(line_numb, 'value')
+                exit()
+            set_memory_size(ssh_client, container_id, memory_b)
 
         print "Container resources were applied."
         exit()
