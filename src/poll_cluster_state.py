@@ -14,6 +14,8 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
                    'throttlebot/quilt:latest', 'tsaianson/quilt:latest']
 service_blacklist = ['hantaowang/lumbersexual']
+testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearch:2.4', 'kibana:4', 'library/postgres:9.4',
+                     'mysql:5.6.32', 'osalpekar/spark-image-compress...']
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
@@ -66,6 +68,7 @@ def parse_quilt_ps_col(column, machine_level=True):
         return result_list[1:]
 
 def get_quilt_services():
+    # return quilt_blacklist + service_blacklist + testing_blacklist
     return quilt_blacklist + service_blacklist
 
 # Returns all stressable resources available for this
