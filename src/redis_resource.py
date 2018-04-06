@@ -117,6 +117,22 @@ def read_machine_capacity(redis_db, machine_ip):
         machine_capacity[resource] = float(machine_capacity[resource])
     return machine_capacity
 
+def write_machine_floor(redis_db, machine_ip, machine_floor):
+    name = '{}machine_floor'.format(machine_ip)
+    for key in machine_floor:
+        redis_db.hset(name, key, machine_floor[key])
+
+def read_machine_floor(redis_db, machine_ip):
+    machine_floor = {}
+    name = '{}machine_floor'.format(machine_ip)
+
+    machine_floor = redis_db.hgetall(name)
+    for resource in machine_capacity:
+        machine_floor[resource] = float(machine_floor[resource])
+    return machine_floor
+
+    
+
 
     
 
