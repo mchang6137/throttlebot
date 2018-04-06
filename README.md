@@ -23,11 +23,14 @@ The "Basic" Section describes general Throttlebot parameters.
 
 - baseline_trials: The number of experiment trials to run for the baseline experiment
 - trials: The number of trials to run each of the stressed experiments (you might feel inclined to choose fewer trials than experiment_trials for faster experimenting
-- increments: Describes how many levels of stressing. An increment of 20 s
-stress_these_resources: The resources that are good to consider. Current options so far are only DISK, NET, CPU-CORE, MEMORY, and CPU-QUOTA. 
+- stress_weight: Describes how many levels of stressing, should be a single negative number. An increment of 20 suggests that we should stress the resource downwards by 20% of its current allocation.
+- improve_weight: Describes how much resources to add once a MR has been identified as a MIMR. This should be a positive number. An increment of 20 suggests that we should increase a MIMR by 20% of its current allocation.
+- stress_these_resources: The resources that are good to consider. Current options so far are only DISK, NET, CPU-CORE, MEMORY, and CPU-QUOTA. 
 - stress_these_services: The names of the services you would want Throttlebot to stress. To stress all services,simply indicate *. Throttlebot will blacklist any non-application related services by default
 redis_host: The host where the Redis is located (Throttlebot uses Redis as it's data store)
 - stress_policy: The policy that is being used by Throttlebot to decide which containers to consider on each iteration. Note: the only policy implemented right now is 'ALL'
+- rerun_baseline: True or False. Indicates whether to maintain a control experiment to ensure there aren't residual effects between experiments.
+- setting_mode (cloud or prem): describes how to set the initial resource allocation.
 - gradient_mode: This decides the gradient mode that is being used by Throttlebot. The two options \
 are 'single and 'inverted'.
 

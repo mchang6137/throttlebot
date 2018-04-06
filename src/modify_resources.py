@@ -44,7 +44,7 @@ def spark_rewrite_conf(vm_ip, search, replace):
     print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
 
 # Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation, wc):
+def set_mr_provision(mr, new_mr_allocation, wc=None):
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
@@ -63,6 +63,11 @@ def set_mr_provision(mr, new_mr_allocation, wc):
             print 'INVALID resource'
         close_client(ssh_client)
 
+# Set the resource allocation for multiple MRs
+# without committing the change in provisions to Redis
+def set_multiple_mr_provision(mr_to_allocation):
+    for mr in mr_to_allocation:
+        set_mr_provision(mr, mr_to_allocation[mr])
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):
@@ -70,7 +75,7 @@ def reset_mr_provision(mr, wc):
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
         if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
+            #set_cpu_cores(ssh_client, container_id, new_mr_allocation)
             reset_cpu_cores(ssh_client, container_id)
         elif mr.resource == 'CPU-QUOTA':
             reset_cpu_quota(ssh_client, container_id)
