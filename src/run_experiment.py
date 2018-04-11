@@ -147,7 +147,7 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
         cmd = 'lumbersexual --latency --uri http://elasticsearch.q:9200'
         parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt | grep \'Measured\'\" | awk \'{{print $3}}\''
     elif cmd_type == 'load_latency':
-        cmd = 'lumbersexual --load --latency --uri http://elasticsearch.q:9200 --count 50000'
+        cmd = 'lumbersexual --load --latency --uri http://elasticsearch.q:9200 --count 200000'
         parse_cmd = 'docker exec {0} sh -c \"cat ~/out.txt | grep \'Measured\'\" | awk \'{{print $3}}\''
     else:
         raise Exception("{0} is not a valid command type".format(cmd_type))
@@ -169,6 +169,14 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
         stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
+    # Clear indices
+    clear_cmd = 'curl -XDELETE http://elasticsearch.q:9200/*'
+    docker_clear_cmd = 'docker exec -ti {} sh -c "{}"'.format(traffic_generate_container, clear_cmd)
+    print docker_clear_cmd
+    _, results, error = ssh_client.exec_command(docker_clear_cmd)
+    status = results.channel.recv_exit_status()
+    print 'Clearing Index status: {}'.format(status == 0)
+    
     close_client(ssh_client)
 
     print latency.latency, x[0]
