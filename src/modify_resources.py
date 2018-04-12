@@ -12,6 +12,7 @@ from remote_execution import *
 from measure_utilization import *
 from container_information import *
 from get_utilization import *
+from modify_config import modify_mr_conf, reset_mr_conf
 
 
 quilt_machines = ("quilt", "ps")
@@ -44,7 +45,8 @@ def spark_rewrite_conf(vm_ip, search, replace):
     print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
 
 # Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation, wc=None):
+def set_mr_provision(mr, new_mr_allocation, wc):
+    modify_mr_conf(mr, new_mr_allocation, wc)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
@@ -65,12 +67,13 @@ def set_mr_provision(mr, new_mr_allocation, wc=None):
 
 # Set the resource allocation for multiple MRs
 # without committing the change in provisions to Redis
-def set_multiple_mr_provision(mr_to_allocation):
+def set_multiple_mr_provision(mr_to_allocation, wc):
     for mr in mr_to_allocation:
-        set_mr_provision(mr, mr_to_allocation[mr])
+        set_mr_provision(mr, mr_to_allocation[mr], wc)
 
 # Reset all mr provisions -- remove ALL resource constraints
 def reset_mr_provision(mr, wc):
+    reset_mr_conf(mr, wc)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)

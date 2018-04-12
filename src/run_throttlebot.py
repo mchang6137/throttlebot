@@ -33,6 +33,7 @@ import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
+from modify_configs import init_conf_functions
 import visualizer as chart_generator
 
 '''
@@ -56,6 +57,7 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
+    init_conf_functions(wc, default_mr_config)
     for mr in default_mr_config:
         new_resource_provision = int(default_mr_config[mr])
         if check_change_mr_viability(redis_db, mr, new_resource_provision)[0] is False:
