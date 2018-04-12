@@ -7,6 +7,8 @@ import traceback
 
 from run_throttlebot import *
 
+import logging
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_runs", help="Number of times to run the experiment")
@@ -29,5 +31,5 @@ if __name__ == "__main__":
             except Exception, err:
                 traceback.print_exc()
             
-    print 'Completed!'
+    logging.info( 'Completed!')
 

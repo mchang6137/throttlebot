@@ -13,6 +13,8 @@ import paramiko
 import csv
 from multiprocessing.dummy import Pool as ThreadPool
 
+import logging
+
 REST_URL = '/api/todos'
 
 REMOTE_POST_SCRIPT = "remote_make_post.py"
@@ -47,7 +49,7 @@ def ssh_exec(ssh_client, cmd):
     _, _, stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
-        print ("Error execing {}: {}".format(cmd, err))
+        logging.info("Error execing {}: {}".format(cmd, err))
 
 def get_client(ip):
     client = paramiko.SSHClient()
@@ -108,9 +110,9 @@ if __name__ == "__main__":
     # Clear all entries after running
     clear_all_entries(args.website_ip)
 
-    print('Mean: ' + str(mean))
-    print('Std: ' + str(std))
+    logging.info('Mean: ' + str(mean))
+    logging.info('Std: ' + str(std))
 
     elapsed = t1 - t0
-    print("Time spent: " + str(elapsed))
-    print("req/s = " + str(args.iterations / elapsed))
+    logging.info("Time spent: " + str(elapsed))
+    logging.info("req/s = " + str(args.iterations / elapsed))

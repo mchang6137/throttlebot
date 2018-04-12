@@ -6,6 +6,8 @@ from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
 
+import logging
+
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
 def measure_runtime(workload_config, experiment_iterations, include_warmups=False):
@@ -29,7 +31,7 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
     elif experiment_type == 'bcd':
         return measure_bcd(workload_config, experiment_iterations)
     else:
-        print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
+        logging.error( 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type))
         exit()
 
 #Resets all parameters of the experiment to default values
@@ -39,7 +41,7 @@ def reset_experiment(vm_ip, container_id):
     try:
         clear_all_entries(vm_ip)
     except:
-        print ("Couldn't reset VM {}".format(vm_ip))
+        logging.error ("Couldn't reset VM {}".format(vm_ip))
     close_client(ssh_client)
 
 def execute_parse_results(ssh_client, cmd):
@@ -48,7 +50,7 @@ def execute_parse_results(ssh_client, cmd):
         results_str = results.read()
         results_float = float(results_str.strip('\n'))
     except:
-        print results.read()
+        logging.info( results.read())
         results_float = 0
     return results_float
 
@@ -73,7 +75,7 @@ class latencyResult():
     def failure(self):
         for i in range(0, len(self.success)):
             if self.success[i] == False:
-                print "FAILURE: index {0} was False".format(i)
+                logging.error( "FAILURE: index {0} was False".format(i))
                 return i
         return -1
 
@@ -90,7 +92,7 @@ def median(lst):
 
 def is_finished(latency, experiment_iterations):
     if len(latency) < experiment_iterations:
-        print "LENGTH: latency is only {0} items but needs {1}".format(len(latency), experiment_iterations)
+        logging.error( "LENGTH: latency is only {0} items but needs {1}".format(len(latency), experiment_iterations))
         return len(latency)
     elif latency.failure() != -1:
         return latency.failure()
@@ -109,21 +111,21 @@ def measure_bcd(workload_configuration, experiment_iterations):
     stop = is_finished(latency, experiment_iterations)
 
     while stop != -1:
-        print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
+        logging.info( 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd))
         _, results, error = ssh_client.exec_command(
             'docker exec {0} sh -c "{1} > ~/out.txt"'.format(traffic_generate_container, cmd))
         status = results.channel.recv_exit_status()
-        print "Test command was run successfully: {0}".format(status == 0)
-        print  parse_cmd.format(traffic_generate_container)
+        logging.info( "Test command was run successfully: {0}".format(status == 0))
+        logging.info(  parse_cmd.format(traffic_generate_container))
         r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
-        print "Results: {0}".format(r)
+        logging.info( "Results: {0}".format(r))
         latency.add(float(r), status == 0, stop)
         stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
     close_client(ssh_client)
 
-    print latency.latency, x[0]
+    logging.info( latency.latency + ' ' + x[0])
     return {'latency': x,
             'latency_50': x,
             'latency_99': x,
@@ -153,21 +155,21 @@ def measure_elk_stack(workload_configuration, experiment_iterations):
     stop = is_finished(latency, experiment_iterations)
 
     while stop != -1:
-        print 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd)
+        logging.info( 'docker exec -ti {0} sh -c "{1}  > ~/out.txt"'.format(traffic_generate_container, cmd))
         _, results, error = ssh_client.exec_command(
             'docker exec {0} sh -c "{1} > ~/out.txt"'.format(traffic_generate_container, cmd))
         status = results.channel.recv_exit_status()
-        print "Test command was run successfully: {0}".format(status == 0)
-        print parse_cmd.format(traffic_generate_container)
+        logging.info( "Test command was run successfully: {0}".format(status == 0))
+        logging.info( parse_cmd.format(traffic_generate_container))
         r = execute_parse_results(ssh_client, parse_cmd.format(traffic_generate_container))
-        print "Results: {0}".format(r)
+        logging.info( "Results: {0}".format(r))
         latency.add(float(r), status == 0, stop)
         stop = is_finished(latency, experiment_iterations)
     x = [median(latency.latency)]
 
     close_client(ssh_client)
 
-    print latency.latency, x[0]
+    logging.info( latency.latency, x[0])
     return {'latency': x,
             'latency_50': x,
             'latency_99': x,
@@ -199,7 +201,7 @@ def measure_nginx_single_machine(workload_configuration, experiment_iterations):
 
     for x in range(experiment_iterations):
         benchmark_cmd = 'ab -n {} -c {} -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS, CONCURRENCY, nginx_public_ip)
-        print benchmark_cmd
+        logging.info( benchmark_cmd)
         _, results, _ = ssh_client.exec_command(benchmark_cmd)
         results.read()
 
@@ -246,23 +248,23 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
 
     execute_spark_job = 'docker exec {} {}'.format(container_name, spark_submit_cmd)
     #execute_spark_job = 'docker exec {} {}'.format(container_name.read().strip('\n'), spark_submit_cmd)
-    print execute_spark_job
+    logging.info( execute_spark_job)
 
     #Run the experiment experiment_iteration number of times
     for x in range(experiment_iterations):
         _, runtime, _ = ssh_client.exec_command(execute_spark_job)
-        print 'about to print the runtime read'
+        logging.info( 'about to print the runtime read')
         result_time = runtime.read()
-        print result_time
+        logging.info( result_time)
         try:
             runtime = int(re.findall(r'\d+',  result_time)[0])
         except IndexError:
-            print 'Spark out of memory!'
+            logging.error( 'Spark out of memory!')
             all_results['latency'].append(0)
             continue
         all_results['latency'].append(runtime)
 
-    print all_results
+    logging.info( all_results)
 
     return all_results
 
@@ -288,7 +290,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
 
     for x in range(iterations):
         _, results,_ = traffic_client.exec_command(post_cmd)
-        print post_cmd
+        logging.info( post_cmd)
         results.read()
 
         rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
@@ -308,7 +310,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
 
     close_client(traffic_client)
 
-    print all_requests
+    logging.info( all_requests)
     return all_requests
 
 #Measure response time for MEAN Application
@@ -346,7 +348,7 @@ def measure_GET_response_time(workload_configuration, iterations):
         benchmark_cmd = 'ab -n {} -c {} -s 999999 -e results_file http://{}/ > output.txt'.format(NUM_REQUESTS,
                                                                                                    CONCURRENCY,
                                                                                                    disknet_public_ip)
-        print benchmark_cmd
+        logging.info( benchmark_cmd)
         _, results, _ = traffic_client.exec_command(benchmark_cmd)
         results.read()
 
