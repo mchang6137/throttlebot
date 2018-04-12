@@ -801,7 +801,13 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
         minimum_step_gap = 0.15
-        if is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01) is False:
+        performance_improvement_detected = is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01)
+        if performance_improvement_detected is False:
+            experiment_trials += 5
+            baseline_trials += 5
+            sys_config['baseline_trials'] = baseline_trials
+            sys_config['trials'] = experiment_trials
+            
             print 'Net performance improvement reported as 0, so initiating a backtrack step'
             new_performance = backtrack_overstep(redis_db,
                                                  workload_config,
