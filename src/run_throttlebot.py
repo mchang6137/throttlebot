@@ -864,9 +864,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print 'Convergence achieved - start squeezing NIMRs'
-    squeeze_nimrs(redis_db, sys_config,
-                  workload_config, recent_nimr_list,
-                  current_performance)
+    successful_steal = recent_nimr_list
+    while len(successful_steal) > 0:
+        print 'Remaining nimrs to be stolen are {}'.format([mr.to_string() for mr in successful_steal])
+        sucessful_steal = squeeze_nimrs(redis_db, sys_config,
+                                        workload_config, successful_steal,
+                                        current_performance)
 
     print 'NIMRs have now also been squeezed, printing final values.'
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
@@ -942,8 +945,9 @@ def squeeze_nimrs(redis_db, sys_config,
     metric = workload_config['tbot_metric']
     current_performance_mean = mean_list(current_performance[metric])
 
+    successful_steal = []
+
     for nimr in current_nimr_list:
-        print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
         resource_modifier.set_mr_provision(nimr, new_alloc, None)
@@ -956,8 +960,11 @@ def squeeze_nimrs(redis_db, sys_config,
             print 'Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                              current_nimr_alloc,
                                                                              new_alloc)
+            successful_steal.append(nimr)
         else:
             resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
+
+    return successful_steal
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
