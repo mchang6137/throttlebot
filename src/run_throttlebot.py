@@ -289,16 +289,60 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
         if is_nimr_colocated:
             colocated_nimr_list.append(nimr)
 
+    # Try to steal from the resources that are least impacted
+    min_vm_removal, nimr_reduction = determine_reallocation(redis_db,
+                                                            colocated_nimr_list,
+                                                            vm_to_nimr,
+                                                            imr,
+                                                            stress_weight,
+                                                            target_imr_increase)
+
+    # Remove NIMRs that are stolen from in the critical path
+    # NIMRs that do not move the needle on the min_vm_removal are removed
+    current_nimr_considered = nimr_reduction.keys()
+    for nimr in nimr_reduction:
+        current_nimr_considered.remove(nimr)
+        compare_vm_removal, compare_nimr_reduction = determine_reallocation(redis_db,
+                                                                            current_nimr_considered,
+                                                                            vm_to_nimr,
+                                                                            imr,
+                                                                            stress_weight,
+                                                                            target_imr_increase)
+        if compare_vm_removal == min_vm_removal:
+            nimr_reduction = compare_nimr_reduction
+        else:
+            current_nimr_considered.append(nimr)
+
+    new_vm_removal,new_nimr_reduction = determine_reallocation(redis_db,
+                                                               current_nimr_considered,
+                                                               vm_to_nimr,
+                                                               imr,
+                                                               stress_weight,
+                                                               target_imr_increase)
+    assert new_vm_removal == min_vm_removal
+    nimr_reduction = new_nimr_reduction
+    min_vm_removal = new_vm_removal
+            
+    machine_to_imr = containers_per_vm(imr)
+    max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
+    proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
+    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
+    assert proposed_imr_improvement >= 0
+    if proposed_imr_improvement == 0:
+        return {}, 0
+    for imr in nimr_reduction:
+        assert nimr_reduction[imr] < 0
+    return nimr_reduction, proposed_imr_improvement
+
+def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
+                           stress_weight, target_imr_increase):
     vm_to_removal = {}
     for deployment in imr.instances:
         vm_ip,_ = deployment
         vm_to_removal[vm_ip] = 0
-
+        
     min_vm_removal = 0
     nimr_reduction = {}
-
-    print 'The colocated  nimr list is {}'.format([nimr.to_string() for nimr in colocated_nimr_list])
-    # Try to steal from the resources that are least impacted
     for nimr in colocated_nimr_list:
         reduction_multiplier = containers_per_vm(nimr)
         nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
@@ -324,16 +368,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
         if abs(min_vm_removal) >= abs(target_imr_increase):
             break
 
-    machine_to_imr = containers_per_vm(imr)
-    max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
-    proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
-    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
-    assert proposed_imr_improvement >= 0
-    if proposed_imr_improvement == 0:
-        return {}, 0
-    for imr in nimr_reduction:
-        assert nimr_reduction[imr] < 0
-    return nimr_reduction, proposed_imr_improvement
+    return min_vm_removal,
 
 # Only enact MR resource changes but do not commit them!
 def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
