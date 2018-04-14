@@ -12,7 +12,7 @@ from remote_execution import *
 from measure_utilization import *
 from container_information import *
 from get_utilization import *
-from modify_config import modify_mr_conf, reset_mr_conf
+from modify_configs import modify_mr_conf, reset_mr_conf
 
 
 quilt_machines = ("quilt", "ps")

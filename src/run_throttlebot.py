@@ -1210,20 +1210,4 @@ if __name__ == "__main__":
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
 
-    if workload_config['type'] == 'bcd':
-        all_vm_ip = get_actual_vms()
-        service_to_deployment = get_service_placements(all_vm_ip)
-        workload_config['request_generator'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
-        workload_config['frontend'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
-        workload_config['additional_args'] = {'container_id': service_to_deployment['hantaowang/bcd-spark-master'][0][1]}
-        workload_config['resources'] = {
-            'spark.executor.cores': '8',
-            'spark.driver.cores': '8',
-            'spark.executor.memory': str(int(32 * 0.8)) + 'g',
-            'spark.driver.memory': str(int(32 * 0.8)) + 'g',
-            'spark.cores.max': '48'
-        }
-        workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
-        print workload_config
-
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)

@@ -81,10 +81,10 @@ def init_bcd_config(workload_config, default_mr_config):
     spark_master_image = 'hantaowang/bcd-spark-master'
     spark_worker_image = 'hantaowang/bcd-spark'
 
-    # sparkms_core = MR(spark_master_image, 'CPU-CORE', [])
-    # sparkms_memory = MR(spark_master_image, 'MEMORY', [])
-    # sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
-    # sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
+    sparkms_core = MR(spark_master_image, 'CPU-CORE', [])
+    sparkms_memory = MR(spark_master_image, 'MEMORY', [])
+    sparkwk_core = MR(spark_worker_image, 'CPU-CORE', [])
+    sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
 
     # Easy master container identification
     workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
@@ -95,7 +95,7 @@ def init_bcd_config(workload_config, default_mr_config):
     # Write the maximum provisining that the resources can be provisioned to
     maximum_provision = {}
     for mr in default_mr_config:
-        max_capacity = get_instance_specs(workload_config['machine_type'])
+        max_capacity = get_instance_specs("m4.2xlarge")
         if mr == sparkms_core or mr == sparkwk_core:
             maximum_provision[mr] = max_capacity['CPU-CORE']
         if mr == sparkms_memory or mr == sparkwk_memory:
