@@ -195,6 +195,12 @@ def check_improve_mr_viability(redis_db, mr, proposed_change):
     proposed_change = int(proposed_change)
     max_change = fill_out_resource(redis_db, mr)
 
+    # Resources are always set on a int basis, so sometimes due to division,
+    # there is only one unit of a resource available. 
+    if mr.resource != 'CPU-CORE':
+        if max_change <= 1:
+            max_change == 0
+
     if proposed_change <= max_change:
         return True, proposed_change
     else:
