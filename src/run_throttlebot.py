@@ -119,7 +119,7 @@ def is_performance_constant(initial_perf, after_perf, within_x=0):
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 # Deprecated
-def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
+def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.01):
     imr_list = []
     nimr_list = []
 
@@ -338,25 +338,25 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
     return nimr_reduction, proposed_imr_improvement
 
 # Only enact MR resource changes but do not commit them!
-def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
+def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
         print 'Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc)
-        resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc))
+        resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc), wc)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
     print 'changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc)
-    resource_modifier.set_mr_provision(imr, int(new_imr_alloc))
+    resource_modifier.set_mr_provision(imr, int(new_imr_alloc), wc)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
-def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal):
+def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-	resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc))
+	resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc), wc)
 
     old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
-    resource_modifier.set_mr_provision(imr, int(old_imr_alloc))
+    resource_modifier.set_mr_provision(imr, int(old_imr_alloc), wc)
 
 # Commits the changes to Redis datastore
 def commit_mr_provision(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -749,7 +749,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 continue
 
             # Change MR provisions without committing the actions
-            simulate_mr_provisions(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal)
+            simulate_mr_provisions(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal, workload_config)
             simulated_performance = measure_runtime(workload_config, baseline_trials)
             simulated_performance[preferred_performance_metric] = remove_outlier(simulated_performance[preferred_performance_metric])
             simulated_mean = mean_list(simulated_performance[preferred_performance_metric])
@@ -760,7 +760,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
             if (is_perf_improved or is_perf_constant) is False:
                 print 'Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean)
-                revert_simulate_mr_provisions(redis_db, current_mimr, nimr_diff_proposal)
+                revert_simulate_mr_provisions(redis_db, current_mimr, nimr_diff_proposal, workload_config)
                 action_taken[current_mimr] = 0
                 continue
             else:
@@ -907,7 +907,7 @@ def squeeze_nimrs(redis_db, sys_config,
         print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
-        resource_modifier.set_mr_provision(nimr, new_alloc, None)
+        resource_modifier.set_mr_provision(nimr, new_alloc, workload_config)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
@@ -918,7 +918,7 @@ def squeeze_nimrs(redis_db, sys_config,
                                                                              current_nimr_alloc,
                                                                              new_alloc)
         else:
-            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
+            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, workload_config)
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
@@ -935,7 +935,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
-        resource_modifier.set_mr_provision(mr, median_alloc, None)
+        resource_modifier.set_mr_provision(mr, median_alloc, workload_config)
         median_alloc_perf = measure_runtime(workload_config, experiment_count)
         median_alloc_mean = mean_list(median_alloc_perf[metric])
 
@@ -957,7 +957,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             return median_alloc_perf
         else:
             # Revert to the most recent MR allocation
-            resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
+            resource_modifier.set_mr_provision(mr, new_mr_alloc, workload_config)
 
     return None
 

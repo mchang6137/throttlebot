@@ -30,20 +30,6 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
-
-# writes all config of vm_ip
-def spark_rewrite_conf(vm_ip, search, replace):
-    correct = []
-    for vi in vm_ip:
-        client = get_client(vi[0])
-        cmd = 'sed -i \'s;{0};{1};\' ./spark/conf/spark-defaults.conf'.format(search, replace)
-        _, results, _ = client.exec_command(
-            'docker exec {0} sh -c \"{1}\"'.format(vi[1], cmd))
-        correct.append(results.channel.recv_exit_status() == 0)
-        _ = results.channel.recv_exit_status()
-        close_client(ssh_client)
-    print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
-
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc):
     modify_mr_conf(mr, new_mr_allocation, wc)

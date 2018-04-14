@@ -13,7 +13,7 @@ from poll_cluster_state import *
 from stress_analyzer import *
 from run_throttlebot import parse_resource_config_file
 
-def reset_resources():
+def reset_resources(workload_config):
     vm_list = get_actual_vms()
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
@@ -22,7 +22,7 @@ def reset_resources():
     print 'Resetting provisions for {}'.format([mr.to_string() for mr in mr_list])
 
     for mr in mr_list:
-        resource_modifier.reset_mr_provision(mr)
+        resource_modifier.reset_mr_provision(mr, workload_config)
 
     print 'All MRs reset'
 
