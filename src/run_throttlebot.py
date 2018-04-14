@@ -865,11 +865,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     print 'Convergence achieved - start squeezing NIMRs'
 
-    current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
-    print 'meowmoew'
-    for mr in current_mr_config:
-        print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
-        
     successful_steal = recent_nimr_list
     # Tentatively do this only 5 times to save time
     for x in range(5):
