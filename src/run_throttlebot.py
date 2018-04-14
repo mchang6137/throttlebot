@@ -11,6 +11,7 @@ import os
 import socket
 import ConfigParser
 import math
+import signal
 from random import shuffle
 
 from time import sleep
@@ -34,6 +35,27 @@ import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
 import visualizer as chart_generator
+
+
+'''
+Signal Handler
+'''
+class GracefulKiller:
+    redis_db = None
+    
+    def __init__(self, redis_db):
+        self.redis_db = redis_db
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, signum, frame):
+        print 'NIMRs have now also been squeezed, printing final values.'
+        current_mr_config = resource_datastore.read_all_mr_alloc(self.redis_db)
+        for mr in current_mr_config:
+            print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+
+        print_csv_configuration(current_mr_config)
+        exit()
 
 '''
 Initialization:
@@ -289,16 +311,60 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
         if is_nimr_colocated:
             colocated_nimr_list.append(nimr)
 
+    # Try to steal from the resources that are least impacted
+    min_vm_removal, nimr_reduction = determine_reallocation(redis_db,
+                                                            colocated_nimr_list,
+                                                            vm_to_nimr,
+                                                            imr,
+                                                            stress_weight,
+                                                            target_imr_increase)
+
+    # Remove NIMRs that are stolen from in the critical path
+    # NIMRs that do not move the needle on the min_vm_removal are removed
+    current_nimr_considered = nimr_reduction.keys()
+    for nimr in nimr_reduction:
+        current_nimr_considered.remove(nimr)
+        compare_vm_removal, compare_nimr_reduction = determine_reallocation(redis_db,
+                                                                            current_nimr_considered,
+                                                                            vm_to_nimr,
+                                                                            imr,
+                                                                            stress_weight,
+                                                                            target_imr_increase)
+        if compare_vm_removal == min_vm_removal:
+            nimr_reduction = compare_nimr_reduction
+        else:
+            current_nimr_considered.append(nimr)
+
+    new_vm_removal,new_nimr_reduction = determine_reallocation(redis_db,
+                                                               current_nimr_considered,
+                                                               vm_to_nimr,
+                                                               imr,
+                                                               stress_weight,
+                                                               target_imr_increase)
+    assert new_vm_removal == min_vm_removal
+    nimr_reduction = new_nimr_reduction
+    min_vm_removal = new_vm_removal
+            
+    machine_to_imr = containers_per_vm(imr)
+    max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
+    proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
+    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
+    assert proposed_imr_improvement >= 0
+    if proposed_imr_improvement == 0:
+        return {}, 0
+    for imr in nimr_reduction:
+        assert nimr_reduction[imr] < 0
+    return nimr_reduction, proposed_imr_improvement
+
+def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
+                           stress_weight, target_imr_increase):
     vm_to_removal = {}
     for deployment in imr.instances:
         vm_ip,_ = deployment
         vm_to_removal[vm_ip] = 0
-
+        
     min_vm_removal = 0
     nimr_reduction = {}
-
-    print 'The colocated  nimr list is {}'.format([nimr.to_string() for nimr in colocated_nimr_list])
-    # Try to steal from the resources that are least impacted
     for nimr in colocated_nimr_list:
         reduction_multiplier = containers_per_vm(nimr)
         nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
@@ -324,16 +390,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
         if abs(min_vm_removal) >= abs(target_imr_increase):
             break
 
-    machine_to_imr = containers_per_vm(imr)
-    max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
-    proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
-    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
-    assert proposed_imr_improvement >= 0
-    if proposed_imr_improvement == 0:
-        return {}, 0
-    for imr in nimr_reduction:
-        assert nimr_reduction[imr] < 0
-    return nimr_reduction, proposed_imr_improvement
+    return min_vm_removal,nimr_reduction
 
 # Only enact MR resource changes but do not commit them!
 def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -529,6 +586,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     if last_completed_iter == 0:
         redis_db.flushall()
 
+    killer = GracefulKiller(redis_db)
+
     print '\n' * 2
     print '*' * 20
     print 'INFO: INITIALIZING RESOURCE CONFIG'
@@ -599,8 +658,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     recent_nimr_list = []
 
     # Modified while condition for completion
-    # while experiment_count < 2:
-    while True:
+    while experiment_count < 2:
+    #while True:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -829,9 +888,14 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print 'Convergence achieved - start squeezing NIMRs'
-    squeeze_nimrs(redis_db, sys_config,
-                  workload_config, recent_nimr_list,
-                  current_performance)
+
+    successful_steal = recent_nimr_list
+    # Tentatively do this only 5 times to save time
+    for x in range(5):
+        print 'Remaining nimrs to be stolen are {}'.format([mr.to_string() for mr in successful_steal])
+        sucessful_steal = squeeze_nimrs(redis_db, sys_config,
+                                        workload_config, successful_steal,
+                                        current_performance)
 
     print 'NIMRs have now also been squeezed, printing final values.'
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
@@ -905,24 +969,50 @@ def squeeze_nimrs(redis_db, sys_config,
     improve_weight = sys_config['improve_weight']
 
     metric = workload_config['tbot_metric']
+    optimize_for_lowest = workload_config['optimize_for_lowest']
     current_performance_mean = mean_list(current_performance[metric])
 
+    successful_steal = []
+
     for nimr in current_nimr_list:
-        print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
+        valid_change,valid_change_amount = check_change_mr_viability(redis_db,
+                                                                     nimr,
+                                                                     new_alloc - current_nimr_alloc)
+
+        if valid_change is False:
+            if valid_change_amount == 0:
+                continue
+            
+        new_alloc = current_nimr_alloc + valid_change_amount
         resource_modifier.set_mr_provision(nimr, new_alloc, None)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
 
-        if is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2):
+        print 'Current performance is {}'.format(current_performance_mean)
+        print 'New performance is {}'.format(nimr_mean)
+
+        is_constant_perf = is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2)
+        is_improved_perf = is_performance_improved(nimr_mean, current_performance_mean,
+                                                optimize_for_lowest, within_x = 0.2)
+
+        should_retain_change = is_constant_perf or is_improved_perf
+
+        if should_retain_change:
             finalize_mr_provision(redis_db, nimr, new_alloc, workload_config)
             print 'Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                              current_nimr_alloc,
                                                                              new_alloc)
+            successful_steal.append(nimr)
         else:
+            print 'Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
+                                                                               current_nimr_alloc,
+                                                                               new_alloc)
             resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
+
+    return successful_steal
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
