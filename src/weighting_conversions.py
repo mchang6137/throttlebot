@@ -55,9 +55,7 @@ def weighting_to_cpu_quota(weight_change, current_alloc):
 # This is a special case, unlike the other types of stressing
 def weighting_to_cpu_cores(weight_change, current_alloc):
     assert current_alloc > 0
-    print 'hi', current_alloc
     new_cores = round(current_alloc + (weight_change / 100.0) * current_alloc)
-    print 'hi2', new_cores
     if new_cores == current_alloc:
         if weight_change < 0:
             new_cores = current_alloc - 1
