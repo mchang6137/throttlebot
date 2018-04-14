@@ -11,6 +11,7 @@ import os
 import socket
 import ConfigParser
 import math
+import signal
 from random import shuffle
 
 from time import sleep
@@ -34,6 +35,27 @@ import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
 import visualizer as chart_generator
+
+
+'''
+Signal Handler
+'''
+class GracefulKiller:
+    redis_db = None
+    
+    def __init__(self, redis_db):
+        self.redis_db = redis_db
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, signum, frame):
+        print 'NIMRs have now also been squeezed, printing final values.'
+        current_mr_config = resource_datastore.read_all_mr_alloc(self.redis_db)
+        for mr in current_mr_config:
+            print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+
+        print_csv_configuration(current_mr_config)
+        exit()
 
 '''
 Initialization:
@@ -563,6 +585,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     if last_completed_iter == 0:
         redis_db.flushall()
+
+    killer = GracefulKiller(redis_db)
 
     print '\n' * 2
     print '*' * 20
