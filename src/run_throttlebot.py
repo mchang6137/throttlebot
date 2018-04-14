@@ -368,7 +368,7 @@ def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
         if abs(min_vm_removal) >= abs(target_imr_increase):
             break
 
-    return min_vm_removal,
+    return min_vm_removal,nimr_reduction
 
 # Only enact MR resource changes but do not commit them!
 def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -634,8 +634,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     recent_nimr_list = []
 
     # Modified while condition for completion
-    # while experiment_count < 2:
-    while True:
+    while experiment_count < 2:
+    #while True:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -864,8 +864,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print 'Convergence achieved - start squeezing NIMRs'
+
+    current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
+    print 'meowmoew'
+    for mr in current_mr_config:
+        print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+        
     successful_steal = recent_nimr_list
-    while len(successful_steal) > 0:
+    # Tentatively do this only 5 times to save time
+    for x in range(5):
         print 'Remaining nimrs to be stolen are {}'.format([mr.to_string() for mr in successful_steal])
         sucessful_steal = squeeze_nimrs(redis_db, sys_config,
                                         workload_config, successful_steal,
@@ -943,6 +950,7 @@ def squeeze_nimrs(redis_db, sys_config,
     improve_weight = sys_config['improve_weight']
 
     metric = workload_config['tbot_metric']
+    optimize_for_lowest = workload_config['optimize_for_lowest']
     current_performance_mean = mean_list(current_performance[metric])
 
     successful_steal = []
@@ -950,18 +958,39 @@ def squeeze_nimrs(redis_db, sys_config,
     for nimr in current_nimr_list:
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
+        valid_change,valid_change_amount = check_change_mr_viability(redis_db,
+                                                                     nimr,
+                                                                     new_alloc - current_nimr_alloc)
+
+        if valid_change is False:
+            if valid_change_amount == 0:
+                continue
+            
+        new_alloc = current_nimr_alloc + valid_change_amount
         resource_modifier.set_mr_provision(nimr, new_alloc, None)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
 
-        if is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2):
+        print 'Current performance is {}'.format(current_performance_mean)
+        print 'New performance is {}'.format(nimr_mean)
+
+        is_constant_perf = is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2)
+        is_improved_perf = is_performance_improved(nimr_mean, current_performance_mean,
+                                                optimize_for_lowest, within_x = 0.2)
+
+        should_retain_change = is_constant_perf or is_improved_perf
+
+        if should_retain_change:
             finalize_mr_provision(redis_db, nimr, new_alloc, workload_config)
             print 'Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                              current_nimr_alloc,
                                                                              new_alloc)
             successful_steal.append(nimr)
         else:
+            print 'Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
+                                                                               current_nimr_alloc,
+                                                                               new_alloc)
             resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
 
     return successful_steal
