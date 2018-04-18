@@ -659,7 +659,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     recent_nimr_list = []
 
     if nimr_squeeze_only:
-        NUM_ITER = 1
+        NUM_ITER = 2
     else:
         NUM_ITER = 10
         
@@ -763,7 +763,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         recent_nimr_list = nimr_list
 
         if nimr_squeeze_only:
-            continue
+            break
 
         effective_mimr = None
         for mr_index in range(len(sorted_mr_list) - 1):
