@@ -575,6 +575,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     gradient_mode = sys_config['gradient_mode']
     setting_mode = sys_config['setting_mode']
     rerun_baseline = sys_config['rerun_baseline']
+    nimr_squeeze_only = sys_config['nimr_squeeze_only']
     fill_services_first = sys_config['fill_services_first']
 
     preferred_performance_metric = workload_config['tbot_metric']
@@ -657,9 +658,13 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
 
+    if nimr_squeeze_only:
+        NUM_ITER = 1
+    else:
+        NUM_ITER = 10
+        
     # Modified while condition for completion
-    while experiment_count < 2:
-    #while True:
+    while experiment_count < NUM_ITER:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -747,18 +752,23 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                   optimize_for_lowest=optimize_for_lowest,
                                                   num_results_returned=-1)
 
-
-
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
             resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
 
+        # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
+        current_perf_mean = mean_list(current_performance[preferred_performance_metric])
+        imr_list, nimr_list = seperate_mr(sorted_mr_list, current_perf_mean, optimize_for_lowest, within_x=0.03)
+        recent_nimr_list = nimr_list
+
+        if nimr_squeeze_only:
+            continue
+
         effective_mimr = None
         for mr_index in range(len(sorted_mr_list) - 1):
             current_mimr = sorted_mr_list[mr_index][0]
             nimr_list = [nimr_tuple[0] for nimr_tuple in sorted_mr_list[mr_index+1:][::-1]]
-            recent_nimr_list = nimr_list
 
             print 'Current MIMR is {}'.format(current_mimr.to_string())
             print 'NIMR list consists of {}'.format([nimr.to_string() for nimr in nimr_list])
@@ -1084,6 +1094,7 @@ def parse_config_file(config_file):
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
     sys_config['rerun_baseline'] = config.getboolean('Basic', 'rerun_baseline')
+    sys_config['nimr_squeeze_only'] = config.getboolean('Basic', 'nimr_squeeze_only')
 
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
