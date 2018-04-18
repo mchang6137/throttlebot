@@ -869,7 +869,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
-        performance_improvement_detected = is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=error_tolerance)
+        performance_improvement_detected = is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=error_tolerance/2.0)
         if performance_improvement_detected is False:
             experiment_trials += 5
             baseline_trials += 5
@@ -882,7 +882,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                  experiment_count,
                                                  current_performance,
                                                  action_taken,
-                                                 error_tolerance)
+                                                 error_tolerance/2.0)
 
             if new_performance:
                 current_performance = new_performance
