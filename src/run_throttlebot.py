@@ -577,6 +577,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     rerun_baseline = sys_config['rerun_baseline']
     nimr_squeeze_only = sys_config['nimr_squeeze_only']
     fill_services_first = sys_config['fill_services_first']
+    num_iterations = sys_config['num_iterations']
+    error_tolerance = sys_config['error_tolerance']
 
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -1095,6 +1097,8 @@ def parse_config_file(config_file):
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
     sys_config['rerun_baseline'] = config.getboolean('Basic', 'rerun_baseline')
     sys_config['nimr_squeeze_only'] = config.getboolean('Basic', 'nimr_squeeze_only')
+    sys_config['num_iterations']  = config.getint('Basic', 'num_iterations')
+    sys_config['error_tolerance'] = config.getfloat('Basic', 'error_tolerance')
 
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
