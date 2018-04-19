@@ -73,7 +73,7 @@ def init_service_placement_r(redis_db, default_mr_configuration):
         else:
             continue
 
-# Set the current resource configurations within the actual containers
+# Set the current resource configurations withi the actual containers
 # Data points in resource_config are expressed in percentage change
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
@@ -575,7 +575,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     gradient_mode = sys_config['gradient_mode']
     setting_mode = sys_config['setting_mode']
     rerun_baseline = sys_config['rerun_baseline']
+    nimr_squeeze_only = sys_config['nimr_squeeze_only']
     fill_services_first = sys_config['fill_services_first']
+    num_iterations = sys_config['num_iterations']
+    error_tolerance = sys_config['error_tolerance']
 
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -657,9 +660,11 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
 
+    if nimr_squeeze_only:
+        num_iterations = 2
+        
     # Modified while condition for completion
-    while experiment_count < 2:
-    #while True:
+    while experiment_count < num_iterations:
         # Calculate the analytic baseline that is used to determine MRs
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
@@ -747,18 +752,23 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                   optimize_for_lowest=optimize_for_lowest,
                                                   num_results_returned=-1)
 
-
-
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
             resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
 
+        # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
+        current_perf_mean = mean_list(current_performance[preferred_performance_metric])
+        imr_list, nimr_list = seperate_mr(sorted_mr_list, current_perf_mean, optimize_for_lowest, within_x=error_tolerance)
+        recent_nimr_list = nimr_list
+
+        if nimr_squeeze_only:
+            break
+
         effective_mimr = None
         for mr_index in range(len(sorted_mr_list) - 1):
             current_mimr = sorted_mr_list[mr_index][0]
             nimr_list = [nimr_tuple[0] for nimr_tuple in sorted_mr_list[mr_index+1:][::-1]]
-            recent_nimr_list = nimr_list
 
             print 'Current MIMR is {}'.format(current_mimr.to_string())
             print 'NIMR list consists of {}'.format([nimr.to_string() for nimr in nimr_list])
@@ -812,8 +822,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             simulated_mean = mean_list(simulated_performance[preferred_performance_metric])
 
             current_perf_mean = mean_list(current_performance[preferred_performance_metric])
-            is_perf_improved = is_performance_improved(current_perf_mean, simulated_mean, optimize_for_lowest, within_x=0.5)
-            is_perf_constant = is_performance_constant(current_perf_mean, simulated_mean, within_x=0.3)
+            is_perf_improved = is_performance_improved(current_perf_mean, simulated_mean, optimize_for_lowest, within_x=error_tolerance)
+            is_perf_constant = is_performance_constant(current_perf_mean, simulated_mean, within_x=error_tolerance)
 
             if (is_perf_improved or is_perf_constant) is False:
                 print 'Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean)
@@ -859,8 +869,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
-        minimum_step_gap = 0.15
-        performance_improvement_detected = is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=0.01)
+        performance_improvement_detected = is_performance_improved(previous_mean, improved_mean, optimize_for_lowest, within_x=error_tolerance/2.0)
         if performance_improvement_detected is False:
             experiment_trials += 5
             baseline_trials += 5
@@ -873,7 +882,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                  experiment_count,
                                                  current_performance,
                                                  action_taken,
-                                                 minimum_step_gap)
+                                                 error_tolerance/2.0)
 
             if new_performance:
                 current_performance = new_performance
@@ -967,6 +976,7 @@ def squeeze_nimrs(redis_db, sys_config,
     experiment_trials = sys_config['trials']
     stress_weight = sys_config['stress_weight']
     improve_weight = sys_config['improve_weight']
+    error_tolerance = sys_config['error_tolerance']
 
     metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -994,9 +1004,9 @@ def squeeze_nimrs(redis_db, sys_config,
         print 'Current performance is {}'.format(current_performance_mean)
         print 'New performance is {}'.format(nimr_mean)
 
-        is_constant_perf = is_performance_constant(nimr_mean, current_performance_mean, within_x=0.2)
+        is_constant_perf = is_performance_constant(nimr_mean, current_performance_mean, within_x=error_tolerance)
         is_improved_perf = is_performance_improved(nimr_mean, current_performance_mean,
-                                                optimize_for_lowest, within_x = 0.2)
+                                                   optimize_for_lowest, within_x = error_tolerance)
 
         should_retain_change = is_constant_perf or is_improved_perf
 
@@ -1016,7 +1026,7 @@ def squeeze_nimrs(redis_db, sys_config,
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
-                       current_perf, action_taken, minimum_step_gap=0.15):
+                       current_perf, action_taken, error_tolerance):
     metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
     current_perf_float = mean_list(current_perf[metric])
@@ -1034,7 +1044,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         median_alloc_mean = mean_list(median_alloc_perf[metric])
 
         # If the median alloc performance is better, rewind the improvement back to this point
-        if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=0.01):
+        if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=error_tolerance):
             finalize_mr_provision(redis_db, mr, median_alloc, workload_config)
 
             # Write a summary of the experiment's iterations to Redis
@@ -1084,6 +1094,9 @@ def parse_config_file(config_file):
     sys_config['gradient_mode'] = config.get('Basic', 'gradient_mode')
     sys_config['setting_mode'] = config.get('Basic', 'setting_mode')
     sys_config['rerun_baseline'] = config.getboolean('Basic', 'rerun_baseline')
+    sys_config['nimr_squeeze_only'] = config.getboolean('Basic', 'nimr_squeeze_only')
+    sys_config['num_iterations']  = config.getint('Basic', 'num_iterations')
+    sys_config['error_tolerance'] = config.getfloat('Basic', 'error_tolerance')
 
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
