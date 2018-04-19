@@ -26,7 +26,7 @@ def init_conf_functions(workload_config, default_mr_config, redis_db):
 # Modifies the workload_config based on the services
 # Return the workload_config by reference
 def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
-    if mr not in redis_db.hgetall(mr.resource):
+    if mr.resource not in redis_db.hgetall("tunable_mrs").keys():
         return workload_config
     if workload_config['type'] == 'bcd':
         return modify_bcd_config(mr, new_mr_allocation, workload_config)
@@ -36,7 +36,7 @@ def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
 # Reset the based on the services
 # Return the workload_config by reference
 def reset_mr_conf(mr, workload_config, redis_db):
-    if mr not in workload_config["tunable_mrs"].keys():
+    if mr.resource not in redis_db.hgetall("tunable_mars").keys():
         return workload_config
     if workload_config['type'] == 'bcd':
         return reset_bcd_config(mr, workload_config, redis_db)
@@ -103,6 +103,8 @@ def init_bcd_config(workload_config, default_mr_config, redis_db):
         if mr == sparkms_memory or mr == sparkwk_memory:
             maximum_provision = max_capacity['MEMORY']
             redis_db.hset("tunable_mrs", mr.resource, maximum_provision)
+    print "BCD Conf Settings Initialized"
+
     return workload_config
 
 # bcd has two services that need to generate configurations
