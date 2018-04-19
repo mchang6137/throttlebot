@@ -131,8 +131,6 @@ def read_machine_floor(redis_db, machine_ip):
         machine_floor[resource] = float(machine_floor[resource])
     return machine_floor
 
-    
-
 
     
 
