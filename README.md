@@ -33,6 +33,8 @@ redis_host: The host where the Redis is located (Throttlebot uses Redis as it's 
 - setting_mode (cloud or prem): describes how to set the initial resource allocation.
 - gradient_mode: This decides the gradient mode that is being used by Throttlebot. The two options \
 are 'single and 'inverted'.
+- num_iterations: the number of maximum iterations to throttle and improve performance
+- error_tolerance: the amount of error that is used to say if performance is constant or improving
 
 The "Workload" section describes several Workload specific parameters. Throttlebot will run the experiment in this manner on each iteration.
 
