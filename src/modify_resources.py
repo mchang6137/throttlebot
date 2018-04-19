@@ -11,8 +11,10 @@ from weighting_conversions import *
 from remote_execution import *
 from measure_utilization import *
 from container_information import *
+import redis_resource as resource_datastore
 from get_utilization import *
 from modify_configs import modify_mr_conf, reset_mr_conf
+from mr import MR
 
 
 quilt_machines = ("quilt", "ps")
@@ -31,16 +33,25 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 MAX_NETWORK_BANDWIDTH = 600
 
 # Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation, wc):
-    modify_mr_conf(mr, new_mr_allocation, wc)
+def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
+    modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
         if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
+            previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
+            quota_aggregate = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
+            quota_per_core = float(quota_aggregate / previous_core_alloc)
+            new_quota_alloc = int(quota_per_core * new_mr_allocation)
+            print 'DEBUG: Going from {} cores to {} cores means, {} quota to {} quota'.format(previous_core_alloc,
+                                                                                              new_mr_allocation,
+                                                                                              quota_aggregate,
+                                                                                              new_quota_alloc)
+            set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
+            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_mr_allocation)
         elif mr.resource == 'DISK':
             set_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
@@ -53,13 +64,13 @@ def set_mr_provision(mr, new_mr_allocation, wc):
 
 # Set the resource allocation for multiple MRs
 # without committing the change in provisions to Redis
-def set_multiple_mr_provision(mr_to_allocation, wc):
+def set_multiple_mr_provision(mr_to_allocation, wc, redis_db):
     for mr in mr_to_allocation:
-        set_mr_provision(mr, mr_to_allocation[mr], wc)
+        set_mr_provision(mr, mr_to_allocation[mr], wc, redis_db)
 
 # Reset all mr provisions -- remove ALL resource constraints
-def reset_mr_provision(mr, wc):
-    reset_mr_conf(mr, wc)
+def reset_mr_provision(mr, wc, redis_db):
+    reset_mr_conf(mr, wc, redis_db)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
@@ -71,7 +82,7 @@ def reset_mr_provision(mr, wc):
         elif mr.resource == 'DISK':
             reset_container_blkio(ssh_client, container_id)
         elif mr.resource == 'MEMORY':
-            reset_memory_size(ssh_client, container_id)
+            reset_memory_size(ssh_client,  container_id)
         elif mr.resource == 'NET':
             reset_egress_network_bandwidth(ssh_client, container_id)
         else:

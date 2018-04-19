@@ -16,17 +16,17 @@ from mr import MR
 
 # Initializes the Configuration functions for a job
 # Updates the MRs that have configurations in Redis
-def init_conf_functions(workload_config, default_mr_config):
+def init_conf_functions(workload_config, default_mr_config, redis_db):
     experiment_type = workload_config['type']
     if experiment_type == 'bcd':
-        return init_bcd_config(workload_config, default_mr_config)
+        return init_bcd_config(workload_config, default_mr_config, redis_db)
     else:
         return workload_config
 
 # Modifies the workload_config based on the services
 # Return the workload_config by reference
-def modify_mr_conf(mr, new_mr_allocation, workload_config):
-    if mr not in workload_config["tunable_mrs"].keys():
+def modify_mr_conf(mr, new_mr_allocation, workload_config, redis_db):
+    if mr not in redis_db.hgetall(mr.resource):
         return workload_config
     if workload_config['type'] == 'bcd':
         return modify_bcd_config(mr, new_mr_allocation, workload_config)
@@ -35,11 +35,11 @@ def modify_mr_conf(mr, new_mr_allocation, workload_config):
 
 # Reset the based on the services
 # Return the workload_config by reference
-def reset_mr_conf(mr, workload_config):
+def reset_mr_conf(mr, workload_config, redis_db):
     if mr not in workload_config["tunable_mrs"].keys():
         return workload_config
     if workload_config['type'] == 'bcd':
-        return reset_bcd_config(mr, workload_config)
+        return reset_bcd_config(mr, workload_config, redis_db)
     else:
         return workload_config
 
@@ -73,7 +73,7 @@ def spark_rewrite_conf(vm_ip, config, new_value):
 
     print "Set all {0} to {1}".format(config, new_value)
 
-def init_bcd_config(workload_config, default_mr_config):
+def init_bcd_config(workload_config, default_mr_config, redis_db):
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
 
@@ -87,21 +87,22 @@ def init_bcd_config(workload_config, default_mr_config):
     sparkwk_memory = MR(spark_worker_image, 'MEMORY', [])
 
     # Easy master container identification
+
     workload_config['request_generator'] = [service_to_deployment[spark_master_image][0][0]]
     workload_config['frontend'] = [service_to_deployment[spark_master_image][0][0]]
     workload_config['additional_args'] = {'container_id': service_to_deployment[spark_master_image][0][1]}
 
-    # Save tunable MRs and its maximums. Used to use redis.
+    # Save tunable MRs and its maximums.
     # Write the maximum provisining that the resources can be provisioned to
-    maximum_provision = {}
+    # Machine size hard coded
+    max_capacity = get_instance_specs("m4.2xlarge")
     for mr in default_mr_config:
-        max_capacity = get_instance_specs("m4.2xlarge")
         if mr == sparkms_core or mr == sparkwk_core:
-            maximum_provision[mr] = max_capacity['CPU-CORE']
+            maximum_provision = max_capacity['CPU-CORE']
+            redis_db.hset("tunable_mrs", mr.resource, maximum_provision)
         if mr == sparkms_memory or mr == sparkwk_memory:
-            maximum_provision[mr] = max_capacity['MEMORY']
-    workload_config["tunable_mrs"] = maximum_provision
-
+            maximum_provision = max_capacity['MEMORY']
+            redis_db.hset("tunable_mrs", mr.resource, maximum_provision)
     return workload_config
 
 # bcd has two services that need to generate configurations
@@ -109,7 +110,6 @@ def init_bcd_config(workload_config, default_mr_config):
 # 2.) bcd-spark (worker service)
 def modify_bcd_config(mr, new_mr_allocation, workload_config):
     # HARDCODED TO THE SPEC
-    NUM_WORKERS = 6
     DEFAULT_MEM = 1
 
     spark_master_image = 'hantaowang/bcd-spark-master'
@@ -118,6 +118,7 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
     # need some way of finding the correct instances.
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
+    NUM_WORKERS = len(service_to_deployment[spark_worker_image])
     instances = service_to_deployment[spark_master_image] + service_to_deployment[spark_worker_image]
 
     if mr.service_name == 'hantaowang/bcd-spark':
@@ -140,7 +141,8 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
 
     return workload_config
 
-def reset_bcd_config(mr, workload_config):
+def reset_bcd_config(mr, workload_config, redis_db):
     if mr.resource == 'CPU-CORE' or mr.resource == 'MEMORY':
-        return modify_mr_conf(mr, workload_config["tunable_mrs"][mr], workload_config)
+        provision = redis_db.hget("tunable_mrs", mr.resource)
+        return modify_mr_conf(mr, provision, workload_config)
     return workload_config

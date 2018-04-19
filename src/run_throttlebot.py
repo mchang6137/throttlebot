@@ -57,15 +57,23 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     print 'Initializing the Resource Configurations in the containers'
     instance_specs = get_instance_specs(machine_type)
-    init_conf_functions(wc, default_mr_config)
-    for mr in default_mr_config:
+    init_conf_functions(wc, default_mr_config, redis_db)
+
+    core_mr = [mr for mr in default_mr_config if mr.resource == 'CPU-CORE']
+    non_core_mr = [mr for mr in default_mr_config if mr.resource != 'CPU-CORE']
+    # Makes sure that CPU_CORE MR always come last
+    for mr in non_core_mr + core_mr:
         new_resource_provision = int(default_mr_config[mr])
         if check_change_mr_viability(redis_db, mr, new_resource_provision)[0] is False:
             print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
             exit()
 
+        # Make a fake previous CPU_CORE equal to max cores
+        if mr.resource == 'CPU-CORE':
+            resource_datastore.write_mr_alloc(redis_db, mr, instance_specs['CPU-CORE'])
+
         # Enact the change in resource provisioning
-        resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
+        resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -97,7 +105,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 Tools that are used for experimental purposes in Throttlebot
 '''
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
-    resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
+    resource_modifier.set_mr_provision(mr, int(new_alloc), wc, redis_db)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
@@ -342,21 +350,21 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
         print 'Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc)
-        resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc), wc)
+        resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc), wc, redis_db)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
     print 'changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc)
-    resource_modifier.set_mr_provision(imr, int(new_imr_alloc), wc)
+    resource_modifier.set_mr_provision(imr, int(new_imr_alloc), wc, redis_db)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
 def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-	resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc), wc)
+    resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc), wc, redis_db)
 
     old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
-    resource_modifier.set_mr_provision(imr, int(old_imr_alloc), wc)
+    resource_modifier.set_mr_provision(imr, int(old_imr_alloc), wc, redis_db)
 
 # Commits the changes to Redis datastore
 def commit_mr_provision(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -473,7 +481,7 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                                                               stress_weight)
 
         for change_mr in mr_gradient_schedule:
-            resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+            resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config, redis_db)
 
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
@@ -494,7 +502,8 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                                                                   stress_weight)
 
         for change_mr in mr_revert_gradient_schedule:
-            resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+            resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], 
+                                               workload_config, redis_db)
 
     return nimr_list
 
@@ -607,7 +616,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
         for mr in analytic_provisions:
-            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
+            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config, redis_db)
 
         if len(analytic_provisions) != 0:
             analytic_baseline = measure_runtime(workload_config, experiment_trials)
@@ -636,7 +645,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                   sys_config,
                                                                   stress_weight)
             for change_mr in mr_gradient_schedule:
-                resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config, redis_db)
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
 
@@ -651,7 +660,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                       sys_config,
                                                                       stress_weight)
             for change_mr in mr_revert_gradient_schedule:
-                resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+                resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], 
+                                                   workload_config, redis_db)
 
             increment_to_performance[stress_weight] = experiment_results
 
@@ -695,7 +705,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
+            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config, redis_db)
 
         effective_mimr = None
         for mr_index in range(len(sorted_mr_list) - 1):
@@ -848,7 +858,7 @@ def is_baseline_constant(mr_working_set,
     # Revert to the fixed baseline_alloc
     for mr in mr_working_set:
         baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
-        resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+        resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config, redis_db)
 
     performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
     performance = remove_outlier(performance[preferred_performance_metric])
@@ -856,7 +866,7 @@ def is_baseline_constant(mr_working_set,
     # Revert back to the most updated resource configuration
     for mr in mr_working_set:
         previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+        resource_modifier.set_mr_provision(mr, previous_alloc, workload_config, redis_db)
 
     if (abs(mean_list(performance) - mean_list(baseline_performance))
                     / mean_list(baseline_performance)) > acceptable_deviation:
@@ -907,7 +917,7 @@ def squeeze_nimrs(redis_db, sys_config,
         print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
-        resource_modifier.set_mr_provision(nimr, new_alloc, workload_config)
+        resource_modifier.set_mr_provision(nimr, new_alloc, workload_config, redis_db, redis_db)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
@@ -918,7 +928,7 @@ def squeeze_nimrs(redis_db, sys_config,
                                                                              current_nimr_alloc,
                                                                              new_alloc)
         else:
-            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, workload_config)
+            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, workload_config, redis_db)
 
 # Backtrack when you have overstepped the stress levels
 def backtrack_overstep(redis_db, workload_config, experiment_count,
@@ -935,7 +945,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
-        resource_modifier.set_mr_provision(mr, median_alloc, workload_config)
+        resource_modifier.set_mr_provision(mr, median_alloc, workload_config, redis_db)
         median_alloc_perf = measure_runtime(workload_config, experiment_count)
         median_alloc_mean = mean_list(median_alloc_perf[metric])
 
@@ -957,7 +967,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             return median_alloc_perf
         else:
             # Revert to the most recent MR allocation
-            resource_modifier.set_mr_provision(mr, new_mr_alloc, workload_config)
+            resource_modifier.set_mr_provision(mr, new_mr_alloc, workload_config, redis_db)
 
     return None
 
