@@ -14,7 +14,7 @@ import math
 import signal
 from random import shuffle
 
-from time import sleep
+from time import *
 
 from copy import deepcopy
 from collections import namedtuple
@@ -1332,5 +1332,10 @@ if __name__ == "__main__":
         }
         workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
         print workload_config
-
+        
+    experiment_start = time.time()
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
+    experiment_end = time.time()
+
+    # Record the time and the number of MRs visited
+    print 'The experiment runs for a total of {}'.format(experiment_end - experiment_start)
