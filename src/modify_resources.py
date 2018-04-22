@@ -48,6 +48,7 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                               quota_aggregate,
                                                                                               new_quota_alloc)
             set_cpu_quota(ssh_client, container_id, 250000, new_quota_alloc)
+            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_quota_alloc)
         elif mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
