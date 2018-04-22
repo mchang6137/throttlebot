@@ -666,6 +666,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
 
+    '''
+    TODO: MICHAEL TO DO ONE WHOLE ITERATION OF THROTTLEBOT TO IDENTIFY IMRS AND NIMRS'
+    '''
+
     # Modified while condition for completion
     while experiment_count < num_iterations:
         # Get a list of MRs to stress in the form of a list of MRs
@@ -697,7 +701,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 # Commit the changes
                 for mr in pipeline:
                     resource_datastore.write_mr_alloc(redis_db, mr, mr_new_allocation[mr])
-                    update_machine_consumption(redis_db, mr, original_mr_allocation[mr], mr_new_allocation[mr]
+                    update_machine_consumption(redis_db, mr, original_mr_allocation[mr], mr_new_allocation[mr])
                 
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
