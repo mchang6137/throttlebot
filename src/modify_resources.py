@@ -35,7 +35,6 @@ MAX_NETWORK_BANDWIDTH = 600
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
-    resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation)
 
     if mr.resource == 'CPU-CORE':
         previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
@@ -47,8 +46,10 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                           quota_aggregate,
                                                                                           new_quota_alloc)
         set_mr_provision(MR(mr.service_name, 'CPU-QUOTA', mr.instances), new_quota_alloc, wc, redis_db)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation)
         return
 
+    resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
