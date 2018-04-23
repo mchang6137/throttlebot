@@ -139,9 +139,12 @@ def is_performance_constant(initial_perf, after_perf, within_x=0):
 
 # Takes a list of MRs ordered by score and then returns a list of IMRs and nIMRs
 # Deprecated
-def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, within_x=0.03):
+def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, gradient_mode, within_x=0.03):
     imr_list = []
     nimr_list = []
+
+    if gradient_mode == 'inverted':
+        optimize_for_lowest = not optimize_for_lowest
 
     for mr_result in mr_list:
         mr,exp_performance = mr_result
@@ -497,10 +500,12 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
             writer.writerow(result_dict)
 
 # Iterate through all the colocated imrs of the same resource
+# Will not work correctly for inverted gradient!!!!!
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
     print 'Finding colocated NIMRs'
     experiment_trials = sys_config['trials']
     stress_weight = sys_config['stress_weight']
+    error_tolerance = sys_config['error_tolerance']
 
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -534,12 +539,12 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         preferred_results = experiment_results[preferred_performance_metric]
         mean_result = mean_list(preferred_results)
 
+
         perf_diff = mean_result - baseline_mean
-        if (perf_diff > 0.03 * baseline_mean) and optimize_for_lowest:
-            print 'Do nothing for optimize lowest'
-        elif (perf_diff < -0.03 * baseline_mean) and optimize_for_lowest is False:
-            print 'Do nothing for optimize lowest'
-        else:
+        is_improved = is_performance_improved(baseline_mean, mean_result, optimize_for_lowest, error_tolerance)
+        is_constant = is_performance_constant(baseline_mean, mean_result, error_tolerance)
+
+        if is_improved or is_constant:
             nimr_list.append(mr)
 
         # Revert the Gradient schedule and provision resources accordingly
@@ -747,10 +752,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Recover the results of the experiment from Redis
         sorted_mr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
-                                                  preferred_performance_metric,
-                                                  stress_weight, gradient_mode,
-                                                  optimize_for_lowest=optimize_for_lowest,
-                                                  num_results_returned=-1)
+                                                       preferred_performance_metric,
+                                                       stress_weight, gradient_mode,
+                                                       optimize_for_lowest=optimize_for_lowest,
+                                                       num_results_returned=-1)
 
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
@@ -759,7 +764,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
         current_perf_mean = mean_list(current_performance[preferred_performance_metric])
-        imr_list, nimr_list = seperate_mr(sorted_mr_list, current_perf_mean, optimize_for_lowest, within_x=error_tolerance)
+        imr_list, nimr_list = seperate_mr(sorted_mr_list, current_perf_mean, optimize_for_lowest, gradient_mode, within_x=error_tolerance)
         recent_nimr_list = nimr_list
 
         if nimr_squeeze_only:
@@ -830,7 +835,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 action_taken[current_mimr] = 0
                 continue
             else:
-                print 'Performance is constant, so committing the changes'
+                print 'Performance is constant or improved, so committing the changes'
                 commit_mr_provision(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal)
                 action_taken = nimr_diff_proposal
                 action_taken[current_mimr] = imr_improvement_proposal
@@ -1136,9 +1141,9 @@ def parse_config_file(config_file):
     workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
     workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
-    if sys_config['gradient_mode'] == 'inverted':
+    #if sys_config['gradient_mode'] == 'inverted':
         # kind of a hack. If we are doing the inverted stressing for gradient, we actually want to optimize for the most effective.
-        workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']
+    #    workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']
     workload_config['performance_target'] = config.get('Workload', 'performance_target')
     workload_config['include_warmup'] = config.getboolean('Workload', 'include_warmup')
 

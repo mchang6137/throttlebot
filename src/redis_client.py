@@ -59,6 +59,9 @@ def write_redis_ranking(redis_db, experiment_iteration_count, perf_metric, mean_
 # Redis sets are ordered from lowest score to the highest score
 # A metric where lower is better would have get_lowest parameter set to True
 def get_top_n_mimr(redis_db, experiment_iteration_count, perf_metric, stress_weight, gradient_mode, optimize_for_lowest=True, num_results_returned=-1):
+    if gradient_mode == 'inverted':
+        optimize_for_lowest = not optimize_for_lowest
+        
     sorted_set_name = generate_ordered_performance_key(experiment_iteration_count, perf_metric, stress_weight)
     print 'Recovering the MIMR from ', sorted_set_name
 
