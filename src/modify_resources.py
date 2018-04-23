@@ -35,7 +35,7 @@ MAX_NETWORK_BANDWIDTH = 600
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
-    resource_datastore.write_mr_alloc(redis_db, MR, new_mr_allocation)
+    resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation)
 
     if mr.resource == 'CPU-CORE':
         previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
