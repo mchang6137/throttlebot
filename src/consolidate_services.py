@@ -3,10 +3,9 @@ import argparse
 
 from mr import MR
 from instance_specs import *
+from poll_cluster_state import *
 
 # Bin pack resources
-
-
 def parse_config_csv(resource_config_csv):
     mr_allocation = {}
     with open(resource_config_csv, 'rb') as resource_config:
@@ -105,7 +104,7 @@ def update_if_possible(mr_list,
     return False, -1
 
 
-def ffd_pack(mr_allocation, instance_type):
+def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA'):
     """
     FFD based on each resource type
 
@@ -117,6 +116,7 @@ def ffd_pack(mr_allocation, instance_type):
 
     # At present, I have no way to infer this, so it will have to be changed
     # for each project manually
+    '''
     service_containers = [
         'haproxy:1.7',
         'elasticsearch:2.4',
@@ -131,6 +131,18 @@ def ffd_pack(mr_allocation, instance_type):
         'hantaowang/logstash-postgres',
         'library/postgres:9.4',
     ]
+    '''
+
+    # Use the below if you have already deployed the containers on quilt
+    # Otherwise, define it manually.
+    vm_list = get_actual_vms()
+    service_placements = get_service_placements(vm_list)
+
+    service_configurations = [mr.to_string().split(',')[0] for mr in mr_allocation.keys()]
+    service_containers = []
+    for service_name in service_placements:
+        if service_name in service_configurations:
+            service_containers += [service_name for x in range(len(service_placements[service_name]))]
 
     service_to_mr = set_service_specs(service_containers, mr_allocation)
 
@@ -171,29 +183,17 @@ def ffd_pack(mr_allocation, instance_type):
                     print 'Fit not found. You have a bug. Exiting..'
                     exit()
 
-        print number_machines
-        print machine_to_service
+        return machine_to_service
 
-    service_containers = sorted(service_containers, key=lambda x: mr_allocation[service_to_mr[x][0]])
+    resource_index = {'MEMORY': 0,
+                      'CPU-QUOTA': 1,
+                      'NET': 2,
+                      'DISK': 3}
+
+    service_containers = sorted(service_containers,
+                                key=lambda x: mr_allocation[service_to_mr[x][resource_index[sort_by]]])
     service_containers.reverse()
-    print "MEMORY"
-    ff(service_containers)
-
-    service_containers = sorted(service_containers, key=lambda x: mr_allocation[service_to_mr[x][1]])
-    service_containers.reverse()
-    print 'CPU-QUOTA'
-    ff(service_containers)
-
-    service_containers = sorted(service_containers, key=lambda x: mr_allocation[service_to_mr[x][2]])
-    service_containers.reverse()
-    print 'NET'
-    ff(service_containers)
-
-    service_containers = sorted(service_containers, key=lambda x: mr_allocation[service_to_mr[x][3]])
-    service_containers.reverse()
-    print 'DISK'
-    ff(service_containers)
-
+    return ff(service_containers)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

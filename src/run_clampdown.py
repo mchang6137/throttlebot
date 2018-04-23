@@ -16,6 +16,7 @@ from random import shuffle
 
 from time import *
 
+from consolidate_services import *
 from copy import deepcopy
 from collections import namedtuple
 from collections import Counter
@@ -588,6 +589,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     fill_services_first = sys_config['fill_services_first']
     num_iterations = sys_config['num_iterations']
     error_tolerance = sys_config['error_tolerance']
+    known_imr_list = sys_config['known_imr']
 
     preferred_performance_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']
@@ -624,6 +626,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 new_mr_alloc = mr_improvement_proposal + current_mr_alloc
                 finalize_mr_provision(redis_db, mr, new_mr_alloc, workload_config)
                 print 'Maxing our resources for on-prem: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_alloc, new_mr_alloc)
+                
     print 'Filled out resources for on-prem mode'
 
     print '*' * 20
@@ -636,7 +639,6 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
 
-    # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
     current_performance = measure_baseline(workload_config,
                                            baseline_trials,
                                            workload_config['include_warmup'])
@@ -661,31 +663,41 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
+    for mr in known_imr_list:
+        mr_working_set.remove(mr)
+
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
 
-    '''
-    TODO: MICHAEL TO DO ONE WHOLE ITERATION OF THROTTLEBOT TO IDENTIFY IMRS AND NIMRS'
-    '''
-
     # Modified while condition for completion
     while experiment_count < num_iterations:
+        print '\n\n\n\n\n'
+        print 'Cutting round number {}'.format(experiment_count)
         # Get a list of MRs to stress in the form of a list of MRs
+        actions_taken = {}
         pipeline_to_consider = apply_filtering_policy(redis_db, mr_working_set, experiment_count,
                                                       sys_config, workload_config, filter_config,
                                                       current_performance)
 
+        # If no pipelines are revealed, there are two options.
+        # 1.) Reduce the stress weight, will make progress either way
+        # 2.) Have more partition parameters 
+        # 3.) Just try again with a different random pipeline
+        if len(pipeline_to_consider) == 0:
+            continue
+
         # Iterate through the pipelines and keep clamping down on the pipelines
         for pipeline in pipeline_to_consider:
+            print 'Exploring pipeline {}'.format([mr.to_string() for mr in pipeline])
             mr_new_allocation = {}
             mr_original_allocation = {}
             for mr in pipeline:
                 current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-                new_allocation = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
+                new_mr_allocation = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
                 resource_modifier.set_mr_provision(mr, new_mr_allocation)
-                mr_new_allocation[mr] = new_allocation
+                mr_new_allocation[mr] = new_mr_allocation
                 mr_original_allocation[mr] = current_mr_allocation
 
             current_mean = mean_list(current_performance[preferred_performance_metric])
@@ -696,36 +708,38 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             if is_performance_degraded(new_performance_mean, current_mean, optimize_for_lowest, error_tolerance):
                 # Revert the changes
                 for mr in pipeline:
-                    resource_modifier.set_mr_provision(mr, original_mr_allocation[mr])
+                    resource_modifier.set_mr_provision(mr, mr_original_allocation[mr])
+                print 'Failed, trying a new filtering pipeline'
             else:
                 # Commit the changes
                 for mr in pipeline:
+                    print 'MR {} cut from {} to {}'.format(mr.to_string(), mr_original_allocation[mr], mr_new_allocation[mr])
                     resource_datastore.write_mr_alloc(redis_db, mr, mr_new_allocation[mr])
-                    update_machine_consumption(redis_db, mr, original_mr_allocation[mr], mr_new_allocation[mr])
-                
-        # Move back into the normal operating basis by removing the baseline prep stresses
-        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
-
-        # Test the new performance after potential resource stealing
-        improved_performance = simulated_performance
-        improved_mean = simulated_mean
-        previous_mean = mean_list(current_performance[preferred_performance_metric])
-        performance_improvement = simulated_mean - previous_mean
-
-        # Generating overall performance improvement
-        chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
-
-        results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Results from iteration {} are {}'.format(experiment_count, results)
-
+                    update_machine_consumption(redis_db, mr, mr_original_allocation[mr], mr_new_allocation[mr])
+                    actions_taken[mr] = mr_new_allocation[mr] - mr_original_allocation[mr]
+                    
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
         print_csv_configuration(current_mr_config)
         experiment_count += 1
 
-        print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
+        # Test how this could be packed into fewer machines
+        # service packing is a map of a machine -> containers running on it
+        service_packing = ffd_pack(current_mr_config, machine_type)
+
+        # Append results to log file
+        with open("reduction_log.txt", "a") as myfile:
+            result_string = ''
+            result_string += 'Round {}\n'.format(experiment_count)
+            result_string += 'Can now fit into {} bins'.format(len(service_packing.keys()))
+            for mr in actions_taken:
+                result_string += 'Action Taken for {} is {}\n'.format(mr.to_string(), actions_taken[mr])
+            for mr in current_mr_config:
+                result_string += '{},{}'.format(mr.to_string(), current_mr_config[mr])
+            result_string += '\n\n'
+	    myfile.write(result_string)
+
+        #print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print_csv_configuration(current_mr_config)
 
@@ -914,6 +928,34 @@ def parse_config_file(config_file):
     sys_config['num_iterations']  = config.getint('Basic', 'num_iterations')
     sys_config['error_tolerance'] = config.getfloat('Basic', 'error_tolerance')
 
+    all_services = get_actual_services()
+    all_resources = get_stressable_resources()
+    
+    known_imr_service = config.get('Basic', 'known_imr_service').split(',')
+    known_imr_resource = config.get('Basic', 'known_imr_resource').split(',')
+
+    # Check for validity
+    assert len(known_imr_service) == len(known_imr_resource)
+    for service_name in known_imr_service:
+        if service_name not in all_services:
+            print 'Invalid service name in [Basic] field {}'.format(service_name)
+            exit()
+
+    for resource in known_imr_resource:
+        if resource not in all_resources:
+            print 'Invalid resource name in [Basic] field {}'.format(resource)
+            exit()
+
+    vm_list = get_actual_vms()
+    service_placements = get_service_placements(vm_list)
+    
+    sys_config['known_imr'] = []
+    for index in range(len(known_imr_service)):
+        service_name = known_imr_service[index]
+        mr = MR(service_name, known_imr_resource[index], service_placements[service_name])
+        assert mr not in sys_config['known_imr']
+        sys_config['known_imr'].append(mr)
+
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':
         sys_config['fill_services_first'] = None
@@ -922,7 +964,6 @@ def parse_config_file(config_file):
             exit()
     else:
         sys_config['fill_services_first'] = fill_services_first.split(',')
-        all_services = get_actual_services()
         for service in sys_config['fill_services_first']:
             if service not in all_services:
                 print 'Invalid service name {}. Change your field fill_services_first'.format(service)
