@@ -35,8 +35,9 @@ MAX_NETWORK_BANDWIDTH = 600
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
+    resource_datastore.write_mr_alloc(redis_db, MR, new_mr_allocation)
 
-    if mr.resource == 'CPU_CORE':
+    if mr.resource == 'CPU-CORE':
         previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         quota_aggregate = resource_datastore.read_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []))
         quota_per_core = float(quota_aggregate / previous_core_alloc)
@@ -45,8 +46,8 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                           new_mr_allocation,
                                                                                           quota_aggregate,
                                                                                           new_quota_alloc)
-        resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_quota_alloc)
         set_mr_provision(MR(mr.service_name, 'CPU-QUOTA', mr.instances), new_quota_alloc, wc, redis_db)
+        return
 
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
@@ -54,7 +55,6 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
         if mr.resource == 'CPU-QUOTA':
             #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
-            resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_mr_allocation)
         elif mr.resource == 'DISK':
             set_container_blkio(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'NET':
