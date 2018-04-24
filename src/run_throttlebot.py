@@ -361,9 +361,9 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal, wc):
 def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-    resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc), wc, redis_db)
+        resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc), wc, redis_db)
 
-    old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
+    old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     resource_modifier.set_mr_provision(imr, int(old_imr_alloc), wc, redis_db)
 
 # Commits the changes to Redis datastore
