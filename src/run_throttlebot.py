@@ -535,6 +535,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     filter_policy= filter_config['filter_policy']
+    workload_config['machine_type'] = machine_type
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     if last_completed_iter == 0:
