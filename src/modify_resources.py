@@ -44,7 +44,7 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
         except Exception:
             previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
 
-        quota_aggregate = resource_datastore.read_mr_alloc(redis_db, quota_mr)
+        quota_aggregate = resource_datastore.read_mr_alloc(redis_db, mr, "core-stress")
 
         quota_per_core = float(quota_aggregate / previous_core_alloc)
         new_quota_alloc = int(quota_per_core * new_mr_allocation)
@@ -54,7 +54,7 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
                                                                                           new_quota_alloc)
         set_mr_provision(quota_mr, new_quota_alloc, wc, redis_db)
 
-        resource_datastore.write_mr_alloc(redis_db, quota_mr, new_quota_alloc)
+        resource_datastore.write_mr_alloc(redis_db, quota_mr, new_quota_alloc, "core-stress")
         resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation, "core-stress")
         return
 
