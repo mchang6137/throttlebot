@@ -300,14 +300,15 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
     service_containers.reverse()
     service_placements = ff(service_containers)
+    print service_placements
 
     # First place the services that show up as MIMRs
     optimal_num_machines = len(service_placements.keys())
     imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
     if len(imr_aware_service_placement.keys()) == 0:
-        return service_placements
+        return service_placements, False
     else:
-        return imr_aware_service_placement
+        return imr_aware_service_placement, True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

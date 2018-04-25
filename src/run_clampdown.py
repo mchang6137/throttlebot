@@ -734,13 +734,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Test how this could be packed into fewer machines
         # service packing is a map of a machine -> containers running on it
-        service_packing = ffd_pack(current_mr_config, machine_type)
+        mimr_resource = known_imr_list[0].resource
+        service_packing,is_imr_aware = ffd_pack(current_mr_config, machine_type,
+                                                mimr_resource, known_imr_list)
 
         # Append results to log file
         with open("reduction_log.txt", "a") as myfile:
             result_string = ''
             result_string += 'Round {}\n'.format(experiment_count)
-            result_string += 'Can now fit into {} bins\n'.format(len(service_packing.keys()))
+            result_string += 'Can now fit into {} bins, imr aware is {}\n'.format(len(service_packing.keys()), is_imr_aware)
             result_string += 'The placement groups are {}\n'.format(service_packing)
             for mr in actions_taken:
                 result_string += 'Action Taken for {} is {}\n'.format(mr.to_string(), actions_taken[mr])
