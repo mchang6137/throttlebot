@@ -10,6 +10,7 @@ import random
 from mr_gradient import *
 from run_experiment import *
 from weighting_conversions import *
+from run_clampdown import *
 from mr import MR
 
 FILTER_LOGS = 'filter_logs.txt'
@@ -24,23 +25,48 @@ def apply_filtering_policy(redis_db,
                            experiment_iteration,
                            system_config,
                            workload_config,
-                           filter_config):
+                           filter_config,
+                           current_performance=-1):
     filter_policy = filter_config['filter_policy']
-    if filter_policy == 'pipeline':
-        return apply_pipeline_filter(redis_db,
-                                     mr_working_set,
-                                     experiment_iteration,
-                                     system_config,
-                                     workload_config,
-                                     filter_config)
-    elif filter_policy is None:
+    optimize_for_lowest = workload_config['optimize_for_lowest']
+    metric = workload_config['tbot_metric']
+    error_tolerance = system_config['error_tolerance']
+    
+    if filter_policy is None:
         return mr_working_set
+    
+    pipeline_score_list,pipeline_groups = apply_pipeline_filter(redis_db,
+                                                                mr_working_set,
+                                                                experiment_iteration,
+                                                                system_config,
+                                                                workload_config,
+                                                                filter_config)
+    mr_of_interest = []
+    # Just pick the most impacted pipeline (MIP)
+    if filter_policy == 'pipeline':
+        pipeline_repr,score = pipeline_score_list[0]
+        mr_of_interest = pipeline_groups[int(pipeline_repr)]
+    # Return all pipelines that are unaffected by overprovisioning
+    if filter_policy == 'pipeline_clampdown':
+        assert current_performance != -1
+        for pipeline_score in pipeline_score_list:
+            pipeline_repr, pipeline_perf = pipeline_score
+            pipeline_mr = pipeline_groups[int(pipeline_repr)]
+            current_performance_mean = mean_list(current_performance[metric])
+            is_constant_perf = is_performance_constant(current_performance_mean, pipeline_perf, error_tolerance)
+            print 'For pipeline {}, the current mean is {} and new performance is {}'.format([mr.to_string() for mr in pipeline_mr], current_performance_mean, pipeline_perf)
+            if is_constant_perf:
+                mr_of_interest.append(pipeline_mr)
+
+    return mr_of_interest
 
 '''
 A pipeline is defined as some group of services
 All the resources that are part of that group of services are stressed
 filter_params should be expressed as a list of lists, where each list is 
 a set of services that are deemed to be part of the same pipeline
+
+Returns a ranked pipeline order
 '''
 def apply_pipeline_filter(redis_db,
                           mr_working_set,
@@ -116,30 +142,19 @@ def apply_pipeline_filter(redis_db,
                                                                         experiment_iteration,
                                                                         system_config,
                                                                         optimize_for_lowest=optimize_for_lowest)
-    
-    print 'INFO: The current pipeline score list is here {}'.format(all_pipeline_score_list)
-    
-    # Temporarily just choose the most impacted pipeline
-    selected_pipeline_score_list = [all_pipeline_score_list[0]]
 
-    # MIP = Most Impacted Pipeline
-    mip = []
-    for pipeline_score in selected_pipeline_score_list:
-        pipeline_repr,score = pipeline_score
-        mip += pipeline_groups[int(pipeline_repr)]
-    print mip
+    return all_pipeline_score_list, pipeline_groups
 
+# Logs the Most impacted Pipeline
+def write_log_results(pipeline):
     # Log results of the filtering
-    print 'About to log to {}'.format(FILTER_LOGS)
     with open(FILTER_LOGS, "a") as myfile:
         # First output the result
         filter_str = '{},'.format(experiment_iteration)
-        for mr in mip:
+        for mr in pipeline:
             filter_str += '{},'.format(mr.to_string())
         filter_str += '\n\n'
         myfile.write(filter_str)
-        
-    return mip
 
 # Find a random partition of MRs from the working set
 # Splits describes the number of partitions that you are seeking to split into
