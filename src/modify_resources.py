@@ -53,11 +53,8 @@ def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
 
     elif mr.resource == 'CPU-QUOTA':
         prev_num_of_cores, prev_quota_aggregate = current_allocs(redis_db, mr.service_name, wc)
-        max_quota = get_instance_specs(wc['machine_type'])['CPU-QUOTA']
-        try:
-            pre_quota_tb = resource_datastore.read_mr_alloc(redis_db, mr)
-        except TypeError:
-            pre_quota_tb = max_quota
+        max_cores = get_instance_specs(wc['machine_type'])['CPU-CORE']
+        pre_quota_tb = int((float(prev_quota_aggregate) / prev_num_of_cores) * max_cores)
         new_quota_aggregate = int(float(new_mr_allocation) / float(pre_quota_tb) * prev_quota_aggregate)
 
         print 'DEBUG: Going from {} quota to {} quota means, {} quota to {} quota'.format(pre_quota_tb,
