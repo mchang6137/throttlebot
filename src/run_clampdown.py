@@ -686,6 +686,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # 2.) Have more partition parameters 
         # 3.) Just try again with a different random pipeline
         if len(pipeline_to_consider) == 0:
+            experiment_count += 1
+            new_partitions = filter_config['pipeline_partitions'] + 2
+            if new_partitions <= len(mr_working_set):
+                filter_config['pipeline_partitions'] = new_partitions
+            else:
+                filter_config['pipeline_partitions'] = len(mr_working_set)
+
+            with open("reduction_log.txt", "a") as myfile:
+                myfile.write('Step {}, no pipelines found, increasing partition size to {}\n'.format(experiment_count, new_partitions))
             continue
 
         # Iterate through the pipelines and keep clamping down on the pipelines
@@ -731,15 +740,14 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         with open("reduction_log.txt", "a") as myfile:
             result_string = ''
             result_string += 'Round {}\n'.format(experiment_count)
-            result_string += 'Can now fit into {} bins'.format(len(service_packing.keys()))
+            result_string += 'Can now fit into {} bins\n'.format(len(service_packing.keys()))
+            result_string += 'The placement groups are {}\n'.format(service_packing)
             for mr in actions_taken:
                 result_string += 'Action Taken for {} is {}\n'.format(mr.to_string(), actions_taken[mr])
             for mr in current_mr_config:
                 result_string += '{},{}'.format(mr.to_string(), current_mr_config[mr])
             result_string += '\n\n'
 	    myfile.write(result_string)
-
-        #print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
     print_csv_configuration(current_mr_config)
 
@@ -930,31 +938,36 @@ def parse_config_file(config_file):
 
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
+
     
     known_imr_service = config.get('Basic', 'known_imr_service').split(',')
     known_imr_resource = config.get('Basic', 'known_imr_resource').split(',')
 
     # Check for validity
     assert len(known_imr_service) == len(known_imr_resource)
-    for service_name in known_imr_service:
-        if service_name not in all_services:
-            print 'Invalid service name in [Basic] field {}'.format(service_name)
-            exit()
-
-    for resource in known_imr_resource:
-        if resource not in all_resources:
-            print 'Invalid resource name in [Basic] field {}'.format(resource)
-            exit()
-
-    vm_list = get_actual_vms()
-    service_placements = get_service_placements(vm_list)
     
-    sys_config['known_imr'] = []
-    for index in range(len(known_imr_service)):
-        service_name = known_imr_service[index]
-        mr = MR(service_name, known_imr_resource[index], service_placements[service_name])
-        assert mr not in sys_config['known_imr']
-        sys_config['known_imr'].append(mr)
+    if len(known_imr_service) != 0 and known_imr_service[0] != '':
+        for service_name in known_imr_service:
+            if service_name not in all_services:
+                print 'Invalid service name in [Basic] field {}'.format(service_name)
+                exit()
+
+        for resource in known_imr_resource:
+            if resource not in all_resources:
+                print 'Invalid resource name in [Basic] field {}'.format(resource)
+                exit()
+
+        vm_list = get_actual_vms()
+        service_placements = get_service_placements(vm_list)
+    
+        sys_config['known_imr'] = []
+        for index in range(len(known_imr_service)):
+            service_name = known_imr_service[index]
+            mr = MR(service_name, known_imr_resource[index], service_placements[service_name])
+            assert mr not in sys_config['known_imr']
+            sys_config['known_imr'].append(mr)
+    else:
+        sys_config['known_imr'] = []
 
     fill_services_first = config.get('Basic', 'fill_services_first')
     if fill_services_first == '':

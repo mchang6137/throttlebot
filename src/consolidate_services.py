@@ -69,13 +69,11 @@ def can_fit_machine(mr, mr_requirement, current_allocation, instance_dict):
     else:
         return False
 
-
 # only call if can_fit_machine has already been called successfully
 def update_consumption(mr, mr_requirement, machine_to_allocation, machine_index):
     resource = mr.resource
     machine_to_allocation[machine_index][resource] += mr_requirement
     return machine_to_allocation
-
 
 # Update all the MRs in the mr_list
 def update_if_possible(mr_list,
@@ -103,8 +101,35 @@ def update_if_possible(mr_list,
 
     return False, -1
 
+# Place on a particular machine
+def place_if_possible(mr_list,
+                      mr_allocation,
+                      machine_to_allocation,
+                      machine_index,
+                      instance_dict):
 
-def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA'):
+
+    assert machine_index in machine_to_allocation.keys()
+    fit_found = True
+    for mr in mr_list:
+        if not can_fit_machine(mr,
+                               mr_allocation[mr],
+                               machine_to_allocation[machine_index],
+                               instance_dict):
+            fit_found = False
+            break
+    if fit_found:
+        for mr in mr_list:
+            update_consumption(mr,
+                               mr_allocation[mr],
+                               machine_to_allocation,
+                               machine_index)
+        return True
+        
+    return False
+
+# imr_list is an ordered list of IMRs, and the MIMR should be the first element
+def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
     """
     FFD based on each resource type
 
@@ -145,6 +170,85 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA'):
             service_containers += [service_name for x in range(len(service_placements[service_name]))]
 
     service_to_mr = set_service_specs(service_containers, mr_allocation)
+
+    # IMR Aware Scheduling
+    def imr_aware(sc, num_machines):
+        if num_machines == 1:
+            return None
+        
+        instance_specs = get_instance_specs(instance_type)
+
+        machine_to_allocation = {}
+        for x in range(num_machines):
+            machine_to_allocation = initialize_capacity(machine_to_allocation, x, instance_specs)
+        
+        machine_to_service = {}
+        for x in range(num_machines):
+            machine_to_service[x] = []
+
+        resource_to_impacted_service = {}
+        service_encountered = []
+        # Find the IMRs and place them
+        for mr in imr_list:
+            if mr.service_name in service_encountered:
+                continue
+            else:
+                service_encountered.append(mr.service_name)
+                    
+            if mr.resource not in resource_to_impacted_service:
+                resource_to_impacted_service[mr.resource] = []
+            resource_to_impacted_service[mr.resource].append(mr.service_name)
+
+        # First start by round robin the MIMR and other MRs that are of the same resource
+        mimr_resource = imr_list[0].resource
+        service_list = resource_to_impacted_service[mimr_resource]
+        for service_name in service_list:
+            num_service_containers = sc.count(service_name)
+            mr_list = service_to_mr[service_name]
+
+            # Round robin the placements
+            for container_index in range(num_service_containers):
+                machine_index = container_index % num_machines
+                fit_found = place_if_possible(mr_list,
+                                              mr_allocation,
+                                              machine_to_allocation,
+                                              machine_index,
+                                              instance_specs)
+                if fit_found:
+                    machine_to_service[machine_index].append(service_name)
+                else:
+                    print 'something is wrong in the round robin placements'
+                    exit()
+
+        # Don't double count the services
+        for service_name in service_list:
+            sc.remove(service_name)
+            
+        # Reverse the order of the services packed into the machine
+        new_machine_to_allocation = {}
+        new_machine_to_service = {}
+        for machine_index in machine_to_allocation:
+            new_machine_to_allocation[num_machines - machine_index - 1] = machine_to_allocation[machine_index]
+            new_machine_to_service[num_machines - machine_index - 1] = machine_to_service[machine_index]
+        machine_to_allocation = new_machine_to_allocation
+        machine_to_service = new_machine_to_service
+        
+        # Then do a first fit with any remaining MR.
+        for service_name in sc:
+            mr_list = service_to_mr[service_name]
+            fit_found, machine_index = update_if_possible(mr_list,
+                                                          mr_allocation,
+                                                          machine_to_allocation,
+                                                          num_machines,
+                                                          instance_specs)
+
+            if fit_found:
+                machine_to_service[machine_index].append(service_name)
+            else:
+                print 'No valid placement found. Returning'
+                return {}
+
+        return machine_to_service
 
     def ff(sc):
         instance_specs = get_instance_specs(instance_type)
@@ -190,10 +294,20 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA'):
                       'NET': 2,
                       'DISK': 3}
 
+    # First find the number of machines from first fit
+    imr_resource = imr_list[0].resource
     service_containers = sorted(service_containers,
-                                key=lambda x: mr_allocation[service_to_mr[x][resource_index[sort_by]]])
+                                key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
     service_containers.reverse()
-    return ff(service_containers)
+    service_placements = ff(service_containers)
+
+    # First place the services that show up as MIMRs
+    optimal_num_machines = len(service_placements.keys())
+    imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
+    if len(imr_aware_service_placement.keys()) == 0:
+        return service_placements
+    else:
+        return imr_aware_service_placement
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -202,4 +316,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     allocations = parse_config_csv(args.resource_csv)
-    ffd_pack(allocations, args.instance_type)
+    imr_list = [MR('haproxy:1.7', 'CPU-QUOTA', None)]
+    ffd_pack(allocations, args.instance_type, imr_list[0].resource, imr_list)
