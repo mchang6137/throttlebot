@@ -68,10 +68,6 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
             exit()
 
-        # Make a fake previous CPU_CORE equal to max cores
-        if mr.resource == 'CPU-CORE':
-            resource_datastore.write_mr_alloc(redis_db, mr, instance_specs['CPU-CORE'], "core-stress")
-
         # Enact the change in resource provisioning
         resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
 
