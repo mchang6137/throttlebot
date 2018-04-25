@@ -27,18 +27,22 @@ def parse_config_csv(resource_config_csv):
 
 # Returns a list of MRs for each service
 def set_service_specs(service_list, mr_to_allocation):
-    resources = ('MEMORY', 'CPU-QUOTA', 'NET', 'DISK')
+    #    resources = ('MEMORY', 'CPU-QUOTA', 'NET', 'DISK')
     service_specs = {}
 
     for service in service_list:
         tmp = []
+        resources_seen = []
         for mr in mr_to_allocation:
             service_name = mr.service_name
             if service_name != service:
                 continue
             tmp.append(mr)
+            if mr.resource not in resources_seen:
+                resources_seen.append(mr.resource)
+                
         service_specs[service] = []
-        for res in resources:
+        for res in resources_seen:
             service_specs[service].append(filter(lambda x: x.resource == res, tmp)[0])
 
     return service_specs
