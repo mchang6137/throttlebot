@@ -736,7 +736,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
             print 'tuned_config.csv below'
             print 'SERVICE,RESOURCE,AMOUNT,REPR\n'
             for mr in current_mr_config:
-                result_string += '{},{},{},RAW'.format(mr.service_name, mr.resource, current_mr_config[mr])
+                result_string += '{},{},{},RAW\n'.format(mr.service_name, mr.resource, current_mr_config[mr])
             result_string += '\n\n'
 	    myfile.write(result_string)
 
