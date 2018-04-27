@@ -25,7 +25,7 @@ from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
 from container_information import *
-from filter_policy import *
+#from filter_policy import *
 from poll_cluster_state import *
 from instance_specs import *
 from mr	import MR
@@ -122,6 +122,15 @@ def finalize_mr_provision(redis_db, mr, new_alloc, wc):
     resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
 
+def is_performance_degraded(initial_perf, after_perf, optimize_for_lowest, within_x=0):
+    perf_improved = is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x)
+    perf_constant = is_performance_constant(initial_perf, after_perf, within_x)
+
+    if perf_improved is False and perf_constant is False:
+        return True
+    else:
+        return False
+
 # Assesses the relative performnace between initial_perf and after_perf
 def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x=0):
     if after_perf > initial_perf + (initial_perf * within_x) and optimize_for_lowest is False:
@@ -190,6 +199,9 @@ def check_change_mr_viability(redis_db, mr, change_proposal):
     else:
         assert change_proposal == 0
         return True, change_proposal
+
+def mean_list(target_list):
+    return sum(target_list)  / float(len(target_list))
 
 # Checks if the current system can support improvements in a particular MR
 # Improvement amount is the raw amount a resource is being improved by

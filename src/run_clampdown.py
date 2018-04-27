@@ -15,6 +15,7 @@ import signal
 from random import shuffle
 
 from time import *
+from run_throttlebot import *
 
 from consolidate_services import *
 from copy import deepcopy
@@ -39,8 +40,6 @@ import visualizer as chart_generator
 
 
 '''
-Signal Handler
-'''
 class GracefulKiller:
     redis_db = None
     
@@ -57,11 +56,6 @@ class GracefulKiller:
 
         print_csv_configuration(current_mr_config)
         exit()
-
-'''
-Initialization:
-Set Default resource allocations and initialize Redis to reflect those initial allocations
-'''
 
 # Collect real information about the cluster and write to redis
 # ALL Information (regardless of user inputs are collected in this step)
@@ -114,9 +108,6 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
         resource_datastore.write_machine_capacity(redis_db, vm_ip, resource_alloc)
         resource_datastore.write_machine_floor(redis_db, vm_ip, min_alloc)
 
-'''
-Tools that are used for experimental purposes in Throttlebot
-'''
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
     resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
@@ -562,15 +553,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
             resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
 
     return nimr_list
-
-'''
-Primary Run method that is called from the main
-system_config: Throttlebot related General parameters in a dict
-workload_config: Parameters about the workload in a dict
-default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0):
+def runClampdown(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0):
     redis_host = sys_config['redis_host']
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
@@ -697,8 +682,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 myfile.write('Step {}, no pipelines found, increasing partition size to {}\n'.format(experiment_count, new_partitions))
             continue
 
+        print pipeline_to_consider
         # Iterate through the pipelines and keep clamping down on the pipelines
         for pipeline in pipeline_to_consider:
+            print pipeline
             print 'Exploring pipeline {}'.format([mr.to_string() for mr in pipeline])
             mr_new_allocation = {}
             mr_original_allocation = {}
@@ -735,24 +722,26 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Test how this could be packed into fewer machines
         # service packing is a map of a machine -> containers running on it
         mimr_resource = known_imr_list[0].resource
-        service_packing,is_imr_aware = ffd_pack(current_mr_config, machine_type,
-                                                mimr_resource, known_imr_list)
+        ff_packing, imr_aware_packing = ffd_pack(current_mr_config, machine_type,
+                                                 mimr_resource, known_imr_list)
 
         # Append results to log file
         with open("reduction_log.txt", "a") as myfile:
             result_string = ''
             result_string += 'Round {}\n'.format(experiment_count)
-            result_string += 'Can now fit into {} bins, imr aware is {}\n'.format(len(service_packing.keys()), is_imr_aware)
-            result_string += 'The placement groups are {}\n'.format(service_packing)
+            result_string += 'FF Packing has {} bins, with placement {}\n'.format(len(ff_packing.keys()), ff_packing)
+            result_string += 'IMR aware Packing has {} bins with placement {}\n'.format(len(imr_aware_packing.keys()), imr_aware_packing)
             for mr in actions_taken:
                 result_string += 'Action Taken for {} is {}\n'.format(mr.to_string(), actions_taken[mr])
+            print 'tuned_config.csv below'
+            print 'SERVICE,RESOURCE,AMOUNT,REPR\n'
             for mr in current_mr_config:
-                result_string += '{},{}'.format(mr.to_string(), current_mr_config[mr])
+                result_string += '{},{},{},RAW'.format(mr.service_name, mr.resource, current_mr_config[mr])
             result_string += '\n\n'
 	    myfile.write(result_string)
 
     print_csv_configuration(current_mr_config)
-
+'''    
 def is_baseline_constant(mr_working_set,
                          workload_config,
                          sys_config,
@@ -905,13 +894,12 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
 
     return None
 
-'''
 Functions to parse configuration files
 Parses Throttlebot config file and the Resource Allocation Configuration File
-'''
 
+'''
 # Parses the configuration parameters for both Throttlebot and the workload that Throttlebot is running
-def parse_config_file(config_file):
+def parse_clampdown_config_file(config_file):
     sys_config = {}
     workload_config = {}
     filter_config = {}
@@ -941,7 +929,6 @@ def parse_config_file(config_file):
     all_services = get_actual_services()
     all_resources = get_stressable_resources()
 
-    
     known_imr_service = config.get('Basic', 'known_imr_service').split(',')
     known_imr_resource = config.get('Basic', 'known_imr_resource').split(',')
 
@@ -1027,6 +1014,7 @@ def parse_config_file(config_file):
     workload_config['additional_args'] = additional_args_dict
 
     return sys_config, workload_config, filter_config
+'''
 
 # Parse a default resource configuration
 # Gathers the information from directly querying the machines on the cluster
@@ -1171,7 +1159,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
         del mr_allocation[mr]
 
     return mr_allocation
-
+'''
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -1180,7 +1168,7 @@ if __name__ == "__main__":
     parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
     args = parser.parse_args()
 
-    sys_config, workload_config, filter_config = parse_config_file(args.config_file)
+    sys_config, workload_config, filter_config = parse_clampdown_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
 
     # While stress policies can further filter MRs, the first filter is applied here
@@ -1208,7 +1196,7 @@ if __name__ == "__main__":
         print workload_config
         
     experiment_start = time.time()
-    run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
+    runClampdown(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
     experiment_end = time.time()
 
     # Record the time and the number of MRs visited
