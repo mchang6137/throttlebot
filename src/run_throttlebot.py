@@ -562,6 +562,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     # Initialize time for data charts
     time_start = datetime.datetime.now()
 
+    # Ido several warmup rounds
+    experiment_results = measure_runtime(workload_config, 10)
+
     print '*' * 20
     print 'INFO: RUNNING BASELINE'
 

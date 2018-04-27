@@ -1,4 +1,5 @@
 import csv
+
 import argparse
 
 from mr import MR
@@ -99,10 +100,19 @@ def update_if_possible(mr_list,
 def first_fit_packer(mr_allocation, instance_type):
     instance_specs = get_instance_specs(instance_type)
 
+    service_containers = {'haproxy:1.7': 3,
+                          'elasticsearch:2.4': 1,
+                          'kibana:4': 4,
+                          'tsaianson/node-apt-app': 5,
+                          'mysql:5.6.32': 1,
+                          'hantaowang/logstash-postgres': 1}
+
+    '''
     service_containers = {'haproxy:1.7': 1,
                           'quilt/mongo': 2,
                           'node-app:node-todo.git': 2
                           }
+    '''
 
     service_to_mr = set_service_specs(service_containers, mr_allocation)
 
