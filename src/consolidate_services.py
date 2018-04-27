@@ -4,6 +4,7 @@ import argparse
 from mr import MR
 from instance_specs import *
 from poll_cluster_state import *
+from copy import deepcopy
 
 # Bin pack resources
 def parse_config_csv(resource_config_csv):
@@ -177,6 +178,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
 
     # IMR Aware Scheduling
     def imr_aware(sc, num_machines):
+        sc_copy = deepcopy(sc)
         if num_machines == 1:
             return None
         
@@ -207,7 +209,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
         mimr_resource = imr_list[0].resource
         service_list = resource_to_impacted_service[mimr_resource]
         for service_name in service_list:
-            num_service_containers = sc.count(service_name)
+            num_service_containers = sc_copy.count(service_name)
             mr_list = service_to_mr[service_name]
 
             # Round robin the placements
@@ -221,12 +223,12 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                 if fit_found:
                     machine_to_service[machine_index].append(service_name)
                 else:
-                    print 'something is wrong in the round robin placements'
-                    exit()
+                    print 'Error: You have selected too many IMRs for consideration!'
+                    return {}
 
         # Don't double count the services
         for service_name in service_list:
-            sc.remove(service_name)
+            sc_copy = filter(lambda a: a != service_name, sc_copy)
             
         # Reverse the order of the services packed into the machine
         new_machine_to_allocation = {}
@@ -236,9 +238,9 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
             new_machine_to_service[num_machines - machine_index - 1] = machine_to_service[machine_index]
         machine_to_allocation = new_machine_to_allocation
         machine_to_service = new_machine_to_service
-        
+
         # Then do a first fit with any remaining MR.
-        for service_name in sc:
+        for service_name in sc_copy:
             mr_list = service_to_mr[service_name]
             fit_found, machine_index = update_if_possible(mr_list,
                                                           mr_allocation,
@@ -302,17 +304,22 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
     imr_resource = imr_list[0].resource
     service_containers = sorted(service_containers,
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
-    service_containers.reverse()
-    service_placements = ff(service_containers)
-    print service_placements
+
+    first_fit_placements = ff(service_containers)
+    print 'First fit service placement is {}'.format(service_placements)
 
     # First place the services that show up as MIMRs
-    optimal_num_machines = len(service_placements.keys())
+    optimal_num_machines = len(first_fit_placements.keys())
+    imr_aware_service_placement = {}
     imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
-    if len(imr_aware_service_placement.keys()) == 0:
-        return service_placements, False
-    else:
-        return imr_aware_service_placement, True
+    while len(imr_aware_service_placement.keys()) == 0:
+        optimal_num_machines += 1
+        imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
+        if len(imr_aware_service_placement.keys()) != 0:
+            break
+
+    print 'IMR Aware Service Placement is {}'.format(imr_aware_service_placement)
+    return first_fit_placements, imr_aware_service_placement
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -321,5 +328,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     allocations = parse_config_csv(args.resource_csv)
-    imr_list = [MR('haproxy:1.7', 'CPU-QUOTA', None)]
-    ffd_pack(allocations, args.instance_type, imr_list[0].resource, imr_list)
+    
+    # Must re-select this
+    imr_list = [MR('tsaianson/node-apt-app', 'CPU-QUOTA', None), MR('haproxy:1.7', 'NET', None), MR('haproxy:1.7', 'NET', None)]
+    ffp, iap = ffd_pack(allocations, args.instance_type, imr_list[0].resource, imr_list)

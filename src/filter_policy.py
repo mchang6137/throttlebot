@@ -10,7 +10,7 @@ import random
 from mr_gradient import *
 from run_experiment import *
 from weighting_conversions import *
-from run_clampdown import *
+from run_throttlebot import *
 from mr import MR
 
 FILTER_LOGS = 'filter_logs.txt'
