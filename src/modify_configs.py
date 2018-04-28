@@ -14,6 +14,9 @@ from remote_execution import *
 
 from mr import MR
 
+spark_master_image = 'hantaowang/bcd-low-net-master'
+spark_worker_image = 'hantaowang/bcd-low-net'
+
 # Initializes the Configuration functions for a job
 # Updates the MRs that have configurations in Redis
 def init_conf_functions(workload_config, default_mr_config, redis_db):
@@ -78,8 +81,6 @@ def init_bcd_config(workload_config, default_mr_config, redis_db):
     service_to_deployment = get_service_placements(all_vm_ip)
 
     # Specify the MRs that will require joint tuning with software configurations
-    spark_master_image = 'hantaowang/bcd-spark-master'
-    spark_worker_image = 'hantaowang/bcd-spark'
 
     sparkms_core = MR(spark_master_image, 'CPU-CORE', [])
     sparkms_memory = MR(spark_master_image, 'MEMORY', [])
@@ -114,16 +115,13 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
     # HARDCODED TO THE SPEC
     DEFAULT_MEM = 1
 
-    spark_master_image = 'hantaowang/bcd-spark-master'
-    spark_worker_image = 'hantaowang/bcd-spark'
-
     # need some way of finding the correct instances.
     all_vm_ip = get_actual_vms()
     service_to_deployment = get_service_placements(all_vm_ip)
     NUM_WORKERS = len(service_to_deployment[spark_worker_image])
     instances = service_to_deployment[spark_master_image] + service_to_deployment[spark_worker_image]
 
-    if mr.service_name == 'hantaowang/bcd-spark':
+    if mr.service_name == spark_worker_image:
         if mr.resource == 'CPU-CORE':
             spark_rewrite_conf(instances, 'spark.executor.cores', int(new_mr_allocation))
             spark_rewrite_conf(instances, 'spark.cores.max', int(new_mr_allocation) * NUM_WORKERS)
@@ -132,7 +130,7 @@ def modify_bcd_config(mr, new_mr_allocation, workload_config):
             memg = str(int(memg*DEFAULT_MEM)) + "g"
             spark_rewrite_conf(instances, 'spark.executor.memory', memg)
 
-    elif mr.service_name == 'hantaowang/bcd-spark-master':
+    elif mr.service_name == spark_master_image:
         if mr.resource == 'CPU-CORE':
             mr_allocation_int = int(new_mr_allocation)
             spark_rewrite_conf(instances, 'spark.driver.cores', mr_allocation_int)
