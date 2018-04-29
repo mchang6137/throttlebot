@@ -972,6 +972,9 @@ def parse_clampdown_config_file(config_file):
     # Configuration parameters relating to the filter step
     filter_config['filter_policy'] = config.get('Filter', 'filter_policy')
     assert filter_config['filter_policy'] == 'pipeline' or filter_config['filter_policy'] == 'pipeline_clampdown' or filter_config['filter_policy'] == ''
+    if filter_config['filter_policy'] != 'pipeline_clampdown':
+        print 'Are you sure the Filter policy should not be pipeline_clampdown? Exiting..'
+        exit()
     
     if filter_config['filter_policy'] == '':
         filter_config['filter_policy'] = None
