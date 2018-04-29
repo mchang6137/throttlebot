@@ -306,7 +306,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
 
     first_fit_placements = ff(service_containers)
-    print 'First fit service placement is {}'.format(service_placements)
+    print 'First fit service placement is {}'.format(first_fit_placements)
 
     # First place the services that show up as MIMRs
     optimal_num_machines = len(first_fit_placements.keys())
