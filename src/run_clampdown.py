@@ -625,7 +625,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
     print 'INFO: RUNNING BASELINE'
 
     current_performance = measure_baseline(workload_config,
-                                           baseline_trials + 5,
+                                           baseline_trials,
                                            workload_config['include_warmup'])
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
