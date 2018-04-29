@@ -625,25 +625,21 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
     print 'INFO: RUNNING BASELINE'
 
     current_performance = measure_baseline(workload_config,
-                                           baseline_trials,
+                                           baseline_trials + 5,
                                            workload_config['include_warmup'])
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     baseline_performance = current_performance[preferred_performance_metric]
+    baseline_mean = mean_list(baseline_performance)
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
 
-    print 'Current (non-analytic) performance measured: {}'.format(current_performance)
-
-    if last_completed_iter == 0:
-        tbot_datastore.write_summary_redis(redis_db,
-                                           0,
-                                           MR('initial', 'initial', []),
-                                           0,
-                                           {},
-                                           mean_list(current_performance[preferred_performance_metric]),
-                                           mean_list(current_performance[preferred_performance_metric]),
-                                           time_delta.seconds, 0)
+    print 'The Baseline performance is {}'.format(baseline_mean)
+    with open("reduction_log.txt", "a") as myfile:
+        log_line = 'Starting a new iteration of CUTTING \n'
+        log_line += 'All measurements are {}\n'.format(baseline_performance)
+        log_line += 'Initial Performance is {}\n\n'.format(baseline_mean)
+        myfile.write(log_line)
 
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
@@ -658,6 +654,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
 
     # Modified while condition for completion
     while experiment_count < num_iterations:
+        recent_performance = -1
         print '\n\n\n\n\n'
         print 'Cutting round number {}'.format(experiment_count)
         # Get a list of MRs to stress in the form of a list of MRs
@@ -682,10 +679,9 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
                 myfile.write('Step {}, no pipelines found, increasing partition size to {}\n'.format(experiment_count, new_partitions))
             continue
 
-        print pipeline_to_consider
+        print 'Pipelines to consider are {}'.format(pipeline_to_consider)
         # Iterate through the pipelines and keep clamping down on the pipelines
         for pipeline in pipeline_to_consider:
-            print pipeline
             print 'Exploring pipeline {}'.format([mr.to_string() for mr in pipeline])
             mr_new_allocation = {}
             mr_original_allocation = {}
@@ -701,7 +697,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
             preferred_results = experiment_results[preferred_performance_metric]
             new_performance_mean = mean_list(preferred_results)
 
-            if is_performance_degraded(new_performance_mean, current_mean, optimize_for_lowest, error_tolerance):
+            if is_performance_degraded(current_mean, new_performance_mean, optimize_for_lowest, error_tolerance):
                 # Revert the changes
                 for mr in pipeline:
                     resource_modifier.set_mr_provision(mr, mr_original_allocation[mr])
@@ -713,6 +709,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
                     resource_datastore.write_mr_alloc(redis_db, mr, mr_new_allocation[mr])
                     update_machine_consumption(redis_db, mr, mr_original_allocation[mr], mr_new_allocation[mr])
                     actions_taken[mr] = mr_new_allocation[mr] - mr_original_allocation[mr]
+                recent_performance = new_performance_mean
                     
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
@@ -729,6 +726,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
         with open("reduction_log.txt", "a") as myfile:
             result_string = ''
             result_string += 'Round {}\n'.format(experiment_count)
+            result_string += 'Updated performance is {}\n'.format(recent_performance)
             result_string += 'FF Packing has {} bins, with placement {}\n'.format(len(ff_packing.keys()), ff_packing)
             result_string += 'IMR aware Packing has {} bins with placement {}\n'.format(len(imr_aware_packing.keys()), imr_aware_packing)
             for mr in actions_taken:
