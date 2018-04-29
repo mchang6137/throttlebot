@@ -208,13 +208,14 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
         # First start by round robin the MIMR and other MRs that are of the same resource
         mimr_resource = imr_list[0].resource
         service_list = resource_to_impacted_service[mimr_resource]
+        containers_seen = 0
         for service_name in service_list:
             num_service_containers = sc_copy.count(service_name)
             mr_list = service_to_mr[service_name]
 
             # Round robin the placements
             for container_index in range(num_service_containers):
-                machine_index = container_index % num_machines
+                machine_index = (containers_seen + container_index) % num_machines
                 fit_found = place_if_possible(mr_list,
                                               mr_allocation,
                                               machine_to_allocation,
@@ -222,6 +223,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                                               instance_specs)
                 if fit_found:
                     machine_to_service[machine_index].append(service_name)
+                    containers_seen += 1
                 else:
                     print 'Error: You have selected too many IMRs for consideration!'
                     return {}
