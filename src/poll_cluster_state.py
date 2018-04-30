@@ -119,6 +119,8 @@ def get_vm_to_service(vm_ips):
 
         #Assume that the container ids and the service names are ordered in the same way
         for service in service_names:
+            if service == 'osalpekar/spark-image-compressor':
+                service = 'osalpekar/spark-image-compress...'
             if service in quilt_blacklist or service in service_blacklist:
                 continue
             if vm_ip in vm_to_service:
