@@ -899,7 +899,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             print 'Net performance improvement reported as 0, so initiating a backtrack step'
             new_performance = backtrack_overstep(redis_db,
                                                  workload_config,
-                                                 experiment_count,
+                                                 experiment_trials,
                                                  current_performance,
                                                  action_taken,
                                                  error_tolerance/2.0)
@@ -1060,8 +1060,15 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
         resource_modifier.set_mr_provision(mr, median_alloc, None)
+        # HACK!!
+        if experiment_count == 0:
+            experiment_count = 5
         median_alloc_perf = measure_runtime(workload_config, experiment_count)
+        if len(median_alloc_perf[metric]) == 0:
+            return None
+        
         median_alloc_mean = mean_list(median_alloc_perf[metric])
+
 
         # If the median alloc performance is better, rewind the improvement back to this point
         if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=error_tolerance):
