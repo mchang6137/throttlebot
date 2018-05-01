@@ -25,7 +25,7 @@ from weighting_conversions import *
 from remote_execution import *
 from run_experiment import *
 from container_information import *
-#from filter_policy import *
+from filter_policy import *
 from poll_cluster_state import *
 from instance_specs import *
 from mr	import MR
@@ -228,7 +228,7 @@ def check_decrease_mr_viability(redis_db, mr, proposed_change):
 
     min_dict = {
         'CPU-CORE': 1,
-        'CPU-QUOTA': 10,
+        'CPU-QUOTA': 2,
         'DISK': 10,
         'NET':  1,
         'MEMORY': 1
@@ -239,6 +239,10 @@ def check_decrease_mr_viability(redis_db, mr, proposed_change):
             return True, proposed_change
         else:
             valid_change = -1 * (current_alloc - min_dict[resource])
+            # Hack: handle the case where the initial allocation
+            # from the tuned_config is already less than the minimal dict
+            if valid_change >= 0:
+                return False, 0
             return False, valid_change
     except KeyError:
         print 'Invalid Resource'
