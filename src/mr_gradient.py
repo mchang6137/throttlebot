@@ -65,6 +65,7 @@ def revert_analytic_baseline(redis_db, sys_config):
         
 # Prepares an all resource stress as the baseline
 def prepare_inverted_baseline(redis_db, stress_weight):
+    # Where mr is returned.
     mr_to_alloc = {}
     all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
@@ -76,6 +77,7 @@ def prepare_inverted_baseline(redis_db, stress_weight):
 # Reverts the changes in resource preparation
 # Leverages the fact that the original changes were not written to Redis
 def revert_inverted_baseline(redis_db):
+    # Where mr is returned.
     mr_to_alloc = {}
     all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
@@ -86,6 +88,7 @@ def revert_inverted_baseline(redis_db):
     
 # Only schedule a single resource
 def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
+    # Where mr is returned.
     mr_to_alloc = {}
     for mr_candidate in mr_candidates:
         current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr_candidate)
@@ -94,6 +97,7 @@ def schedule_single_gradient(redis_db, mr_candidates, stress_weight):
     return mr_to_alloc
 
 def revert_single_gradient(redis_db, mr_candidates, stress_weight):
+    # Where mr is returned.
     mr_to_alloc = {}
     for mr_candidate in mr_candidates:
         original_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr_candidate)
@@ -102,6 +106,7 @@ def revert_single_gradient(redis_db, mr_candidates, stress_weight):
         
 # Assumes the baseline stressing of other resources are already in place
 def schedule_inverted_gradient(redis_db, mr_candidates, stress_weight):
+    # Where mr is returned.
     mr_to_alloc = {}
     for mr in mr_candidates:
         # Simulate ADDING a resource by reverting it to its original, non-stressed amount
@@ -112,6 +117,7 @@ def schedule_inverted_gradient(redis_db, mr_candidates, stress_weight):
 
 # Reverts the added resource to the remaining resources
 def revert_inverted_gradient(redis_db, mr_candidates, stress_weight):
+    # Where mr is returned.
     mr_to_alloc = {}
     for mr in mr_candidates:
         original_alloc = resource_datastore.read_mr_alloc(redis_db, mr)

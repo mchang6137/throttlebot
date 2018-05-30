@@ -11,6 +11,7 @@ def ssh_exec(ssh_client, cmd):
     err = stderr.read()
     if err:
         print ("Error execing {}: {}".format(cmd, err))
+        raise SystemError('Container does not exist anymore')
 
 def close_client(ssh_client):
     ssh_client.close()

@@ -544,13 +544,19 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     nimr_list = []
     for mr in candidate_mrs:
         print 'MR being considered is {}'.format(mr.to_string())
-        mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
-                                                              sys_config,
-                                                              stress_weight)
 
-        for change_mr in mr_gradient_schedule:
-            resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
-
+        while True:
+            try:
+                mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+                                                                    sys_config,
+                                                                    stress_weight)
+                for change_mr in mr_gradient_schedule:
+                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                break
+            except SystemError as e:
+                print "There was an error raised: " + e
+                pass
+        
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
         mean_result = mean_list(preferred_results)
@@ -564,13 +570,18 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
             nimr_list.append(mr)
 
         # Revert the Gradient schedule and provision resources accordingly
-        mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                  [mr],
-                                                                  sys_config,
-                                                                  stress_weight)
-
-        for change_mr in mr_revert_gradient_schedule:
-            resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+        while True:
+            try:
+                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                        [mr],
+                                                                        sys_config,
+                                                                        stress_weight)
+                for change_mr in mr_revert_gradient_schedule:
+                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+                break
+            except SystemError as e:
+                print "There was an error raised: " + e
+                pass
 
     return nimr_list
 
@@ -687,10 +698,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     # Modified while condition for completion
     while experiment_count < num_iterations:
         # Calculate the analytic baseline that is used to determine MRs
-        analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
-        print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
-        for mr in analytic_provisions:
-            resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
+
+        while True:
+            try:
+                analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
+                print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
+                for mr in analytic_provisions:
+                    resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
+                break
+            except SystemError as e:
+                print "There was an error raised: " + e
+                pass
 
         if len(analytic_provisions) != 0:
             analytic_baseline = measure_runtime(workload_config, experiment_trials)
@@ -715,11 +733,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             print 'Current MR allocation is {}'.format(current_mr_allocation)
 
             # Calculate Gradient Schedule and provision resources accordingly
-            mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
-                                                                  sys_config,
-                                                                  stress_weight)
-            for change_mr in mr_gradient_schedule:
-                resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+            while True:
+                try:        
+                    mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+                                                                        sys_config,
+                                                                        stress_weight)
+                    for change_mr in mr_gradient_schedule:
+                        resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
+                    break
+                except SystemError as e:
+                    print "There was an error raised: " + e
+                    pass
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
 
@@ -729,12 +753,18 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                preferred_performance_metric,
                                                mean_result, mr, stress_weight)
 
-            mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                      [mr],
-                                                                      sys_config,
-                                                                      stress_weight)
-            for change_mr in mr_revert_gradient_schedule:
-                resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+            while True:
+                try:
+                    mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+                                                                            [mr],
+                                                                            sys_config,
+                                                                            stress_weight)
+                    for change_mr in mr_revert_gradient_schedule:
+                        resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
+                    break
+                except SystemError as e:
+                    print "There was an error raised: " + e
+                    pass
 
             increment_to_performance[stress_weight] = experiment_results
 
@@ -774,9 +804,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                        num_results_returned=-1)
 
         # Move back into the normal operating basis by removing the baseline prep stresses
-        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        for mr in reverted_analytic_provisions:
-            resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
+        while True:
+            try:
+                reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
+                for mr in reverted_analytic_provisions:
+                    resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
+                break
+            except SystemError as e:
+                print "There was an error raised: " + e
+                pass
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
         current_perf_mean = mean_list(current_performance[preferred_performance_metric])
