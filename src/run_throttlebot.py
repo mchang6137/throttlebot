@@ -545,16 +545,18 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     for mr in candidate_mrs:
         print 'MR being considered is {}'.format(mr.to_string())
 
-        while True:
-            try:
-                mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+        # TODO: Verify
+        mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                     sys_config,
                                                                     stress_weight)
+        while True:
+            try:
                 for change_mr in mr_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
                 break
             except SystemError as e:
-                print "There was an error raised: " + e
+                print "Possibly container id not correct " + e
+                update_mr_id(mr_gradient_schedule)
                 pass
         
         experiment_results = measure_runtime(workload_config, experiment_trials)
@@ -570,17 +572,20 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
             nimr_list.append(mr)
 
         # Revert the Gradient schedule and provision resources accordingly
-        while True:
-            try:
-                mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+        mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
                                                                         [mr],
                                                                         sys_config,
                                                                         stress_weight)
+        while True:
+            try:
                 for change_mr in mr_revert_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                 break
+
             except SystemError as e:
+                # ID is not getting correctly.
                 print "There was an error raised: " + e
+                update_mr_id
                 pass
 
     return nimr_list
@@ -686,6 +691,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
+
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
     resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
@@ -733,16 +739,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             print 'Current MR allocation is {}'.format(current_mr_allocation)
 
             # Calculate Gradient Schedule and provision resources accordingly
-            while True:
-                try:        
-                    mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
+            mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                         sys_config,
                                                                         stress_weight)
+            while True:
+                try:                    
                     for change_mr in mr_gradient_schedule:
                         resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
                     break
                 except SystemError as e:
-                    print "There was an error raised: " + e
+                    print "Possibly container id not correct: " + e
+                    update_mr_id(mr_gradient_schedule)
                     pass
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
@@ -753,17 +760,19 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                preferred_performance_metric,
                                                mean_result, mr, stress_weight)
 
-            while True:
-                try:
-                    mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
+            mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
                                                                             [mr],
                                                                             sys_config,
                                                                             stress_weight)
+            while True:
+                try:
+                    
                     for change_mr in mr_revert_gradient_schedule:
                         resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                     break
                 except SystemError as e:
-                    print "There was an error raised: " + e
+                    print "Possibly container id not correct: " + e
+                    update_mr_id(mr_revert_gradient_schedule)
                     pass
 
             increment_to_performance[stress_weight] = experiment_results
@@ -804,14 +813,15 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                        num_results_returned=-1)
 
         # Move back into the normal operating basis by removing the baseline prep stresses
+        reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
         while True:
             try:
-                reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
                 for mr in reverted_analytic_provisions:
                     resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
                 break
             except SystemError as e:
-                print "There was an error raised: " + e
+                print "Possibly container ID not correct: " + e
+                update_mr_id(reverted_analytic_provisions)
                 pass
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
@@ -1361,6 +1371,24 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
     return mr_allocation
 
+def update_mr_id(redis_db, mr_list)
+    # Get new list of working set.
+    new_mrs = resource_datastore.get_all_mrs(redis_db)
+
+    for mr_new_id in new_mrs:
+        # Get the mr in mr_list equivalent to the mr in new_mrs
+        old_id_list = [mr_old_id for mr_old_id in mr_list if mr_old_id == mr_new_id]
+
+        if len(old_id_list) == 0:
+            continue
+        elif len(old_id_list) == 1:
+            mr_to_change = old_id_list[0]
+            # Update container
+            mr_to_change.instances[1] = mr_new_id.instances[1]
+        else:
+            # Question: are mrs unique?
+            # TODO: ask michael
+            continue
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
