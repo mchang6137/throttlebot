@@ -548,15 +548,7 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                     sys_config,
                                                                     stress_weight)
-        while True:
-            try:
-                for change_mr in mr_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
-                break
-            except SystemError as e:
-                print "Container ID changed: " + e
-                update_mr_id(redis_db, change_mr)
-                pass
+        set_mr_provision_detect_id_change(mr_gradient_schedulem, workload_config)
         
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
@@ -575,15 +567,7 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                                                                         [mr],
                                                                         sys_config,
                                                                         stress_weight)
-        while True:
-            try:
-                for change_mr in mr_revert_gradient_schedule:
-                    resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
-                break
-            except SystemError as e:
-                print "Container ID changed: " + e
-                update_mr_id(redis_db, change_mr)
-                pass
+        set_mr_provision_detect_id_change(mr_revert_gradient_schedule, workload_config)
 
     return nimr_list
 
@@ -704,15 +688,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
-        while True: 
-            try:                                
-                for mr in analytic_provisions:
-                    resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
-                break
-            except SystemError as e:
-                print "Container ID changed: " + e
-                update_mr_id(redis_db, mr)
-                pass
+        set_mr_provision_detect_id_change(analytic_provisions, workload_config)
 
         if len(analytic_provisions) != 0:
             analytic_baseline = measure_runtime(workload_config, experiment_trials)
@@ -740,15 +716,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                         sys_config,
                                                                         stress_weight)
-            while True:
-                try:                    
-                    for change_mr in mr_gradient_schedule:
-                        resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
-                    break
-                except SystemError as e:
-                    print "Container ID changed: " + e
-                    update_mr_id(redis_db, change_mr)
-                    pass
+            set_mr_provision_detect_id_change(mr_gradient_schedule, workload_config)
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
 
@@ -762,15 +730,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                             [mr],
                                                                             sys_config,
                                                                             stress_weight)
-            while True:
-                try:
-                    for change_mr in mr_revert_gradient_schedule:
-                        resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
-                    break
-                except SystemError as e:
-                    print "Container ID changed: " + e
-                    update_mr_id(redis_db, change_mr)
-                    pass
+            set_mr_provision_detect_id_change(mr_revert_gradient_schedule, workload_config)
 
             increment_to_performance[stress_weight] = experiment_results
 
@@ -811,15 +771,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        while True:
-            try:
-                for mr in reverted_analytic_provisions:
-                    resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
-                break
-            except SystemError as e:
-                print "Container ID changed: " + e
-                update_mr_id(redis_db, mr)
-                pass
+        set_mr_provision_detect_id_change(reverted_analytic_provisions, workload_config)
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
         current_perf_mean = mean_list(current_performance[preferred_performance_metric])
@@ -1368,7 +1320,18 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
     return mr_allocation
 
-def update_mr_id(redis_db, mr_to_change)
+def set_mr_provision_detect_id_change(mr_list, workload_config):
+    while True:
+        try:
+            for mr in mr_list:
+                resource_modifier.set_mr_provision(mr, mr_list[mr], workload_config)
+            break
+        except SystemError as e:
+            print "Container ID changed: " + e
+            update_mr_id(redis_db, mr)
+            pass
+
+def update_mr_id(redis_db, mr_to_change):
     # Poll cluster state
     vm_list = get_actual_vms()
     services_list = get_service_placements(vm_list)
