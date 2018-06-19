@@ -545,7 +545,6 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     for mr in candidate_mrs:
         print 'MR being considered is {}'.format(mr.to_string())
 
-        # TODO: Verify
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                     sys_config,
                                                                     stress_weight)
@@ -555,8 +554,8 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                     resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
                 break
             except SystemError as e:
-                print "Possibly container id not correct " + e
-                update_mr_id(mr_gradient_schedule)
+                print "Container ID changed: " + e
+                update_mr_id(redis_db, change_mr)
                 pass
         
         experiment_results = measure_runtime(workload_config, experiment_trials)
@@ -581,11 +580,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                 for change_mr in mr_revert_gradient_schedule:
                     resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                 break
-
             except SystemError as e:
-                # ID is not getting correctly.
-                print "There was an error raised: " + e
-                update_mr_id
+                print "Container ID changed: " + e
+                update_mr_id(redis_db, change_mr)
                 pass
 
     return nimr_list
@@ -705,15 +702,16 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     while experiment_count < num_iterations:
         # Calculate the analytic baseline that is used to determine MRs
 
-        while True:
-            try:
-                analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
-                print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
+        analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
+        print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
+        while True: 
+            try:                                
                 for mr in analytic_provisions:
                     resource_modifier.set_mr_provision(mr, analytic_provisions[mr], workload_config)
                 break
             except SystemError as e:
-                print "There was an error raised: " + e
+                print "Container ID changed: " + e
+                update_mr_id(redis_db, mr)
                 pass
 
         if len(analytic_provisions) != 0:
@@ -748,8 +746,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                         resource_modifier.set_mr_provision(change_mr, mr_gradient_schedule[change_mr], workload_config)
                     break
                 except SystemError as e:
-                    print "Possibly container id not correct: " + e
-                    update_mr_id(mr_gradient_schedule)
+                    print "Container ID changed: " + e
+                    update_mr_id(redis_db, change_mr)
                     pass
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
@@ -766,13 +764,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                             stress_weight)
             while True:
                 try:
-                    
                     for change_mr in mr_revert_gradient_schedule:
                         resource_modifier.set_mr_provision(change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
                     break
                 except SystemError as e:
-                    print "Possibly container id not correct: " + e
-                    update_mr_id(mr_revert_gradient_schedule)
+                    print "Container ID changed: " + e
+                    update_mr_id(redis_db, change_mr)
                     pass
 
             increment_to_performance[stress_weight] = experiment_results
@@ -820,8 +817,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                     resource_modifier.set_mr_provision(mr, reverted_analytic_provisions[mr], workload_config)
                 break
             except SystemError as e:
-                print "Possibly container ID not correct: " + e
-                update_mr_id(reverted_analytic_provisions)
+                print "Container ID changed: " + e
+                update_mr_id(redis_db, mr)
                 pass
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
@@ -1371,20 +1368,31 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
     return mr_allocation
 
-def update_mr_id(redis_db, mr_list)
+def update_mr_id(redis_db, mr_to_change)
+    # Poll cluster state
+    vm_list = get_actual_vms()
+    services_list = get_service_placements(vm_list)
+
+    # Store new mr information in redis
+    # Similar to init_service_placement_r, but services_list is a dictionary.
+    services_seen = []
+    for mr_key in services_list:
+        mr = services_list[mr_key]
+        if mr.service_name not in services_seen:
+            tbot_datastore.write_service_locations(redis_db, mr.service_name, mr.instances)
+            services_seen.append(mr.service_name)
+        else:
+            continue
+
     # Get new list of working set.
     new_mrs = resource_datastore.get_all_mrs(redis_db)
 
     for mr_new_id in new_mrs:
         # Get the mr in mr_list equivalent to the mr in new_mrs
-        old_id_list = [mr_old_id for mr_old_id in mr_list if mr_old_id == mr_new_id]
-
-        if len(old_id_list) == 0:
-            continue
-        elif len(old_id_list) == 1:
-            mr_to_change = old_id_list[0]
-            # Update container
+        if mr_new_id == mr_to_change:
+            # Update container ID
             mr_to_change.instances[1] = mr_new_id.instances[1]
+        else:
             continue
 
 if __name__ == "__main__":
