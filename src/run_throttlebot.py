@@ -1385,9 +1385,6 @@ def update_mr_id(redis_db, mr_list)
             mr_to_change = old_id_list[0]
             # Update container
             mr_to_change.instances[1] = mr_new_id.instances[1]
-        else:
-            # Question: are mrs unique?
-            # TODO: ask michael
             continue
 
 if __name__ == "__main__":
