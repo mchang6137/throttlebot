@@ -1330,7 +1330,8 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
     while True:
         try:
             resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
-            print "No error in Container ID. Continuing..."
+            # print "No error in Container ID. Continuing..."
+            break
         except SystemError as e:
             print "SystemError caught. Container ID changed."
             print "Updating the container_id of mr: " + mr.to_string()
