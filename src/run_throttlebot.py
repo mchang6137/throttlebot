@@ -1345,7 +1345,7 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             sleep(10)
 
             attempt_count += 1
-            print "Tried {} attempts".format(attempt_count)
+            print "Tried {} reconnect attempts".format(attempt_count)
             update_mr_id(redis_db, mr)
             pass
 
@@ -1362,21 +1362,15 @@ def update_mr_id(redis_db, mr_to_change):
 
     new_instance_locations = all_service_locations[mr_to_change.service_name]
 
-    print "new_instance_locations"
-    print new_instance_locations
-
     tbot_datastore.delete_service_locations(redis_db, mr_to_change.service_name)
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
-
-    print "current_instance_locations"
-    print mr_to_change.instances
 
     if len(new_instance_locations) < len(mr_to_change.instances):
         print "Container not yet rebooted."
         return
 
     mr_to_change.instances = new_instance_locations
-    print "Container ID replaced"
+    print "Container ID replaced successfully"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
