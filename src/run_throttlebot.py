@@ -1337,15 +1337,20 @@ def set_mr_provision_detect_id_change(redis_db, mr_list, workload_config):
 def update_mr_id(redis_db, mr_to_change):
     # Poll cluster state
     vm_list = get_actual_vms()
+
+    # This is called in poll_cluster_state
+    #   Return service_name -> (vm_ip, container_id)
     services_list = get_service_placements(vm_list)
+
+    # From mr.py:
+    #    instances should be a list of tuples: (vm_ip, container_id)
 
     # Store new mr information in redis
     # Similar to init_service_placement_r, but services_list is a dictionary.
     services_seen = []
-    for mr_key in services_list:
-        mr = services_list[mr_key]
+    for mr_name in services_list:
         if mr.service_name not in services_seen:
-            tbot_datastore.write_service_locations(redis_db, mr.service_name, mr.instances)
+            tbot_datastore.write_service_locations(redis_db, mr.service_name, services_list[mr.service_name])
             services_seen.append(mr.service_name)
         else:
             continue
