@@ -546,8 +546,8 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         print 'MR being considered is {}'.format(mr.to_string())
 
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
-                                                                    sys_config,
-                                                                    stress_weight)
+                                                              sys_config,
+                                                              stress_weight)
         for change_mr in mr_gradient_schedule:
             set_mr_provision_detect_id_change(redis_db, change_mr, mr_gradient_schedule[change_mr], workload_config)
         
@@ -565,9 +565,9 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
 
         # Revert the Gradient schedule and provision resources accordingly
         mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                        [mr],
-                                                                        sys_config,
-                                                                        stress_weight)
+                                                                  [mr],
+                                                                  sys_config,
+                                                                  stress_weight)
         for change_mr in mr_revert_gradient_schedule:
             set_mr_provision_detect_id_change(redis_db, change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
 
@@ -717,8 +717,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
             # Calculate Gradient Schedule and provision resources accordingly
             mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
-                                                                        sys_config,
-                                                                        stress_weight)
+                                                                  sys_config,
+                                                                  stress_weight)
             for change_mr in mr_gradient_schedule:
                 set_mr_provision_detect_id_change(redis_db, change_mr, mr_gradient_schedule[change_mr], workload_config)
 
@@ -731,9 +731,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                mean_result, mr, stress_weight)
 
             mr_revert_gradient_schedule = revert_mr_gradient_schedule(redis_db,
-                                                                            [mr],
-                                                                            sys_config,
-                                                                            stress_weight)
+                                                                      [mr],
+                                                                      sys_config,
+                                                                      stress_weight)
             for change_mr in mr_revert_gradient_schedule:
                 set_mr_provision_detect_id_change(redis_db, change_mr, mr_revert_gradient_schedule[change_mr], workload_config)
 
