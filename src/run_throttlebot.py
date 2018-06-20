@@ -1335,7 +1335,6 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             print "SystemError caught. Container ID changed."
             print "Updating the container_id of mr: " + mr.to_string()
             update_mr_id(redis_db, mr)
-            print "Updated the mr container_id."
             pass
 
 def update_mr_id(redis_db, mr_to_change):
@@ -1346,32 +1345,26 @@ def update_mr_id(redis_db, mr_to_change):
     #   Return service_name -> (vm_ip, container_id)
     all_service_locations = get_service_placements(vm_list)
 
-    # Return list of tuples relevant for mongos
+    # Return list of tuples relevant for the current service name
     new_instance_locations = all_service_locations[mr_to_change.service_name]
-    print "new_instance_locations"
-    print new_instance_locations
+    # print "new_instance_locations"
+    # print new_instance_locations
 
-    # Write the service location of the new ip address of the mongo.
+    # Write the service location of the new ip address of the service.
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
 
     # The problem is, we don't know which IP address went down. 
     # Only way we can do this is to compare the ip address of the instances.
-    print "current_instance_locations"
-    print mr_to_change.instances
+    # print "current_instance_locations"
+    # print mr_to_change.instances
 
     # First, if the lengths are unequal, this means that the container has not rebooted.
     if len(new_instance_locations) != len(mr_to_change.instances):
-        print "Not yet rebooted"
+        print "Container not yet rebooted. Try again."
         return
     
     # Then, if the lengths are equal, we can replace the current_instance_locations with new_instance_locations.
     mr_to_change.instances = new_instance_locations
-
-    print "Replaced?"
-    print "mr_to_change.instances"
-    print mr_to_change.instances
-    # update_mr_id(redis_db, mr_to_change)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
