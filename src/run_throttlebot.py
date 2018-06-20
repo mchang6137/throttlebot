@@ -1344,6 +1344,9 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             update_mr_id(redis_db, mr)
             pass
 
+        if no_container_id_error:
+            return
+        
         attempt_count += 1
         print "Sleeping for 10 seconds before trying again"
         sleep(10)
