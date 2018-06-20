@@ -85,7 +85,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             exit()
 
         # Enact the change in resource provisioning
-        resource_modifier.set_mr_provision(mr, new_resource_provision, wc)
+        set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -117,7 +117,7 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
 Tools that are used for experimental purposes in Throttlebot
 '''
 def finalize_mr_provision(redis_db, mr, new_alloc, wc):
-    resource_modifier.set_mr_provision(mr, int(new_alloc), wc)
+    set_mr_provision_detect_id_change(redis_db, mr, int(new_alloc), wc)
     old_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
     resource_datastore.write_mr_alloc(redis_db, mr, int(new_alloc))
     update_machine_consumption(redis_db, mr, new_alloc, old_alloc)
@@ -416,21 +416,21 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
         print 'Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc)
-        resource_modifier.set_mr_provision(nimr, int(new_nimr_alloc))
+        set_mr_provision_detect_id_change(redis_db, nimr, int(new_nimr_alloc), None)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
     print 'changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc)
-    resource_modifier.set_mr_provision(imr, int(new_imr_alloc))
+    set_mr_provision_detect_id_change(redis_db, imr, int(new_imr_alloc), None)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
 def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-	resource_modifier.set_mr_provision(nimr, int(old_nimr_alloc))
+    set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), None)
 
     old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
-    resource_modifier.set_mr_provision(imr, int(old_imr_alloc))
+    set_mr_provision_detect_id_change(redis_db, imr, int(old_imr_alloc), None)
 
 # Commits the changes to Redis datastore
 def commit_mr_provision(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -548,7 +548,8 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                     sys_config,
                                                                     stress_weight)
-        set_mr_provision_detect_id_change(redis_db, mr_gradient_schedulem, workload_config)
+        for change_mr in mr_gradient_schedule:
+            set_mr_provision_detect_id_change(redis_db, change_mr, mr_gradient_schedule[mr], workload_config)
         
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
@@ -567,7 +568,8 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                                                                         [mr],
                                                                         sys_config,
                                                                         stress_weight)
-        set_mr_provision_detect_id_change(redis_db, mr_revert_gradient_schedule, workload_config)
+        for change_mr in mr_revert_gradient_schedule:
+            set_mr_provision_detect_id_change(redis_db, change_mr, mr_revert_gradient_schedule[mr], workload_config)
 
     return nimr_list
 
@@ -688,7 +690,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
         print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
-        set_mr_provision_detect_id_change(redis_db, analytic_provisions, workload_config)
+        for change_mr in analytic_provisions:
+            set_mr_provision_detect_id_change(redis_db, change_mr, analytic_provisions[mr], workload_config)
 
         if len(analytic_provisions) != 0:
             analytic_baseline = measure_runtime(workload_config, experiment_trials)
@@ -716,7 +719,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                                         sys_config,
                                                                         stress_weight)
-            set_mr_provision_detect_id_change(redis_db, mr_gradient_schedule, workload_config)
+            for change_mr in mr_gradient_schedule:
+                set_mr_provision_detect_id_change(redis_db, change_mr, mr_gradient_schedule[mr], workload_config)
 
             experiment_results = measure_runtime(workload_config, experiment_trials)
 
@@ -730,7 +734,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                             [mr],
                                                                             sys_config,
                                                                             stress_weight)
-            set_mr_provision_detect_id_change(redis_db, mr_revert_gradient_schedule, workload_config)
+            for change_mr in mr_revert_gradient_schedule:
+                set_mr_provision_detect_id_change(redis_db, change_mr, mr_revert_gradient_schedule[mr], workload_config)
 
             increment_to_performance[stress_weight] = experiment_results
 
@@ -771,7 +776,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)
-        set_mr_provision_detect_id_change(redis_db, reverted_analytic_provisions, workload_config)
+        for change_mr in reverted_analytic_provisions:
+                set_mr_provision_detect_id_change(redis_db, change_mr, reverted_analytic_provisions[mr], workload_config)
 
         # Separate into NIMRs and IMRs for the purpose of NIMR squeezing later.
         current_perf_mean = mean_list(current_performance[preferred_performance_metric])
@@ -940,7 +946,7 @@ def is_baseline_constant(mr_working_set,
     # Revert to the fixed baseline_alloc
     for mr in mr_working_set:
         baseline_alloc = resource_datastore.read_mr_alloc(redis_db, mr, "baseline_alloc")
-        resource_modifier.set_mr_provision(mr, baseline_alloc, workload_config)
+        set_mr_provision_detect_id_change(redis_db, mr, baseline_alloc, workload_config)
 
     performance = measure_baseline(workload_config, max(baseline_trials // 2, 1), False)
     performance = remove_outlier(performance[preferred_performance_metric])
@@ -948,7 +954,7 @@ def is_baseline_constant(mr_working_set,
     # Revert back to the most updated resource configuration
     for mr in mr_working_set:
         previous_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        resource_modifier.set_mr_provision(mr, previous_alloc, workload_config)
+        set_mr_provision_detect_id_change(redis_db, mr, previous_alloc, workload_config)
 
     if (abs(mean_list(performance) - mean_list(baseline_performance))
                     / mean_list(baseline_performance)) > acceptable_deviation:
@@ -1011,7 +1017,7 @@ def squeeze_nimrs(redis_db, sys_config,
                 continue
             
         new_alloc = current_nimr_alloc + valid_change_amount
-        resource_modifier.set_mr_provision(nimr, new_alloc, None)
+        set_mr_provision_detect_id_change(redis_db, nimr, new_alloc, None)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
@@ -1035,7 +1041,7 @@ def squeeze_nimrs(redis_db, sys_config,
             print 'Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                                current_nimr_alloc,
                                                                                new_alloc)
-            resource_modifier.set_mr_provision(nimr, current_nimr_alloc, None)
+            set_mr_provision_detect_id_change(redis_db, nimr, current_nimr_alloc, None)
 
     return successful_steal
 
@@ -1054,7 +1060,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
-        resource_modifier.set_mr_provision(mr, median_alloc, None)
+        set_mr_provision_detect_id_change(redis_db, mr, median_alloc, None)
         # HACK!!
         if experiment_count == 0:
             experiment_count = 5
@@ -1083,7 +1089,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             return median_alloc_perf
         else:
             # Revert to the most recent MR allocation
-            resource_modifier.set_mr_provision(mr, new_mr_alloc, None)
+            set_mr_provision_detect_id_change(redis_db, mr, new_mr_alloc, None)
 
     return None
 
@@ -1320,13 +1326,12 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
     return mr_allocation
 
-def set_mr_provision_detect_id_change(redis_db, mr_list, workload_config):
+def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
     while True:
         try:
-            for mr in mr_list:
-                resource_modifier.set_mr_provision(mr, mr_list[mr], workload_config)
-                print "No error in Container ID. Continuing..."
-            break
+            set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config)
+
+            print "No error in Container ID. Continuing..."
         except SystemError as e:
             print "SystemError caught. Container ID changed."
             print "Updating the container_id of mr: " + mr.to_string()
@@ -1343,14 +1348,14 @@ def update_mr_id(redis_db, mr_to_change):
     services_list = get_service_placements(vm_list)
 
     # From mr.py:
-    #    instances should be a list of tuples: (vm_ip, container_id)
+    #    nstances should be a list of tuples: (vm_ip, container_id)
 
     # Store new mr information in redis
     # Similar to init_service_placement_r, but services_list is a dictionary.
     services_seen = []
     for mr_name in services_list:
         if mr.service_name not in services_seen:
-            tbot_datastore.write_service_locations(redis_db, mr.service_name, services_list[mr.service_name])
+            tbot_datastore.write_service_locations(redis_db, mr.service_name, services_list)
             services_seen.append(mr.service_name)
         else:
             continue
