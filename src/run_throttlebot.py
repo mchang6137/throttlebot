@@ -1364,6 +1364,10 @@ def update_mr_id(redis_db, mr_to_change):
         else:
             continue
 
+    print "The container has not rebooted yet. Run update_mr_id again until the container has rebooted."
+    update_mr_id(redis_db, mr_to_change)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
