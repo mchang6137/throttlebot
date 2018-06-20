@@ -1356,21 +1356,20 @@ def update_mr_id(redis_db, mr_to_change):
 
     # The problem is, we don't know which IP address went down. 
     # Only way we can do this is to compare the ip address of the instances.
-    current_instance_locations = mr_to_change.instances
     print "current_instance_locations"
-    print current_instance_locations
+    print mr_to_change.instances
 
     # First, if the lengths are unequal, this means that the container has not rebooted.
-    if len(new_instance_locations) != len(current_instance_locations):
+    if len(new_instance_locations) != len(mr_to_change.instances):
         print "Not yet rebooted"
         return
     
     # Then, if the lengths are equal, we can replace the current_instance_locations with new_instance_locations.
-    current_instance_locations = new_instance_locations
+    mr_to_change.instances = new_instance_locations
 
     print "Replaced?"
-    print "current_instance_locations"
-    print current_instance_locations
+    print "mr_to_change.instances"
+    print mr_to_change.instances
     # update_mr_id(redis_db, mr_to_change)
 
 
