@@ -1348,9 +1348,16 @@ def update_mr_id(redis_db, mr_to_change):
 
     # Return list of tuples relevant for mongos
     new_service_locations = all_service_locations[mr_to_change.service_name]
+    print "new_service_locations"
+    print new_service_locations
 
     # Write the service location of the new ip address of the mongo.
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
+
+    # The problem is, we don't know which IP address went down. 
+    # Only way we can do this is to compare the ip address of the instances. 
+    print "mr_to_change"
+    print mr_to_change
 
     # Get the ip address of the mr_to_change.
     service_ip = mr_to_change.instances[0]
