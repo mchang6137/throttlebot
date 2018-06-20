@@ -1369,6 +1369,8 @@ def update_mr_id(redis_db, mr_to_change):
     current_instance_locations = new_instance_locations
 
     print "Replaced?"
+    print "current_instance_locations"
+    print current_instance_locations
     # update_mr_id(redis_db, mr_to_change)
 
 
