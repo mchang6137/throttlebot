@@ -1325,6 +1325,7 @@ def set_mr_provision_detect_id_change(mr_list, workload_config):
         try:
             for mr in mr_list:
                 resource_modifier.set_mr_provision(mr, mr_list[mr], workload_config)
+                print "No error in Container ID. Continuing..."
             break
         except SystemError as e:
             print "Container ID changed: " + e
