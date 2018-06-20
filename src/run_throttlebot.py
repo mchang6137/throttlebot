@@ -1362,7 +1362,7 @@ def update_mr_id(redis_db, mr_to_change):
     print services_seen
 
     # Get new list of working set.
-    new_mrs = resource_datastore.get_all_mrs(redis_db)
+    new_mrs = tbot_datastore.read_service_locations(redis_db, mr_to_change.service_name)
     print "New mrs: "
     print new_mrs
 
