@@ -1365,6 +1365,7 @@ def update_mr_id(redis_db, mr_to_change):
     
     # Then, if the lengths are equal, we can replace the current_instance_locations with new_instance_locations.
     mr_to_change.instances = new_instance_locations
+    print "Container ID replaced"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
