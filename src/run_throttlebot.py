@@ -1329,8 +1329,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
     while True:
         try:
-            set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config)
-
+            resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
             print "No error in Container ID. Continuing..."
         except SystemError as e:
             print "SystemError caught. Container ID changed."
