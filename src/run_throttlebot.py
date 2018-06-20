@@ -1331,7 +1331,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 ### If there is a container ID error, a SystemERror is caught.
 def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
     no_container_id_error = False
-    max_attempts = 1
+    max_attempts = 10
     attempt_count = 0
 
     while (attempt_count < max_attempts) and (not no_container_id_error):
