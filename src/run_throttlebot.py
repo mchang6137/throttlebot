@@ -1358,11 +1358,13 @@ def update_mr_id(redis_db, mr_to_change):
             services_seen.append(mr_name)
         else:
             continue
-    print "Services seen: " + services_seen
+    print "Services seen: "
+    print services_seen
 
     # Get new list of working set.
     new_mrs = resource_datastore.get_all_mrs(redis_db)
-    print "New mrs: " + new_mrs
+    print "New mrs: "
+    print new_mrs
 
     for mr_new_id in new_mrs:
         # Get the mr in mr_list equivalent to the mr in new_mrs
