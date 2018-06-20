@@ -1349,8 +1349,6 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             update_mr_id(redis_db, mr)
             pass
 
-        if no_container_id_error:
-            return
     if attempt_count == max_attempts:
         print "ERROR: Tried the maximum number of attempts to reconnect to container. Exiting...".format(attempt_count)
         exit()
