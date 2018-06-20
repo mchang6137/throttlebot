@@ -1329,7 +1329,9 @@ def set_mr_provision_detect_id_change(mr_list, workload_config):
             break
         except SystemError as e:
             print "Container ID changed: " + e
+            print "Updating the container_id of mr: " + mr
             update_mr_id(redis_db, mr)
+            print "Updated the mr container_id."
             pass
 
 def update_mr_id(redis_db, mr_to_change):
@@ -1355,7 +1357,10 @@ def update_mr_id(redis_db, mr_to_change):
         # Get the mr in mr_list equivalent to the mr in new_mrs
         if mr_new_id == mr_to_change:
             # Update container ID
+            print "Old mr container_id: " + mr_to_change.instances[1]
             mr_to_change.instances[1] = mr_new_id.instances[1]
+            print "New mr container_id: " + mr_to_change.instances[1]
+            return
         else:
             continue
 
