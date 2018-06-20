@@ -1348,16 +1348,16 @@ def update_mr_id(redis_db, mr_to_change):
 
     # Return list of tuples relevant for the current service name
     new_instance_locations = all_service_locations[mr_to_change.service_name]
-    # print "new_instance_locations"
-    # print new_instance_locations
+    print "new_instance_locations"
+    print new_instance_locations
 
     # Write the service location of the new ip address of the service.
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
 
     # The problem is, we don't know which IP address went down. 
     # Only way we can do this is to compare the ip address of the instances.
-    # print "current_instance_locations"
-    # print mr_to_change.instances
+    print "current_instance_locations"
+    print mr_to_change.instances
 
     # First, if the lengths are unequal, this means that the container has not rebooted.
     if len(new_instance_locations) != len(mr_to_change.instances):
