@@ -1347,7 +1347,7 @@ def update_mr_id(redis_db, mr_to_change):
     all_service_locations = get_service_placements(vm_list)
 
     # Return list of tuples relevant for the current service name
-    print all_service_locations
+    # print all_service_locations
     new_instance_locations = all_service_locations[mr_to_change.service_name]
     print "new_instance_locations"
     print new_instance_locations
