@@ -1357,7 +1357,7 @@ def update_mr_id(redis_db, mr_to_change):
     # The problem is, we don't know which IP address went down. 
     # Only way we can do this is to compare the ip address of the instances. 
     print "mr_to_change"
-    print mr_to_change
+    print mr_to_change.instances
 
     # Get the ip address of the mr_to_change.
     service_ip = mr_to_change.instances[0]
