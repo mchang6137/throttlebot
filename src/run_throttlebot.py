@@ -1369,7 +1369,7 @@ def update_mr_id(redis_db, mr_to_change):
         print "Old mr container_id: " + mr_to_change.instances[1]
         mr_to_change.instances[1] = new_location[1]
         print "New mr container_id: " + mr_to_change.instances[1]
-    else if len(new_location) > 1:
+    elif len(new_location) > 1:
         print "WARNING: There are two services on the same IP! Shouldn't happen."
     
     print "The container has not rebooted yet. Run update_mr_id again until the container has rebooted."
