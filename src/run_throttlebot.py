@@ -1331,7 +1331,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 ### If there is a container ID error, a SystemERror is caught.
 def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
     no_container_id_error = False
-    max_attempts = 15
+    max_attempts = 10
     attempt_count = 0
 
     while (attempt_count < max_attempts) and (not no_container_id_error):
@@ -1340,17 +1340,17 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             no_container_id_error = True
         except SystemError as e:
             print "Updating the container_id of mr: " + mr.to_string()
+
+            print "Sleeping for 10 seconds to wait for reboot..."
+            sleep(10)
+
+            attempt_count += 1
             print "Tried {} attempts".format(attempt_count)
             update_mr_id(redis_db, mr)
             pass
 
         if no_container_id_error:
             return
-        
-        attempt_count += 1
-        print "Sleeping for 10 seconds before trying again"
-        sleep(10)
-    
     if attempt_count == max_attempts:
         print "ERROR: Tried the maximum number of attempts to reconnect to container. Exiting...".format(attempt_count)
         exit()
