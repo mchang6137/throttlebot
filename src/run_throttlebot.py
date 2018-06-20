@@ -1329,7 +1329,7 @@ def set_mr_provision_detect_id_change(mr_list, workload_config):
             break
         except SystemError as e:
             print "SystemError caught. Container ID changed."
-            print "Updating the container_id of mr: " + mr
+            print "Updating the container_id of mr: " + mr.to_string()
             update_mr_id(redis_db, mr)
             print "Updated the mr container_id."
             pass
