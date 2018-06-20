@@ -10,11 +10,10 @@ def ssh_exec(ssh_client, cmd, contains_container_id=False, return_error=False):
     _,stdout,stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
-        print "Command contains container_id: {}".format(contains_container_id)
         print ("Error execing {}: {}".format(cmd, err))
-        # Bug: only error upon container change error.
+
         if contains_container_id:
-            raise SystemError('Container ID error for mr')
+            raise SystemError('Error caused by container ID')
     
     if return_error:
         return _,stdout,stderr
