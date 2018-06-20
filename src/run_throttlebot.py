@@ -1334,7 +1334,7 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
     max_attempts = 15
     attempt_count = 0
 
-    while attempt_count < max_attempts and !no_container_id_error:
+    while (attempt_count < max_attempts) and (not no_container_id_error):
         try:
             resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
             no_container_id_error = True
