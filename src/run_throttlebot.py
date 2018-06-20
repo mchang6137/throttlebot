@@ -1341,7 +1341,7 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
         except SystemError as e:
             print "Updating the container_id of mr: " + mr.to_string()
 
-            print "Sleeping for 10 seconds to wait for reboot..."
+            print "Sleeping for 10 seconds to wait for container reboot..."
             sleep(10)
 
             attempt_count += 1
