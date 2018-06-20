@@ -187,5 +187,5 @@ def read_service_locations(redis_db, service):
 def delete_service_locations(redis_db, service):
     service_ip_key = '{}_ip'.format(service)
     service_docker_key = '{}_id'.format(service)
-    redis.delete(service_ip_key)
-    redis.delete(service_docker_key)
+    redis_db.delete(service_ip_key)
+    redis_db.delete(service_docker_key)
