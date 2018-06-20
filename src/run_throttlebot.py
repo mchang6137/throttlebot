@@ -1347,42 +1347,28 @@ def update_mr_id(redis_db, mr_to_change):
     all_service_locations = get_service_placements(vm_list)
 
     # Return list of tuples relevant for mongos
-    new_service_locations = all_service_locations[mr_to_change.service_name]
-    print "new_service_locations"
-    print new_service_locations
+    new_instance_locations = all_service_locations[mr_to_change.service_name]
+    print "new_instance_locations"
+    print new_instance_locations
 
     # Write the service location of the new ip address of the mongo.
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
 
     # The problem is, we don't know which IP address went down. 
-    # Only way we can do this is to compare the ip address of the instances. 
-    print "mr_to_change"
-    print mr_to_change.instances
+    # Only way we can do this is to compare the ip address of the instances.
+    current_instance_locations = mr_to_change.instances
+    print "current_instance_locations"
+    print current_instance_locations
 
-    # Get the ip address of the mr_to_change.
-    service_ip = mr_to_change.instances[0]
-    print "Bad ip is: " + service_ip
-
-    # Returns all of the mongos, in terms of the instance tuple, , identified by ip address.
-    print "New mr locations: "
-    print new_service_locations
-
-    # After getting ip address, match the tuple with the correct vm_ip address
-    new_location = [p for p in new_service_locations if p[0] == service_ip]
-
-    print "New location length should be 1. Actual length: " + new_location
-
-    if len(new_location) == 1:
-        # mr.instances is a list of tuples. Change the tuple with the service_ip to the correct container.
-        for service_tuple in mr.instances:
-            if service_tuple[0] == service_ip:
-                print "Old location: " + service_tuple[1]
-                service_tuple[1] = new_location[1]
-                print "New location: " + service_tuple[1]
-    elif len(new_location) > 1:
-        print "WARNING: There are two services on the same IP! Shouldn't happen."
+    # First, if the lengths are unequal, this means that the container has not rebooted.
+    if len(new_instance_locations) != len(current_instance_locations):
+        print "Not yet rebooted"
+        return
     
-    print "The container has not rebooted yet. Run update_mr_id again until the container has rebooted."
+    # Then, if the lengths are equal, we can replace the current_instance_locations with new_instance_locations.
+    current_instance_locations = new_instance_locations
+
+    print "Replaced?"
     # update_mr_id(redis_db, mr_to_change)
 
 
