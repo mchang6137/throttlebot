@@ -1353,9 +1353,9 @@ def update_mr_id(redis_db, mr_to_change):
     # Similar to init_service_placement_r, but services_list is a dictionary.
     services_seen = []
     for mr_name in services_list:
-        if mr.service_name not in services_seen:
-            tbot_datastore.write_service_locations(redis_db, mr.service_name, services_list)
-            services_seen.append(mr.service_name)
+        if mr_name not in services_seen:
+            tbot_datastore.write_service_locations(redis_db, mr_name, services_list[mr_name])
+            services_seen.append(mr_name)
         else:
             continue
 
