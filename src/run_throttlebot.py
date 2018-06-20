@@ -1350,7 +1350,7 @@ def update_mr_id(redis_db, mr_to_change):
     new_service_locations = all_service_locations[mr_to_change.service_name]
 
     # Write the service location of the new ip address of the mongo.
-    tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_name])
+    tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
 
     # Get the ip address of the mr_to_change.
     service_ip = mr_to_change.instances[0]
