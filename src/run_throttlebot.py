@@ -1326,49 +1326,54 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
     return mr_allocation
 
+### Wrapper function for resource_modifier.set_mr_provision that detects a change in Container ID.
+### Tries for ten attempts for ten seconds each
+### If there is a container ID error, a SystemERror is caught.
 def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
-    while True:
+    no_container_id_error = False
+    max_attempts = 15
+    attempt_count = 0
+
+    while attempt_count < max_attempts and !no_container_id_error:
         try:
             resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
-            # print "No error in Container ID. Continuing..."
-            break
+            no_container_id_error = True
         except SystemError as e:
-            print "SystemError caught. Container ID changed."
             print "Updating the container_id of mr: " + mr.to_string()
+            print "Tried {} attempts".format(attempt_count)
             update_mr_id(redis_db, mr)
             pass
 
-def update_mr_id(redis_db, mr_to_change):
-    # Poll cluster state
-    vm_list = get_actual_vms()
+        attempt_count += 1
+        print "Sleeping for 10 seconds before trying again"
+        sleep(10)
+    
+    if attempt_count == max_attempts:
+        print "Tried the maximum number of attempts to reconnect to container. Exiting...".format(attempt_count)
+        exit()
 
-    # This is implemented in poll_cluster_state
-    #   Return service_name -> (vm_ip, container_id)
+### Updates the container_id of mr.
+### Finds the new list of instance locations from poll_cluster_state
+### Then replace the current instance locations with the new locations
+def update_mr_id(redis_db, mr_to_change):
+    vm_list = get_actual_vms()
     all_service_locations = get_service_placements(vm_list)
 
-    # Return list of tuples relevant for the current service name
-    # print all_service_locations
     new_instance_locations = all_service_locations[mr_to_change.service_name]
+
     print "new_instance_locations"
     print new_instance_locations
 
-    # Remove existing list from datastore.
     tbot_datastore.delete_service_locations(redis_db, mr_to_change.service_name)
-
-    # Write the service location of the new ip address of the service.
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
 
-    # The problem is, we don't know which IP address went down. 
-    # Only way we can do this is to compare the ip address of the instances.
     print "current_instance_locations"
     print mr_to_change.instances
 
-    # First, if the lengths are unequal, this means that the container has not rebooted.
-    if len(new_instance_locations) != len(mr_to_change.instances):
-        print "Container not yet rebooted. Try again."
+    if len(new_instance_locations) < len(mr_to_change.instances):
+        print "Container not yet rebooted."
         return
-    
-    # Then, if the lengths are equal, we can replace the current_instance_locations with new_instance_locations.
+
     mr_to_change.instances = new_instance_locations
     print "Container ID replaced"
 
