@@ -1342,41 +1342,36 @@ def update_mr_id(redis_db, mr_to_change):
     # Poll cluster state
     vm_list = get_actual_vms()
 
-    # This is called in poll_cluster_state
+    # This is implemented in poll_cluster_state
     #   Return service_name -> (vm_ip, container_id)
-    services_list = get_service_placements(vm_list)
+    all_service_locations = get_service_placements(vm_list)
 
-    # From mr.py:
-    #    nstances should be a list of tuples: (vm_ip, container_id)
+    # Return list of tuples relevant for mongos
+    new_locations = services_name_dictionary[mr_to_change.service_name]
 
-    # Store new mr information in redis
-    # Similar to init_service_placement_r, but services_list is a dictionary.
-    services_seen = []
-    for mr_name in services_list:
-        if mr_name not in services_seen:
-            tbot_datastore.write_service_locations(redis_db, mr_name, services_list[mr_name])
-            services_seen.append(mr_name)
-        else:
-            continue
-    print "Services seen: "
-    print services_seen
+    # Write the service location of the new ip address of the mongo.
+    tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_name])
 
-    # Get new list of working set.
-    new_mrs = tbot_datastore.read_service_locations(redis_db, mr_to_change.service_name)
-    print "New mrs: "
-    print new_mrs
+    # Get the ip address of the mr_to_change.
+    service_ip = mr_to_change.instances[0]
 
-    for mr_new_id in new_mrs:
-        # Get the mr in mr_list equivalent to the mr in new_mrs
-        if mr_new_id == mr_to_change:
-            # Update container ID
-            print "Old mr container_id: " + mr_to_change.instances[1]
-            mr_to_change.instances[1] = mr_new_id.instances[1]
-            print "New mr container_id: " + mr_to_change.instances[1]
-            return
-        else:
-            continue
+    # Returns all of the mongos, in terms of the instance tuple, , identified by ip address.
+    print "New mr locations: "
+    print new_locations
 
+    # After getting ip address, match the tuple with the correct vm_ip address
+    new_location = [p for p in new_locations if p[0] == service_ip]
+
+    print "New location length should be 1. Actual length: " + new_location
+
+    if len(new_location) == 1:
+        # Update container ID
+        print "Old mr container_id: " + mr_to_change.instances[1]
+        mr_to_change.instances[1] = new_location[1]
+        print "New mr container_id: " + mr_to_change.instances[1]
+    else if len(new_location) > 1:
+        print "WARNING: There are two services on the same IP! Shouldn't happen."
+    
     print "The container has not rebooted yet. Run update_mr_id again until the container has rebooted."
     # update_mr_id(redis_db, mr_to_change)
 
