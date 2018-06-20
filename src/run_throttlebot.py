@@ -1358,9 +1358,11 @@ def update_mr_id(redis_db, mr_to_change):
             services_seen.append(mr_name)
         else:
             continue
+    print "Services seen: " + services_seen
 
     # Get new list of working set.
     new_mrs = resource_datastore.get_all_mrs(redis_db)
+    print "New mrs: " + new_mrs
 
     for mr_new_id in new_mrs:
         # Get the mr in mr_list equivalent to the mr in new_mrs
@@ -1374,7 +1376,7 @@ def update_mr_id(redis_db, mr_to_change):
             continue
 
     print "The container has not rebooted yet. Run update_mr_id again until the container has rebooted."
-    update_mr_id(redis_db, mr_to_change)
+    # update_mr_id(redis_db, mr_to_change)
 
 
 if __name__ == "__main__":
