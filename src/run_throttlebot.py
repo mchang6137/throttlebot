@@ -550,7 +550,7 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
                                                               stress_weight)
         for change_mr in mr_gradient_schedule:
             set_mr_provision_detect_id_change(redis_db, change_mr, mr_gradient_schedule[change_mr], workload_config)
-        
+
         experiment_results = measure_runtime(workload_config, experiment_trials)
         preferred_results = experiment_results[preferred_performance_metric]
         mean_result = mean_list(preferred_results)
@@ -1328,7 +1328,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
 
 ### Wrapper function for resource_modifier.set_mr_provision that detects a change in Container ID.
 ### Tries for ten attempts for ten seconds each
-### If there is a container ID error, a SystemERror is caught.
+### If there is a container ID error, a SystemError is caught.
 def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_config):
     no_container_id_error = False
     max_attempts = 10
