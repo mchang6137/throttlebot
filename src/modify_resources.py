@@ -161,7 +161,7 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
     throttled_containers = []
     
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
-    ssh_exec(ssh_client, update_command)
+    ssh_exec(ssh_client, update_command, modifies_container=True)
     throttled_containers.append(container_id)
 
     return throttled_containers
@@ -169,7 +169,7 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
 def reset_cpu_quota(ssh_client, container_id):
     # Reset only seems to work when both period and quota are high (and equal of course)
     update_command = 'docker update --cpu-quota=-1 {}'.format(container_id)
-    ssh_exec(ssh_client, update_command)
+    ssh_exec(ssh_client, update_command, modifies_container=True)
 
 
 # Pins the selected cores to the container (will reset any CPU quotas)
@@ -178,7 +178,7 @@ def set_cpu_cores(ssh_client, container_id, cores):
     cores = int(round(cores)) - 1
     core_cmd = '0-{}'.format(cores)
     set_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
-    ssh_exec(ssh_client, set_cores_cmd)
+    ssh_exec(ssh_client, set_cores_cmd, modifies_container=True)
     print '{} Cores pinned to container {}'.format(core_cmd, container_id)
 
 
@@ -187,7 +187,7 @@ def reset_cpu_cores(ssh_client, container_id):
     cores = get_num_cores(ssh_client) - 1
     core_cmd = '0-{}'.format(cores)
     rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
-    ssh_exec(ssh_client, rst_cores_cmd)
+    ssh_exec(ssh_client, rst_cores_cmd, modifies_container=True)
     print 'Reset container {}\'s core restraints'.format(container_id)
 
 '''Stressing the Disk Read/write throughput'''
@@ -201,8 +201,8 @@ def set_container_blkio(ssh_client, container_id, disk_bandwidth):
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(disk_bandwidth, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(disk_bandwidth, container_id)
 
-    ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
-    ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
+    ssh_exec(ssh_client, set_cgroup_write_rate_cmd, modifies_container=True)
+    ssh_exec(ssh_client, set_cgroup_read_rate_cmd, modifies_container=True)
 
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
@@ -214,8 +214,8 @@ def reset_container_blkio(ssh_client, container_id):
     set_cgroup_write_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.write_bps_device'.format(0, container_id)
     set_cgroup_read_rate_cmd = 'echo "202:0 {}" | sudo tee /sys/fs/cgroup/blkio/docker/{}*/blkio.throttle.read_bps_device'.format(0, container_id)
 
-    ssh_exec(ssh_client, set_cgroup_write_rate_cmd)
-    ssh_exec(ssh_client, set_cgroup_read_rate_cmd)
+    ssh_exec(ssh_client, set_cgroup_write_rate_cmd, modifies_container=True)
+    ssh_exec(ssh_client, set_cgroup_read_rate_cmd, modifies_container=True)
     
     # Sleep 1 seconds since the current queue must be emptied before this can be fulfilled
     sleep(1)
@@ -238,11 +238,11 @@ def set_memory_size(ssh_client, container_id, memory_alloc):
                                                                                  swap_str,
                                                                                  container_id)
         
-    ssh_exec(ssh_client, set_memory_command)
+    ssh_exec(ssh_client, set_memory_command, modifies_container=True)
 
 def reset_memory_size(ssh_client, container_id):
     reset_memory_command = 'docker update --memory=0 {}'.format(container_id)
-    ssh_exec(ssh_client, reset_memory_command)
+    ssh_exec(ssh_client, reset_memory_command, modifies_container=True)
 
 '''Helper functions that are used for various reasons'''
 

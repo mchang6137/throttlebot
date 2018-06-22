@@ -6,11 +6,17 @@ def get_client(ip):
     client.connect(ip, username="quilt", password="")
     return client
 
-def ssh_exec(ssh_client, cmd):
-    _, _, stderr = ssh_client.exec_command(cmd)
+def ssh_exec(ssh_client, cmd, modifies_container=False, return_error=False):
+    _,stdout,stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
         print ("Error execing {}: {}".format(cmd, err))
+
+        if modifies_container:
+            raise SystemError('Error caused by container ID')
+    
+    if return_error:
+        return _,stdout,stderr
 
 def close_client(ssh_client):
     ssh_client.close()

@@ -183,3 +183,9 @@ def read_service_locations(redis_db, service):
     docker_list = redis_db.lrange(service_docker_key, 0, -1)
 
     return zip(ip_list, docker_list)
+
+def delete_service_locations(redis_db, service):
+    service_ip_key = '{}_ip'.format(service)
+    service_docker_key = '{}_id'.format(service)
+    redis_db.delete(service_ip_key)
+    redis_db.delete(service_docker_key)
