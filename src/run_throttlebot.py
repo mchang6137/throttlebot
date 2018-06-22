@@ -1363,14 +1363,13 @@ def update_mr_id(redis_db, mr_to_change):
     new_instance_locations = all_service_locations[mr_to_change.service_name]
 
     tbot_datastore.delete_service_locations(redis_db, mr_to_change.service_name)
-    tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, all_service_locations[mr_to_change.service_name])
+    tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, new_instance_locations)
 
     if len(new_instance_locations) < len(mr_to_change.instances):
         print "Container not yet rebooted."
-        return
-
-    mr_to_change.instances = new_instance_locations
-    print "Container ID replaced successfully"
+    else
+        mr_to_change.instances = new_instance_locations
+        print "Container ID replaced successfully"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
