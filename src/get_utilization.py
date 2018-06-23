@@ -13,7 +13,5 @@ def get_current_memory_utilization(ssh_client, container_id):
     memory_utilization_float = float("".join(memory_utilization_string.split()))
 
     print "Recovering the memory utilization"
-    print memory_utilization_float
 
     return memory_utilization_float
-    
