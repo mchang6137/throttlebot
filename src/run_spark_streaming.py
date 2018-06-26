@@ -2,13 +2,15 @@ from remote_execution import *
 from poll_cluster_state import *
 import time
 
+import logging
+
 # Run the Spark Streaming Example
 def measure_spark_streaming(workload_configurations, experiment_iterations):
     EVENTS_PER_SECOND = 3500
     EVENTS_PER_CONTAINER = 60000
     
     all_vm_ip = get_actual_vms()
-    print 'Collecting information about service/deployment'
+    logging.info('Collecting information about service/deployment')
     service_to_deployment = get_service_placements(all_vm_ip)
 
     generator_instances = service_to_deployment['mchang6137/spark_streaming']
@@ -54,7 +56,7 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
     trial_count = 0
     while trial_count < experiment_iterations:
         run_kafka_events(generator_instances, EVENTS_PER_SECOND, EVENTS_PER_CONTAINER)
-        print 'Attempting to collect results\n'
+        logging.info('Attempting to collect results\n')
         results = collect_results(generator_instances, redis_instances, EVENTS_PER_CONTAINER)
         if results is None:
             stop_spark_job(spark_master_instances)
@@ -75,15 +77,15 @@ def measure_spark_streaming(workload_configurations, experiment_iterations):
         flush_redis(redis_instances)
         trial_count += 1
 
-    print 'Results from this experiment are {}'.format(all_requests)
+    logging.info('Results from this experiment are {}'.format(all_requests))
     stop_spark_job(spark_master_instances)
-    print 'Stopped Spark'
+    logging.info('Stopped Spark')
     delete_spark_logs(spark_master_instances, spark_worker_instances)
 
     return all_requests
 
 def start_spark_job(spark_master_instances):
-    print 'Starting Spark job\n'
+    logging.info('Starting Spark job\n')
     vm_ip,container_id = spark_master_instances[0]
     start_spark_cmd = 'bash -c "spark-submit --executor-memory 2g --class de.codecentric.spark.streaming.example.spark-submit --class de.codecentric.spark.streaming.example.YahooStreamingBenchmark --master spark://spark-ms2.q:7077 --conf spark.executor.extraClassPath=/spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar --deploy-mode client spark-streaming-example/target/spark-streaming-example-assembly-2f7c377ab4c00e30255ebf55e24102031122f358-SNAPSHOT.jar kafka_broker0.q:9092 ad-events redis-ms.q 1000"'
     ssh_client = get_client(vm_ip)
@@ -92,7 +94,7 @@ def start_spark_job(spark_master_instances):
     ssh_client.close()
 
 def stop_spark_job(spark_master_instances):
-    print 'Stopping Spark job\n'
+    logging.info('Stopping Spark job\n')
     vm_ip,container_id = spark_master_instances[0]
     
     stop_spark_cmd = "ps -ef | grep java | grep YahooStreamingBenchmark | awk '{print \$2}' | xargs kill -SIGTERM"
@@ -155,14 +157,14 @@ def collect_results(instances, redis_instances, events_per_container):
 
     # Only need to collect results from one instance
     send_events_ip,send_events_container = instances[0]
-    print 'DEBUG: Collecting results from {}'.format(send_events_container)
+    logging.debug('Collecting results from {}'.format(send_events_container))
     ssh_client = get_client(send_events_ip)
     results = {}
 
     attempts_required = 10
 
     for attempt in range(attempts_required):
-        print 'Attempt number {}\n'.format(attempt)
+        logging.info('Attempt number {}\n'.format(attempt))
         # Clean the results of the file from the old experiment
         clean_files(instances)
         
@@ -181,12 +183,12 @@ def collect_results(instances, redis_instances, events_per_container):
         data = data_exec.read()
 
         clean_files(instances)
-        print 'INFO: Collected results are {}\n'.format(repr(data))
+        logging.info('Collected results are {}\n'.format(repr(data)))
         latency_50,latency_75,latency_95,latency_99,latency_100,std,total_results,_ = data.split('\n')
         results_seen = float(total_results.split(': ')[1])
 
         if results_seen != total_num_events:
-            print 'Events seen: {}, Expected Events: {}\n'.format(results_seen, total_num_events)
+            logging.info('Events seen: {}, Expected Events: {}\n'.format(results_seen, total_num_events))
             # Sleep for 15 seconds and wait for future results
             time.sleep(15)
             continue
@@ -198,11 +200,11 @@ def collect_results(instances, redis_instances, events_per_container):
             results['latency_100'] = float(latency_100.split(': ')[1])
             results['window_latency_std'] = float(std.split(': ')[1])
             results['total_results'] = results_seen
-            print 'All results received. Results are as follows: {}\n'.format(results)
+            logging.info('All results received. Results are as follows: {}\n'.format(results))
             return results
         
-    print "Error: Something bad happened, so we need to flush out all the old messages"
-    print "This will cause skew, so let's try a few things!"
+    logging.warning("Error: Something bad happened, so we need to flush out all the old messages")
+    logging.info("This will cause skew, so let's try a few things!")
     flush_redis(redis_instances)
     
     # This presumably caused some something to crash so let's set this arbitrarily high

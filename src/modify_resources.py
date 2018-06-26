@@ -13,6 +13,7 @@ from measure_utilization import *
 from container_information import *
 from get_utilization import *
 
+import logging
 
 quilt_machines = ("quilt", "ps")
 
@@ -41,13 +42,13 @@ def spark_rewrite_conf(vm_ip, search, replace):
         correct.append(results.channel.recv_exit_status() == 0)
         _ = results.channel.recv_exit_status()
         close_client(ssh_client)
-    print "Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct))
+    logging.info("Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct)))
 
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc=None):
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
-        print 'STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation)
+        logging.info('STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation))
         if mr.resource == 'CPU-CORE':
             set_cpu_cores(ssh_client, container_id, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
@@ -60,7 +61,7 @@ def set_mr_provision(mr, new_mr_allocation, wc=None):
         elif mr.resource == 'MEMORY':
             set_memory_size(ssh_client, container_id, new_mr_allocation)
         else:
-            print 'INVALID resource'
+            logging.error('INVALID resource')
         close_client(ssh_client)
 
 # Set the resource allocation for multiple MRs
@@ -73,7 +74,7 @@ def set_multiple_mr_provision(mr_to_allocation):
 def reset_mr_provision(mr, wc):
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
-        print 'RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id)
+        logging.info('RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id))
         if mr.resource == 'CPU-CORE':
             #set_cpu_cores(ssh_client, container_id, new_mr_allocation)
             reset_cpu_cores(ssh_client, container_id)
@@ -86,7 +87,7 @@ def reset_mr_provision(mr, wc):
         elif mr.resource == 'NET':
             reset_egress_network_bandwidth(ssh_client, container_id)
         else:
-            print 'Invalid Resource'
+            logging.error('Invalid Resource')
         close_client(ssh_client)
 
 '''Stressing the Network'''
@@ -107,8 +108,8 @@ def set_egress_network_bandwidth(ssh_client, container_id, bandwidth_Kbps):
     _,_,err_val_rate = ssh_client.exec_command(docker_policing_cmd)
     _,_,err_val_burst = ssh_client.exec_command(docker_burst_cmd)
     if len(err_val_rate.readlines()) != 0:
-        print 'ERROR: Stress of container id {} network failed'.format(container_id)
-        print 'ERROR MESSAGE: {}'.format(err_val_rate)
+        logging.error('Stress of container id {} network failed'.format(container_id))
+        logging.error('ERROR MESSAGE: {}'.format(err_val_rate))
         raise SystemError('Network Set Error')
     else:
         return 1
@@ -122,8 +123,8 @@ def reset_egress_network_bandwidth(ssh_client, container_id):
     #Should be no output if throttling is applied correctly
     _,_,err_val_rate = ssh_client.exec_command(reset_network_cmd)
     if len(err_val_rate.readlines()) != 0:
-        print 'ERROR: Resetting of container id {} network failed'.format(container_id)
-        print 'ERROR MESSAGE: {}'.format(err_val_rate)
+        logging.error('Resetting of container id {} network failed'.format(container_id))
+        logging.error('ERROR MESSAGE: {}'.format(err_val_rate))
         raise SystemError('Network Set Error')
     else:
         return 1
@@ -179,7 +180,7 @@ def set_cpu_cores(ssh_client, container_id, cores):
     core_cmd = '0-{}'.format(cores)
     set_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
     ssh_exec(ssh_client, set_cores_cmd, modifies_container=True)
-    print '{} Cores pinned to container {}'.format(core_cmd, container_id)
+    logging.info('{} Cores pinned to container {}'.format(core_cmd, container_id))
 
 
 # Resetting pinned cpu_cores (container will have access to all cores)
@@ -188,7 +189,7 @@ def reset_cpu_cores(ssh_client, container_id):
     core_cmd = '0-{}'.format(cores)
     rst_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
     ssh_exec(ssh_client, rst_cores_cmd, modifies_container=True)
-    print 'Reset container {}\'s core restraints'.format(container_id)
+    logging.info('Reset container {}\'s core restraints'.format(container_id))
 
 '''Stressing the Disk Read/write throughput'''
 # Positive value to set a maximum for both disk write and disk read

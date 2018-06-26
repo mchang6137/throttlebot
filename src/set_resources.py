@@ -3,6 +3,7 @@ import socket
 from modify_resources import *
 from remote_execution import *
 
+import logging
 
 """
 Step 1:
@@ -31,12 +32,12 @@ def generate_empty_file(name):
 
 def error_message(index, e_type):
     if e_type == 'ip':
-        print "Error on line {}. IP is not valid.".format(index)
+        logging.error("Error on line {}. IP is not valid.".format(index)))
     elif e_type == 'value':
-        print "Error on line {}. Resource values must be integers.".format(index)
+        logging.error("Error on line {}. Resource values must be integers.".format(index))
     elif e_type == 'cpu':
-        print "Error on line {}. CPU values must be between 0 and 100. (100 as MAX CPU)".format(index)
-    print "Exiting script"
+        logging.error("Error on line {}. CPU values must be between 0 and 100. (100 as MAX CPU)".format(index))
+    logging.error("Exiting script")
 
 
 if __name__ == "__main__":
@@ -71,7 +72,7 @@ if __name__ == "__main__":
                 ssh_clients[ip_address] = get_client(ip_address)
             ssh_client = ssh_clients[ip_address]
             #
-            # print 'Now setting {} {}\'s resources'.format(ip_address, container_id)
+            # logging.info('Now setting {} {}\'s resources'.format(ip_address, container_id))
             #
             # Setting CPU Cores
             # try:
@@ -115,12 +116,12 @@ if __name__ == "__main__":
                 try:
                     reset_egress_network_bandwidth(ssh_client, container_id)
                 except:
-                    print 'Warning: Container {}\'s network cannot be reset'.format(container_id)
+                    logging.warning('Container {}\'s network cannot be reset'.format(container_id))
             else:
                 try:
                     set_egress_network_bandwidth(ssh_client, container_id, net_bps)
                 except:
-                    print 'Warning: Container {}\'s network cannot be set'.format(container_id)
+                    logging.warning('Container {}\'s network cannot be set'.format(container_id))
 
             line_numb += 1
 
@@ -132,5 +133,5 @@ if __name__ == "__main__":
                 exit()
             set_memory_size(ssh_client, container_id, memory_b)
 
-        print "Container resources were applied."
+        logging.info("Container resources were applied.")
         exit()

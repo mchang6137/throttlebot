@@ -1292,7 +1292,7 @@ def install_dependencies(workload_config):
     # Hardcoded for apt-app, initializing databases
     if workload_config['type'] == 'apt-app':
         # if len(traffic_machines) != 6:
-        #     logging.info('Not enough traffic machines supplied. Please check config file. Exiting...'
+        #     logging.info('Not enough traffic machines supplied. Please check config file. Exiting...')
         #     exit()
         # for traffic_machine in traffic_machines:
         #     traffic_client = get_client(traffic_machine)

@@ -8,6 +8,8 @@ from weighting_conversions import *
 from mr import MR
 import redis_resource as resource_datastore
 
+import logging
+
 ''' 
 Determines the resources to stress in order to predict the impact
 of increasing a single MR (Otherwise known as the gradient step)
@@ -23,7 +25,7 @@ def calculate_mr_gradient_schedule(redis_db, mr_candidates, sys_config, stress_w
     elif gradient_mode == 'inverted':
         return schedule_inverted_gradient(redis_db, mr_candidates, stress_weight)
     else:
-        print 'Invalid Gradient Mode. Exiting...'
+        logging.error('Invalid Gradient Mode. Exiting...')
         exit()
 
 def revert_mr_gradient_schedule(redis_db, mr_candidates, sys_config, stress_weight):
@@ -33,7 +35,7 @@ def revert_mr_gradient_schedule(redis_db, mr_candidates, sys_config, stress_weig
     elif gradient_mode == 'inverted':
         return revert_inverted_gradient(redis_db, mr_candidates, stress_weight)
     else:
-        print 'Invalid gradient mode. Exiting...'
+        logging.error('Invalid gradient mode. Exiting...')
         exit()
 '''
 Provisions resources for the analytic baseline
@@ -46,7 +48,7 @@ def prepare_analytic_baseline(redis_db, sys_config, stress_weight):
     elif gradient_mode == 'inverted':
         return prepare_inverted_baseline(redis_db, stress_weight)
     else:
-        print 'Invalid Gradient Mode. Exiting...'
+        logging.error('Invalid Gradient Mode. Exiting...')
         exit()
 
 '''
@@ -60,7 +62,7 @@ def revert_analytic_baseline(redis_db, sys_config):
     elif gradient_mode == 'inverted':
         return revert_inverted_baseline(redis_db)
     else:
-        print 'Invalid gradient mode. Exiting...'
+        logging.error('Invalid gradient mode. Exiting...')
         exit()
         
 # Prepares an all resource stress as the baseline

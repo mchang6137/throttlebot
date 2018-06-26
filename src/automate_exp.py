@@ -5,6 +5,8 @@ Automate Many experiments of Throttlebot
 import argparse
 import traceback
 
+import logging
+
 from run_throttlebot import *
 
 if __name__ == "__main__":
@@ -12,7 +14,12 @@ if __name__ == "__main__":
     parser.add_argument("--num_runs", help="Number of times to run the experiment")
     parser.add_argument("--config_file1", help="Configuration File for Throttlebot Execution")
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
+    parser.add_argument("--log", help='Default Logging File')
     args = parser.parse_args()
+
+    # Setup Logging
+    logging.basicConfig(filename=args.log, level=logging.INFO)
+    logging.info('Started Logging')
 
     conf_files = ['MIMR1.cfg', 'MIMR1INV.cfg', 'MIMR2.cfg']
     for conf_file in conf_files:
@@ -29,4 +36,4 @@ if __name__ == "__main__":
             except Exception, err:
                 traceback.print_exc()
 
-    print 'Completed!'
+    logging.info('Completed!')

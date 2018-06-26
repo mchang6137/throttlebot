@@ -6,6 +6,8 @@ from instance_specs import *
 from poll_cluster_state import *
 from copy import deepcopy
 
+import logging
+
 # Bin pack resources
 def parse_config_csv(resource_config_csv):
     mr_allocation = {}
@@ -225,7 +227,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                     machine_to_service[machine_index].append(service_name)
                     containers_seen += 1
                 else:
-                    print 'Error: You have selected too many IMRs for consideration!'
+                    logging.error('Error: You have selected too many IMRs for consideration!')
                     return {}
 
         # Don't double count the services
@@ -253,7 +255,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
             if fit_found:
                 machine_to_service[machine_index].append(service_name)
             else:
-                print 'No valid placement found. Returning'
+                logging.error('No valid placement found. Returning')
                 return {}
 
         return machine_to_service
@@ -292,7 +294,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                 machine_to_service[machine_index].append(service_name)
 
                 if fit_found is False:
-                    print 'Fit not found. You have a bug. Exiting..'
+                    logging.error('Fit not found. You have a bug. Exiting..')
                     exit()
 
         return machine_to_service
@@ -308,7 +310,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
 
     first_fit_placements = ff(service_containers)
-    print 'First fit service placement is {}'.format(first_fit_placements)
+    logging.info('First fit service placement is {}'.format(first_fit_placements))
 
     # First place the services that show up as MIMRs
     optimal_num_machines = len(first_fit_placements.keys())
@@ -320,7 +322,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
         if len(imr_aware_service_placement.keys()) != 0:
             break
 
-    print 'IMR Aware Service Placement is {}'.format(imr_aware_service_placement)
+    logging.info('IMR Aware Service Placement is {}'.format(imr_aware_service_placement))
     return first_fit_placements, imr_aware_service_placement
 
 if __name__ == "__main__":
