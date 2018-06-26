@@ -1071,7 +1071,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
                 # Convert REPR to RAW AMOUNT
                 if amount_repr == 'PERCENT':
                     if amount <= 0 or amount > 100:
-                        logging.error('Error: invalid default percentage. Exiting...')
+                        logging.error('invalid default percentage. Exiting...')
                         exit()
                     max_capacity = get_instance_specs(machine_type)[resource]
                     amount = (amount / 100.0) * max_capacity

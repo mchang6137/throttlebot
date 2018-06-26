@@ -227,7 +227,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
                     machine_to_service[machine_index].append(service_name)
                     containers_seen += 1
                 else:
-                    logging.error('Error: You have selected too many IMRs for consideration!')
+                    logging.error('You have selected too many IMRs for consideration!')
                     return {}
 
         # Don't double count the services

@@ -203,7 +203,7 @@ def collect_results(instances, redis_instances, events_per_container):
             logging.info('All results received. Results are as follows: {}\n'.format(results))
             return results
         
-    logging.warning("Error: Something bad happened, so we need to flush out all the old messages")
+    logging.warning("Something bad happened, so we need to flush out all the old messages")
     logging.info("This will cause skew, so let's try a few things!")
     flush_redis(redis_instances)
     
