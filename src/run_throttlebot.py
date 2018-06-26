@@ -872,6 +872,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         performance_improvement = simulated_mean - previous_mean
 
         # Write a summary of the experiment's iterations to Redis
+
+        logging.info("Writing summary, non-backtrack round {}".format(experiment_count))
         tbot_datastore.write_summary_redis(redis_db, experiment_count, effective_mimr,
                                            performance_improvement, action_taken,
                                            analytic_mean, improved_mean,
@@ -888,7 +890,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
         print_csv_configuration(current_mr_config)
+
+        logging.info("Incrementing experiment_count {}".format(experiment_count))
         experiment_count += 1
+        logging.info("Incremented experiment_count {}".format(experiment_count))
 
         # Potentially adapt step size if no performance gains observed
         # Do this after step summary for easy debugging
@@ -913,7 +918,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 # Checkpoint MR configurations and print
                 current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
                 print_csv_configuration(current_mr_config)
+
+                logging.info("Incrementing experiment_count {}".format(experiment_count))
                 experiment_count += 1
+                logging.info("Incremented experiment_count {}".format(experiment_count))
 
                 logging.info('Backtrack completed, referred to as experiment {}'.format(experiment_count))
 
@@ -1081,6 +1089,8 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             perf_improvement = median_alloc_mean - current_perf_float
             new_action = {}
             new_action[mr] = median_alloc - new_mr_alloc
+
+            logging.info("Writing summary, backtrack round {}".format(experiment_count))
             tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
                                                perf_improvement, new_action,
                                                median_alloc_mean, median_alloc_mean,
