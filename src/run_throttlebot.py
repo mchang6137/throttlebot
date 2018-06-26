@@ -766,8 +766,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
             if baseline_constant is False:
                 logging.info("ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100))
-                logging.info("Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
-                sys.exit("System state has changed since baseline."))
+                logging.info("Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance)))
+                sys.exit("System state has changed since baseline.")
 
         # Recover the results of the experiment from Redis
         sorted_mr_list = tbot_datastore.get_top_n_mimr(redis_db, experiment_count,
