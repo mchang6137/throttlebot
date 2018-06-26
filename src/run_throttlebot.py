@@ -36,6 +36,7 @@ import redis_resource as resource_datastore
 import modify_resources as resource_modifier
 import visualizer as chart_generator
 
+import logging
 
 '''
 Signal Handler
@@ -1376,7 +1377,12 @@ if __name__ == "__main__":
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
+    parser.add_argument("--log", help='Default Logging File')
     args = parser.parse_args()
+
+    # Setup Logging
+    logging.basicConfig(filename=args.log, level=logging.INFO)
+    logging.info('Started')
 
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
