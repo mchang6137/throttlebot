@@ -1323,7 +1323,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
         # and it is hard to solve...
 
     for mr in delete_queue:
-        logging.info('Deleting MR: ', mr.to_string())
+        logging.info('Deleting MR: {}'.format(mr.to_string()))
         del mr_allocation[mr]
 
     return mr_allocation
