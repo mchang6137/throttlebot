@@ -129,7 +129,7 @@ def measure_bcd(workload_configuration, experiment_iterations):
 
     close_client(ssh_client)
 
-    logging.info(latency.latency, x[0])
+    logging.info("{}, {}".format(latency.latency, x[0]))
     return {'latency': x,
             'latency_50': x,
             'latency_99': x,

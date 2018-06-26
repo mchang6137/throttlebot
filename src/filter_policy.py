@@ -78,7 +78,7 @@ def apply_pipeline_filter(redis_db,
                           filter_config):
 
     logging.info('*' * 20)
-    logging.info('INFO: Applying Filtering Pipeline')
+    logging.info('Applying Filtering Pipeline')
 
     logging.info('Filter config is {}'.format(filter_config))
     logging.info('MR working set is {}'.format(mr_working_set))

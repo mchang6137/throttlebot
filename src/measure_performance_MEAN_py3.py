@@ -49,7 +49,7 @@ def ssh_exec(ssh_client, cmd):
     _, _, stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
-        logging.info("Error execing {}: {}".format(cmd, err))
+        logging.error("Error execing {}: {}".format(cmd, err))
 
 def get_client(ip):
     client = paramiko.SSHClient()
