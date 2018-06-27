@@ -9,6 +9,8 @@ import redis_resource as resource_datastore
 
 from mr import MR
 
+import logging
+
 ### Pre-defined blacklist (Temporary)
 blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest', 'hantaowang/lumbersexual']
 
@@ -18,7 +20,7 @@ def generate_mr_from_policy(redis_db, stress_policy):
     if stress_policy == 'ALL':
         return resource_datastore.get_all_mrs(redis_db)
     else:
-        print 'This stress policy does not exist; defaulting to ALL stress'
+        logging.warning('This stress policy does not exist; defaulting to ALL stress')
         return resource_datastore.get_all_mrs(redis_db)
 
 # Policy that returns all MRs subject to restrictions on
@@ -26,14 +28,14 @@ def generate_mr_from_policy(redis_db, stress_policy):
 def get_all_mrs_cluster(vm_list, services, resources):
     mr_schedule = []
     service_to_deployment = get_service_placements(vm_list)
-    print 'printing service to deployment {}'.format(service_to_deployment)
+    logging.info('printing service to deployment {}'.format(service_to_deployment))
     
     for service in service_to_deployment:
         deployments = service_to_deployment[service]
         for resource in resources:
             mr_schedule.append(MR(service, resource, deployments))
 
-    print 'mr schedule is {}'.format(mr_schedule)
+    logging.info('mr schedule is {}'.format(mr_schedule))
     return mr_schedule
 
 # Temporary main method to test get_container_ids function

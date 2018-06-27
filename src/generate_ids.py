@@ -3,12 +3,14 @@ from remote_execution import *
 from run_spark_streaming import *
 import argparse
 
+import logging
+
 def print_ip_to_container_id(services_to_stress, dictionary_ip_cont):
-    print dictionary_ip_cont
+    logging.info(dictionary_ip_cont)
     for service in services_to_stress:
         results = dictionary_ip_cont[service]
         for container in results:
-            print '{},{},'.format(container[0], container[1])
+            logging.info('{},{},'.format(container[0], container[1]))
 
 def start_experiments(dictionary_ip_cont):
     sending_time = 200
@@ -20,9 +22,9 @@ def start_experiments(dictionary_ip_cont):
         ip,container_id = container
         client = get_client(ip)
         run_cmd(start_exp_cmd, client, container_id, False, True)
-    print 'All experiments started'
+    logging.info('All experiments started')
     time.sleep(sending_time)
-    print 'All experiments completed -- collect results on any machine'
+    logging.info('All experiments completed -- collect results on any machine')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

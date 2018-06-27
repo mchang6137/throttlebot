@@ -1,4 +1,5 @@
 import paramiko
+import logging
 
 def get_client(ip):
     client = paramiko.SSHClient()
@@ -10,7 +11,7 @@ def ssh_exec(ssh_client, cmd, modifies_container=False, return_error=False):
     _,stdout,stderr = ssh_client.exec_command(cmd)
     err = stderr.read()
     if err:
-        print ("Error execing {}: {}".format(cmd, err))
+        logging.info("Error execing {}: {}".format(cmd, err))
 
         if modifies_container:
             raise SystemError('Error caused by container ID')

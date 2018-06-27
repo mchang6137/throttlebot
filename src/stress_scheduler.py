@@ -25,6 +25,8 @@ from container_information import *
 from present_results import *
 from run_spark_streaming import *
 
+import logging
+
 #Amount of time to allow commands to propagate through system
 COMMAND_DELAY = 3
 
@@ -37,37 +39,37 @@ def throttle_cpu_cores(ssh_client, container_id, cores):
     set_cpu_cores(ssh_client, container_id, cores)
 
 def throttle_disk(ssh_client, container_id, disk_rate):
-    print 'Disk Throttle Rate: {}'.format(disk_rate)
+    logging.info('Disk Throttle Rate: {}'.format(disk_rate))
     return change_container_blkio(ssh_client, container_id, disk_rate)
     # return create_dummy_disk_eater(ssh_client, disk_rate)
 
 # network_bandwidth is a map from interface->bandwidth
 def throttle_network(ssh_client, container_id, network_bandwidth):
-    print 'Network Reduction Rate: {}'.format(network_bandwidth)
+    logging.info('Network Reduction Rate: {}'.format(network_bandwidth))
     set_egress_network_bandwidth(ssh_client, container_id, network_bandwidth)
 
 ###Stop the throttling for a single resource
 def stop_throttle_cpu(ssh_client, container_id, cores):
-    print 'RESETTING CPU THROTTLING'
+    logging.warning('RESETTING CPU THROTTLING')
     if cores:
         reset_cpu_cores(ssh_client, container_id)
     else:
         reset_cpu_quota(ssh_client, container_id)
 
 def stop_throttle_network(ssh_client, container_id):
-    print 'RESETTING NETWORK THROTTLING'
+    logging.warning('RESETTING NETWORK THROTTLING')
     # reset_egress_network_bandwidth(ssh_client, container_id)
     container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
     network_bandwith = weighting_to_bandwidth(ssh_client, 0, container_to_network_capacity)
     throttle_network(ssh_client, container_id, network_bandwith)
 
 def stop_throttle_disk(ssh_client, container_id):
-    print 'RESETTING DISK THROTTLING'
+    logging.warning('RESETTING DISK THROTTLING')
     change_container_blkio(ssh_client, container_id, 0)
     # remove_dummy_disk_eater(ssh_client, num_fail)
 
 def reset_all_stresses(ssh_client, container_id, cpu_cores):
-    print 'RESETTING ALL STRESSES!'
+    logging.warning('RESETTING ALL STRESSES!')
     stop_throttle_cpu(ssh_client, container_id, cpu_cores)
     stop_throttle_disk(ssh_client, container_id)
     stop_throttle_network(ssh_client, container_id)
@@ -92,7 +94,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
     baseline_runtime_array, baseline_utilization_diff = None, None
 
     for service, ip_container_tuples in container_ids_dict.iteritems():
-        print 'STRESSING SERVICE {}'.format(service)
+        logging.info('STRESSING SERVICE {}'.format(service))
 
         if not resume_bool or (service not in reduction_level_to_latency_cpu):
             reduction_level_to_latency_network_service = {}
@@ -112,15 +114,15 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
             resources = [resource]
 
         # initialize_machine(ssh_client) LEGACY
-        print "CLEARING ALL STRESSES"
-        print "====================================="
+        logging.info("CLEARING ALL STRESSES")
+        logging.info("=====================================")
         for service, ip_container_tuples in container_ids_dict.iteritems():
             for vm_ip, container_id in ip_container_tuples:
                 ssh_client = ssh_clients[vm_ip]
                 reset_all_stresses(ssh_client, container_id, cpu_cores)
-        print "FINISHED CLEARING ALL STRESSES"
-        print "====================================="
-        print '\n' * 4
+        logging.info("FINISHED CLEARING ALL STRESSES")
+        logging.info("=====================================")
+        logging.info('\n' * 4)
 
         shuffle(increment_values)
 
@@ -135,8 +137,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
             reduction_level_to_latency_network_service[0] = baseline_runtime_array
             hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'NET')
             sorted_set_name = '{},{}'.format(service_tag, 'NET')
-            print 'HashName: {}'.format(hash_name)
-            print 'SortedSetName: {}'.format(sorted_set_name)
+            logging.info('HashName: {}'.format(hash_name))
+            logging.info('SortedSetName: {}'.format(sorted_set_name))
             for metric, data in baseline_runtime_array.iteritems():
                 key_name = '{},{}'.format(0, metric)
                 sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
@@ -146,8 +148,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
             reduction_level_to_latency_disk_service[0] = baseline_runtime_array
             hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'DISK')
             sorted_set_name = '{},{}'.format(service_tag, 'DISK')
-            print 'HashName: {}'.format(hash_name)
-            print 'SortedSetName: {}'.format(sorted_set_name)
+            logging.info('HashName: {}'.format(hash_name))
+            logging.info('SortedSetName: {}'.format(sorted_set_name))
             for metric, data in baseline_runtime_array.iteritems():
                 key_name = '{},{}'.format(0, metric)
                 sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
@@ -157,8 +159,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
             reduction_level_to_latency_cpu_service[0] = baseline_runtime_array
             hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'CPU')
             sorted_set_name = '{},{}'.format(service_tag, 'CPU')
-            print 'HashName: {}'.format(hash_name)
-            print 'SortedSetName: {}'.format(sorted_set_name)
+            logging.info('HashName: {}'.format(hash_name))
+            logging.info('SortedSetName: {}'.format(sorted_set_name))
             for metric, data in baseline_runtime_array.iteritems():
                 key_name = '{},{}'.format(0, metric)
                 sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
@@ -170,14 +172,14 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                 if increment == 0:
                     continue
 
-                print 'Experiment with increment={}'.format(increment)
+                logging.info('Experiment with increment={}'.format(increment))
 
                 if 'CPU' in resources:
-                    print '====================================='
-                    print 'INITIATING CPU Experiment'
+                    logging.info('=====================================')
+                    logging.info('INITIATING CPU Experiment')
 
                     for vm_ip, container_id in ip_container_tuples:
-                        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                        logging.info('STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id))
                         ssh_client = ssh_clients[vm_ip]
                         if cpu_cores:
                             num_cores = weighting_to_cpu_cores(ssh_client, increment)
@@ -196,8 +198,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                     reduction_level_to_latency_cpu_service[increment] = results_data_cpu
                     hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'CPU')
                     sorted_set_name = '{},{}'.format(service_tag, 'CPU')
-                    print 'HashName: {}'.format(hash_name)
-                    print 'SortedSetName: {}'.format(sorted_set_name)
+                    logging.info('HashName: {}'.format(hash_name))
+                    logging.info('SortedSetName: {}'.format(sorted_set_name))
                     for metric, data in results_data_cpu.iteritems():
                         key_name = '{},{}'.format(increment, metric)
                         sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
@@ -205,11 +207,11 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                         redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
 
                 if 'NET' in resources:
-                    print '======================================'
-                    print 'INITIATING Network Experiment'
+                    logging.info('======================================')
+                    logging.info('INITIATING Network Experiment')
                     try:
                         for vm_ip, container_id in ip_container_tuples:
-                            print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                            logging.info('STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id))
                             ssh_client = ssh_clients[vm_ip]
                             container_to_network_capacity = get_container_network_capacity(ssh_client, container_id)
                             network_reduction_rate = weighting_to_bandwidth(ssh_client, increment,
@@ -226,23 +228,23 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                         reduction_level_to_latency_network_service[increment] = results_data_network
                         hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'NET')
                         sorted_set_name = '{},{}'.format(service_tag, 'NET')
-                        print 'HashName: {}'.format(hash_name)
-                        print 'SortedSetName: {}'.format(sorted_set_name)
+                        logging.info('HashName: {}'.format(hash_name))
+                        logging.info('SortedSetName: {}'.format(sorted_set_name))
                         for metric, data in results_data_network.iteritems():
                             key_name = '{},{}'.format(increment, metric)
                             sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
                             redis_db.hset(hash_name, key_name, '{}'.format(data))
                             redis_db.zadd(sorted_set_name, numpy.mean(data), sorted_key_name)
                     except:
-                        print 'Passed NET'
+                        logging.info('Passed NET')
                         reduction_level_to_latency_network_service[increment] = \
                             reduction_level_to_latency_network_service[0]
                 if 'DISK' in resources:
-                    print '======================================='
-                    print 'INITIATING Disk Experiment '
+                    logging.info('=======================================')
+                    logging.info('INITIATING Disk Experiment ')
                     disk_throttle_rate = weighting_to_disk_access_rate(increment)
                     for vm_ip, container_id in ip_container_tuples:
-                        print 'STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id)
+                        logging.info('STRESSING VM_IP {} AND CONTAINER {}'.format(vm_ip, container_id))
                         ssh_client = ssh_clients[vm_ip]
                         throttle_disk(ssh_client, container_id, disk_throttle_rate)
 
@@ -256,8 +258,8 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                     reduction_level_to_latency_disk_service[increment] = results_data_disk
                     hash_name = '{},{},{}'.format(experiment_iteration_count, service_tag, 'DISK')
                     sorted_set_name = '{},{}'.format(service_tag, 'DISK')
-                    print 'HashName: {}'.format(hash_name)
-                    print 'SortedSetName: {}'.format(sorted_set_name)
+                    logging.info('HashName: {}'.format(hash_name))
+                    logging.info('SortedSetName: {}'.format(sorted_set_name))
                     for metric, data in results_data_disk.iteritems():
                         key_name = '{},{}'.format(increment, metric)
                         sorted_key_name = '{},{}'.format(experiment_iteration_count, key_name)
@@ -274,7 +276,7 @@ def model_machine(ssh_clients, container_ids_dict, experiment_inc_args, experime
                                               reduction_level_to_latency_network, resources, increments,
                                               experiment_type, experiment_iterations,
                                               experiment_iteration_count, False)
-                print 'Checkpoint file for increment {} is {}'.format(increment, file)
+                logging.info('Checkpoint file for increment {} is {}'.format(increment, file))
 
     return reduction_level_to_latency_cpu, reduction_level_to_latency_disk, reduction_level_to_latency_network
 
@@ -311,7 +313,7 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
-    print args
+    logging.info(args)
 
     # Initializing Redis DB
     redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -322,18 +324,18 @@ if __name__ == "__main__":
     elif args.services_to_stress:
         services = args.services_to_stress.split(',')
     else:
-        print 'Please state which services to stress'
+        logging.error('Please state which services to stress')
         exit()
     if args.stress_all_resources:
         resources = ['CPU', 'DISK', 'NET']
     elif args.resources_to_stress:
         resources = args.resources_to_stress.split(',')
     else:
-        print 'Please state which resources to throttle'
+        logging.error('Please state which resources to throttle')
         exit()
 
     if not args.stress_search_policy:
-        print 'Please state a stress search policy'
+        logging.error('Please state a stress search policy')
         exit()
     stress_policy = args.stress_search_policy
 
@@ -343,7 +345,7 @@ if __name__ == "__main__":
         try:
             socket.inet_aton(ip)
         except:
-            print 'IP {} is invalid'.format(ip)
+            logging.error('IP {} is invalid'.format(ip))
             exit()
 
     website_addresses = args.website_ip.split(',')
@@ -351,14 +353,14 @@ if __name__ == "__main__":
         try:
             socket.inet_aton(website)
         except:
-            print 'Website IP {} is invalid'.format(website)
+            logging.error('Website IP {} is invalid'.format(website))
             exit()
 
     if args.traffic_generator_public_ip:
         try:
             socket.inet_aton(args.traffic_generator_public_ip)
         except:
-            print 'Traffic Generator IP {} is invalid'.format(args.traffic_generator_public_ip)
+            logging.error('Traffic Generator IP {} is invalid'.format(args.traffic_generator_public_ip))
             exit()
         # Installng dependencies on traffic generator client
         traffic_client = get_client(args.traffic_generator_public_ip)
@@ -384,27 +386,27 @@ if __name__ == "__main__":
         experiment_args = [args.website_ip, traffic_client]
     elif args.experiment_type == "spark-streaming":
         if not args.redis_ms:
-            print 'Please enter a redis IP'
+            logging.error('Please enter a redis IP')
             exit()
         else:
             redis_ip = args.redis_ms
         if not args.spark_stream:
-            print 'Please enter a spark-stream IP'
+            logging.error('Please enter a spark-stream IP')
             exit()
         else:
             spark_stream_ip = args.spark_stream
         if not args.kafka:
-            print 'Please enter a kafka IP'
+            logging.error('Please enter a kafka IP')
             exit()
         else:
             kafka_ip = args.kafka
         if not args.spark_ms:
-            print 'Please enter a spark-ms IP'
+            logging.error('Please enter a spark-ms IP')
             exit()
         else:
             spark_ms_ip = args.spark_ms
         if not args.spark_wk:
-            print 'Please enter the spark worker IP'
+            logging.error('Please enter the spark worker IP')
             exit()
         else:
             spark_wk_ip_list = args.spark_wk.split(',')
@@ -431,41 +433,41 @@ if __name__ == "__main__":
         #Initialize Spark Master
         initialize_spark_experiment(experiment_args[0])
     else:
-        print 'INVALID EXPERIMENT TYPE: {}'.format(args.experiment_type)
+        logging.error('INVALID EXPERIMENT TYPE: {}'.format(args.experiment_type))
         exit()
 
     # Notifying User CPU throttling type
     cpu_cores = args.cpu_cores
     if cpu_cores:
-        print 'Using CPU Core Throttling'
+        logging.info('Using CPU Core Throttling')
     else:
-        print 'Using CPU Quota Throttling'
+        logging.info('Using CPU Quota Throttling')
 
     # Getting increments
     if not args.increments:
         if args.resume:
-            print 'If resuming from a previous experiment, please specify increments'
+            logging.error('If resuming from a previous experiment, please specify increments')
             exit()
         increments = [0, 20, 40, 60, 80]
     else:
         if args.only_baseline:
-            print 'Cannot specify increments when only_baseline is true'
+            logging.error('Cannot specify increments when only_baseline is true')
             exit()
         string_increments = args.increments.split(',')
         try:
             increments = map(int, string_increments)
         except:
-            print 'ERROR: Increments must be integers'
+            logging.error('Increments must be integers')
             exit()
     experiment_inc_args = [increments, experiment_args]
 
     if args.resume:
-        print 'RESUME FUNCTIONALITY HAS BEEN SHELVED FOR LATER (AND IT IS ALSO OUTDATED)'
+        logging.error('RESUME FUNCTIONALITY HAS BEEN SHELVED FOR LATER (AND IT IS ALSO OUTDATED)')
         exit()
         try:
             previous_results = read_from_file(args.resume, True)
         except:
-            print 'File not found'
+            logging.error('File not found')
             exit()
         resume_boolean = True
     else:
@@ -485,7 +487,7 @@ if __name__ == "__main__":
             for multi_service in multi_service_list:
                 old_container_tuple_list = container_ids_dict.pop(multi_service, None)
                 if not old_container_tuple_list:
-                    print 'Service {} not found'.format(multi_service)
+                    logging.error('Service {} not found'.format(multi_service))
                     exit()
                 new_multi_service_tuple_list += old_container_tuple_list
                 if not new_multi_service_name:

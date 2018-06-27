@@ -5,6 +5,8 @@ Automate Many experiments of Throttlebot
 import argparse
 import traceback
 
+import logging
+
 from run_clampdown import *
 
 if __name__ == "__main__":
@@ -29,12 +31,12 @@ if __name__ == "__main__":
             experiment_end = time.time()
             runtime = experiment_end - experiment_start
             trial_to_overhead[count] = (experiment_iteration, runtime)
-            print 'Trial overhead is {}'.format(trial_to_overhead)
+            logging.info('Trial overhead is {}'.format(trial_to_overhead))
         except Exception, err:
             traceback.print_exc()
 
-    print 'Completed!'
-    print trial_to_overhead
+    logging.info('Completed!')
+    logging.info(trial_to_overhead)
 
 # (5,436 sec)
 # {0: (6, 486.6667308807373), 1: (4, 345.2677080631256), 2: (5, 493.66548919677734), 3: (13, 1544.4055361747742), 4: (4, 332.8213529586792), 5: (7, 621.3301801681519)}

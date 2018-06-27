@@ -36,6 +36,8 @@ import redis_resource as resource_datastore
 import modify_resources as resource_modifier
 import visualizer as chart_generator
 
+import logging
+
 
 '''
 Signal Handler
@@ -49,10 +51,10 @@ class GracefulKiller:
         signal.signal(signal.SIGTERM, self.exit_gracefully)
 
     def exit_gracefully(self, signum, frame):
-        print 'NIMRs have now also been squeezed, printing final values.'
+        logging.info('NIMRs have now also been squeezed, printing final values.')
         current_mr_config = resource_datastore.read_all_mr_alloc(self.redis_db)
         for mr in current_mr_config:
-            print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+            logging.info('{} = {}'.format(mr.to_string(), current_mr_config[mr]))
 
         print_csv_configuration(current_mr_config)
         exit()
@@ -76,12 +78,12 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 # Set the current resource configurations withi the actual containers
 # Data points in resource_config are expressed in percentage change
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
-    print 'Initializing the Resource Configurations in the containers'
+    logging.info('Initializing the Resource Configurations in the containers')
     instance_specs = get_instance_specs(machine_type)
     for mr in default_mr_config:
         new_resource_provision = int(default_mr_config[mr])
         if check_change_mr_viability(redis_db, mr, new_resource_provision)[0] is False:
-            print 'Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string())
+            logging.error('Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string()))
             exit()
 
         # Enact the change in resource provisioning
@@ -94,7 +96,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
 # Initializes the maximum capacity and current consumption of Quilt
 def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
-    print 'Initializing the per machine capacities'
+    logging.info('Initializing the per machine capacities')
     resource_alloc = get_instance_specs(machine_type)
     min_alloc = get_instance_min_specs()
 
@@ -158,8 +160,8 @@ def seperate_mr(mr_list, baseline_performance, optimize_for_lowest, gradient_mod
     for mr_result in mr_list:
         mr,exp_performance = mr_result
         perf_diff = exp_performance - baseline_performance
-        print 'perf diff is {}'.format(perf_diff)
-        print 'leeway is {}'.format(within_x * baseline_performance)
+        logging.info('perf diff is {}'.format(perf_diff))
+        logging.info('leeway is {}'.format(within_x * baseline_performance))
 
         if is_performance_constant(baseline_performance, exp_performance, within_x):
             nimr_list.append(mr)
@@ -245,7 +247,7 @@ def check_decrease_mr_viability(redis_db, mr, proposed_change):
                 return False, 0
             return False, valid_change
     except KeyError:
-        print 'Invalid Resource'
+        logging.error('Invalid Resource')
         exit()
 
 # Allow the MR to fill out the remainder of the resources on the machine
@@ -270,8 +272,8 @@ def fill_out_resource(redis_db, imr):
             myfile.write(debug_statement)
 
     if improvement_proposal < 0:
-        print 'WARNING: Improvement proposal is less than 0 (it is {})'.format(improvement_proposal)
-        print 'Check out fill_out_resource_debug.txt to help diagnose the problem'
+        logging.warning('Improvement proposal is less than 0 (it is {})'.format(improvement_proposal))
+        logging.info('Check out fill_out_resource_debug.txt to help diagnose the problem')
 
         # get immediate results just by setting the proposal to zero in this case
         improvement_proposal = 0
@@ -285,13 +287,13 @@ def fill_out_resource(redis_db, imr):
 # In the NIMR list for NIMRs to be de-allocated.
 # Returns a list of NIMRs to reduce and the raw amount to reduce each NIMR, and the amount to incease the IMR bu
 def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, target_imr_increase):
-    print 'IMR is {}'.format(imr.to_string())
+    logging.info('IMR is {}'.format(imr.to_string()))
 
     pruned_nimr_list = []
     # Filter out NIMRs that are not the same resource type as mr
     for nimr in list(nimr_list):
-        print 'NIMR resource: {} '.format(nimr.resource)
-        print 'IMR resource: {}'.format(imr.resource)
+        logging.info('NIMR resource: {} '.format(nimr.resource))
+        logging.info('IMR resource: {}'.format(imr.resource))
         if nimr.resource == imr.resource: pruned_nimr_list.append(nimr)
 
     if len(pruned_nimr_list) == 0:
@@ -367,7 +369,7 @@ def create_decrease_nimr_schedule(redis_db, imr, nimr_list, stress_weight, targe
     machine_to_imr = containers_per_vm(imr)
     max_imr_containers = max([machine_to_imr[machine_ip] for machine_ip in machine_to_imr])
     proposed_imr_improvement = abs(min_vm_removal) / max_imr_containers
-    print 'proposed imr improvement is {}'.format(proposed_imr_improvement)
+    logging.info('proposed imr improvement is {}'.format(proposed_imr_improvement))
     assert proposed_imr_improvement >= 0
     if proposed_imr_improvement == 0:
         return {}, 0
@@ -390,7 +392,7 @@ def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
         new_alloc = convert_percent_to_raw(nimr, nimr_alloc, stress_weight)
 
         valid_change, valid_change_amount = check_change_mr_viability(redis_db, nimr, new_alloc - nimr_alloc)
-        print 'For NIMR {}, the valid change amount is {}'.format(nimr.to_string(), valid_change_amount)
+        logging.info('For NIMR {}, the valid change amount is {}'.format(nimr.to_string(), valid_change_amount))
         assert valid_change_amount <= 0
 
         if valid_change_amount == 0:
@@ -401,7 +403,7 @@ def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
                 continue
 
             vm_to_removal[vm_ip] += valid_change_amount * reduction_multiplier[vm_ip]
-            print 'For vm {}, we are adding {}'.format(vm_ip, valid_change_amount * reduction_multiplier[vm_ip])
+            logging.info('For vm {}, we are adding {}'.format(vm_ip, valid_change_amount * reduction_multiplier[vm_ip]))
 
         nimr_reduction[nimr] = valid_change_amount
         min_vm_removal = min([abs(vm_to_removal[vm_ip]) for vm_ip in vm_to_removal])
@@ -415,12 +417,12 @@ def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
 def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
-        print 'Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc)
+        logging.info('Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc))
         set_mr_provision_detect_id_change(redis_db, nimr, int(new_nimr_alloc), None)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
-    print 'changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc)
+    logging.info('changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc))
     set_mr_provision_detect_id_change(redis_db, imr, int(new_imr_alloc), None)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
@@ -475,7 +477,7 @@ def update_mr_config(redis_db, mr_in_play):
 
 # Prints all improvements attempted by Throttlebot
 def print_all_steps(redis_db, total_experiments, sys_config, workload_config, filter_config):
-    print 'Steps towards improving performance'
+    logging.info('Steps towards improving performance')
     net_improvement = 0
 
     with open("experiment_logs.txt", "a") as myfile:
@@ -488,7 +490,7 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
         if is_backtrack == 'True':
             is_backtrack_string = 'backtrack'
 
-        print 'Iteration {}_{}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, is_backtrack_string, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr)
+        logging.info('Iteration {}_{}, Mimr = {}, New allocation = {}, Performance Improvement = {}, Analytic Performance = {}, Performance after improvement = {}, Elapsed Time = {}, Cummulative MR = {}'.format(experiment_count, is_backtrack_string, mimr, action_taken, perf_improvement, analytic_perf, current_perf, elapsed_time, cumm_mr))
 
         # Append results to log file
         with open("experiment_logs.txt", "a") as myfile:
@@ -496,7 +498,7 @@ def print_all_steps(redis_db, total_experiments, sys_config, workload_config, fi
             myfile.write(log_msg)
 
         net_improvement += float(perf_improvement)
-    print 'Net Improvement: {}'.format(net_improvement)
+    logging.info('Net Improvement: {}'.format(net_improvement))
 
     with open("experiment_logs.txt", "a") as myfile:
         myfile.write('net_improvement,{}\n'.format(net_improvement))
@@ -518,7 +520,7 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
 # Iterate through all the colocated imrs of the same resource
 # Will not work correctly for inverted gradient!!!!!
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
-    print 'Finding colocated NIMRs'
+    logging.info('Finding colocated NIMRs')
     experiment_trials = sys_config['trials']
     stress_weight = sys_config['stress_weight']
     error_tolerance = sys_config['error_tolerance']
@@ -533,17 +535,17 @@ def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_confi
     for deployment in imr.instances:
         vm_ip, container = deployment
         colocated_services = colocated_services + vm_to_service[vm_ip]
-    print 'Colocated services are {}'.format(colocated_services)
+    logging.info('Colocated services are {}'.format(colocated_services))
 
     candidate_mrs = []
     for mr in mr_working_set:
         if mr.service_name in colocated_services and mr.resource == imr.resource:
             candidate_mrs.append(mr)
-    print 'Candidate MRs are {}'.format([mr.to_string() for mr in candidate_mrs])
+    logging.info('Candidate MRs are {}'.format([mr.to_string() for mr in candidate_mrs]))
 
     nimr_list = []
     for mr in candidate_mrs:
-        print 'MR being considered is {}'.format(mr.to_string())
+        logging.info('MR being considered is {}'.format(mr.to_string()))
 
         mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
                                                               sys_config,
@@ -611,9 +613,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     killer = GracefulKiller(redis_db)
 
-    print '\n' * 2
-    print '*' * 20
-    print 'INFO: INITIALIZING RESOURCE CONFIG'
+    logging.info('\n' * 2)
+    logging.info('*' * 20)
+    logging.info('INITIALIZING RESOURCE CONFIG')
     # Initialize Redis and Cluster based on the default resource configuration
     init_cluster_capacities_r(redis_db, machine_type, quilt_overhead)
     init_service_placement_r(redis_db, default_mr_config)
@@ -634,18 +636,18 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
                 new_mr_alloc = mr_improvement_proposal + current_mr_alloc
                 finalize_mr_provision(redis_db, mr, new_mr_alloc, workload_config)
-                print 'Maxing our resources for on-prem: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_alloc, new_mr_alloc)
-    print 'Filled out resources for on-prem mode'
+                logging.info('Maxing our resources for on-prem: MR {} increase from {} to {}'.format(mr.to_string(), current_mr_alloc, new_mr_alloc))
+    logging.info('Filled out resources for on-prem mode')
 
-    print '*' * 20
-    print 'INFO: INSTALLING DEPENDENCIES'
+    logging.info('*' * 20)
+    logging.info('INSTALLING DEPENDENCIES')
     install_dependencies(workload_config)
 
     # Initialize time for data charts
     time_start = datetime.datetime.now()
 
-    print '*' * 20
-    print 'INFO: RUNNING BASELINE'
+    logging.info('*' * 20)
+    logging.info('RUNNING BASELINE')
 
     # Get the Current Performance -- not used for any analysis, just to benchmark progress!!
     current_performance = measure_baseline(workload_config,
@@ -657,7 +659,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
 
-    print 'Current (non-analytic) performance measured: {}'.format(current_performance)
+    logging.info('Current (non-analytic) performance measured: {}'.format(current_performance))
 
     if last_completed_iter == 0:
         tbot_datastore.write_summary_redis(redis_db,
@@ -669,8 +671,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            mean_list(current_performance[preferred_performance_metric]),
                                            time_delta.seconds, 0)
 
-    print '============================================'
-    print '\n' * 2
+    logging.info('============================================')
+    logging.info('\n' * 2)
 
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
@@ -689,7 +691,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Calculate the analytic baseline that is used to determine MRs
 
         analytic_provisions = prepare_analytic_baseline(redis_db, sys_config, stress_weight)
-        print 'The Analytic provisions are as follows {}'.format(analytic_provisions)
+        logging.info('The Analytic provisions are as follows {}'.format(analytic_provisions))
         for change_mr in analytic_provisions:
             set_mr_provision_detect_id_change(redis_db, change_mr, analytic_provisions[change_mr], workload_config)
 
@@ -699,8 +701,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             analytic_baseline = deepcopy(current_performance)
 
         analytic_mean = mean_list(analytic_baseline[preferred_performance_metric])
-        print 'The analytic baseline is {}'.format(analytic_baseline)
-        print 'This current performance is {}'.format(current_performance)
+        logging.info('The analytic baseline is {}'.format(analytic_baseline))
+        logging.info('This current performance is {}'.format(current_performance))
         analytic_baseline[preferred_performance_metric] = remove_outlier(analytic_baseline[preferred_performance_metric])
 
         # Get a list of MRs to stress in the form of a list of MRs
@@ -708,12 +710,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                 sys_config, workload_config, filter_config)
 
         for mr in mr_to_consider:
-            print '\n' * 2
-            print '*' * 20
-            print 'Current MR is {}'.format(mr.to_string())
+            logging.info('\n' * 2)
+            logging.info('*' * 20)
+            logging.info('Current MR is {}'.format(mr.to_string()))
             increment_to_performance = {}
             current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
-            print 'Current MR allocation is {}'.format(current_mr_allocation)
+            logging.info('Current MR allocation is {}'.format(current_mr_allocation))
 
             # Calculate Gradient Schedule and provision resources accordingly
             mr_gradient_schedule = calculate_mr_gradient_schedule(redis_db, [mr],
@@ -742,8 +744,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             # Write the results of the iteration to Redis
             tbot_datastore.write_redis_results(redis_db, mr, increment_to_performance,
                                                experiment_count, preferred_performance_metric)
-            print '*' * 20
-            print '\n' * 2
+            logging.info('*' * 20)
+            logging.info('\n' * 2)
 
         # Timing Information for the purpose of experiments
         current_time_stop = datetime.datetime.now()
@@ -757,14 +759,14 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
         # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
         if rerun_baseline:
-            print "\n\nRunning Baseline Again as Sanity Check"
+            logging.info("\n\nRunning Baseline Again as Sanity Check")
             acceptable_baseline = 0.3
             baseline_constant = is_baseline_constant(mr_working_set, workload_config, sys_config,
                                                     baseline_performance, acceptable_baseline)
 
             if baseline_constant is False:
-                print "ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100)
-                print "Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance))
+                logging.info("ERROR: System state has changed since baseline. Deviation greater than {0}%".format(acceptable_deviation * 100))
+                logging.info("Current: {0}, Initial: {1}".format(mean_list(performance), mean_list(baseline_performance)))
                 sys.exit("System state has changed since baseline.")
 
         # Recover the results of the experiment from Redis
@@ -792,8 +794,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             current_mimr = sorted_mr_list[mr_index][0]
             nimr_list = [nimr_tuple[0] for nimr_tuple in sorted_mr_list[mr_index+1:][::-1]]
 
-            print 'Current MIMR is {}'.format(current_mimr.to_string())
-            print 'NIMR list consists of {}'.format([nimr.to_string() for nimr in nimr_list])
+            logging.info('Current MIMR is {}'.format(current_mimr.to_string()))
+            logging.info('NIMR list consists of {}'.format([nimr.to_string() for nimr in nimr_list]))
 
             action_taken = {}
 
@@ -813,9 +815,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 				                                                       imr_improvement_proposal,
                                                                                        stress_weight)
 
-            print 'IMR improvement proposal is {}'.format(imr_improvement_proposal)
+            logging.info('IMR improvement proposal is {}'.format(imr_improvement_proposal))
             for nimr in nimr_diff_proposal:
-                print 'The nimr decrease for {} is {}'.format(nimr.to_string(), nimr_diff_proposal[nimr])
+                logging.info('The nimr decrease for {} is {}'.format(nimr.to_string(), nimr_diff_proposal[nimr]))
 
             # Apply special handling in the scenario that a filter_policy has been set
             if filter_policy is not None and imr_improvement_proposal <= 0:
@@ -847,12 +849,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             is_perf_constant = is_performance_constant(current_perf_mean, simulated_mean, within_x=error_tolerance)
 
             if (is_perf_improved or is_perf_constant) is False:
-                print 'Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean)
+                logging.info('Performance went from {} to {}, thus continuing'.format(current_perf_mean, simulated_mean))
                 revert_simulate_mr_provisions(redis_db, current_mimr, nimr_diff_proposal)
                 action_taken[current_mimr] = 0
                 continue
             else:
-                print 'Performance is constant or improved, so committing the changes'
+                logging.info('Performance is constant or improved, so committing the changes')
                 commit_mr_provision(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal)
                 action_taken = nimr_diff_proposal
                 action_taken[current_mimr] = imr_improvement_proposal
@@ -860,7 +862,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 break
 
         if effective_mimr is None:
-            print 'There is no NIMR stealing arrangement that makes sense here. Exiting...'
+            logging.error('There is no NIMR stealing arrangement that makes sense here. Exiting...')
             exit()
 
         # Test the new performance after potential resource stealing
@@ -881,7 +883,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-        print 'Results from iteration {} are {}'.format(experiment_count, results)
+        logging.info('Results from iteration {} are {}'.format(experiment_count, results))
 
         # Checkpoint MR configurations and print
         current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
@@ -897,10 +899,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             sys_config['baseline_trials'] = baseline_trials
             sys_config['trials'] = experiment_trials
             
-            print 'Net performance improvement reported as 0, so initiating a backtrack step'
+            logging.info('Net performance improvement reported as 0, so initiating a backtrack step')
             new_performance = backtrack_overstep(redis_db,
                                                  workload_config,
-                                                 experiment_trials,
+                                                 experiment_count,
                                                  current_performance,
                                                  action_taken,
                                                  error_tolerance/2.0)
@@ -913,24 +915,24 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                 print_csv_configuration(current_mr_config)
                 experiment_count += 1
 
-                print 'Backtrack completed, referred to as experiment {}'.format(experiment_count)
+                logging.info('Backtrack completed, referred to as experiment {}'.format(experiment_count))
 
         print_all_steps(redis_db, experiment_count, sys_config, workload_config, filter_config)
 
-    print 'Convergence achieved - start squeezing NIMRs'
+    logging.info('Convergence achieved - start squeezing NIMRs')
 
     successful_steal = recent_nimr_list
     # Tentatively do this only 5 times to save time
     for x in range(5):
-        print 'Remaining nimrs to be stolen are {}'.format([mr.to_string() for mr in successful_steal])
+        logging.info('Remaining nimrs to be stolen are {}'.format([mr.to_string() for mr in successful_steal]))
         sucessful_steal = squeeze_nimrs(redis_db, sys_config,
                                         workload_config, successful_steal,
                                         current_performance)
 
-    print 'NIMRs have now also been squeezed, printing final values.'
+    logging.info('NIMRs have now also been squeezed, printing final values.')
     current_mr_config = resource_datastore.read_all_mr_alloc(redis_db)
     for mr in current_mr_config:
-        print '{} = {}'.format(mr.to_string(), current_mr_config[mr])
+        logging.info('{} = {}'.format(mr.to_string(), current_mr_config[mr]))
 
     print_csv_configuration(current_mr_config)
 
@@ -1022,8 +1024,8 @@ def squeeze_nimrs(redis_db, sys_config,
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
 
-        print 'Current performance is {}'.format(current_performance_mean)
-        print 'New performance is {}'.format(nimr_mean)
+        logging.info('Current performance is {}'.format(current_performance_mean))
+        logging.info('New performance is {}'.format(nimr_mean))
 
         is_constant_perf = is_performance_constant(nimr_mean, current_performance_mean, within_x=error_tolerance)
         is_improved_perf = is_performance_improved(nimr_mean, current_performance_mean,
@@ -1033,14 +1035,14 @@ def squeeze_nimrs(redis_db, sys_config,
 
         if should_retain_change:
             finalize_mr_provision(redis_db, nimr, new_alloc, workload_config)
-            print 'Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
+            logging.info('Successfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                              current_nimr_alloc,
-                                                                             new_alloc)
+                                                                             new_alloc))
             successful_steal.append(nimr)
         else:
-            print 'Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
+            logging.info('Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                                current_nimr_alloc,
-                                                                               new_alloc)
+                                                                               new_alloc))
             set_mr_provision_detect_id_change(redis_db, nimr, current_nimr_alloc, None)
 
     return successful_steal
@@ -1085,7 +1087,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
                                                0, 0, is_backtrack=True)
 
             results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
-            print 'Results from backtrack are {}'.format(results)
+            logging.info('Results from backtrack are {}'.format(results))
             return median_alloc_perf
         else:
             # Revert to the most recent MR allocation
@@ -1130,14 +1132,14 @@ def parse_config_file(config_file):
     if fill_services_first == '':
         sys_config['fill_services_first'] = None
         if sys_config['setting_mode'] == 'prem':
-            print 'You need to specify some services to try to fill first!'
+            logging.error('You need to specify some services to try to fill first!')
             exit()
     else:
         sys_config['fill_services_first'] = fill_services_first.split(',')
         all_services = get_actual_services()
         for service in sys_config['fill_services_first']:
             if service not in all_services:
-                print 'Invalid service name {}. Change your field fill_services_first'.format(service)
+                logging.error('Invalid service name {}. Change your field fill_services_first'.format(service))
                 exit()
 
     # Configuration parameters relating to the filter step
@@ -1217,7 +1219,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
             max_capacity = get_instance_specs(machine_type)[mr.resource]
             default_raw_alloc = (default_alloc_percentage / 100.0) * max_capacity
             mr_allocation[mr] = default_raw_alloc
-        print mr_allocation
+        logging.info(mr_allocation)
     else:
         # Manual Configuration Possible
         # Parse a CSV
@@ -1235,7 +1237,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
                 # Convert REPR to RAW AMOUNT
                 if amount_repr == 'PERCENT':
                     if amount <= 0 or amount > 100:
-                        print 'Error: invalid default percentage. Exiting...'
+                        logging.error('Error: invalid default percentage. Exiting...')
                         exit()
                     max_capacity = get_instance_specs(machine_type)[resource]
                     amount = (amount / 100.0) * max_capacity
@@ -1263,7 +1265,7 @@ def validate_configs(sys_config, workload_config):
         if resource in ['CPU-CORE', 'CPU-QUOTA', 'DISK', 'NET', 'MEMORY', '*']:
             continue
         else:
-            print 'Cannot stress a specified resource: {}'.format(resource)
+            logging.warning('Cannot stress a specified resource: {}'.format(resource))
 
 #Possibly will need to be changed as we start using hostnames in Quilt
 def validate_ip(ip_addresses):
@@ -1271,7 +1273,7 @@ def validate_ip(ip_addresses):
         try:
             socket.inet_aton(ip)
         except:
-            print 'The IP Address {} is Invalid'.format(ip)
+            logging.error('The IP Address {} is Invalid'.format(ip))
             exit()
 
 # Installs dependencies on machines if needed
@@ -1290,7 +1292,7 @@ def install_dependencies(workload_config):
     # Hardcoded for apt-app, initializing databases
     if workload_config['type'] == 'apt-app':
         # if len(traffic_machines) != 6:
-        #     print 'Not enough traffic machines supplied. Please check config file. Exiting...'
+        #     logging.info('Not enough traffic machines supplied. Please check config file. Exiting...')
         #     exit()
         # for traffic_machine in traffic_machines:
         #     traffic_client = get_client(traffic_machine)
@@ -1321,7 +1323,7 @@ def filter_mr(mr_allocation, acceptable_resources, acceptable_services, acceptab
         # and it is hard to solve...
 
     for mr in delete_queue:
-        print 'Deleting MR: ', mr.to_string()
+        logging.info('Deleting MR: {}'.format(mr.to_string()))
         del mr_allocation[mr]
 
     return mr_allocation
@@ -1339,18 +1341,18 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
             resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
             no_container_id_error = True
         except SystemError as e:
-            print "Updating the container_id of mr: " + mr.to_string()
+            logging.info("Updating the container_id of mr: " + mr.to_string())
 
-            print "Sleeping for 10 seconds to wait for container reboot..."
+            logging.info("Sleeping for 10 seconds to wait for container reboot...")
             sleep(10)
 
             attempt_count += 1
-            print "Tried {} reconnect attempts".format(attempt_count)
+            logging.info("Tried {} reconnect attempts".format(attempt_count))
             update_mr_id(redis_db, mr)
             pass
 
     if attempt_count == max_attempts:
-        print "ERROR: Tried the maximum number of attempts to reconnect to container. Exiting..."
+        logging.error("Tried the maximum number of attempts to reconnect to container. Exiting...")
         exit()
 
 ### Updates the container_id of mr.
@@ -1366,17 +1368,22 @@ def update_mr_id(redis_db, mr_to_change):
     tbot_datastore.write_service_locations(redis_db, mr_to_change.service_name, new_instance_locations)
 
     if len(new_instance_locations) < len(mr_to_change.instances):
-        print "Container not yet rebooted."
+        logging.warning("Container not yet rebooted.")
     else:
         mr_to_change.instances = new_instance_locations
-        print "Container ID replaced successfully"
+        logging.info("Container ID replaced successfully")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
+    parser.add_argument("--log", help='Default Logging File')
     args = parser.parse_args()
+
+    # Setup Logging
+    logging.basicConfig(filename=args.log, level=logging.INFO)
+    logging.info('Started Logging')
 
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)
@@ -1403,11 +1410,11 @@ if __name__ == "__main__":
             'spark.cores.max': '48'
         }
         workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
-        print workload_config
+        logging.info(workload_config)
         
     experiment_start = time.time()
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
     experiment_end = time.time()
 
     # Record the time and the number of MRs visited
-    print 'The experiment runs for a total of {}'.format(experiment_end - experiment_start)
+    logging.info('The experiment runs for a total of {}'.format(experiment_end - experiment_start))

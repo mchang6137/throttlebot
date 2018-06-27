@@ -13,6 +13,8 @@ from weighting_conversions import *
 from run_throttlebot import *
 from mr import MR
 
+import logging
+
 FILTER_LOGS = 'filter_logs.txt'
 
 '''
@@ -54,7 +56,7 @@ def apply_filtering_policy(redis_db,
             pipeline_mr = pipeline_groups[int(pipeline_repr)]
             current_performance_mean = mean_list(current_performance[metric])
             is_constant_perf = is_performance_constant(current_performance_mean, pipeline_perf, error_tolerance)
-            print 'For pipeline {}, the current mean is {} and new performance is {}'.format([mr.to_string() for mr in pipeline_mr], current_performance_mean, pipeline_perf)
+            logging.info('For pipeline {}, the current mean is {} and new performance is {}'.format([mr.to_string() for mr in pipeline_mr], current_performance_mean, pipeline_perf))
             if is_constant_perf:
                 mr_of_interest.append(pipeline_mr)
 
@@ -75,11 +77,11 @@ def apply_pipeline_filter(redis_db,
                           workload_config,
                           filter_config):
 
-    print '*' * 20
-    print 'INFO: Applying Filtering Pipeline'
+    logging.info('*' * 20)
+    logging.info('Applying Filtering Pipeline')
 
-    print 'Filter config is {}'.format(filter_config)
-    print 'MR working set is {}'.format(mr_working_set)
+    logging.info('Filter config is {}'.format(filter_config))
+    logging.info('MR working set is {}'.format(mr_working_set))
     
     machine_type = system_config['machine_type']
 
@@ -90,7 +92,7 @@ def apply_pipeline_filter(redis_db,
 
     pipeline_groups = []
 
-    print 'Pipelined services are {}'.format(pipelined_services)
+    logging.info('Pipelined services are {}'.format(pipelined_services))
     # No specified pipelined services indicates that each pipeline is a service
     if pipelined_services[0][0] == 'BY_SERVICE':
         service_names = list(set([mr.service_name for mr in mr_working_set]))
@@ -100,10 +102,10 @@ def apply_pipeline_filter(redis_db,
     elif pipelined_services[0][0] == 'RANDOM':
         pipeline_groups = gen_mr_random_split(mr_working_set, pipeline_partitions)
 
-    print "The pipeline groups are being printed below: "
+    logging.info("The pipeline groups are being printed below: ")
     for pipeline_group in pipeline_groups:
         pipeline_group = [mr.to_string() for mr in pipeline_group]
-        print 'A pipeline is {}'.format(pipeline_group)
+        logging.info('A pipeline is {}'.format(pipeline_group))
         
     tbot_metric = workload_config['tbot_metric']
     optimize_for_lowest = workload_config['optimize_for_lowest']

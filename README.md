@@ -71,6 +71,10 @@ are defaults. The default options are as follows.
 
 Once the configuration is set, ensure Redis is up and running, and then start Throttlebot with the following command.
 
-$ python run_throttlebot.py <config_file_name>
+$ python run_throttlebot.py --config_file <config_file_name>
+
+Optionally, you can add the --log flag to log to a specific file. Without a --log flag, Throttlebot will print to stdout.
+
+$ python run_throttlebot.py --config_file <config_file_name> --log <log_file_name>
 
 2. If necessary, set the "password" variables for your SSH keys. Without this, Throttlebot cannot execute commands on the virtual machines. They are located within remote_execution.py and measure_performance_MEAN_py3.py.
