@@ -1413,9 +1413,9 @@ if __name__ == "__main__":
         logging.info(workload_config)
     elif workload_config['type'] == 'apt-app':
         all_vm_ip = get_actual_vms()
-        workload_config['frontend'] = [get_master()]        
+        workload_config['request_generator'] = [get_master()]        
         services = get_service_placements(all_vm_ip)
-        workload_config['request_generator'] = [services['haproxy:1.7'][0][0]]
+        workload_config['frontend'] = [services['haproxy:1.7'][0][0]]
         print "Retrieving frontend:", workload_config['frontend']
         print "Retrieving request_generator:", workload_config['request_generator']
  

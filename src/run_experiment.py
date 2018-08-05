@@ -51,10 +51,8 @@ def execute_parse_results(ssh_client, cmd):
     _, results, _ = ssh_client.exec_command(cmd)
     try:
         results_str = results.read()
-        logging.info(results_str)
         results_float = float(results_str.strip('\n'))
     except Exception as e:
-        logging.warn(e)
         # logging.info(results.read())
         results_float = -1
     return results_float
@@ -479,7 +477,7 @@ def measure_apt_app(workload_config, experiment_iterations):
                 # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)
                 complete = execute_parse_results(traffic_client, finished_benchmark_cmd)
                 sleep(0.3)
-                logging.info("test {}".format(complete))
+                # logging.info("test {}".format(complete))
                 if complete != -1:
                     finished += 1
                 else:
@@ -581,23 +579,23 @@ def measure_apt_app(workload_config, experiment_iterations):
     # Remove outliers (all outside of 1 standard deviation)
     median = np.median(all_requests['rps'])
     std = np.std(all_requests['rps'])
-    all_requests['rps'] = [i for i in all_requests['rps'] if (i > (median - std) and i < (median + std))]
+    all_requests['rps'] = [i for i in all_requests['rps'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median( all_requests['latency'])
     std = np.std( all_requests['latency'])
-    all_requests['latency'] = [i for i in all_requests['latency'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency'] = [i for i in all_requests['latency'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_50'])
     std = np.std(all_requests['latency_50'])
-    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_90'])
     std = np.std(all_requests['latency_90'])
-    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_99'])
     std = np.std(all_requests['latency_99'])
-    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i >= (median - std) and i <= (median + std))]
 
     # Closing clients
     # for client in traffic_clients:
