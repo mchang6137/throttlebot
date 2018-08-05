@@ -38,6 +38,22 @@ def get_actual_vms():
         ips.append(ip)
     return ips
 
+def get_master():
+    ps_args = ['quilt', 'ps']
+    awk_args = ["awk", r'{print $6}']
+    # Identify the machine index of the master node
+    machine_roles = parse_quilt_ps_col(2, machine_level=True)
+
+    # Get the IP addresses of all the machines
+    machine_ips = parse_quilt_ps_col(6, machine_level=True)
+
+    combined_machine_info = zip(machine_roles, machine_ips)
+    ips = []
+    for info in combined_machine_info:
+        role,ip = info
+        if role == 'Master':
+            return ip
+
 # Gets all the services in the Quilt cluster
 # Identifies the services based on the COMMAND
 def get_actual_services():

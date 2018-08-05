@@ -16,3 +16,1380 @@ For vm ip 13.56.163.214, capacity {'CPU-QUOTA': 800.0, 'CPU-CORE': 8.0, 'DISK': 
 imr is NET
 current improvement proposal is 204800.0
 For vm ip 13.56.183.116, capacity {'CPU-QUOTA': 800.0, 'CPU-CORE': 8.0, 'DISK': 166723584.0, 'NET': 1024000.0, 'MEMORY': 34359738368.0}, consumption {'CPU-QUOTA': 80.0, 'CPU-CORE': 6.3999999999999995, 'DISK': 133378867.2, 'NET': 819200.0, 'MEMORY': 27487790694.399998}, diff 204800.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 2666666666.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 310614.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 2666666666.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 310614.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 2666666666.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 2666666666.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 7200000000.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 7200000000.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.123.30, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is MEMORY
+current improvement proposal is 5333333334.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 2666666666.0}, diff 5333333334.0
+imr is MEMORY
+current improvement proposal is 3466666668.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 3466666668.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.219.132.128, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.152.80, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.153.117.230, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 13.57.37.116, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 4533333332.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.156.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 6399999998.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 52.53.155.33, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 6399999998.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 645120.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 71680.0, 'MEMORY': 800000000.0}, diff 645120.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 67004007.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 7444889.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 67004007.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is NET
+current improvement proposal is 477867.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 238933.0, 'MEMORY': 800000000.0}, diff 477867.0
+imr is CPU-QUOTA
+current improvement proposal is 180.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 20.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 180.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.183.31.104, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 49632598.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 24816298.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 49632598.0
+imr is DISK
+current improvement proposal is 32261189.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 32261189.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.222.234, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.168.102, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 13.57.206.29, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 134.0
+For vm ip 52.53.204.157, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 66.0, 'CPU-CORE': 0.0, 'DISK': 42187707.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 134.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.215.136.37, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 573439.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is CPU-QUOTA
+current improvement proposal is 88.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 112.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 88.0
+imr is NET
+current improvement proposal is 310614.0
+For vm ip 54.193.126.39, capacity {'CPU-QUOTA': 200.0, 'CPU-CORE': 2.0, 'DISK': 74448896.0, 'NET': 716800.0, 'MEMORY': 8000000000.0}, consumption {'CPU-QUOTA': 158.0, 'CPU-CORE': 0.0, 'DISK': 59559116.0, 'NET': 406186.0, 'MEMORY': 800000000.0}, diff 310614.0

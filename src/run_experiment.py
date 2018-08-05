@@ -51,9 +51,10 @@ def execute_parse_results(ssh_client, cmd):
     _, results, _ = ssh_client.exec_command(cmd)
     try:
         results_str = results.read()
-        # logging.info('string', results_str)
+        logging.info(results_str)
         results_float = float(results_str.strip('\n'))
-    except:
+    except Exception as e:
+        logging.warn(e)
         # logging.info(results.read())
         results_float = -1
     return results_float
@@ -478,7 +479,7 @@ def measure_apt_app(workload_config, experiment_iterations):
                 # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)
                 complete = execute_parse_results(traffic_client, finished_benchmark_cmd)
                 sleep(0.3)
-                # logging.info("test {}".format(complete))
+                logging.info("test {}".format(complete))
                 if complete != -1:
                     finished += 1
                 else:
