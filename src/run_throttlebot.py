@@ -1106,6 +1106,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
+        print "MAX SERVICES:", max_num_services
         default_alloc_percentage = 70.0 / max_num_services
 
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
@@ -1241,4 +1242,36 @@ if __name__ == "__main__":
                               sys_config['stress_these_services'],
                               sys_config['stress_these_machines'])
 
+    if workload_config['type'] == 'bcd':
+        all_vm_ip = get_actual_vms()
+        service_to_deployment = get_service_placements(all_vm_ip)
+        workload_config['request_generator'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+        workload_config['frontend'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+        workload_config['additional_args'] = {'container_id': service_to_deployment['hantaowang/bcd-spark-master'][0][1]}
+        workload_config['resources'] = {
+            'spark.executor.cores': '8',
+            'spark.driver.cores': '8',
+            'spark.executor.memory': str(int(32 * 0.8)) + 'g',
+            'spark.driver.memory': str(int(32 * 0.8)) + 'g',
+            'spark.cores.max': '48'
+        }
+        workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
+        logging.info(workload_config)
+    elif workload_config['type'] == 'apt-app':
+        all_vm_ip = get_actual_vms()
+        workload_config['request_generator'] = [get_master()]        
+        services = get_service_placements(all_vm_ip)
+        workload_config['frontend'] = [services['haproxy:1.7'][0][0]]
+        print "Retrieving frontend:", workload_config['frontend']
+        print "Retrieving request_generator:", workload_config['request_generator']
+    elif workload_config['type'] == 'hotrod':
+        all_vm_ip = get_actual_vms()
+        workload_config['request_generator'] = [get_master()]
+        services = get_service_placements(all_vm_ip)
+        workload_config['frontend'] = [services['nginx:1.7.9'][0][0]]
+        print "Retrieving frontend:", workload_config['frontend']
+        print "Retrieving request_generator:", workload_config['request_generator']
+ 
+    experiment_start = time.time()
+    
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
