@@ -1216,6 +1216,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
+        print "MAX SERVICES:", max_num_services
         default_alloc_percentage = 70.0 / max_num_services
 
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
@@ -1440,6 +1441,13 @@ if __name__ == "__main__":
         workload_config['request_generator'] = [get_master()]        
         services = get_service_placements(all_vm_ip)
         workload_config['frontend'] = [services['haproxy:1.7'][0][0]]
+        print "Retrieving frontend:", workload_config['frontend']
+        print "Retrieving request_generator:", workload_config['request_generator']
+    elif workload_config['type'] == 'hotrod':
+        all_vm_ip = get_actual_vms()
+        workload_config['request_generator'] = [get_master()]
+        services = get_service_placements(all_vm_ip)
+        workload_config['frontend'] = [services['nginx:1.7.9'][0][0]]
         print "Retrieving frontend:", workload_config['frontend']
         print "Retrieving request_generator:", workload_config['request_generator']
  
