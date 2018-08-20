@@ -13,7 +13,7 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 ### Pre-defined blacklist (Temporary)
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
                    'throttlebot/quilt:latest', 'tsaianson/quilt:latest']
-service_blacklist = ['hantaowang/lumbersexual']
+service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed']
 testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearch:2.4', 'kibana:4', 'library/postgres:9.4',
                      'mysql:5.6.32', 'osalpekar/spark-image-compress...']
 
@@ -37,6 +37,22 @@ def get_actual_vms():
             continue
         ips.append(ip)
     return ips
+
+def get_master():
+    ps_args = ['quilt', 'ps']
+    awk_args = ["awk", r'{print $6}']
+    # Identify the machine index of the master node
+    machine_roles = parse_quilt_ps_col(2, machine_level=True)
+
+    # Get the IP addresses of all the machines
+    machine_ips = parse_quilt_ps_col(6, machine_level=True)
+
+    combined_machine_info = zip(machine_roles, machine_ips)
+    ips = []
+    for info in combined_machine_info:
+        role,ip = info
+        if role == 'Master':
+            return ip
 
 # Gets all the services in the Quilt cluster
 # Identifies the services based on the COMMAND

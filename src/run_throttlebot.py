@@ -101,7 +101,6 @@ def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
     min_alloc = get_instance_min_specs()
 
     quilt_usage = {}
-
     # Leave some resources available for Quilt containers to run (OVS, etc.)
      # This is dictated by quilt overheads
     for resource in resource_alloc:
@@ -582,7 +581,7 @@ workload_config: Parameters about the workload in a dict
 default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0):
+def run(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0, fake=False):
     redis_host = sys_config['redis_host']
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
@@ -656,6 +655,11 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
 
     current_performance[preferred_performance_metric] = remove_outlier(current_performance[preferred_performance_metric])
     baseline_performance = current_performance[preferred_performance_metric]
+    
+    # If fake, then return only baseline
+    if fake:
+    	return baseline_performance
+
     current_time_stop = datetime.datetime.now()
     time_delta = current_time_stop - time_start
 
@@ -1212,6 +1216,7 @@ def parse_resource_config_file(resource_config_csv, sys_config):
         for vm in vm_to_service:
             if len(vm_to_service[vm]) > max_num_services:
                 max_num_services = len(vm_to_service[vm])
+        print "MAX SERVICES:", max_num_services
         default_alloc_percentage = 70.0 / max_num_services
 
         mr_list = get_all_mrs_cluster(vm_list, all_services, all_resources)
@@ -1373,6 +1378,26 @@ def update_mr_id(redis_db, mr_to_change):
         mr_to_change.instances = new_instance_locations
         logging.info("Container ID replaced successfully")
 
+# Remove this afterwards
+def fake_run(config_file, mr_allocation):
+
+    sys_config, workload_config, filter_config = parse_config_file(config_file)
+
+    mr_allocation = filter_mr(mr_allocation,
+                              sys_config['stress_these_resources'],
+                              sys_config['stress_these_services'],
+                              sys_config['stress_these_machines'])
+
+    all_vm_ip = get_actual_vms()
+    workload_config['request_generator'] = [get_master()]
+    services = get_service_placements(all_vm_ip)
+    workload_config['frontend'] = [services['haproxy:1.7'][0][0]]
+    print "Retrieving frontend:", workload_config['frontend']
+    print "Retrieving request_generator:", workload_config['request_generator']
+    
+    r = run(sys_config, workload_config, filter_config, mr_allocation, 0, fake=True)
+    return r
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
@@ -1411,8 +1436,23 @@ if __name__ == "__main__":
         }
         workload_config['instances'] = service_to_deployment['hantaowang/bcd-spark'] + service_to_deployment['hantaowang/bcd-spark-master']
         logging.info(workload_config)
-        
+    elif workload_config['type'] == 'apt-app':
+        all_vm_ip = get_actual_vms()
+        workload_config['request_generator'] = [get_master()]        
+        services = get_service_placements(all_vm_ip)
+        workload_config['frontend'] = [services['haproxy:1.7'][0][0]]
+        print "Retrieving frontend:", workload_config['frontend']
+        print "Retrieving request_generator:", workload_config['request_generator']
+    elif workload_config['type'] == 'hotrod':
+        all_vm_ip = get_actual_vms()
+        workload_config['request_generator'] = [get_master()]
+        services = get_service_placements(all_vm_ip)
+        workload_config['frontend'] = [services['nginx:1.7.9'][0][0]]
+        print "Retrieving frontend:", workload_config['frontend']
+        print "Retrieving request_generator:", workload_config['request_generator']
+ 
     experiment_start = time.time()
+    
     run(sys_config, workload_config, filter_config, mr_allocation, args.last_completed_iter)
     experiment_end = time.time()
 

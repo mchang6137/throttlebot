@@ -1,0 +1,91 @@
+Original Baseline
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 46.6666666667
+        DISK: 17371409.0667
+        NET: 167253.333333
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 46.6666666667
+        DISK: 17371409.0667
+        NET: 167253.333333
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 46.6666666667
+        DISK: 17371409.0667
+        NET: 167253.333333
+Config 0
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 23.3333333333
+        DISK: 26057113.6
+        NET: 250880.0
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 46.6666666667
+        DISK: 8685704.53333
+        NET: 167253.333333
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 70.0
+        DISK: 17371409.0667
+        NET: 83626.6666667
+Config 1
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 70.0
+        DISK: 8685704.53333
+        NET: 250880.0
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 46.6666666667
+        DISK: 17371409.0667
+        NET: 167253.333333
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 23.3333333333
+        DISK: 26057113.6
+        NET: 83626.6666667
+Config 2
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 23.3333333333
+        DISK: 8685704.53333
+        NET: 83626.6666667
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 70.0
+        DISK: 17371409.0667
+        NET: 250880.0
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 46.6666666667
+        DISK: 26057113.6
+        NET: 167253.333333
+Config 3
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 23.3333333333
+        DISK: 8685704.53333
+        NET: 83626.6666667
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 46.6666666667
+        DISK: 17371409.0667
+        NET: 250880.0
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 70.0
+        DISK: 26057113.6
+        NET: 167253.333333
+Config 4
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 46.6666666667
+        DISK: 26057113.6
+        NET: 83626.6666667
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 70.0
+        DISK: 8685704.53333
+        NET: 167253.333333
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 23.3333333333
+        DISK: 17371409.0667
+        NET: 250880.0
+Config 5
+    Tier 1: ['osalpekar/spark-image-compress...']
+        CPU-QUOTA: 46.6666666667
+        DISK: 26057113.6
+        NET: 83626.6666667
+    Tier 2: ['elasticsearch:2.4', 'library/postgres:9.4', 'tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres']
+        CPU-QUOTA: 70.0
+        DISK: 17371409.0667
+        NET: 250880.0
+    Tier 3: ['kibana:4', 'mysql:5.6.32']
+        CPU-QUOTA: 23.3333333333
+        DISK: 8685704.53333
+        NET: 167253.333333

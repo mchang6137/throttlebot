@@ -33,6 +33,8 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         return measure_elk_stack(workload_config, experiment_iterations)
     elif experiment_type == 'bcd':
         return measure_bcd(workload_config, experiment_iterations)
+    elif experiment_type == 'hotrod':
+        return measure_hotrod(workload_config, experiment_iterations)
     else:
         logging.error('INVALID EXPERIMENT TYPE: {}'.format(experiment_type))
         exit()
@@ -51,9 +53,8 @@ def execute_parse_results(ssh_client, cmd):
     _, results, _ = ssh_client.exec_command(cmd)
     try:
         results_str = results.read()
-        # logging.info('string', results_str)
         results_float = float(results_str.strip('\n'))
-    except:
+    except Exception as e:
         # logging.info(results.read())
         results_float = -1
     return results_float
@@ -580,24 +581,169 @@ def measure_apt_app(workload_config, experiment_iterations):
     # Remove outliers (all outside of 1 standard deviation)
     median = np.median(all_requests['rps'])
     std = np.std(all_requests['rps'])
-    all_requests['rps'] = [i for i in all_requests['rps'] if (i > (median - std) and i < (median + std))]
+    all_requests['rps'] = [i for i in all_requests['rps'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median( all_requests['latency'])
     std = np.std( all_requests['latency'])
-    all_requests['latency'] = [i for i in all_requests['latency'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency'] = [i for i in all_requests['latency'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_50'])
     std = np.std(all_requests['latency_50'])
-    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_90'])
     std = np.std(all_requests['latency_90'])
-    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i >= (median - std) and i <= (median + std))]
 
     median = np.median(all_requests['latency_99'])
     std = np.std(all_requests['latency_99'])
-    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
+    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i >= (median - std) and i <= (median + std))]
 
+    # Closing clients
+    # for client in traffic_clients:
+    #     close_client(client)
+    close_client(traffic_client)
+
+    return all_requests
+
+
+def measure_hotrod(workload_config, experiment_iterations):
+    hotrod_public_ip = workload_config['frontend'][0]
+    traffic_gen_ips = workload_config['request_generator']
+
+    NUM_NGINX_REQUESTS = 1000
+    NUM_DISPATCH_REQUESTS = 500
+    CONCURRENCY = 100
+
+    traffic_client = get_client(traffic_gen_ips[0])
+
+    all_requests = {}
+    all_requests['rps'] = []
+    all_requests['latency'] = []
+    all_requests['latency_50'] = []
+    all_requests['latency_99'] = []
+    all_requests['latency_90'] = []
+
+    index = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/ &> output0.txt'.format(NUM_NGINX_REQUESTS, CONCURRENCY, hotrod_public_ip)
+    dispatch = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/api/dispatch?customer=123 &> output1.txt'.format(NUM_DISPATCH_REQUESTS, CONCURRENCY, hotrod_public_ip)
+    mapper = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/map/location &> output2.txt'.format(NUM_DISPATCH_REQUESTS, CONCURRENCY, hotrod_public_ip)
+
+    benchmark_commands = [index, dispatch, mapper]
+
+    for x in range(experiment_iterations):
+
+        # Initiating requests
+        for a in range(len(benchmark_commands)):
+            logging.info(benchmark_commands[a])
+            traffic_client.exec_command(benchmark_commands[a])
+            sleep(0.2)
+
+        # Checking for task completion
+        finished = 0
+        repetitions = 0
+        logging.info('Please ignore the following new lines (if any)')
+        sleep(5)
+
+        while finished != len(benchmark_commands):
+            sleep(2)
+            repetitions += 1
+            finished = 0
+            # Call again...
+            if repetitions > 50:
+                logging.info('Calling commands again due to unresponsiveness')
+                for a in range(len(benchmark_commands)):
+                    logging.info(benchmark_commands[a])
+                    # traffic_clients[a].exec_command(benchmark_commands[a])
+                    traffic_client.exec_command(benchmark_commands[a])
+                    sleep(0.2)
+                repetitions = 0
+                sleep(5)
+
+            for b in range(len(benchmark_commands)):
+                finished_benchmark_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(b)
+                # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)
+                complete = execute_parse_results(traffic_client, finished_benchmark_cmd)
+                sleep(0.3)
+                # logging.info("test {}".format(complete))
+                if complete != -1:
+                    finished += 1
+                else:
+                    break
+
+        rps = 0
+        latency = 0
+        latency_50 = 0
+        latency_90 = 0
+        latency_99 = 0
+        # rps_cmd = "cat output.txt | grep 'Requests per second' | awk {{'print $4'}}"
+        # latency_cmd = "cat output.txt | grep 'Time per request' | awk 'NR==1{{print $4}}'"
+        # latency_50_cmd = "cat output.txt | grep '50%' | awk {'print $2'}"
+        # latency_90_cmd = "cat output.txt | grep '90%' | awk {'print $2'}"
+        # latency_99_cmd = "cat output.txt | grep '99%' | awk {'print $2'}"
+
+        # Grabbing data and removing files (TEMP VAR FOR DEBUGGING)
+        for c in range(len(benchmark_commands)):
+
+            rps_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(c)
+            latency_cmd = "cat output{}.txt | grep 'Time per request' | awk 'NR==1{{print $4}}'".format(c)
+            latency_50_cmd = "cat output{}.txt | grep '50%' | awk {{'print $2'}}".format(c)
+            latency_90_cmd = "cat output{}.txt | grep '90%' | awk {{'print $2'}}".format(c)
+            latency_99_cmd = "cat output{}.txt | grep '99%' | awk {{'print $2'}}".format(c)
+
+            # Temporary Values
+            # rpst = execute_parse_results(traffic_clients[c], rps_cmd)
+            # latencyt = execute_parse_results(traffic_clients[c], latency_cmd)
+            # latency_50t = execute_parse_results(traffic_clients[c], latency_50_cmd)
+            # latency_90t = execute_parse_results(traffic_clients[c], latency_90_cmd)
+            # latency_99t = execute_parse_results(traffic_clients[c], latency_99_cmd)
+            #
+            # rps += float(execute_parse_results(traffic_clients[c], rps_cmd))
+            # latency += float(execute_parse_results(traffic_clients[c], latency_cmd))
+
+            rpst = execute_parse_results(traffic_client, rps_cmd)
+            sleep(0.3)
+            latencyt = execute_parse_results(traffic_client, latency_cmd)
+            sleep(0.3)
+            latency_50t = execute_parse_results(traffic_client, latency_50_cmd)
+            sleep(0.3)
+            latency_90t = execute_parse_results(traffic_client, latency_90_cmd)
+            sleep(0.3)
+            latency_99t = execute_parse_results(traffic_client, latency_99_cmd)
+
+            rps += float(execute_parse_results(traffic_client, rps_cmd))
+            
+            latency += float(execute_parse_results(traffic_client, latency_cmd))
+
+            latency_50 += latency_50t
+            latency_90 += latency_90t
+            latency_99 += latency_99t
+            # traffic_clients[c].exec_command('rm output.txt')
+            rm_out_cmd = 'rm output{}.txt'.format(c)
+            traffic_client.exec_command(rm_out_cmd)
+            sleep(0.3)
+            logging.info('{},{},{},{},{}'.format(rpst, latencyt, latency_50t, latency_90t, latency_99t))
+        logging.info('total:{},{},{},{},{}'.format(rps, latency, latency_50, latency_90, latency_99))
+        
+        all_requests['rps'].append(rps)
+        all_requests['latency'].append(latency)
+        all_requests['latency_50'].append(latency_50)
+        all_requests['latency_90'].append(latency_90)
+        all_requests['latency_99'].append(latency_99)
+        # TEMPORARY DELETE UP TO EXIT()
+        # for client in traffic_clients:
+        #     close_client(client)
+        # close_client(traffic_client)
+        # logging.info(all_requests)
+        # logging.info('Checkpoint 2, Baseline and iteration done')
+        # exit()
+
+    # Remove outliers (all outside of 1 standard deviation)
+    all_requests['rps'] = [np.median(all_requests['rps'])]
+    all_requests['latency'] = [np.median(all_requests['latency'])]
+    all_requests['latency_50'] = [np.median(all_requests['latency_50'])]
+    all_requests['latency_90'] = [np.median(all_requests['latency_90'])]
+    all_requests['latency_99'] = [np.median(all_requests['latency_99'])]
+    
     # Closing clients
     # for client in traffic_clients:
     #     close_client(client)
