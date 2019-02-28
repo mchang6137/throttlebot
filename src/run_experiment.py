@@ -6,6 +6,7 @@ from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
 import numpy as np
+import subprocess
 
 import logging
 
@@ -35,6 +36,8 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         return measure_bcd(workload_config, experiment_iterations)
     elif experiment_type == 'hotrod':
         return measure_hotrod(workload_config, experiment_iterations)
+    elif experiment_type == 'kubernetes':
+        return measure_kubernetes(workload_config, experiment_iterations)
     else:
         logging.error('INVALID EXPERIMENT TYPE: {}'.format(experiment_type))
         exit()
@@ -280,6 +283,50 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
     logging.info(all_results)
 
     return all_results
+
+def measure_kubernetes(workload_configuration, experiment_iterations):
+    traffic_generator_ip = get_master()
+
+    NUM_REQUESTS = 20
+    CONCURRENCY = 10
+
+    service_name = "balancer"
+    pod_name = "{}_workload".format(service_name)
+
+    create_and_deploy_workload_pod(pod_name,
+                                    NUM_REQUESTS,
+                                   CONCURRENCY,
+                                   get_service_ip(service_name),
+                                   get_service_port(service_name),
+                                   workload_configuration['additional_arg_values'])
+    sleep(2)
+
+    traffic_client = get_client(traffic_generator_ip)
+
+    all_requests = {}
+    all_requests['rps'] = []
+    all_requests['latency'] = []
+    all_requests['latency_50'] = []
+    all_requests['latency_99'] = []
+    all_requests['latency_90'] = []
+
+    ssh_exec(traffic_client, "kubectl logs {} > output.txt".format(pod_name))
+
+    for x in range(experiment_iterations):
+        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
+        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
+        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
+        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
+        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+
+        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
+        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
+        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
+        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
+        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+
+    delete_workload_pod(pod_name)
+
 
 def measure_TODO_response_time(workload_configuration, iterations):
     REST_server_ip = workload_configuration['frontend'][0]

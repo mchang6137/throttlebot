@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workload
+spec: 
+  containers:
+  - name: sise
+    image: jordi/ab
+    ports:
+    - containerPort: 9876
+    args:
+
+    
+
