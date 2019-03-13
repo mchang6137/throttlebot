@@ -299,6 +299,8 @@ def measure_kubernetes(workload_configuration, experiment_iterations):
                                    get_service_ip(service_name),
                                    get_service_port(service_name),
                                    workload_configuration['additional_arg_values'])
+
+
     sleep(2)
 
     traffic_client = get_client(traffic_generator_ip)

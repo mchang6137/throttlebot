@@ -5,7 +5,7 @@ def get_client(ip):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     print("Client is connecting")
-    client.connect(ip, username="quilt", password="", key_filename='/Users/rahulbalakrishnan/.ssh/id_rsa')
+    client.connect(ip, username="admin", password="")
     print("Client has connected")
     return client
 

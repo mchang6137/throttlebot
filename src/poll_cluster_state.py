@@ -23,6 +23,7 @@ testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearc
 config.load_kube_config()
 
 v1 = client.CoreV1Api()
+v1_beta = client.ExtensionsV1beta1Api()
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
@@ -73,7 +74,7 @@ def get_master():
         if (node[0] == 'master'):
             name = node[1]
 
-    master_node_ip = v1.read_node(name).status.addresses[1]
+    master_node_ip = v1.read_node(name).status.addresses[1].address
 
     return master_node_ip
 
@@ -247,6 +248,16 @@ def get_vm_to_service(vm_ips):
 
     return vm_to_service
 
+def get_deployment_cpu_quota(deployment_name):
+    time =  v1_beta.read_namespaced_deployment(namespace="default", name=deployment_name).spec.template.spec.containers[
+        0].resources.requests['cpu']
+
+    if time[-1] == 'm':
+        return (float(time[:-1]) / 1000)
+
+    return time
+
+
 def create_and_deploy_workload_pod(name, num_requests, concurrency, hostname, port, additional_args):
 
     body = yaml.load(
@@ -254,22 +265,60 @@ def create_and_deploy_workload_pod(name, num_requests, concurrency, hostname, po
             os.path.join(os.getcwd(),
             'workload.yaml')))
 
-    args = []
-    args.append("-n {}".format(num_requests))
-    args.append("-c {}".format(concurrency))
-    args.append("-p post.json")
-    args.append("-T application/json")
-    args.append("-s 200")
-    args.append("-q")
-    args.append("-e results_file")
-    args.append("http://{}:{}/{}/".format(hostname, port, additional_args))
-
+    args = populate_workload_args(num_requests, concurrency, hostname, port, additional_args)
 
     body['spec']['containers'][0]['args'] = args
     body['metadata']['name'] = name
 
     v1.create_namespaced_pod(body=body, namespace='default')
 
+def create_and_deploy_workload_deployment(name, replicas, num_requests, concurrency, hostname, port, additional_args):
+
+    body = yaml.load(
+        open(
+            os.path.join(os.getcwd() + "/manifests/",
+            'workload_deployment.yaml')))
+
+    args = populate_workload_args(num_requests, concurrency, hostname, port, additional_args)
+
+    body['spec']['template']['spec']['containers'][0]['args'] = args
+    body['metadata']['name'] = name
+    body['spec']['replicas'] = replicas
+    body['metadata']['labels']['app'] = name
+    body['spec']['template']['metadata']['labels']['app'] = name
+    body['spec']['selector']['matchLabels']['app'] = name
+    v1_beta.create_namespaced_deployment(body=body, namespace='default')
+
+def get_all_pods_from_deployment(deployment_name, label = None):
+
+    selector = deployment_name
+    if label:
+        selector = label
+
+    return [pod.metadata.name for pod in v1.list_namespaced_pod(namespace="default",
+                                                         label_selector='app={}'.format(selector)).items]
+
+def populate_workload_args(num_requests, concurrency, hostname, port, additional_args):
+    args = []
+    args.append("-n {}".format(num_requests))
+    args.append("-c {}".format(concurrency))
+    args.append("-T application/json")
+    args.append("-s 200")
+    args.append("-q")
+    args.append("-e results_file")
+    args.append("http://{}:{}/{}/".format(hostname, port, additional_args))
+
+    args = ["-c",
+            'while true; do ab -n {} -c {} -T application/json -s 200 -q http://{}:{}/{}/; sleep 1; done;'.format(
+                num_requests, concurrency, hostname, port, additional_args
+            )]
+
+
+    return args
+
 def delete_workload_pod(name):
     v1.delete_namespaced_pod(
         namespace='default', name=name)
+
+def delete_workload_deployment(name):
+    v1_beta.delete_namespaced_deployment(namespace='default', name=name)

@@ -1,0 +1,41 @@
+#mongo service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    appName: mongodb
+spec:
+  selector:
+    appName: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+  type: ClusterIP
+---
+#mongo deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      appName: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        appName: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: index.docker.io/mongo:3.2.15
+        ports:
+          - containerPort: 27017
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: MONGO_INITDB_DATABASE
+          value: nodetodo

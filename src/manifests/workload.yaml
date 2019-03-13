@@ -8,7 +8,7 @@ spec:
     image: jordi/ab
     ports:
     - containerPort: 9876
-    args:
+    command: ['/bin/sh']
+    args: []
 
-    
 
