@@ -5,9 +5,18 @@ from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
+import argparse
 import numpy as np
-
 import logging
+import requests
+
+def test_todo(traffic_gen_ip, num_traffic_pods, experiment_iterations):
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'todo-app'
+    all_results = measure_runtime(workload_config, experiment_iterations)
+    print all_results
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
@@ -59,6 +68,16 @@ def execute_parse_results(ssh_client, cmd):
         results_float = -1
     return results_float
 
+def execute_parallel_parse(parallel_client, cmd):
+    output = parallel_client(cmd)
+    host_to_output = {}
+    try:
+        for host, host_output in output.items():
+            output_str = host_output.read()
+            host_to_output[host] = float(output_str.strip('\n'))
+    except Exception as e:
+        host_to_ouput[host] = -1
+    return host_to_output
 
 # helper objects
 class latencyResult():
@@ -282,48 +301,68 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
     return all_results
 
 def measure_TODO_response_time(workload_configuration, iterations):
-    REST_server_ip = workload_configuration['frontend'][0]
+    num_traffic_generators = workload_configuration['workload_num']
     traffic_generator_ip = workload_configuration['request_generator'][0]
 
-    traffic_client = get_client(traffic_generator_ip)
-
     all_requests = {}
+    all_requests['latency_90'] = []
+    all_requests['latency_99'] = []
     all_requests['rps'] = []
     all_requests['latency'] = []
     all_requests['latency_50'] = []
-    all_requests['latency_99'] = []
-    all_requests['latency_90'] = []
 
     NUM_REQUESTS = 350
     CONCURRENCY = 150
 
-    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 200 -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    for _ in range(iterations):
+        traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
+        try:
+            r = requests.get(traffic_url, params={'w': num_traffic_generators,
+                                                  'n': NUM_REQUESTS,
+                                                  'c': CONCURRENCY,
+                                                  'port': 80,
+                                                  'hostname': 'haproxy.q'})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'GET requests have been sent'
+            
+            
+        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+        try:
+            collected = requests.get(collect_url, params={'w': num_traffic_generators}, timeout=2000)
+            perf_dict = collected.json()
+            print perf_dict
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        if len(perf_dict.keys()) != 0:
+            for k in perf_dict.keys():
+                all_requests[k].append(perf_dict[k])
+        else:
+            print "Too long to wait for collection. Service is probable down"
+            sys.exit(1)
 
-    clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
+        print 'Data has been collected: {}'.format(all_requests)
 
-    for x in range(iterations):
-        _, results,_ = traffic_client.exec_command(post_cmd)
-        logging.info(post_cmd)
-        results.read()
+        clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
+        try:
+            clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured while waiting for clearing to finish')
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
 
-        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
-        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
-        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
-        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
-        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+        print 'Data has been cleared'
 
-        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
-        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
-        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
-        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
-        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+        logging.info(all_requests)
+        print all_requests
 
-        _,cleared,_ = traffic_client.exec_command(clear_cmd)
-        cleared.read()
-
-    close_client(traffic_client)
-
-    logging.info(all_requests)
     return all_requests
 
 #Measure response time for MEAN Application
@@ -750,3 +789,16 @@ def measure_hotrod(workload_config, experiment_iterations):
     close_client(traffic_client)
 
     return all_requests
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--test_name")
+    parser.add_argument("--traffic_ip")
+    parser.add_argument("--workload_num")
+    parser.add_argument("--iterations")
+    args = parser.parse_args()
+
+    if args.test_name == 'todo':
+        test_todo(args.traffic_ip, int(args.workload_num), int(args.iterations))
+    
