@@ -996,6 +996,7 @@ def parse_clampdown_config_file(config_file):
 
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
+    workload_config['workload_num'] = config.get('Workload', 'workload_num')
     workload_config['request_generator'] = config.get('Workload', 'request_generator').split(',')
     workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
@@ -1169,6 +1170,8 @@ if __name__ == "__main__":
     parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
     parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
     args = parser.parse_args()
+
+    logging.getLogger().setLevel(logging.INFO)
 
     sys_config, workload_config, filter_config = parse_clampdown_config_file(args.config_file)
     mr_allocation = parse_resource_config_file(args.resource_config, sys_config)

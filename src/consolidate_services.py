@@ -308,6 +308,7 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
     imr_resource = imr_list[0].resource
     service_containers = sorted(service_containers,
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
+    print service_containers
 
     first_fit_placements = ff(service_containers)
     logging.info('First fit service placement is {}'.format(first_fit_placements))
@@ -316,6 +317,8 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
     optimal_num_machines = len(first_fit_placements.keys())
     imr_aware_service_placement = {}
     imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
+    if imr_aware_service_placement is None:
+        imr_aware_service_placement = first_fit_placements
     while len(imr_aware_service_placement.keys()) == 0:
         optimal_num_machines += 1
         imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)

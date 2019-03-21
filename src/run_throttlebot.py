@@ -428,7 +428,7 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
 def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-    set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), None)
+        set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), None)
 
     old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
     set_mr_provision_detect_id_change(redis_db, imr, int(old_imr_alloc), None)
@@ -1167,7 +1167,9 @@ def parse_config_file(config_file):
 
     #Configuration Parameters relating to workload
     workload_config['type'] = config.get('Workload', 'type')
+    workload_config['workload_num'] = config.get('Workload', 'workload_num')
     workload_config['request_generator'] = config.get('Workload', 'request_generator').split(',')
+
     workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
     workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
