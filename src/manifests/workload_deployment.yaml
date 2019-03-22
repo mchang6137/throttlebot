@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: sise
-        image: jordi/ab
+        image: rbala19/ab
         ports:
         - containerPort: 9876
         command: ['/bin/sh']

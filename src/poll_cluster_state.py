@@ -252,10 +252,12 @@ def get_deployment_cpu_quota(deployment_name):
     time =  v1_beta.read_namespaced_deployment(namespace="default", name=deployment_name).spec.template.spec.containers[
         0].resources.requests['cpu']
 
-    if time[-1] == 'm':
-        return (float(time[:-1]) / 1000)
+    if time[-1] == "m":
+        return float(time[:-1]) / 1000
 
-    return time
+
+    return (float(time))
+
 
 
 def create_and_deploy_workload_pod(name, num_requests, concurrency, hostname, port, additional_args):
@@ -272,6 +274,8 @@ def create_and_deploy_workload_pod(name, num_requests, concurrency, hostname, po
 
     v1.create_namespaced_pod(body=body, namespace='default')
 
+
+
 def create_and_deploy_workload_deployment(name, replicas, num_requests, concurrency, hostname, port, additional_args):
 
     body = yaml.load(
@@ -287,6 +291,17 @@ def create_and_deploy_workload_deployment(name, replicas, num_requests, concurre
     body['metadata']['labels']['app'] = name
     body['spec']['template']['metadata']['labels']['app'] = name
     body['spec']['selector']['matchLabels']['app'] = name
+    v1_beta.create_namespaced_deployment(body=body, namespace='default')
+
+def create_scale_deployment(name, cpu_cost):
+
+    body = yaml.load(
+        open(
+            os.path.join(os.getcwd() + "/manifests/",
+            '{}.yaml'.format(name))))
+
+    body['spec']['template']['spec']['containers'][0]['resources']['requests']['cpu'] = cpu_cost
+    body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = cpu_cost
     v1_beta.create_namespaced_deployment(body=body, namespace='default')
 
 def get_all_pods_from_deployment(deployment_name, label = None):
@@ -309,7 +324,7 @@ def populate_workload_args(num_requests, concurrency, hostname, port, additional
     args.append("http://{}:{}/{}/".format(hostname, port, additional_args))
 
     args = ["-c",
-            'while true; do ab -n {} -c {} -T application/json -s 200 -q http://{}:{}/{}/; sleep 1; done;'.format(
+            'while true; do ab -n {} -c {} -p post.json -T application/json -s 200 -q http://{}:{}/{}/; sleep .4; done;'.format(
                 num_requests, concurrency, hostname, port, additional_args
             )]
 
@@ -319,6 +334,15 @@ def populate_workload_args(num_requests, concurrency, hostname, port, additional
 def delete_workload_pod(name):
     v1.delete_namespaced_pod(
         namespace='default', name=name)
+
+def get_node_capacity():
+
+    nodes = [node.metadata.name for node in v1.list_node().items if node.metadata.labels['kubernetes.io/role'] == "node"]
+
+    return int(subprocess.check_output(
+        "kubectl describe node {}".format(nodes[0]) + "| grep -C 2 \'Capacity\' | grep \'cpu\' | awk {\'print $2 \'}",
+        shell=True).decode('utf-8')[:-1])
+
 
 def delete_workload_deployment(name):
     v1_beta.delete_namespaced_deployment(namespace='default', name=name)

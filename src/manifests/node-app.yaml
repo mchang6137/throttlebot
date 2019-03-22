@@ -26,6 +26,7 @@ spec:
           value: dns
         resources:
             requests:
-              memory: "1Gi"
-              cpu: "500m"
+              cpu: "1.1"
+            limits:
+              cpu: "1.1"
       terminationGracePeriodSeconds: 10

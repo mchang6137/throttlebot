@@ -37,6 +37,9 @@ spec:
         ports:
         - containerPort: 80
           #name: haproxy
+        resources:
+            limits:
+              cpu: ".46"
         env:
         - name: GET_HOSTS_FROM
           value: dns

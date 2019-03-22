@@ -7,22 +7,25 @@ from poll_cluster_state import *
 from run_experiment import *
 from collections import defaultdict
 import logging
+import traceback
 
 
-def create_workload_deployment(name, workload_size, service_name, additional_args):
+def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = None, concurrency = None):
     ssh_client = get_client(get_master())
 
-    create_and_deploy_workload_deployment(name,
-                                           workload_size,
-                                          350,
-                                          150,
-                                          get_service_ip(service_name),
-                                          get_service_port(service_name),
-                                          additional_args)
+    create_and_deploy_workload_deployment(name=name,
+                                          replicas=workload_size,
+                                          num_requests=500,
+                                          concurrency=200,
+                                          hostname=get_service_ip(service_name),
+                                          port=get_service_port(service_name),
+                                          additional_args=additional_args)
 
 
 def scale_workload_deployment(name, workload_size):
     ssh_client = get_client(get_master())
+
+    print("Scaling deployment {} to size: {}".format(name, workload_size))
 
     ssh_exec(ssh_client, "kubectl scale deployment {} --replicas={}".format(name, workload_size))
 
@@ -78,8 +81,8 @@ def parse_results(deployment_name, num_iterations):
             pod_data = defaultdict(list)
 
             for _ in range(num_iterations):
-
-                log = v1.read_namespaced_pod_log(pod, "default", tail_lines=40)
+                # log = v1.read_namespaced_pod_log(pod, "default", tail_lines=40).split('\n')
+                log = v1.read_namespaced_pod_log(pod, "default", tail_lines=150)
                 with open("output.txt", "w") as f:
                     f.write(log)
 
@@ -97,20 +100,28 @@ def parse_results(deployment_name, num_iterations):
 
                 # print(NUM_REQUESTS)
 
-                # NUM_REQUESTS = int(NUM_REQUESTS)
+                NUM_REQUESTS = int(NUM_REQUESTS)
 
                 pod_data['latency'].append(float(subprocess.check_output(latency_overall_cmd, shell = True).decode('utf-8')[:-1])*NUM_REQUESTS)
                 pod_data['latency_50'].append(subprocess.check_output(latency_50_cmd, shell = True).decode('utf-8')[:-1])
                 pod_data['rps'].append(subprocess.check_output(rps_cmd, shell = True).decode('utf-8')[:-1])
 
                 # ssh_exec(traffic_client, "rm output.txt")
+                #
+                # num_requests = float(log[-27].split(' ')[-1])
+                # pod_data['latency_95'] = float(log[-5].split(' ')[-1])
+                # pod_data['latency_50'] = float(log[-10].split(' ')[-1])
+                # pod_data['latency_overall'] = float(log[-22].split(' ')[-3]) * num_requests
+                # pod_data['rps'] = float(log[-23].split(' ')[-3])
+                # pod_data['latency_99'] = float(log[-3].split(' ')[-1])
 
 
             pods_data.append(pod_data)
 
-        except:
-            pass
-
+        except Exception as e:
+            print(e.message)
+            print(e.args)
+            traceback.print_exc()
 
     return pods_data
 

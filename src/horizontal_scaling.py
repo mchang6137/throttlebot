@@ -20,14 +20,19 @@ def create_autoscaler(deployment_name, cpu_percent, min_size, max_size):
 
 def calculate_deployment_cost(deployment_name, starting_time):
 
-    cmd = "cat ~/go/data | grep \'" + deployment_name + "\'  | awk {\'print $2\'}"
-    output = (subprocess.check_output(cmd, shell=True)).decode('utf-8')
-    output = output.split('\n')[:-1]
-    pods = list(set(output))
+    # cmd = "cat ~/go/data | grep \'" + deployment_name + "\'  | awk {\'print $2\'}"
+    # output = (subprocess.check_output(cmd, shell=True)).decode('utf-8')
+    # output = output.split('\n')[:-1]
+    # pods = list(set(output))
 
     pod_data = {}
 
     cpu_quota = get_deployment_cpu_quota(deployment_name)
+
+    pods = subprocess.check_output("kubectl get pods | grep \'" + deployment_name + "\' | awk {\'print $1\'}", shell=True)\
+        .decode('utf-8').split("\n")[:-1]
+
+    pods = [str(pod) for pod in pods]
 
     for pod in pods:
         pod_data[pod] = calculate_pod_cost(pod, cpu_quota, starting_time)
@@ -40,6 +45,8 @@ def calculate_pod_cost(pod_name, cpu_quota, starting_time):
     cmd = "cat ~/go/data | grep \'{}\'".format(pod_name)
     output = (subprocess.check_output(cmd, shell=True)).decode('utf-8')
     output = output.split('\n')[:-1]
+    output = [str(o) for o in output]
+
     cost = 0
     if output[-1].split(" ")[0] == "Delete":
         time_stopped = int(output[1].split(" ")[2])
@@ -65,69 +72,71 @@ def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_
     if not selector:
         label = scale_deployment_name
 
-    pod_count_every_min = []
+    pod_count_every_30_sec= []
 
-    starting_time = int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $9 \'}', shell=True).decode('utf-8')[:-2])
     count = 0
-
-    if starting_time < 4:
-
-        while starting_time < 4:
-            starting_time = int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $9 \'}',
-                                                    shell=True).decode('utf-8')[:-2])
-            if (count % 30 == 0):
-                pod_count_every_min.append(int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True).decode('utf-8')[:-1]))
-            sleep(2)
-            count += 1
-
-
+    while count < 210:
+        if (count % 30 == 0):
+            pod_count_every_30_sec.append(int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True).decode('utf-8')[:-1]))
+            # print(calculate_deployment_cost(scale_deployment_name, int(time.time())))
+            if (count % 60 == 0):
+                performance_data.append({"data": parse_results(workload_deployment_name, 1),
+                                         "pods_count": int(
+                                             subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}',
+                                                                     shell=True)
+                                             .decode('utf-8')[:-1])})
+        sleep(1)
+        count += 1
 
 
     while True:
 
-        pod_count = int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True)
-                        .decode('utf-8')[:-1])
+        try:
 
-        if pod_count[-4] == pod_count:
-            print("Found Steady state")
-            return int(time.time())
+            pod_count = int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True)
+                            .decode('utf-8')[:-1])
 
-
-        if count % 30 == 0:
-
-            performance_data.append({"data": parse_results(workload_deployment_name, 1),
-                                     "pods_count": len(get_all_pods_from_deployment(scale_deployment_name, label))})
-
-            pod_count_every_min.append(int(
-                subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True).decode('utf-8')[
-                :-1]))
-
-        if count % 90 == 0:
-            print("Writing intermediate data")
+            if pod_count_every_30_sec[-6] == pod_count:
+                print("Found Steady state")
+                return performance_data
 
 
-            filename = "performance_results_while_scaling"
+            if count % 30 == 0:
 
-            if flag:
-                filename = "performance_results_while_scaling2"
-
-            if utilization:
-                filename += "_{}".format(utilization)
+                performance_data.append({"data": parse_results(workload_deployment_name, 1),
+                                         "pods_count": int(subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True)
+                            .decode('utf-8')[:-1])})
 
 
-            file = open(filename, 'w')
+                pod_count_every_30_sec.append(int(
+                    subprocess.check_output('kubectl get hpa | tail -1 | awk {\'print $8 \'}', shell=True).decode('utf-8')[:-1]))
 
-            performance_data.append({"data": parse_results(workload_deployment_name, 1), "pods_count": len(get_all_pods_from_deployment(scale_deployment_name, selector))})
+                print(pod_count_every_30_sec)
 
-            file.write(json.dumps(performance_data))
-
-            file.flush()
-
-            file.close()
+            # if count % 120 == 0:
+            #     print("Writing intermediate data")
 
 
-        sleep(2)
-        count += 1
+                # filename = "performance_results_while_scaling"
+                #
+                # if flag:
+                #     filename = "performance_results_while_scaling2"
+                #
+                # if utilization:
+                #     filename += "_{}".format(utilization)
+                #
+                #
+                #
+                # with open(filename, 'w') as file:
+                #
+                #     file.write(json.dumps(performance_data))
+
+
+            sleep(1)
+            count += 1
+        except Exception as e:
+            print(e.args)
+            print(e.message)
 
 
 
@@ -224,7 +233,7 @@ def run_utilization_experiment(scale_deployment_name, workload_deployment_name, 
 
         print("Writing performance data to file")
 
-        with open('performance_results', 'w') as file:
+        with open('performance_results_{}', 'w') as file:
 
             performance_data_list.append({"data": pods_data, "utilization": utilization})
 
@@ -243,6 +252,13 @@ def run_utilization_experiment(scale_deployment_name, workload_deployment_name, 
 
             file.write(json.dumps(cost_data_list))
 
+        with open('performance_results_while_scaling_{}'.format(utilization), 'w') as file:
+            file.flush()
+
+        with open('performance_results_while_scaling2_{}'.format(utilization), 'w') as file:
+            file.flush()
+
+
         subprocess.Popen(['kubectl', 'delete', 'hpa/{}'.format(scale_name)])
 
         subprocess.Popen(['kubectl', 'delete', 'deployment', scale_deployment_name])
@@ -252,15 +268,25 @@ def run_utilization_experiment(scale_deployment_name, workload_deployment_name, 
         sleep(15)
 
 def run_utilization_experiment_variable_workload(scale_deployment_name, workload_deployment_name, service_name, additional_args, workload_size, num_iterations,
-                               min_scaleout ,max_scaleout):
+                               min_scaleout ,max_scaleout, cpu_cost, label=""):
 
 
     performance_data_list = []
+    performance_data_list_2 = []
     cost_data_list = []
+    cost_data_list_2 = []
 
-    for utilization in [10, 20, 40]:
+    for utilization in [20, 50]:
 
-        subprocess.Popen(['kubectl', 'create', '-f', 'manifests/{}.yaml'.format(scale_deployment_name)])
+        deploying = True
+        while deploying:
+            try:
+                create_scale_deployment(scale_deployment_name, cpu_cost=cpu_cost)
+                deploying = False
+            except:
+                pass
+
+        wait_for_scale_deployment(scale_deployment_name)
 
         create_workload_deployment(workload_deployment_name, workload_size, service_name, additional_args)
 
@@ -276,7 +302,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         print("Waiting for Autoscaler steady state")
 
-        wait_for_autoscaler_steady_state(scale_deployment_name=scale_deployment_name, workload_deployment_name=workload_deployment_name, flag=False,
+        performance_data = wait_for_autoscaler_steady_state(scale_deployment_name=scale_deployment_name, workload_deployment_name=workload_deployment_name, flag=False,
                                          utilization=utilization)
 
         #Collects and writes performance data
@@ -284,7 +310,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         print("Writing performance data to file")
 
-        with open('performance_results', 'w') as file:
+        with open('performance_results_{}'.format(label), 'w') as file:
 
             performance_data_list.append({"data": pods_data, "utilization": utilization})
 
@@ -297,7 +323,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         print("Writing cost data to file")
 
-        with open('cost_results', 'w') as file:
+        with open('cost_results_{}'.format(label), 'w') as file:
 
             cost_data_list.append({"data": cost_data, "utilization": utilization})
 
@@ -306,11 +332,15 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         #################################################################################
 
-        scale_workload_deployment(workload_deployment_name, workload_size * 4)
+        scale_workload_deployment(workload_deployment_name, workload_size * 7)
+
+        sleep(10)
 
         timestamp2 = int(time.time())
 
-        wait_for_autoscaler_steady_state(scale_deployment_name=scale_deployment_name,
+        print("Waiting for Autoscaler steady state")
+
+        performance_data2 = wait_for_autoscaler_steady_state(scale_deployment_name=scale_deployment_name,
                                          workload_deployment_name=workload_deployment_name, flag=True,
                                          utilization=utilization)
 
@@ -319,10 +349,10 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         print("Writing performance data to file 2")
 
-        with open('performance_results2', 'w') as file:
-            performance_data_list.append({"data": pods_data, "utilization": utilization})
+        with open('performance_results2_{}'.format(label), 'w') as file:
+            performance_data_list_2.append({"data": pods_data, "utilization": utilization})
 
-            file.write(json.dumps(performance_data_list))
+            file.write(json.dumps(performance_data_list_2))
 
         # Collects and writes cost data
         cost_data = calculate_deployment_cost(scale_deployment_name, timestamp2)
@@ -331,13 +361,21 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         print("Writing cost data to file 2")
 
-        with open('cost_results2', 'w') as file:
-            cost_data_list.append({"data": cost_data, "utilization": utilization})
+        with open('cost_results2_{}'.format(label), 'w') as file:
+            cost_data_list_2.append({"data": cost_data, "utilization": utilization})
 
-            file.write(json.dumps(cost_data_list))
+            file.write(json.dumps(cost_data_list_2))
 
 
+        file = open('performance_results_while_scaling_{}_{}'.format(utilization, label), 'w')
+        file.write(json.dumps(performance_data))
+        file.flush()
+        file.close()
 
+        file = open('performance_results_while_scaling2_{}_{}'.format(utilization, label), 'w')
+        file.write(json.dumps(performance_data2))
+        file.flush()
+        file.close()
 
         subprocess.Popen(['kubectl', 'delete', 'hpa/{}'.format(scale_name)])
 
@@ -347,7 +385,15 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
         sleep(15)
 
+def wait_for_scale_deployment(deployment_name):
 
+    ready = False
+    while not ready:
+        output = subprocess.check_output("kubectl get pods | grep \'" + deployment_name + "\' | awk {\'print $3\'}", shell=True) \
+            .decode('utf-8').split("\n")[0]
+        if output == "Running":
+            ready = True
+        sleep(2)
 
 def wait_for_autoscale_metrics(deployment_name):
     ready = False
@@ -370,6 +416,12 @@ if __name__ == "__main__":
     service_name = "node-app"
 
     additional_args = ""
+
+    nodes_capacity = get_node_capacity()
+
+    pods_per_node = 10
+
+
 
     delete = False
     try:
@@ -411,7 +463,19 @@ if __name__ == "__main__":
     # while True:
     #     print("Current cpu cost: {}".format(calculate_deployment_cost(scale_name, current_time)))
     #     sleep(10)
-
-    run_utilization_experiment_variable_workload(scale_name, workload_name, service_name, additional_args, 10, 1, 10, 500)
+    #
+    #
+    run_utilization_experiment_variable_workload(scale_deployment_name=scale_name,
+                                                 workload_deployment_name=workload_name,
+                                                 service_name=service_name,
+                                                 additional_args=additional_args,
+                                                 workload_size=3,
+                                                 num_iterations=1,
+                                                 min_scaleout=10,
+                                                 max_scaleout=500,
+                                                 cpu_cost=str(get_node_capacity() / float(pods_per_node)),
+                                                 label="{}podsPerNode".format(pods_per_node))
     # wait_for_autoscaler_steady_state(scale_name, workload_name)
 
+
+    # print(calculate_deployment_cost(scale_name, int(time.time())))
