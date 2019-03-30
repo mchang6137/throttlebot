@@ -20,6 +20,11 @@ spec:
         ports:
         - containerPort: 9876
         command: ['/bin/sh']
+        resources:
+          limits:
+            cpu: .3
         args:
+      nodeSelector:
+        nodetype: workload
       terminationGracePeriodSeconds: 10
 
