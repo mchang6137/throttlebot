@@ -12,7 +12,7 @@ from mr import MR
 import logging
 
 ### Pre-defined blacklist (Temporary)
-blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest', 'hantaowang/lumbersexual', 'mchang6137/workloadmean', 'mchang6137/workloadlb']
+blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest', 'hantaowang/lumbersexual', 'mchang6137/workloadmean', 'mchang6137/workloadlb', 'mchang6137/hotrodworkload', 'hotrodworkloadlb']
 
 # Returns a list of MRs to stress in following iterations
 def generate_mr_from_policy(redis_db, stress_policy):
