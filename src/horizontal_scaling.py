@@ -344,7 +344,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
             scale_workload_deployment(workload_deployment_name, workload_size * 7)
 
-            sleep(15)
+            sleep(30)
 
             timestamp2 = int(time.time())
 

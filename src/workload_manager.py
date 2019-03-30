@@ -83,7 +83,11 @@ def parse_results(deployment_name, num_iterations, offline=False):
             timeout = int(time.time())
             broken = False
             while not log:
-                log = v1.read_namespaced_pod_log(pod, "default", tail_lines=80)
+                try :
+                    log = v1.read_namespaced_pod_log(pod, "default", tail_lines=80)
+                except Exception as e:
+                    broken = True
+                    break
                 if int(time.time()) - timeout >= 20:
                     broken = True
                     break
