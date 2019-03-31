@@ -277,14 +277,16 @@ def create_and_deploy_workload_pod(name, num_requests, concurrency, hostname, po
 
 
 
-def create_and_deploy_workload_deployment(name, replicas, num_requests, concurrency, hostname, port, additional_args, node_count):
+def create_and_deploy_workload_deployment(name, replicas, num_requests, concurrency, hostname, port, thread_count, connection_count, test_length,
+                                          additional_args, node_count, ab=True):
 
     body = yaml.load(
         open(
             os.path.join(os.getcwd() + "/manifests/",
             'workload_deployment.yaml')))
 
-    args = populate_workload_args(num_requests, concurrency, hostname, port, additional_args)
+    args = populate_workload_args(num_requests, concurrency, hostname, port, thread_count, connection_count, test_length,
+                                  additional_args, ab=ab)
 
     body['spec']['template']['spec']['containers'][0]['args'] = args
     body['metadata']['name'] = name
@@ -334,29 +336,44 @@ def create_scale_deployment(name, cpu_cost):
     body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = cpu_cost
     v1_beta.create_namespaced_deployment(body=body, namespace='default')
 
-def get_all_pods_from_deployment(deployment_name, label = None):
+def get_all_pods_from_deployment(deployment_name, label = None, safe = False):
 
-    selector = deployment_name
-    if label:
-        selector = label
+    if safe:
+        lists = subprocess.check_output("kubectl get pods | grep \'" + deployment_name + "\'", shell=True) \
+                    .decode('utf-8').split("\n")[:-1]
 
-    return [pod.metadata.name for pod in v1.list_namespaced_pod(namespace="default",
+        lists2 = []
+        for l in lists:
+            lists2.append(l.split(" "))
+
+        pods = [l[0] for l in lists2 if "Running" in l]
+
+        return pods
+
+    else:
+
+        selector = deployment_name
+        if label:
+            selector = label
+
+        return [pod.metadata.name for pod in v1.list_namespaced_pod(namespace="default",
                                                          label_selector='app={}'.format(selector)).items]
 
-def populate_workload_args(num_requests, concurrency, hostname, port, additional_args):
-    args = []
-    args.append("-n {}".format(num_requests))
-    args.append("-c {}".format(concurrency))
-    args.append("-T application/json")
-    args.append("-s 200")
-    args.append("-q")
-    args.append("-e results_file")
-    args.append("http://{}:{}/{}/".format(hostname, port, additional_args))
 
-    args = ["-c",
-            'while true; do ab -r -n {} -c {} -p post.json -T application/json -s 200 -q http://{}:{}/{}/; sleep .4; done;'.format(
-                num_requests, concurrency, hostname, port, additional_args
-            )]
+
+def populate_workload_args(num_requests, concurrency, hostname, port, thread_count, connection_count, test_length,
+                           additional_args, ab = True):
+
+    if ab:
+        args = ["-c",
+                'while true; do ab -r -n {} -c {} -p post.json -T application/json -s 200 -q http://{}:{}/{}/; sleep .4; done;'.format(
+                    num_requests, concurrency, hostname, port, additional_args
+                )]
+    else:
+        args = ["-c",
+                'while true; do wrk -t{} -c{} -d{}s -s post.sh --latency http://{}:{}/{}/; done;'.format(
+                    thread_count, connection_count, test_length, hostname, port, additional_args
+                )]
 
 
     return args

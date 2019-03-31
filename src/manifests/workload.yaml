@@ -5,10 +5,11 @@ metadata:
 spec: 
   containers:
   - name: sise
-    image: rbala19/ab
+    image: rbala19/wrk
     ports:
     - containerPort: 9876
     command: ['/bin/sh']
     args: []
+  terminationGracePeriodSeconds: 10
 
 

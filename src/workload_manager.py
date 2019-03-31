@@ -11,7 +11,8 @@ import traceback
 import time
 
 
-def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = 500, concurrency = 200, node_count = 4):
+def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = 500, concurrency = 200,
+                               thread_count=100, connection_count=1000, test_length=5, node_count = 4, ab=True):
 
 
 
@@ -22,7 +23,11 @@ def create_workload_deployment(name, workload_size, service_name, additional_arg
                                           hostname=get_service_ip(service_name),
                                           port=get_service_port(service_name),
                                           additional_args=additional_args,
-                                          node_count=node_count)
+                                          node_count=node_count,
+                                          thread_count=thread_count,
+                                          connection_count=connection_count,
+                                          test_length=test_length,
+                                          ab=ab)
 
 
 def scale_workload_deployment(name, workload_size):
@@ -67,9 +72,9 @@ def wait_for_pods_to_be_deployed(deployment_name, pod_count):
 
 
 
-def parse_results(deployment_name, num_iterations, offline=False):
+def parse_results(deployment_name, num_iterations, offline=False, ab = True):
 
-    all_pod_names = get_all_pods_from_deployment(deployment_name)
+    all_pod_names = get_all_pods_from_deployment(deployment_name=deployment_name, safe=True)
 
     pods_data = []
 
@@ -101,64 +106,78 @@ def parse_results(deployment_name, num_iterations, offline=False):
             f.flush()
             f.close()
 
-            rps_cmd = 'grep \'Requests per second\'  output.txt| tail -1 | awk {{\'print $4\'}}'
-            requests_cmd = 'grep \'Complete requests\' output.txt| tail -1 | awk {\'print $3\'}'
-            latency_90_cmd = 'grep \'90%\' output.txt | tail -1 |  awk {\'print $2\'}'
-            latency_50_cmd = 'grep \'50%\' output.txt | tail -1 |  awk {\'print $2\'}'
-            latency_99_cmd = 'grep \'99%\' output.txt | tail -1 |  awk {\'print $2\'}'
-            latency_overall_cmd = 'grep \'Time per request\' output.txt | tail -1 |  awk \'NR==1{{print $4}}\''
+            if ab:
+                rps_cmd = 'grep \'Requests per second\'  output.txt| tail -1 | awk {{\'print $4\'}}'
+                requests_cmd = 'grep \'Complete requests\' output.txt| tail -1 | awk {\'print $3\'}'
+                latency_90_cmd = 'grep \'90%\' output.txt | tail -1 |  awk {\'print $2\'}'
+                latency_50_cmd = 'grep \'50%\' output.txt | tail -1 |  awk {\'print $2\'}'
+                latency_99_cmd = 'grep \'99%\' output.txt | tail -1 |  awk {\'print $2\'}'
+                latency_overall_cmd = 'grep \'Time per request\' output.txt | tail -1 |  awk \'NR==1{{print $4}}\''
 
 
-            try:
+                try:
 
-                pod_data['latency_90'].append(float(subprocess.check_output(latency_90_cmd, shell = True).decode('utf-8')[:-1]))
+                    pod_data['latency_90'].append(float(subprocess.check_output(latency_90_cmd, shell = True).decode('utf-8')[:-1]))
 
-            except Exception as e:
-                print("THE LOG IS " + log + "\n\n\n")
-                traceback.print_exc()
+                except Exception as e:
+                    print("THE LOG IS " + log + "\n\n\n")
+                    traceback.print_exc()
 
-            try:
-                pod_data['latency_99'].append(float(subprocess.check_output(latency_99_cmd, shell = True).decode('utf-8')[:-1]))
-            except Exception as e:
+                try:
+                    pod_data['latency_99'].append(float(subprocess.check_output(latency_99_cmd, shell = True).decode('utf-8')[:-1]))
+                except Exception as e:
 
-                print("THE LOG IS " + log + "\n\n\n")
-                traceback.print_exc()
+                    print("THE LOG IS " + log + "\n\n\n")
+                    traceback.print_exc()
 
-            try:
-                NUM_REQUESTS = float(subprocess.check_output(requests_cmd, shell = True).decode('utf-8')[:-1])
+                try:
+                    NUM_REQUESTS = float(subprocess.check_output(requests_cmd, shell = True).decode('utf-8')[:-1])
 
-                # print(NUM_REQUESTS)
+                    # print(NUM_REQUESTS)
 
-                NUM_REQUESTS = int(NUM_REQUESTS)
+                    NUM_REQUESTS = int(NUM_REQUESTS)
 
-                pod_data['latency'].append(float(subprocess.check_output(latency_overall_cmd, shell = True).decode('utf-8')[:-1])*NUM_REQUESTS)
+                    pod_data['latency'].append(float(subprocess.check_output(latency_overall_cmd, shell = True).decode('utf-8')[:-1])*NUM_REQUESTS)
 
-            except Exception as e:
+                except Exception as e:
 
-                print("THE LOG IS " + log + "\n\n\n")
-                traceback.print_exc()
+                    print("THE LOG IS " + log + "\n\n\n")
+                    traceback.print_exc()
 
-            try:
-                pod_data['latency_50'].append(float(subprocess.check_output(latency_50_cmd, shell = True).decode('utf-8')[:-1]))
-                pod_data['rps'].append(float(subprocess.check_output(rps_cmd, shell = True).decode('utf-8')[:-1]))
+                try:
+                    pod_data['latency_50'].append(float(subprocess.check_output(latency_50_cmd, shell = True).decode('utf-8')[:-1]))
+                    pod_data['rps'].append(float(subprocess.check_output(rps_cmd, shell = True).decode('utf-8')[:-1]))
 
-            except Exception as e:
+                except Exception as e:
 
-                print("THE LOG IS " + log + "\n\n\n")
-                traceback.print_exc()
+                    print("THE LOG IS " + log + "\n\n\n")
+                    traceback.print_exc()
 
-                # ssh_exec(traffic_client, "rm output.txt")
-                #
-                # num_requests = float(log[-27].split(' ')[-1])
-                # pod_data['latency_95'] = float(log[-5].split(' ')[-1])
-                # pod_data['latency_50'] = float(log[-10].split(' ')[-1])
-                # pod_data['latency_overall'] = float(log[-22].split(' ')[-3]) * num_requests
-                # pod_data['rps'] = float(log[-23].split(' ')[-3])
-                # pod_data['latency_99'] = float(log[-3].split(' ')[-1])
+                    # ssh_exec(traffic_client, "rm output.txt")
+                    #
+                    # num_requests = float(log[-27].split(' ')[-1])
+                    # pod_data['latency_95'] = float(log[-5].split(' ')[-1])
+                    # pod_data['latency_50'] = float(log[-10].split(' ')[-1])
+                    # pod_data['latency_overall'] = float(log[-22].split(' ')[-3]) * num_requests
+                    # pod_data['rps'] = float(log[-23].split(' ')[-3])
+                    # pod_data['latency_99'] = float(log[-3].split(' ')[-1])
 
-                sleep(.6)
+                    sleep(.6)
 
+            else:
+                latency_99_cmd = 'grep \'99%\' output.txt | tail -1 |  awk {\'print $2\'}'
+                rps_cmd = 'grep \'Requests/second\'  output.txt| tail -1 | awk {{\'print $2\'}}'
 
+                try:
+
+                    pod_data['latency_99'].append(float(subprocess.check_output(latency_99_cmd, shell=True).decode('utf-8')[:-3]))
+                    pod_data['rps'].append(float(subprocess.check_output(rps_cmd, shell = True).decode('utf-8')[:-1]))
+
+                    sleep(6)
+
+                except Exception as e:
+                    print("THE LOG IS " + log + "\n\n\n")
+                    traceback.print_exc()
 
         pod_data_avg = {}
         for key in pod_data:
