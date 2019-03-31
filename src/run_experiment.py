@@ -667,7 +667,8 @@ def measure_hotrod(workload_config, experiment_iterations):
     NUM_INDEX_REQUESTS = 1000
     NUM_DISPATCH_REQUESTS = 500
     CONCURRENCY = 100
-
+    
+    num_failures = 0
     for _ in range(experiment_iterations):
         traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
         try:
@@ -691,7 +692,11 @@ def measure_hotrod(workload_config, experiment_iterations):
             print perf_dict
         except requests.exceptions.RequestException as e:
             print e
-            sys.exit(1)
+            if num_failures < 3:
+                time.sleep(200)
+                continue
+            else:
+                sys.exit(1)
 
         # Linear combination of all entries (no weighting)
         perf_linear = {}
