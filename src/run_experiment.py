@@ -687,7 +687,7 @@ def measure_hotrod(workload_config, experiment_iterations):
 
         collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
         try:
-            collected = requests.get(collect_url, params={'w': num_traffic_generators}, timeout=2000)
+            collected = requests.get(collect_url, params={'w': num_traffic_generators})
             perf_dict = collected.json()
             print perf_dict
         except requests.exceptions.RequestException as e:
