@@ -691,7 +691,6 @@ def measure_hotrod(workload_config, experiment_iterations):
             perf_dict = collected.json()
             print perf_dict
         except:
-            print e
             if num_failures < 3:
                 time.sleep(200)
                 continue
