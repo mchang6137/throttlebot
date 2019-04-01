@@ -690,7 +690,7 @@ def measure_hotrod(workload_config, experiment_iterations):
             collected = requests.get(collect_url, params={'w': num_traffic_generators})
             perf_dict = collected.json()
             print perf_dict
-        except requests.exceptions.RequestException as e:
+        except:
             print e
             if num_failures < 3:
                 time.sleep(200)
