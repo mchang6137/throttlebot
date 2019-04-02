@@ -667,8 +667,9 @@ def measure_hotrod(workload_config, experiment_iterations):
     NUM_INDEX_REQUESTS = 1000
     NUM_DISPATCH_REQUESTS = 500
     CONCURRENCY = 100
-    
-    for _ in range(experiment_iterations):
+
+    successful_experiments = 0
+    while successful_experiments < experiment_iterations:
         traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
         try:
             r = requests.get(traffic_url, params={'w': num_traffic_generators,
@@ -684,35 +685,41 @@ def measure_hotrod(workload_config, experiment_iterations):
             sys.exit(1)
         print 'GET requests have been sent'
 
-        for _ in range(5):
-            collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
-            try:
-                collected = requests.get(collect_url, params={'w': num_traffic_generators})
-                perf_dict = collected.json()
-                print perf_dict
-                break
-            except:
-                print 'Failure Detected. Sleep 200 seconds'
-                time.sleep(200)
-                continue
+        data_collected = False
+        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+        try:
+            collected = requests.get(collect_url, params={'w': num_traffic_generators})
+            perf_dict = collected.json()
+            print perf_dict
+            data_collected = True
+            break
+        except:
+            print 'Failure Detected. Sleep 200 seconds'
+            time.sleep(200)
+            continue
             
         # Linear combination of all entries (no weighting)
-        perf_linear = {}
-        for endpoint in perf_dict.keys():
-            for perf_field in perf_dict[endpoint]:
-                if perf_field not in perf_linear:
-                    perf_linear[perf_field] = perf_dict[endpoint][perf_field]
-                else:
-                    perf_linear[perf_field] += perf_dict[endpoint][perf_field]
+        if data_collected:
+            perf_linear = {}
+            for endpoint in perf_dict.keys():
+                for perf_field in perf_dict[endpoint]:
+                    if perf_field not in perf_linear:
+                        perf_linear[perf_field] = perf_dict[endpoint][perf_field]
+                    else:
+                        perf_linear[perf_field] += perf_dict[endpoint][perf_field]
             
-        if len(perf_linear.keys()) != 0:
-            for k in perf_linear.keys():
-                all_requests[k].append(perf_linear[k])
-        else:
-            print "Too long to wait for collection. Service is probable down"
-            sys.exit(1)
+            if len(perf_linear.keys()) != 0:
+                for k in perf_linear.keys():
+                    all_requests[k].append(perf_linear[k])
+            else:
+                print "Too long to wait for collection. Service is probable down"
+                sys.exit(1)
 
-        print 'Data has been collected: {}'.format(all_requests)
+            print 'Data has been collected: {}'.format(all_requests)
+            successful_experiments += 1
+            print 'Successful experiments is {}'.format(successful_experiments)
+        else:
+            print 'Data has not been collected. Clearing data and restarting experiment.'
 
         clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
         try:
