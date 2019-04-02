@@ -692,11 +692,9 @@ def measure_hotrod(workload_config, experiment_iterations):
             perf_dict = collected.json()
             print perf_dict
             data_collected = True
-            break
         except:
             print 'Failure Detected. Sleep 200 seconds'
-            time.sleep(200)
-            continue
+            time.sleep(100)
             
         # Linear combination of all entries (no weighting)
         if data_collected:
