@@ -668,7 +668,6 @@ def measure_hotrod(workload_config, experiment_iterations):
     NUM_DISPATCH_REQUESTS = 500
     CONCURRENCY = 100
     
-    num_failures = 0
     for _ in range(experiment_iterations):
         traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
         try:
@@ -685,18 +684,18 @@ def measure_hotrod(workload_config, experiment_iterations):
             sys.exit(1)
         print 'GET requests have been sent'
 
-        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
-        try:
-            collected = requests.get(collect_url, params={'w': num_traffic_generators})
-            perf_dict = collected.json()
-            print perf_dict
-        except:
-            if num_failures < 3:
+        for _ in range(5):
+            collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+            try:
+                collected = requests.get(collect_url, params={'w': num_traffic_generators})
+                perf_dict = collected.json()
+                print perf_dict
+                break
+            except:
+                print 'Failure Detected. Sleep 200 seconds'
                 time.sleep(200)
                 continue
-            else:
-                sys.exit(1)
-
+            
         # Linear combination of all entries (no weighting)
         perf_linear = {}
         for endpoint in perf_dict.keys():
