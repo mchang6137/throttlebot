@@ -12,7 +12,7 @@ import time
 
 
 def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = 500, concurrency = 200,
-                               thread_count=100, connection_count=1000, test_length=5, node_count = 4, ab=True):
+                               thread_count=20, connection_count=100, test_length=5, node_count = 4, ab=True):
 
 
 
@@ -83,6 +83,8 @@ def parse_results(deployment_name, num_iterations, offline=False, ab = True):
         pod_data = defaultdict(list)
 
         for _ in range(num_iterations):
+
+            print("Iteration: {}".format(_))
             # log = v1.read_namespaced_pod_log(pod, "default", tail_lines=40).split('\n')
             log = None
             timeout = int(time.time())
@@ -161,19 +163,26 @@ def parse_results(deployment_name, num_iterations, offline=False, ab = True):
                     # pod_data['latency_overall'] = float(log[-22].split(' ')[-3]) * num_requests
                     # pod_data['rps'] = float(log[-23].split(' ')[-3])
                     # pod_data['latency_99'] = float(log[-3].split(' ')[-1])
-
-                    sleep(.6)
+                    if num_iterations > 1:
+                        sleep(.6)
 
             else:
                 latency_99_cmd = 'grep \'99%\' output.txt | tail -1 |  awk {\'print $2\'}'
-                rps_cmd = 'grep \'Requests/second\'  output.txt| tail -1 | awk {{\'print $2\'}}'
+                rps_cmd = 'grep \'Requests/sec\'  output.txt| tail -1 | awk {{\'print $2\'}}'
 
                 try:
 
-                    pod_data['latency_99'].append(float(subprocess.check_output(latency_99_cmd, shell=True).decode('utf-8')[:-3]))
+                    latency99_result = subprocess.check_output(latency_99_cmd, shell=True).decode('utf-8')[:-1]
+                    if latency99_result[-2:] == "ms":
+                        latency99_result = float(latency99_result[:-2])
+                    else:
+                        latency99_result = float(latency99_result[:-1]) * 1000
+
+                    pod_data['latency_99'].append(latency99_result)
                     pod_data['rps'].append(float(subprocess.check_output(rps_cmd, shell = True).decode('utf-8')[:-1]))
 
-                    sleep(6)
+                    if num_iterations > 1:
+                        sleep(6)
 
                 except Exception as e:
                     print("THE LOG IS " + log + "\n\n\n")

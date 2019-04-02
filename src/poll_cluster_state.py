@@ -294,7 +294,12 @@ def create_and_deploy_workload_deployment(name, replicas, num_requests, concurre
     body['metadata']['labels']['app'] = name
     body['spec']['template']['metadata']['labels']['app'] = name
     body['spec']['selector']['matchLabels']['app'] = name
-    body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = .1
+    body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = .2
+
+    if ab:
+        body['spec']['template']['spec']['containers'][0]['image'] = "rbala19/ab"
+    else:
+        body['spec']['template']['spec']['containers'][0]['image'] = "rbala19/wrk"
 
     remove_node_labels = subprocess.check_output("kubectl label nodes --all nodetype-", shell=True)
 
