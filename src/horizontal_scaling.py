@@ -277,7 +277,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
     performance_data_while_scaling = defaultdict(list)
     performance_data_while_scaling2 = defaultdict(list)
 
-    for trial in range(4):
+    for trial in range(3):
 
         for utilization in [10, 20, 40, 50]:
 
@@ -432,7 +432,7 @@ if __name__ == "__main__":
 
 
 
-    pods_per_node = 2.2
+    pods_per_node = 1.2
 
     cpu_quota = None
 
