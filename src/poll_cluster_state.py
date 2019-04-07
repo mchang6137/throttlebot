@@ -4,6 +4,7 @@ from kubernetes import client, config
 import yaml
 import os
 import math
+import traceback
 
 '''
 Queries information about the cluster directly from the true state
@@ -294,7 +295,7 @@ def create_and_deploy_workload_deployment(name, replicas, num_requests, concurre
     body['metadata']['labels']['app'] = name
     body['spec']['template']['metadata']['labels']['app'] = name
     body['spec']['selector']['matchLabels']['app'] = name
-    body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = .2
+    body['spec']['template']['spec']['containers'][0]['resources']['limits']['cpu'] = .85
 
     if ab:
         body['spec']['template']['spec']['containers'][0]['image'] = "rbala19/ab"
@@ -309,7 +310,27 @@ def create_and_deploy_workload_deployment(name, replicas, num_requests, concurre
     for i in range(node_count + 1):
         output = subprocess.check_output("kubectl label nodes {} nodetype=workload".format(nodes[i]), shell=True)
 
+    for i in range(node_count + 1, len(nodes)):
+        output = subprocess.check_output("kubectl label nodes {} nodetype=service".format(nodes[i]), shell=True)
+
     v1_beta.create_namespaced_deployment(body=body, namespace='default')
+
+def label_all_unlabeled_nodes_as_service():
+    all_nodes = [node.metadata.name for node in v1.list_node().items if
+             node.metadata.labels['kubernetes.io/role'] == "node"]
+
+    worker_nodes = subprocess.check_output("kubectl get nodes -l nodetype=workload | awk {\'print $1 \'}", shell=True).decode("utf-8").split("\n")[1:-1]
+
+    nodes_to_label = [node for node in all_nodes if node not in worker_nodes]
+
+
+    for node in nodes_to_label:
+
+        try:
+            output = subprocess.check_output("kubectl label nodes {} nodetype=service --overwrite".format(node), shell=True)
+
+        except:
+            traceback.print_exc()
 
 def ensure_workload_node_count(node_count):
     output = subprocess.check_output("kubectl get nodes -l nodetype=workload | awk {\'print $1\'}", shell=True).decode(
@@ -329,6 +350,7 @@ def ensure_workload_node_count(node_count):
         for i in range(node_count - 1):
             output = subprocess.check_output("kubectl label nodes {} nodetype=workload".format(nodes[i]),
                                              shell=True)
+
 
 def create_scale_deployment(name, cpu_cost):
 
@@ -371,7 +393,7 @@ def populate_workload_args(num_requests, concurrency, hostname, port, thread_cou
 
     if ab:
         args = ["-c",
-                'while true; do ab -r -n {} -c {} -p post.json -T application/json -s 200 -q http://{}:{}/{}/; sleep .4; done;'.format(
+                'while true; do ab -r -n {} -c {} -p post.json -T application/json -s 200 -q http://{}:{}/{}/; sleep 1; done;'.format(
                     num_requests, concurrency, hostname, port, additional_args
                 )]
     else:

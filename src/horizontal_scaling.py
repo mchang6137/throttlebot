@@ -65,6 +65,9 @@ def calculate_pod_cost(pod_name, cpu_quota, starting_time):
 
 def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_name, flag=None, selector=None, utilization = None, ab = True):
 
+
+    label_all_unlabeled_nodes_as_service()
+
     performance_data = []
 
 
@@ -76,21 +79,27 @@ def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_
 
     count = 0
     while count < 180:
+
+        if (count % 12 == 0):
+            label_all_unlabeled_nodes_as_service()
+            # print("done parsing results")
+
+
         if (count % 30 == 0):
 
             current_pod_count = len(get_all_pods_from_deployment(deployment_name=scale_deployment_name, safe=True))
-            print("Current pod count is {}".format(current_pod_count))
+            # print("Current pod count is {}".format(current_pod_count))
             pod_count_every_30_sec.append(current_pod_count)
             # print(calculate_deployment_cost(scale_deployment_name, int(time.time())))
             if (count % 60 == 0):
                 performance_data.append({"pods_count": current_pod_count,
                                         "data": parse_results(workload_deployment_name, num_iterations=1, ab=ab)})
-            print("done parsing results")
+
 
         sleep(1)
         count += 1
 
-        print(count)
+        # print(count)
 
 
     while True:
@@ -99,10 +108,12 @@ def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_
 
             pod_count = len(get_all_pods_from_deployment(deployment_name=scale_deployment_name, safe=True))
 
-            if pod_count_every_30_sec[-4] == pod_count:
+            if pod_count_every_30_sec[-6] == pod_count:
                 print("Found Steady state")
                 return performance_data
 
+            if (count % 12 == 0):
+                label_all_unlabeled_nodes_as_service()
 
             if count % 30 == 0:
 
@@ -110,11 +121,11 @@ def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_
 
                 dict_to_add["data"] = parse_results(workload_deployment_name, num_iterations=1, ab=ab)
 
-                print("Done parsing results")
+                # print("Done parsing results")
 
                 dict_to_add["pods_count"] = len(get_all_pods_from_deployment(scale_deployment_name, safe=True))
 
-                print("Pod count is {}".format(dict_to_add["pods_count"]))
+                # print("Pod count is {}".format(dict_to_add["pods_count"]))
 
                 performance_data.append(dict_to_add)
 
@@ -129,7 +140,7 @@ def wait_for_autoscaler_steady_state(scale_deployment_name, workload_deployment_
 
             count += 1
 
-            print(count)
+            # print(count)
 
         except Exception as e:
             print(e.args)
@@ -289,7 +300,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
                 except:
                     pass
 
-            wait_for_scale_deployment(scale_deployment_name)
+            # wait_for_scale_deployment(scale_deployment_name)
 
             create_workload_deployment(workload_deployment_name, workload_size, service_name, additional_args, node_count=node_count, ab = ab)
 
@@ -342,7 +353,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
             # sleep(15)
 
-            scale_workload_deployment(workload_deployment_name, workload_size * 7)
+            scale_workload_deployment(workload_deployment_name, workload_size * 6)
 
             sleep(30)
 
@@ -432,7 +443,7 @@ if __name__ == "__main__":
 
 
 
-    pods_per_node = 1.2
+    pods_per_node = 4.4
 
     cpu_quota = None
 
@@ -483,14 +494,14 @@ if __name__ == "__main__":
                                                  workload_deployment_name=workload_name,
                                                  service_name=service_name,
                                                  additional_args=additional_args,
-                                                 workload_size = 2,
-                                                 num_iterations=5,
+                                                 workload_size = 3,
+                                                 num_iterations=20,
                                                  min_scaleout=10,
                                                  max_scaleout=500,
                                                  cpu_cost=cpu_quota if cpu_quota else str(get_node_capacity() / float(pods_per_node)),
                                                  label="{}podsPerNode".format(pods_per_node),
                                                  node_count=9,
-                                                 ab=False)
+                                                 ab=True)
 
     # parse_results(workload_name, 2)
     # wait_for_autoscaler_steady_state(scale_name, workload_name)

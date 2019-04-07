@@ -11,7 +11,7 @@ import traceback
 import time
 
 
-def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = 500, concurrency = 200,
+def create_workload_deployment(name, workload_size, service_name, additional_args, num_requests = 700, concurrency = 200,
                                thread_count=20, connection_count=100, test_length=5, node_count = 4, ab=True):
 
 
@@ -84,7 +84,7 @@ def parse_results(deployment_name, num_iterations, offline=False, ab = True):
 
         for _ in range(num_iterations):
 
-            print("Iteration: {}".format(_))
+            # print("Iteration: {}".format(_))
             # log = v1.read_namespaced_pod_log(pod, "default", tail_lines=40).split('\n')
             log = None
             timeout = int(time.time())
@@ -164,7 +164,7 @@ def parse_results(deployment_name, num_iterations, offline=False, ab = True):
                     # pod_data['rps'] = float(log[-23].split(' ')[-3])
                     # pod_data['latency_99'] = float(log[-3].split(' ')[-1])
                     if num_iterations > 1:
-                        sleep(.6)
+                        sleep(1.5)
 
             else:
                 latency_99_cmd = 'grep \'99%\' output.txt | tail -1 |  awk {\'print $2\'}'

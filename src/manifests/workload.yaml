@@ -5,7 +5,7 @@ metadata:
 spec: 
   containers:
   - name: sise
-    image: rbala19/wrk
+    image: bootjp/wrk2
     ports:
     - containerPort: 9876
     command: ['/bin/sh']
