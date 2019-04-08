@@ -277,7 +277,7 @@ def run_utilization_experiment(scale_deployment_name, workload_deployment_name, 
         sleep(15)
 
 def run_utilization_experiment_variable_workload(scale_deployment_name, workload_deployment_name, service_name, additional_args, workload_size, num_iterations,
-                               min_scaleout ,max_scaleout, cpu_cost, node_count=4, label="", ab = True):
+                               min_scaleout ,max_scaleout, cpu_cost, workload_node_count=4, label="", ab = True):
 
 
     performance_data_list = []
@@ -302,7 +302,7 @@ def run_utilization_experiment_variable_workload(scale_deployment_name, workload
 
             # wait_for_scale_deployment(scale_deployment_name)
 
-            create_workload_deployment(workload_deployment_name, workload_size, service_name, additional_args, node_count=node_count, ab = ab)
+            create_workload_deployment(workload_deployment_name, workload_size, service_name, additional_args, node_count=workload_node_count, ab = ab)
 
             sleep(10)
 
@@ -500,7 +500,7 @@ if __name__ == "__main__":
                                                  max_scaleout=500,
                                                  cpu_cost=cpu_quota if cpu_quota else str(get_node_capacity() / float(pods_per_node)),
                                                  label="{}podsPerNode".format(pods_per_node),
-                                                 node_count=9,
+                                                 workload_node_count=9,
                                                  ab=True)
 
     # parse_results(workload_name, 2)
