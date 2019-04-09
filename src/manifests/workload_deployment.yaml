@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: workload-manager
+  labels:
+    app: workload
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: workload
+  template:
+    metadata:
+      labels:
+        app: workload
+    spec:
+      containers:
+      - name: sise
+        image: rbala19/ab
+        ports:
+        - containerPort: 9876
+        command: ['/bin/sh']
+        resources:
+          limits:
+            cpu: .3
+        args:
+      nodeSelector:
+        nodetype: workload
+      terminationGracePeriodSeconds: 10
+

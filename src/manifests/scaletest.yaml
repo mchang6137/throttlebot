@@ -1,0 +1,25 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: scaletest
+  labels:
+    app: scale
+spec: 
+  selector:
+    matchLabels:
+      app: scale
+  template: 
+    metadata:
+           labels:
+             app: scale
+    spec: 
+      containers:
+      - name: sise
+        image: mhausenblas/simpleservice:0.5.0
+        ports:
+        - containerPort: 9876
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+      terminationGracePeriodSeconds: 10

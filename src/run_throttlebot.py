@@ -87,12 +87,14 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             exit()
 
         # Enact the change in resource provisioning
-        set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
+        # set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision, "baseline_alloc")
         update_machine_consumption(redis_db, mr, new_resource_provision, 0)
+
+    print("Finished resource config in containers")
 
 # Initializes the maximum capacity and current consumption of Quilt
 def init_cluster_capacities_r(redis_db, machine_type, quilt_overhead):
@@ -1289,6 +1291,7 @@ def install_dependencies(workload_config):
     if traffic_machines == ['']:
         return
     for traffic_machine in traffic_machines:
+        print("creating client")
         traffic_client = get_client(traffic_machine)
         ssh_exec(traffic_client, 'sudo apt-get install apache2-utils -y')
         if workload_config['type'] == 'todo-app':
