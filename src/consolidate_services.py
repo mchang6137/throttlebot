@@ -299,10 +299,10 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
 
         return machine_to_service
 
-    resource_index = {'MEMORY': 0,
-                      'CPU-QUOTA': 1,
-                      'NET': 2,
-                      'DISK': 3}
+    resource_index = {}
+    for service in service_to_mr:
+        for x in range(len(service_to_mr[service])):
+            resource_index[service_to_mr[service][x].resource] = x
 
     # First find the number of machines from first fit
     imr_resource = imr_list[0].resource
@@ -316,6 +316,8 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
     optimal_num_machines = len(first_fit_placements.keys())
     imr_aware_service_placement = {}
     imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
+    if imr_aware_service_placement is None:
+        imr_aware_service_placement = first_fit_placements
     while len(imr_aware_service_placement.keys()) == 0:
         optimal_num_machines += 1
         imr_aware_service_placement = imr_aware(service_containers, optimal_num_machines)
@@ -334,5 +336,8 @@ if __name__ == "__main__":
     allocations = parse_config_csv(args.resource_csv)
     
     # Must re-select this
-    imr_list = [MR('tsaianson/node-apt-app', 'CPU-QUOTA', None), MR('haproxy:1.7', 'NET', None), MR('haproxy:1.7', 'NET', None)]
+    imr_list = [MR('node-app:node-todo.git', 'CPU-QUOTA', None)]
+    #imr_list = [MR('tsaianson/node-apt-app', 'CPU-QUOTA', None), MR('haproxy:1.7', 'NET', None), MR('haproxy:1.7', 'NET', None)]
     ffp, iap = ffd_pack(allocations, args.instance_type, imr_list[0].resource, imr_list)
+    print ffp
+    print iap

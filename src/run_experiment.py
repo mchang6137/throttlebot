@@ -5,10 +5,26 @@ from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
+import argparse
 import numpy as np
-import subprocess
-
 import logging
+import requests
+
+def test_todo(traffic_gen_ip, num_traffic_pods, experiment_iterations):
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'todo-app'
+    all_results = measure_runtime(workload_config, experiment_iterations)
+    print all_results
+
+def test_hotrod(traffic_gen_ip, num_traffic_pods, experiment_iterations):
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'hotrod'
+    all_results = measure_runtime(workload_config, experiment_iterations)
+    print all_results
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
@@ -36,8 +52,6 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         return measure_bcd(workload_config, experiment_iterations)
     elif experiment_type == 'hotrod':
         return measure_hotrod(workload_config, experiment_iterations)
-    elif experiment_type == 'kubernetes':
-        return measure_kubernetes(workload_config, experiment_iterations)
     else:
         logging.error('INVALID EXPERIMENT TYPE: {}'.format(experiment_type))
         exit()
@@ -62,6 +76,16 @@ def execute_parse_results(ssh_client, cmd):
         results_float = -1
     return results_float
 
+def execute_parallel_parse(parallel_client, cmd):
+    output = parallel_client(cmd)
+    host_to_output = {}
+    try:
+        for host, host_output in output.items():
+            output_str = host_output.read()
+            host_to_output[host] = float(output_str.strip('\n'))
+    except Exception as e:
+        host_to_ouput[host] = -1
+    return host_to_output
 
 # helper objects
 class latencyResult():
@@ -284,95 +308,69 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
 
     return all_results
 
-def measure_kubernetes(workload_configuration, experiment_iterations):
-    traffic_generator_ip = get_master()
-
-    NUM_REQUESTS = 20
-    CONCURRENCY = 10
-
-    service_name = "balancer"
-    pod_name = "{}_workload".format(service_name)
-
-    create_and_deploy_workload_pod(pod_name,
-                                    NUM_REQUESTS,
-                                   CONCURRENCY,
-                                   get_service_ip(service_name),
-                                   get_service_port(service_name),
-                                   workload_configuration['additional_arg_values'])
-
-
-    sleep(2)
-
-    traffic_client = get_client(traffic_generator_ip)
-
-    all_requests = {}
-    all_requests['rps'] = []
-    all_requests['latency'] = []
-    all_requests['latency_50'] = []
-    all_requests['latency_99'] = []
-    all_requests['latency_90'] = []
-
-    ssh_exec(traffic_client, "kubectl logs {} > output.txt".format(pod_name))
-
-    for x in range(experiment_iterations):
-        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
-        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
-        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
-        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
-        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
-
-        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
-        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
-        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
-        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
-        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
-
-    delete_workload_pod(pod_name)
-
-
 def measure_TODO_response_time(workload_configuration, iterations):
-    REST_server_ip = workload_configuration['frontend'][0]
+    num_traffic_generators = workload_configuration['workload_num']
     traffic_generator_ip = workload_configuration['request_generator'][0]
 
-    traffic_client = get_client(traffic_generator_ip)
-
     all_requests = {}
+    all_requests['latency_90'] = []
+    all_requests['latency_99'] = []
     all_requests['rps'] = []
     all_requests['latency'] = []
     all_requests['latency_50'] = []
-    all_requests['latency_99'] = []
-    all_requests['latency_90'] = []
 
-    NUM_REQUESTS = 350
-    CONCURRENCY = 150
+    NUM_REQUESTS = 500
+    CONCURRENCY = 200
 
-    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 200 -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    for _ in range(iterations):
+        traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
+        try:
+            r = requests.get(traffic_url, params={'w': num_traffic_generators,
+                                                  'n': NUM_REQUESTS,
+                                                  'c': CONCURRENCY,
+                                                  'port': 80,
+                                                  'hostname': 'haproxy.q'})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'GET requests have been sent'
+            
+            
+        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+        try:
+            collected = requests.get(collect_url, params={'w': num_traffic_generators}, timeout=2000)
+            perf_dict = collected.json()
+            print perf_dict
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        if len(perf_dict.keys()) != 0:
+            for k in perf_dict.keys():
+                all_requests[k].append(perf_dict[k])
+        else:
+            print "Too long to wait for collection. Service is probable down"
+            sys.exit(1)
 
-    clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
+        print 'Data has been collected: {}'.format(all_requests)
 
-    for x in range(iterations):
-        _, results,_ = traffic_client.exec_command(post_cmd)
-        logging.info(post_cmd)
-        results.read()
+        clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
+        try:
+            clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured while waiting for clearing to finish')
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
 
-        rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
-        latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
-        latency_50_cmd = 'cat output.txt | grep \'50%\' | awk {\'print $2\'}'
-        latency_99_cmd = 'cat output.txt | grep \'99%\' | awk {\'print $2\'}'
-        latency_overall_cmd = 'cat output.txt | grep \'Time per request\' | awk \'NR==1{{print $4}}\''
+        print 'Data has been cleared'
 
-        all_requests['latency_90'].append(execute_parse_results(traffic_client, latency_90_cmd))
-        all_requests['latency_99'].append(execute_parse_results(traffic_client, latency_99_cmd))
-        all_requests['latency'].append(execute_parse_results(traffic_client, latency_overall_cmd) * NUM_REQUESTS)
-        all_requests['latency_50'].append(execute_parse_results(traffic_client, latency_50_cmd))
-        all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
+        logging.info(all_requests)
+        print all_requests
 
-        _,cleared,_ = traffic_client.exec_command(clear_cmd)
-        cleared.read()
-
-    close_client(traffic_client)
-
-    logging.info(all_requests)
     return all_requests
 
 #Measure response time for MEAN Application
@@ -655,147 +653,104 @@ def measure_apt_app(workload_config, experiment_iterations):
 
     return all_requests
 
-
 def measure_hotrod(workload_config, experiment_iterations):
-    hotrod_public_ip = workload_config['frontend'][0]
-    traffic_gen_ips = workload_config['request_generator']
-
-    NUM_NGINX_REQUESTS = 1000
-    NUM_DISPATCH_REQUESTS = 500
-    CONCURRENCY = 100
-
-    traffic_client = get_client(traffic_gen_ips[0])
+    num_traffic_generators = workload_config['workload_num']
+    traffic_generator_ip = workload_config['request_generator'][0]
 
     all_requests = {}
+    all_requests['latency_90'] = []
+    all_requests['latency_99'] = []
     all_requests['rps'] = []
     all_requests['latency'] = []
     all_requests['latency_50'] = []
-    all_requests['latency_99'] = []
-    all_requests['latency_90'] = []
 
-    index = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/ &> output0.txt'.format(NUM_NGINX_REQUESTS, CONCURRENCY, hotrod_public_ip)
-    dispatch = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/api/dispatch?customer=123 &> output1.txt'.format(NUM_DISPATCH_REQUESTS, CONCURRENCY, hotrod_public_ip)
-    mapper = 'ab -q -n {} -c {} -s 9999 -l http://{}:80/map/location &> output2.txt'.format(NUM_DISPATCH_REQUESTS, CONCURRENCY, hotrod_public_ip)
+    NUM_INDEX_REQUESTS = 1000
+    NUM_DISPATCH_REQUESTS = 500
+    CONCURRENCY = 100
 
-    benchmark_commands = [index, dispatch, mapper]
+    successful_experiments = 0
+    while successful_experiments < experiment_iterations:
+        traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
+        try:
+            r = requests.get(traffic_url, params={'w': num_traffic_generators,
+                                                  'num_dispatch': NUM_DISPATCH_REQUESTS,
+                                                  'num_index': NUM_INDEX_REQUESTS,
+                                                  'c': CONCURRENCY})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'GET requests have been sent'
 
-    for x in range(experiment_iterations):
-
-        # Initiating requests
-        for a in range(len(benchmark_commands)):
-            logging.info(benchmark_commands[a])
-            traffic_client.exec_command(benchmark_commands[a])
-            sleep(0.2)
-
-        # Checking for task completion
-        finished = 0
-        repetitions = 0
-        logging.info('Please ignore the following new lines (if any)')
-        sleep(5)
-
-        while finished != len(benchmark_commands):
-            sleep(2)
-            repetitions += 1
-            finished = 0
-            # Call again...
-            if repetitions > 50:
-                logging.info('Calling commands again due to unresponsiveness')
-                for a in range(len(benchmark_commands)):
-                    logging.info(benchmark_commands[a])
-                    # traffic_clients[a].exec_command(benchmark_commands[a])
-                    traffic_client.exec_command(benchmark_commands[a])
-                    sleep(0.2)
-                repetitions = 0
-                sleep(5)
-
-            for b in range(len(benchmark_commands)):
-                finished_benchmark_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(b)
-                # blah = execute_parse_results(traffic_clients[b], finished_benchmark_cmd)
-                complete = execute_parse_results(traffic_client, finished_benchmark_cmd)
-                sleep(0.3)
-                # logging.info("test {}".format(complete))
-                if complete != -1:
-                    finished += 1
-                else:
-                    break
-
-        rps = 0
-        latency = 0
-        latency_50 = 0
-        latency_90 = 0
-        latency_99 = 0
-        # rps_cmd = "cat output.txt | grep 'Requests per second' | awk {{'print $4'}}"
-        # latency_cmd = "cat output.txt | grep 'Time per request' | awk 'NR==1{{print $4}}'"
-        # latency_50_cmd = "cat output.txt | grep '50%' | awk {'print $2'}"
-        # latency_90_cmd = "cat output.txt | grep '90%' | awk {'print $2'}"
-        # latency_99_cmd = "cat output.txt | grep '99%' | awk {'print $2'}"
-
-        # Grabbing data and removing files (TEMP VAR FOR DEBUGGING)
-        for c in range(len(benchmark_commands)):
-
-            rps_cmd = "cat output{}.txt | grep 'Requests per second' | awk {{'print $4'}}".format(c)
-            latency_cmd = "cat output{}.txt | grep 'Time per request' | awk 'NR==1{{print $4}}'".format(c)
-            latency_50_cmd = "cat output{}.txt | grep '50%' | awk {{'print $2'}}".format(c)
-            latency_90_cmd = "cat output{}.txt | grep '90%' | awk {{'print $2'}}".format(c)
-            latency_99_cmd = "cat output{}.txt | grep '99%' | awk {{'print $2'}}".format(c)
-
-            # Temporary Values
-            # rpst = execute_parse_results(traffic_clients[c], rps_cmd)
-            # latencyt = execute_parse_results(traffic_clients[c], latency_cmd)
-            # latency_50t = execute_parse_results(traffic_clients[c], latency_50_cmd)
-            # latency_90t = execute_parse_results(traffic_clients[c], latency_90_cmd)
-            # latency_99t = execute_parse_results(traffic_clients[c], latency_99_cmd)
-            #
-            # rps += float(execute_parse_results(traffic_clients[c], rps_cmd))
-            # latency += float(execute_parse_results(traffic_clients[c], latency_cmd))
-
-            rpst = execute_parse_results(traffic_client, rps_cmd)
-            sleep(0.3)
-            latencyt = execute_parse_results(traffic_client, latency_cmd)
-            sleep(0.3)
-            latency_50t = execute_parse_results(traffic_client, latency_50_cmd)
-            sleep(0.3)
-            latency_90t = execute_parse_results(traffic_client, latency_90_cmd)
-            sleep(0.3)
-            latency_99t = execute_parse_results(traffic_client, latency_99_cmd)
-
-            rps += float(execute_parse_results(traffic_client, rps_cmd))
+        data_collected = False
+        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+        try:
+            collected = requests.get(collect_url, params={'w': num_traffic_generators})
+            perf_dict = collected.json()
+            print perf_dict
+            data_collected = True
+        except:
+            print 'Failure Detected. Sleep 200 seconds'
+            time.sleep(100)
             
-            latency += float(execute_parse_results(traffic_client, latency_cmd))
+        # Linear combination of all entries (no weighting)
+        if data_collected:
+            perf_linear = {}
+            for endpoint in perf_dict.keys():
+                for perf_field in perf_dict[endpoint]:
+                    if perf_field not in perf_linear:
+                        perf_linear[perf_field] = perf_dict[endpoint][perf_field]
+                    else:
+                        perf_linear[perf_field] += perf_dict[endpoint][perf_field]
+            
+            if len(perf_linear.keys()) != 0:
+                for k in perf_linear.keys():
+                    all_requests[k].append(perf_linear[k])
+            else:
+                print "Too long to wait for collection. Service is probable down"
+                sys.exit(1)
 
-            latency_50 += latency_50t
-            latency_90 += latency_90t
-            latency_99 += latency_99t
-            # traffic_clients[c].exec_command('rm output.txt')
-            rm_out_cmd = 'rm output{}.txt'.format(c)
-            traffic_client.exec_command(rm_out_cmd)
-            sleep(0.3)
-            logging.info('{},{},{},{},{}'.format(rpst, latencyt, latency_50t, latency_90t, latency_99t))
-        logging.info('total:{},{},{},{},{}'.format(rps, latency, latency_50, latency_90, latency_99))
-        
-        all_requests['rps'].append(rps)
-        all_requests['latency'].append(latency)
-        all_requests['latency_50'].append(latency_50)
-        all_requests['latency_90'].append(latency_90)
-        all_requests['latency_99'].append(latency_99)
-        # TEMPORARY DELETE UP TO EXIT()
-        # for client in traffic_clients:
-        #     close_client(client)
-        # close_client(traffic_client)
-        # logging.info(all_requests)
-        # logging.info('Checkpoint 2, Baseline and iteration done')
-        # exit()
+            print 'Data has been collected: {}'.format(all_requests)
+            successful_experiments += 1
+            print 'Successful experiments is {}'.format(successful_experiments)
+        else:
+            print 'Data has not been collected. Clearing data and restarting experiment.'
 
-    # Remove outliers (all outside of 1 standard deviation)
+        clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
+        try:
+            clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured while waiting for clearing to finish')
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+
+        print 'Data has been cleared'
+
+        logging.info(all_requests)
+        print all_requests
+
     all_requests['rps'] = [np.median(all_requests['rps'])]
     all_requests['latency'] = [np.median(all_requests['latency'])]
     all_requests['latency_50'] = [np.median(all_requests['latency_50'])]
     all_requests['latency_90'] = [np.median(all_requests['latency_90'])]
     all_requests['latency_99'] = [np.median(all_requests['latency_99'])]
-    
-    # Closing clients
-    # for client in traffic_clients:
-    #     close_client(client)
-    close_client(traffic_client)
-
     return all_requests
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--test_name")
+    parser.add_argument("--traffic_ip")
+    parser.add_argument("--workload_num")
+    parser.add_argument("--iterations")
+    args = parser.parse_args()
+
+    if args.test_name == 'todo':
+        test_todo(args.traffic_ip, int(args.workload_num), int(args.iterations))
+
+    if args.test_name == 'hotrod':
+        test_hotrod(args.traffic_ip, int(args.workload_num), int(args.iterations))
+    

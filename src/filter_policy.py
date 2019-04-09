@@ -195,6 +195,12 @@ Utilities - helper methods
 def mean_list(target_list):
     return sum(target_list)  / float(len(target_list))
 
+def is_performance_constant(initial_perf, after_perf, within_x=0):
+    if abs(initial_perf - after_perf) < initial_perf * within_x:
+        return True
+    else:
+        return False
+
 # Filter down the current mr working set (list of MRs)
 # on the basis of services
 def search_mr_working_set(mr_working_set, services):

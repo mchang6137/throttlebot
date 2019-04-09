@@ -18,7 +18,7 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 ### Pre-defined blacklist (Temporary)
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
                    'throttlebot/quilt:latest', 'tsaianson/quilt:latest']
-service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed']
+service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed', 'mchang6137/workloadlb', 'mchang6137/workloadmean', 'workloadlb', 'workloadmean', 'hotrodworkload', 'hotrodworkloadlb', 'mchang6137/hotrodworkload', 'mchang6137/hotrodworkloadlb']
 testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearch:2.4', 'kibana:4', 'library/postgres:9.4',
                      'mysql:5.6.32', 'osalpekar/spark-image-compress...']
 
@@ -52,6 +52,15 @@ def get_actual_vms():
      pod.metadata.namespace == "default"]
 
 
+
+# If workload is being generated from multiple pods, automatically query the IP
+# addresses of the pods and container IDs
+def get_workload_gen_pods():
+    vm_ips = get_actual_vms()
+    service_instances = get_service_placements(vm_ip)
+    # Change name of the container when ready
+    assert 'workload_gen' in service_instances
+    return service_instances['workload_gen']
 
 def get_master():
     # ps_args = ['quilt', 'ps']
