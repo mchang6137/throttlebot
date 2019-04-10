@@ -29,29 +29,28 @@ v1_beta = client.ExtensionsV1beta1Api()
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
-def get_actual_vms():
-    # ps_args = ['quilt', 'ps']
-    # awk_args = ["awk", r'{print $6}']
-    #
-    # # Identify the machine index of the master node
-    # machine_roles = parse_quilt_ps_col(2, machine_level=True)
-    #
-    # # Get the IP addresses of all the machines
-    # machine_ips = parse_quilt_ps_col(6, machine_level=True)
-    #
-    # combined_machine_info = zip(machine_roles, machine_ips)
-    # ips = []
-    # for info in combined_machine_info:
-    #     role,ip = info
-    #     if role == 'Master':
-    #         continue
-    #     ips.append(ip)
-    # return ips
+def get_actual_vms(orchestrator='quilt'):
+    if orchestrator == 'quilt':
+        ps_args = ['quilt', 'ps']
+        awk_args = ["awk", r'{print $6}']
 
-    return [pod.status.pod_ip for pod in v1.list_pod_for_all_namespaces().items if
-     pod.metadata.namespace == "default"]
+        # Identify the machine index of the master node
+        machine_roles = parse_quilt_ps_col(2, machine_level=True)
 
+        # Get the IP addresses of all the machines
+        machine_ips = parse_quilt_ps_col(6, machine_level=True)
 
+        combined_machine_info = zip(machine_roles, machine_ips)
+        ips = []
+        for info in combined_machine_info:
+            role,ip = info
+            if role == 'Master':
+                continue
+            ips.append(ip)
+        return ips
+    else:
+        return [pod.status.pod_ip for pod in v1.list_pod_for_all_namespaces().items if
+                pod.metadata.namespace == "default"]
 
 # If workload is being generated from multiple pods, automatically query the IP
 # addresses of the pods and container IDs
@@ -62,43 +61,42 @@ def get_workload_gen_pods():
     assert 'workload_gen' in service_instances
     return service_instances['workload_gen']
 
-def get_master():
-    # ps_args = ['quilt', 'ps']
-    # awk_args = ["awk", r'{print $6}']
-    # # Identify the machine index of the master node
-    # machine_roles = parse_quilt_ps_col(2, machine_level=True)
-    #
-    # # Get the IP addresses of all the machines
-    # machine_ips = parse_quilt_ps_col(6, machine_level=True)
-    #
-    # combined_machine_info = zip(machine_roles, machine_ips)
-    # ips = []
-    # for info in combined_machine_info:
-    #     role,ip = info
-    #     if role == 'Master':
-    #         return ip
+def get_master(orchestrator='quilt'):
+    if orchestrator == 'quilt':
+        ps_args = ['quilt', 'ps']
+        awk_args = ["awk", r'{print $6}']
+        #Identify the machine index of the master node
+        machine_roles = parse_quilt_ps_col(2, machine_level=True)
 
-    nodes = [(node.metadata.labels['kubernetes.io/role'], node.metadata.name) for node in v1.list_node().items]
+        # Get the IP addresses of all the machines
+        machine_ips = parse_quilt_ps_col(6, machine_level=True)
 
-    name = ""
-    for node in nodes:
-        if (node[0] == 'master'):
-            name = node[1]
+        combined_machine_info = zip(machine_roles, machine_ips)
+        ips = []
+        for info in combined_machine_info:
+            role,ip = info
+            if role == 'Master':
+                return ip
+    else:
+        nodes = [(node.metadata.labels['kubernetes.io/role'], node.metadata.name) for node in v1.list_node().items]
 
-    master_node_ip = v1.read_node(name).status.addresses[1].address
+        name = ""
+        for node in nodes:
+            if (node[0] == 'master'):
+                name = node[1]
 
-    return master_node_ip
+        master_node_ip = v1.read_node(name).status.addresses[1].address
 
-
+        return master_node_ip
 
 # Gets all the services in the Quilt cluster
 # Identifies the services based on the COMMAND
-def get_actual_services():
-    # services = parse_quilt_ps_col(3, machine_level=False)
-    # return services
-
-    return [service.metadata.name for service in v1.list_service_for_all_namespaces().items]
-# return services.items
+def get_actual_services(orchestrator='quilt'):
+    if orchestrator == 'quilt':
+        services = parse_quilt_ps_col(3, machine_level=False)
+        return services
+    else:
+        return [service.metadata.name for service in v1.list_service_for_all_namespaces().items]
 
 def get_service_ip(service_name):
     return v1.read_namespaced_service(service_name, namespace="default").spec.cluster_ip
@@ -132,7 +130,6 @@ def parse_quilt_ps_col(column, machine_level=True):
         return result_list[1:]
 
 def get_quilt_services():
-    # return quilt_blacklist + service_blacklist + testing_blacklist
     return quilt_blacklist + service_blacklist
 
 # Returns all stressable resources available for this
@@ -142,41 +139,41 @@ def get_stressable_resources(cloud_provider='aws-ec2'):
 
 # Identify the container id and VM where a service might be residing
 # Return service_name -> (vm_ip, container_id)
-def get_service_placements(vm_ips):
-    # service_to_deployment = {}
-    # for vm_ip in vm_ips:
-    #     ssh_client = remote_exec.get_client(vm_ip)
-    #     docker_container_id_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
-    #     docker_container_image_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
-    #     _, stdout1, _ = ssh_client.exec_command(docker_container_id_cmd)
-    #     container_ids = stdout1.read().splitlines()
-    #     _, stdout2, _ = ssh_client.exec_command(docker_container_image_cmd)
-    #     service_names = stdout2.read().splitlines()
-    #
-    #     zipped_name_id = zip(service_names, container_ids)
-    #
-    #     #Assume that the container ids and the service names are ordered in the same way
-    #     for service_name, container_id in zipped_name_id:
-    #         if service_name[-4:] == '.git':
-    #             service_name = service_name[service_name.index('/')+1:]
-    #         identifier_tuple = (vm_ip, container_id)
-    #         if service_name == 'postgres:9.4':
-    #             service_name = 'library/postgres:9.4'
-    #         if service_name == 'osalpekar/spark-image-compressor':
-    #             service_name = 'osalpekar/spark-image-compress...'
-    #         if service_name not in service_to_deployment:
-    #             service_to_deployment[service_name] = [identifier_tuple]
-    #         else:
-    #             service_to_deployment[service_name].append(identifier_tuple)
-    #     remote_exec.close_client(ssh_client)
-    # return service_to_deployment
+def get_service_placements(vm_ips, orchestrator='quilt'):
+    if orchestrator == 'quilt':
+        service_to_deployment = {}
+        for vm_ip in vm_ips:
+            ssh_client = remote_exec.get_client(vm_ip)
+            docker_container_id_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
+            docker_container_image_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
+            _, stdout1, _ = ssh_client.exec_command(docker_container_id_cmd)
+            container_ids = stdout1.read().splitlines()
+            _, stdout2, _ = ssh_client.exec_command(docker_container_image_cmd)
+            service_names = stdout2.read().splitlines()
 
+            zipped_name_id = zip(service_names, container_ids)
+
+            #Assume that the container ids and the service names are ordered in the same way
+            for service_name, container_id in zipped_name_id:
+                if service_name[-4:] == '.git':
+                    service_name = service_name[service_name.index('/')+1:]
+                identifier_tuple = (vm_ip, container_id)
+                if service_name == 'postgres:9.4':
+                    service_name = 'library/postgres:9.4'
+                if service_name == 'osalpekar/spark-image-compressor':
+                    service_name = 'osalpekar/spark-image-compress...'
+                if service_name not in service_to_deployment:
+                    service_to_deployment[service_name] = [identifier_tuple]
+                else:
+                    service_to_deployment[service_name].append(identifier_tuple)
+            remote_exec.close_client(ssh_client)
+        return service_to_deployment
+
+    # Else using Kubernetes
     pods = v1.list_namespaced_pod("default").items
-
+    
     port_to_pod = {}
     vm_ip_numbers = vm_ips
-
-
 
     for pod in pods:
         index = -1
@@ -212,20 +209,33 @@ def get_service_placements(vm_ips):
     return service_to_vm
 
 
-# return self._k8s_v1.list_namespaced_pod(
-#                 namespace='default',
-#                 label_selector=CLIPPER_DOCKER_LABEL).items:
-
 # Identify the services residing on each VM
-def get_vm_to_service(vm_ips):
+def get_vm_to_service(vm_ips, orchestrator='quilt'):
+    if orchestrator == 'quilt':
+        vm_to_service = {}
+        for vm_ip in vm_ips:
+            ssh_client = remote_exec.get_client(vm_ip)
+            docker_container_id_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f1 | tail -n +2'
+            docker_container_image_cmd = 'docker ps | tr -s \' \' | cut -d \' \' -f2 | tail -n +2'
+            _, stdout1, _ = ssh_client.exec_command(docker_container_image_cmd)
+            service_names = stdout1.read().splitlines()
 
+            #Assume that the container ids and the service names are ordered in the same way
+            for service in service_names:
+                if service == 'osalpekar/spark-image-compressor':
+                    service = 'osalpekar/spark-image-compress...'
+                if service in quilt_blacklist or service in service_blacklist:
+                    continue
+                if vm_ip in vm_to_service:
+                    vm_to_service[vm_ip].append(service)
+                else:
+                    vm_to_service[vm_ip] = [service]
+            remote_exec.close_client(ssh_client)
+        return vm_to_service
 
     endpoint_list = v1.list_namespaced_endpoints("default").items
-
     vm_ip_numbers = vm_ips
-
     vm_to_service = {}
-
     port_to_service = {}
 
     # For every service port, map that port to service_name 
@@ -238,7 +248,6 @@ def get_vm_to_service(vm_ips):
             continue
         for port_info in service.spec.ports:
             port_to_service[port_info.port] = service_name
-
 
     #For every endpoint (exposed pod), look up to see if its ports are shared with a service
     for endpoint in endpoint_list:
