@@ -583,7 +583,8 @@ workload_config: Parameters about the workload in a dict
 default_mr_config: Filtered MRs that should be stress along with their default allocation
 '''
 
-def run(sys_config, workload_config, filter_config, default_mr_config, last_completed_iter=0, fake=False):
+def run(sys_config, workload_config, filter_config, default_mr_config,
+        last_completed_iter=0, fake=False, run_one_iteration=False):
     redis_host = sys_config['redis_host']
     baseline_trials = sys_config['baseline_trials']
     experiment_trials = sys_config['trials']
@@ -781,6 +782,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                        stress_weight, gradient_mode,
                                                        optimize_for_lowest=optimize_for_lowest,
                                                        num_results_returned=-1)
+
+        if run_one_iteration:
+            return sorted_mr_list
 
         # Move back into the normal operating basis by removing the baseline prep stresses
         reverted_analytic_provisions = revert_analytic_baseline(redis_db, sys_config)

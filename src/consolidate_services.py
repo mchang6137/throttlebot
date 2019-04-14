@@ -141,34 +141,6 @@ def roundup(x):
 # imr_list is an ordered list of IMRs, and the MIMR should be the first element
 # round_up indicates that IMRs need to be rounded up
 def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[], round_up=False):
-    """
-    FFD based on each resource type
-
-    Should get near optimal packing efficiency,
-    in single dimensional case, efficiency is
-    11/9 OPT. Multidimensional is probably much
-    worse.
-    """
-
-    # At present, I have no way to infer this, so it will have to be changed
-    # for each project manually
-    '''
-    service_containers = [
-        'haproxy:1.7',
-        'elasticsearch:2.4',
-        'kibana:4',
-        'kibana:4',
-        'kibana:4',
-        'kibana:4',
-        'tsaianson/node-apt-app',
-        'tsaianson/node-apt-app',
-        'tsaianson/node-apt-app',
-        'mysql:5.6.32',
-        'hantaowang/logstash-postgres',
-        'library/postgres:9.4',
-    ]
-    '''
-
     if round_up is True:
         for imr in imr_list:
             assert imr in mr_allocation
