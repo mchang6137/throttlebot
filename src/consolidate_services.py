@@ -135,8 +135,12 @@ def place_if_possible(mr_list,
         
     return False
 
+def roundup(x):
+    return x if x % 100 == 0 else x + 100 - x % 100
+
 # imr_list is an ordered list of IMRs, and the MIMR should be the first element
-def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
+# round_up indicates that IMRs need to be rounded up
+def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[], round_up=False):
     """
     FFD based on each resource type
 
@@ -164,6 +168,11 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]):
         'library/postgres:9.4',
     ]
     '''
+
+    if round_up is True:
+        for imr in imr_list:
+            assert imr in mr_allocation
+            mr_allocation[imr] = roundup(mr_allocation[imr])
 
     # Use the below if you have already deployed the containers on quilt
     # Otherwise, define it manually.
@@ -337,7 +346,6 @@ if __name__ == "__main__":
     
     # Must re-select this
     imr_list = [MR('node-app:node-todo.git', 'CPU-QUOTA', None)]
-    #imr_list = [MR('tsaianson/node-apt-app', 'CPU-QUOTA', None), MR('haproxy:1.7', 'NET', None), MR('haproxy:1.7', 'NET', None)]
     ffp, iap = ffd_pack(allocations, args.instance_type, imr_list[0].resource, imr_list)
     print ffp
     print iap
