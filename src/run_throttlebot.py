@@ -518,6 +518,18 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
             result_dict['REPR'] = 'RAW'
             writer.writerow(result_dict)
 
+def print_imr_rankings(ranking_list, output_csv='ranked_imr.csv'):
+    with open(output_csv, 'w') as csvfile:
+        fieldnames = ['SERVICE', 'RESOURCE', 'PERF']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for mr,perf in ranking_list:
+            result_dict = {}
+            result_dict['SERVICE'] = mr.service_name
+            result_dict['RESOURCE'] = mr.resource
+            result_dict['PERF'] = perf
+            writer.writerow(result_dict)
+
 # Iterate through all the colocated imrs of the same resource
 # Will not work correctly for inverted gradient!!!!!
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
@@ -782,6 +794,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
                                                        stress_weight, gradient_mode,
                                                        optimize_for_lowest=optimize_for_lowest,
                                                        num_results_returned=-1)
+
+        # Log the sorted_mr_list
+        print_imr_rankings(sorted_mr_list)
 
         if run_one_iteration:
             return sorted_mr_list
