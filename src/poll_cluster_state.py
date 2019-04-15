@@ -22,10 +22,10 @@ service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed', 'mchan
 testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearch:2.4', 'kibana:4', 'library/postgres:9.4',
                      'mysql:5.6.32', 'osalpekar/spark-image-compress...']
 
-config.load_kube_config()
+#config.load_kube_config()
 
-v1 = client.CoreV1Api()
-v1_beta = client.ExtensionsV1beta1Api()
+#v1 = client.CoreV1Api()
+#v1_beta = client.ExtensionsV1beta1Api()
 
 # Find all the VMs in the current Quilt Cluster
 # Returns a list of IP addresses
