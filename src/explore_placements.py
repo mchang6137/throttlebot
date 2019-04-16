@@ -22,7 +22,17 @@ def run_placement(sys_config, mr_allocation, mr_ranking_list):
 
     num_imrs = 1
     num_imr_list = mr_ranking_list[:num_imrs]
-    combine_resources(mr_allocation, num_imr_list, instance_type='m4.large', resource_type='CPU-QUOTA')
+    deploy_together = combine_resources(mr_allocation, num_imr_list,
+                                        instance_type='m4.large', resource_type='CPU-QUOTA')
+
+
+    ffd_pack_affinity, imr_pack_affinity = ffd_pack(mr_allocation, instance_type,
+                                                    sort_by='CPU-QUOTA', imr_list=mr_ranking_list,
+                                                    round_up=False, deploy_together=deploy_together)
+
+    print 'FFD packing with affinity, first {} rounded is {}'.format(num_imrs, ffd_packing_affinity)
+    print 'IMR packing with affinity, first {} roudned is {}'.format(num_imrs, imr_packing_affinity)
+    
 
     
 
