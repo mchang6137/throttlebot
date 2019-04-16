@@ -27,6 +27,46 @@ def parse_config_csv(resource_config_csv):
 
     return mr_allocation
 
+# Needs to be run with the initial deployment that runs clampdown?
+def combine_resources(mr_allocation, imr_list,
+                      instance_type, resource_type='CPU-QUOTA'):
+    vm_list = get_actual_vms()
+    vm_to_service = get_vm_to_service(vm_list)
+    imr_service_names = [imr.service_name for imr in imr_list]
+    
+    resource_capacity = get_instance_specs(instance_type)
+    single_core_capacity = 100
+
+    all_deploy_sets = []
+    for vm in vm_to_service.keys():
+        deploy_together = []
+        resource_usage = 0
+        
+        # First determine if an IMR has been placed on the machine
+        # Assume only one IMR per machine
+        for service_name in vm_to_service[vm]:
+            if service_name in imr_service_names:
+                resource_usage += mr_allocation[MR(service_name, resource_type, None)]
+                deploy_together.append(MR(service_name, resource_type, None))
+                break
+
+        # Next, look at the remianing services
+        for service_name in vm_to_service[vm]:
+            if service_name in imr_service_names:
+                continue
+            
+            relevant_mr = MR(service_name, resource_type, None)
+            if mr_allocation[relevant_mr] + resource_usage < single_core_capacity:
+                resource_usage += mr_allocation[relevant_mr]
+                deploy_together.append(MR(service_name, resource_type, None))
+
+        all_deploy_sets.append(deploy_together)
+
+        # Can't fill up remaining resources because it is no guarantee that other
+        # instances will be able to sustain same resource growths.
+
+    return all_deploy_sets
+
 
 # Returns a list of MRs for each service
 def set_service_specs(service_list, mr_to_allocation):
@@ -140,7 +180,8 @@ def roundup(x):
 
 # imr_list is an ordered list of IMRs, and the MIMR should be the first element
 # round_up indicates that IMRs need to be rounded up
-def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[], round_up=False):
+def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
+             deploy_together=[], round_up=False):
     if round_up is True:
         for imr in imr_list:
             assert imr in mr_allocation
@@ -156,6 +197,11 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[], rou
     for service_name in service_placements:
         if service_name in service_configurations:
             service_containers += [service_name for x in range(len(service_placements[service_name]))]
+
+            
+
+    print service_containers
+    exit()
 
     service_to_mr = set_service_specs(service_containers, mr_allocation)
 
