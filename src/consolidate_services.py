@@ -198,7 +198,11 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
         if service_name in service_configurations:
             service_containers += [service_name for x in range(len(service_placements[service_name]))]
 
+    print service_containers
             
+    for affinity in deploy_together:
+        for mr in affinity:
+            service_containers.remove(mr.service_name)
 
     print service_containers
     exit()
