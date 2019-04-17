@@ -180,8 +180,10 @@ def roundup(x):
 
 # imr_list is an ordered list of IMRs, and the MIMR should be the first element
 # round_up indicates that IMRs need to be rounded up
-def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
+def ffd_pack(past_mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
              deploy_together=[], round_up=False):
+    mr_allocation = deepcopy(past_mr_allocation)
+    
     if round_up is True:
         for imr in imr_list:
             assert imr in mr_allocation
@@ -198,16 +200,21 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
         if service_name in service_configurations:
             service_containers += [service_name for x in range(len(service_placements[service_name]))]
 
-    print service_containers
-            
     for affinity in deploy_together:
         for mr in affinity:
             service_containers.remove(mr.service_name)
 
-    print service_containers
-    exit()
+    # Create a fake MR with the combination of MRs
+    for affinity in deploy_together:
+        affinity_services = ''
+        total_resources = 0
+        for mr in affinity:
+            affinity_services += '&' + mr.service_name
+            total_resources += mr_allocation[mr]
+        mr_allocation[MR(affinity_services, 'CPU-QUOTA', None)] = roundup(total_resources)
+        service_containers.append(affinity_services)
 
-    service_to_mr = set_service_specs(service_containers, mr_allocation)
+    service_to_mr = set_service_specs(service_containers, mr_allocation) # Amend to include affinities
 
     # IMR Aware Scheduling
     def imr_aware(sc, num_machines):
@@ -340,7 +347,9 @@ def ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[],
     service_containers = sorted(service_containers,
                                 key=lambda x: mr_allocation[service_to_mr[x][resource_index[imr_resource]]])
 
+    print service_containers
     first_fit_placements = ff(service_containers)
+    print first_fit_placements
     logging.info('First fit service placement is {}'.format(first_fit_placements))
 
     # First place the services that show up as MIMRs

@@ -1,9 +1,11 @@
 from consolidate_services import *
 from run_throttlebot import *
+from instance_specs import *
 import copy
 
 def run_placement(sys_config, mr_allocation, mr_ranking_list):
     instance_type = sys_config['machine_type']
+    '''
     ffd_packing, imr_packing = ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA',
                                   imr_list=mr_ranking_list, round_up=False)
     print 'FFD pack is {}'.format(ffd_packing)
@@ -19,12 +21,11 @@ def run_placement(sys_config, mr_allocation, mr_ranking_list):
     print 'FFD packing, first {} rounded is {}'.format(rounded_imrs, ffd_packing_rounded)
     print 'IMR packing, first {} roudned is {}'.format(rounded_imrs, imr_packing_rounded)
 
-
+    '''
     num_imrs = 1
     num_imr_list = mr_ranking_list[:num_imrs]
     deploy_together = combine_resources(mr_allocation, num_imr_list,
                                         instance_type='m4.large', resource_type='CPU-QUOTA')
-
 
     ffd_pack_affinity, imr_pack_affinity = ffd_pack(mr_allocation, instance_type,
                                                     sort_by='CPU-QUOTA', imr_list=mr_ranking_list,
@@ -32,9 +33,62 @@ def run_placement(sys_config, mr_allocation, mr_ranking_list):
 
     print 'FFD packing with affinity, first {} rounded is {}'.format(num_imrs, ffd_packing_affinity)
     print 'IMR packing with affinity, first {} roudned is {}'.format(num_imrs, imr_packing_affinity)
-    
 
+def assign_cores(sys_config, mr_allocation, mr_ranking_list):
+    instance_type = sys_config['machine_type']
+    num_cores = get_instance_specs(instance_type)['CPU-CORE']
     
+    num_imrs = 1
+    num_imr_list = mr_ranking_list[:num_imrs]
+    deploy_together = combine_resources(mr_allocation, num_imr_list,
+                                        instance_type='m4.large', resource_type='CPU-QUOTA')
+
+    vm_list = get_actual_vms()
+    vm_to_service = get_vm_to_service(vm_list)
+    service_to_container_info = get_service_placements(vm_list)
+    print service_to_container_info
+
+    vm_to_cores_pinned = {}
+    for vm in vm_list:
+        vm_to_cores_pinned[vm] = 0
+
+    print deploy_together
+    
+    for mr_set in deploy_together:
+        print mr_set
+        num_containers = len(mr_set)
+        vm_pin = None
+        for vm in vm_to_service:
+            matches = 0
+            for mr in mr_set:
+                if mr.service_name in vm_to_service[vm]:
+                    matches += 1
+            if matches == num_containers:
+                vm_pin = vm
+                # Remove from vm_to_service so we don't schedule same service twice.
+                for mr in mr_set:
+                    vm_to_service[vm].remove(mr.service_name)
+                break
+        if vm_pin:
+            total_cpu_alloc = 0
+            for mr in mr_set:
+                total_cpu_alloc += mr_allocation[mr]
+            num_cores = int(roundup(total_cpu_alloc) / 100) - 1
+            pin_cores = (vm_to_cores_pinned[vm], vm_to_cores_pinned[vm] + num_cores)
+            vm_to_cores_pinned[vm] += num_cores
+
+            for mr in mr_set:
+                ssh_client = get_client(vm_pin)
+                service_instances = service_to_container_info[mr.service_name]
+                container_id = ''
+                for inst in service_instances:
+                    if inst[0] == vm_pin:
+                        container_id = inst[1]
+                assert container_id != ''
+                print vm_pin
+                print container_id
+                print pin_cores
+                set_cpu_cores(ssh_client, container_id, pin_cores)
 
 # Run One iteration of Throttlebot to retrieve MR list
 def run_one_iteration(sys_config, workload_config, filter_config, mr_allocation):
@@ -62,6 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("--config_file")
     parser.add_argument("--resource_config")
     parser.add_argument("--impacted_mr_list")
+    parser.add_argument("--assign_cores")
     args = parser.parse_args()
     
     sys_config, workload_config, filter_config = parse_config_file(args.config_file)
@@ -71,7 +126,10 @@ if __name__ == "__main__":
     if len(sorted_mr_list) == 0:
         sorted_mr_list = run_one_iteration(sys_config, workload_config, filter_config, mr_allocation)
 
-    run_placement(sys_config, mr_allocation, sorted_mr_list)
+    if args.assign_cores == 'yes':
+        assign_cores(sys_config, mr_allocation, sorted_mr_list)
+    else:
+        run_placement(sys_config, mr_allocation, sorted_mr_list)
 
     
 

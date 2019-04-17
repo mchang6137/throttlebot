@@ -224,6 +224,8 @@ def get_vm_to_service(vm_ips, orchestrator='quilt'):
             for service in service_names:
                 if service == 'osalpekar/spark-image-compressor':
                     service = 'osalpekar/spark-image-compress...'
+                if service == 'postgres:9.4':
+                    service = 'library/postgres:9.4'
                 if service in quilt_blacklist or service in service_blacklist:
                     continue
                 if vm_ip in vm_to_service:

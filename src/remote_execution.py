@@ -4,12 +4,10 @@ import logging
 def get_client(ip, orchestrator='quilt'):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    print("Client is connecting")
     if orchestrator == 'quilt':
         client.connect(ip, username='quilt', password="")
     else:
         client.connect(ip, username="admin", password="")
-    print("Client has connected")
     return client
 
 def ssh_exec(ssh_client, cmd, modifies_container=False, return_error=False):

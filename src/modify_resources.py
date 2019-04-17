@@ -175,9 +175,11 @@ def reset_cpu_quota(ssh_client, container_id):
 
 # Pins the selected cores to the container (will reset any CPU quotas)
 # Hardcoded cpuset-mems for now
-def set_cpu_cores(ssh_client, container_id, cores):
-    cores = int(round(cores)) - 1
-    core_cmd = '0-{}'.format(cores)
+# Cores is a range of cores (a,b) inclusive
+def set_cpu_cores(ssh_client, container_id, core_range):
+    #cores = int(round(cores)) - 1
+    core_range = (int(round(core_range[0])), int(round(core_range[1])))
+    core_cmd = '{}-{}'.format(core_range[0], core_range[1])
     set_cores_cmd = 'docker update --cpuset-cpus={} --cpuset-mems=0 {}'.format(core_cmd, container_id)
     ssh_exec(ssh_client, set_cores_cmd, modifies_container=True)
     logging.info('{} Cores pinned to container {}'.format(core_cmd, container_id))
