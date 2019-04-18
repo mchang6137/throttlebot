@@ -68,6 +68,8 @@ def combine_resources(mr_allocation, imr_list,
     return all_deploy_sets
 
 
+
+
 # Returns a list of MRs for each service
 def set_service_specs(service_list, mr_to_allocation):
     #    resources = ('MEMORY', 'CPU-QUOTA', 'NET', 'DISK')

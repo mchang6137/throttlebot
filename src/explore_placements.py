@@ -36,7 +36,7 @@ def run_placement(sys_config, mr_allocation, mr_ranking_list):
 
 def assign_cores(sys_config, mr_allocation, mr_ranking_list):
     instance_type = sys_config['machine_type']
-    num_cores = get_instance_specs(instance_type)['CPU-CORE']
+    available_cores = get_instance_specs(instance_type)['CPU-CORE']
     
     num_imrs = 1
     num_imr_list = mr_ranking_list[:num_imrs]
@@ -46,14 +46,20 @@ def assign_cores(sys_config, mr_allocation, mr_ranking_list):
     vm_list = get_actual_vms()
     vm_to_service = get_vm_to_service(vm_list)
     service_to_container_info = get_service_placements(vm_list)
-    print service_to_container_info
+    print service_to_container_info.keys()
 
     vm_to_cores_pinned = {}
     for vm in vm_list:
         vm_to_cores_pinned[vm] = 0
 
-    print deploy_together
-    
+    # Every container must be pinned to some core
+    instance_pinned = {}
+    for service in service_to_container_info:
+        print 'In instance pinned, service is {}'.format(service)
+        for instance in service_to_container_info[service]:
+            key = instance[0] + '&' + instance[1]
+            instance_pinned[key] = False
+
     for mr_set in deploy_together:
         print mr_set
         num_containers = len(mr_set)
@@ -82,13 +88,29 @@ def assign_cores(sys_config, mr_allocation, mr_ranking_list):
                 service_instances = service_to_container_info[mr.service_name]
                 container_id = ''
                 for inst in service_instances:
-                    if inst[0] == vm_pin:
+                   if inst[0] == vm_pin:
                         container_id = inst[1]
                 assert container_id != ''
-                print vm_pin
-                print container_id
-                print pin_cores
                 set_cpu_cores(ssh_client, container_id, pin_cores)
+                instance_pinned[vm_pin + '&' + container_id] = True
+
+    # Handle remaining non-affinity based containers
+    for service in service_to_container_info:
+        for instance in service_to_container_info[service]:
+            vm_ip = instance[0]
+            container_id = instance[1]
+            pin_key = vm_ip + '&' + container_id
+            if instance_pinned[pin_key] is True:
+                continue
+            lowest_core_index = vm_to_cores_pinned[vm]
+            pin_cores = (lowest_core_index, available_cores - 1)
+            ssh_client = get_client(vm_ip)
+            set_cpu_cores(ssh_client, container_id, pin_cores)
+            instance_pinned[pin_key] = True
+
+    print instance_pinned
+    print 'Done'
+            
 
 # Run One iteration of Throttlebot to retrieve MR list
 def run_one_iteration(sys_config, workload_config, filter_config, mr_allocation):

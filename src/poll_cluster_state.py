@@ -155,6 +155,8 @@ def get_service_placements(vm_ips, orchestrator='quilt'):
 
             #Assume that the container ids and the service names are ordered in the same way
             for service_name, container_id in zipped_name_id:
+                if service_name in service_blacklist or service_name in quilt_blacklist:
+                    continue
                 if service_name[-4:] == '.git':
                     service_name = service_name[service_name.index('/')+1:]
                 identifier_tuple = (vm_ip, container_id)
