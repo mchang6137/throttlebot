@@ -87,7 +87,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
             exit()
 
         # Enact the change in resource provisioning
-        # set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
+        set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)

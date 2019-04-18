@@ -155,6 +155,8 @@ def get_service_placements(vm_ips, orchestrator='quilt'):
 
             #Assume that the container ids and the service names are ordered in the same way
             for service_name, container_id in zipped_name_id:
+                if service_name in service_blacklist or service_name in quilt_blacklist:
+                    continue
                 if service_name[-4:] == '.git':
                     service_name = service_name[service_name.index('/')+1:]
                 identifier_tuple = (vm_ip, container_id)
@@ -224,6 +226,8 @@ def get_vm_to_service(vm_ips, orchestrator='quilt'):
             for service in service_names:
                 if service == 'osalpekar/spark-image-compressor':
                     service = 'osalpekar/spark-image-compress...'
+                if service == 'postgres:9.4':
+                    service = 'library/postgres:9.4'
                 if service in quilt_blacklist or service in service_blacklist:
                     continue
                 if vm_ip in vm_to_service:
