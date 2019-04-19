@@ -9,6 +9,7 @@ import argparse
 import numpy as np
 import logging
 import requests
+import csv
 
 def test_todo(traffic_gen_ip, num_traffic_pods, experiment_iterations):
     workload_config = {}
@@ -25,6 +26,44 @@ def test_hotrod(traffic_gen_ip, num_traffic_pods, experiment_iterations):
     workload_config['type'] = 'hotrod'
     all_results = measure_runtime(workload_config, experiment_iterations)
     print all_results
+
+def todo_robustness(traffic_gen_ip, num_traffic_pods,
+                    experiment_iterations, concurrency_range,
+                    performance_metric='latency_99'):
+    
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'todo-app'
+
+    concurrency_perf = {}
+    concurrency_std = {}
+    for concurrency in range(concurrency_range[0], concurrency_range[1], 10):
+        performance = []
+        for _ in range(experiment_iterations):
+            perf = measure_TODO_response_time(workload_config,
+                                              1,
+                                              concurrency=concurrency)[performance_metric][0]
+            performance.append(perf)
+            
+        concurrency_perf[concurrency] = np.mean(performance)
+        concurrency_std[concurrency] = np.std(performance)
+
+    return concurrency_perf, concurrency_std
+
+def export_concurrency_results(concurrency_perf, concurrency_std,
+                               output_csv='concurrency_results.csv'):
+    with open(output_csv, 'w') as csvfile:
+        fieldnames = ['CONCURRENCY', 'PERF', 'STD']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for concurrency in concurrency_perf.keys():
+            result_dict= {}
+            result_dict['CONCURRENCY'] = concurrency
+            result_dict['PERF'] = concurrency_perf[concurrency]
+            result_dict['STD'] = concurrency_std[concurrency]
+            writer.writerow(result_dict)
 
 # Measure the performance of the application in term of latency
 # Note: Although unused in some experiments, container_id was included to maintain symmetry
@@ -308,7 +347,7 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
 
     return all_results
 
-def measure_TODO_response_time(workload_configuration, iterations):
+def measure_TODO_response_time(workload_configuration, iterations, concurrency=200):
     num_traffic_generators = workload_configuration['workload_num']
     traffic_generator_ip = workload_configuration['request_generator'][0]
 
@@ -319,8 +358,11 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency'] = []
     all_requests['latency_50'] = []
 
-    NUM_REQUESTS = 500
-    CONCURRENCY = 200
+    CONCURRENCY = concurrency
+    if concurrency <= 500:
+        NUM_REQUESTS = 500
+    else:
+        NUM_REQUESTS = CONCURRENCY
 
     for _ in range(iterations):
         traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
@@ -653,7 +695,8 @@ def measure_apt_app(workload_config, experiment_iterations):
 
     return all_requests
 
-def measure_hotrod(workload_config, experiment_iterations):
+def measure_hotrod(workload_config, experiment_iterations,
+                   index_concurrency=100, dispatch_concurrency=100, mapper_concurrency=100):
     num_traffic_generators = workload_config['workload_num']
     traffic_generator_ip = workload_config['request_generator'][0]
 
@@ -664,9 +707,15 @@ def measure_hotrod(workload_config, experiment_iterations):
     all_requests['latency'] = []
     all_requests['latency_50'] = []
 
-    NUM_INDEX_REQUESTS = 1000
-    NUM_DISPATCH_REQUESTS = 500
-    CONCURRENCY = 100
+    if index_concurrency < 1000:
+        NUM_INDEX_REQUESTS = 1000
+    else:
+        NUM_INDEX_REQUESTS = index_concurrency
+
+    if dispatch_concurrency < 500:
+        NUM_DISPATCH_REQUESTS = 500
+    else:
+        NUM_DISPATCH_REQUESTS = max(mapper_concurrency, dispatch_concurrency)
 
     successful_experiments = 0
     while successful_experiments < experiment_iterations:
@@ -675,7 +724,9 @@ def measure_hotrod(workload_config, experiment_iterations):
             r = requests.get(traffic_url, params={'w': num_traffic_generators,
                                                   'num_dispatch': NUM_DISPATCH_REQUESTS,
                                                   'num_index': NUM_INDEX_REQUESTS,
-                                                  'c': CONCURRENCY})
+                                                  'concurreny_mapper': mapper_concurrency,
+                                                  'concurrency_index': index_concurrency,
+                                                  'concurrency_dispatch': dispatch_concurrency})
         except requests.exceptions.Timeout:
             logging.info('Timeout occured. Pausing for a bit before restarting')
             time.sleep(30)
@@ -746,11 +797,30 @@ if __name__ == '__main__':
     parser.add_argument("--traffic_ip")
     parser.add_argument("--workload_num")
     parser.add_argument("--iterations")
+    parser.add_argument("--concurrency_test")
+    parser.add_argument("--concurrency_min")
+    parser.add_argument("--concurrency_max")
     args = parser.parse_args()
 
-    if args.test_name == 'todo':
-        test_todo(args.traffic_ip, int(args.workload_num), int(args.iterations))
+    if args.concurrency_test == 'yes':
+        concurrency_range = (int(args.concurrency_min), int(args.concurrency_max))
+        if args.test_name == 'todo':
+            concurrency_perf, concurrency_std = todo_robustness(args.traffic_ip, int(args.workload_num),
+                                                                int(args.iterations), concurrency_range)
+            export_concurrency_results(concurrency_perf, concurrency_std,
+                                       output_csv='concurrency_results.csv')
 
-    if args.test_name == 'hotrod':
-        test_hotrod(args.traffic_ip, int(args.workload_num), int(args.iterations))
+        elif args.test_name == 'hotrod':
+            print 'do something else'
+
+        
+    else:
+        if args.test_name == 'todo':
+            test_todo(args.traffic_ip, int(args.workload_num), int(args.iterations))
+            
+        if args.test_name == 'hotrod':
+            test_hotrod(args.traffic_ip, int(args.workload_num), int(args.iterations))
+
+
+            
     

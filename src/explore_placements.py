@@ -5,11 +5,12 @@ import copy
 
 def run_placement(sys_config, mr_allocation, mr_ranking_list):
     instance_type = sys_config['machine_type']
-    '''
+
     ffd_packing, imr_packing = ffd_pack(mr_allocation, instance_type, sort_by='CPU-QUOTA',
                                   imr_list=mr_ranking_list, round_up=False)
     print 'FFD pack is {}'.format(ffd_packing)
     print 'IMR pack is {}'.format(imr_packing)
+    exit()
 
     rounded_imrs = 1
     rounded_mr_allocation = copy.deepcopy(mr_allocation)
@@ -21,7 +22,7 @@ def run_placement(sys_config, mr_allocation, mr_ranking_list):
     print 'FFD packing, first {} rounded is {}'.format(rounded_imrs, ffd_packing_rounded)
     print 'IMR packing, first {} roudned is {}'.format(rounded_imrs, imr_packing_rounded)
 
-    '''
+
     num_imrs = 1
     num_imr_list = mr_ranking_list[:num_imrs]
     deploy_together = combine_resources(mr_allocation, num_imr_list,
