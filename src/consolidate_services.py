@@ -67,9 +67,6 @@ def combine_resources(mr_allocation, imr_list,
 
     return all_deploy_sets
 
-
-
-
 # Returns a list of MRs for each service
 def set_service_specs(service_list, mr_to_allocation):
     #    resources = ('MEMORY', 'CPU-QUOTA', 'NET', 'DISK')
@@ -92,7 +89,6 @@ def set_service_specs(service_list, mr_to_allocation):
 
     return service_specs
 
-
 def initialize_capacity(machine_to_allocation, machine_index, instance_specs):
     machine_to_allocation[machine_index] = {}
 
@@ -103,7 +99,6 @@ def initialize_capacity(machine_to_allocation, machine_index, instance_specs):
     machine_to_allocation[machine_index]['MEMORY'] = 0
 
     return machine_to_allocation
-
 
 # Tests is a specific MR can fit into a specific machine
 def can_fit_machine(mr, mr_requirement, current_allocation, instance_dict):
@@ -282,6 +277,8 @@ def ffd_pack(past_mr_allocation, instance_type, sort_by='CPU-QUOTA', imr_list=[]
             new_machine_to_service[num_machines - machine_index - 1] = machine_to_service[machine_index]
         machine_to_allocation = new_machine_to_allocation
         machine_to_service = new_machine_to_service
+
+        
 
         # Then do a first fit with any remaining MR.
         for service_name in sc_copy:
