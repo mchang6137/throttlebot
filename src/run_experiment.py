@@ -51,6 +51,40 @@ def todo_robustness(traffic_gen_ip, num_traffic_pods,
 
     return concurrency_perf, concurrency_std
 
+def hotrod_robustness(traffic_gen_ip, num_traffic_pods,
+                      experiment_iterations, concurrency_range,
+                      performance_metric='latency_99'):
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'hotrod'
+
+    concurrency_perf = {}
+    concurrency_std = {}
+
+    percentage_index = 0.5
+    percentage_mapper = 0.25
+    percentage_dispatch = 0.25
+    for concurrency in range(concurrency_range[0], concurrency_range[1], 10):
+        performance = []
+        index_concurrency = percentage_index * concurrency
+        dispatch_concurrency = percentage_dispatch * concurrency
+        mapper_concurrency = percentage_mapper * concurrency
+        
+        for _ in range(experiment_iterations):
+            perf = measure_hotrod(workload_config,
+                           1,
+                           index_concurrency=index_concurrency,
+                           dispatch_concurrency=dispatch_concurrency,
+                           mapper_concurrency=mapper_concurrency)
+
+            performance.append(perf)
+
+        concurrency_perf[concurrency] = np.mean(performance)
+        concurrency_std[concurrency] = np.std(performance)
+
+    return concurrency_perf, concurrency_std
+
 def export_concurrency_results(concurrency_perf, concurrency_std,
                                output_csv='concurrency_results.csv'):
     with open(output_csv, 'w') as csvfile:
