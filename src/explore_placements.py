@@ -134,6 +134,28 @@ def parse_imr_rankings(imr_ranking_csv):
             
     return ranked_mr_list
 
+# Automatically generate placements
+def generate_placements(placement_count):
+    service_placement = {} # Paste placement here
+    disk_base = 10
+    service_to_quilt_spec = {'node-app:node-todo.git': 'mean.app',
+                             'quilt/mongo': 'mean.mongo',
+                             'haproxy:1.7': 'mean.proxy'}
+
+    times_seen = {}
+    for service in service_to_quilt_spec:
+        times_seen[service] = 0
+
+    for node in service_placement.keys():
+        for service_name in service_placement[node]:
+            quilt_var = service_to_quilt_spec[service_name]
+            print '{}.cluster[{}].placeOn({{diskSize: {}}});'.format(quilt_var,
+                                                                       times_seen[service_name],
+                                                                       disk_base)
+            times_seen[service_name] += 1
+            
+        disk_base += 1
+        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_file")
