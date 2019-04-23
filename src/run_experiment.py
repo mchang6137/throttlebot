@@ -27,6 +27,14 @@ def test_hotrod(traffic_gen_ip, num_traffic_pods, experiment_iterations):
     all_results = measure_runtime(workload_config, experiment_iterations)
     print all_results
 
+def test_apt(traffic_gen_ip, num_traffic_pods, experiment_iterations):
+    workload_config = {}
+    workload_config['request_generator'] = [traffic_gen_ip]
+    workload_config['workload_num'] = num_traffic_pods
+    workload_config['type'] = 'apt-app'
+    all_results = measure_runtime(workload_config, experiment_iterations)
+    print all_results
+
 def todo_robustness(traffic_gen_ip, num_traffic_pods,
                     experiment_iterations, concurrency_range,
                     performance_metric='latency_99'):
@@ -517,6 +525,141 @@ def measure_GET_response_time(workload_configuration, iterations):
     return all_requests
 
 def measure_apt_app(workload_config, experiment_iterations):
+    num_traffic_generators = workload_config['workload_num']
+    traffic_generator_ip = workload_config['request_generator'][0]
+
+    POSTGRES_REQUESTS = 800
+    NUM_REQUESTS = 800
+    CONCURRENCY = 500
+
+    num_postgresql_get = 50#800
+    con_postgresql_get = 50#500
+    num_postgresql_put = 50#800
+    con_postgresql_put = 50#500
+    num_mysql_get = 50#800
+    con_mysql_get = 50#500
+    num_mysql_put = 50#800
+    con_mysql_put = 50#500
+    num_welcome = 50#800
+    con_welcome = 50#500
+    num_elastic = 50#800
+    con_elastic = 50#500
+    
+    all_requests = {}
+    all_requests['latency_90'] = []
+    all_requests['latency_99'] = []
+    all_requests['rps'] = []
+    all_requests['latency'] = []
+    all_requests['latency_50'] = []
+
+    successful_experiments = 0
+    while successful_experiments < experiment_iterations:
+        init_url = 'http://' + traffic_generator_ip + ':80/init'
+        try:
+            r = requests.get(init_url, params={'n': num_postgresql_get,
+                                               'c': con_postgresql_get})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'Databases have been initiated'
+        
+        traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
+        try:
+            r = requests.get(traffic_url, params={'w': num_traffic_generators,
+                                                  'num_postgresql_get': num_postgresql_get,
+                                                  'con_postgresql_get': con_postgresql_get,
+                                                  'num_postgresql_put': num_postgresql_put,
+                                                  'con_postgresql_put': con_postgresql_put,
+                                                  'num_mysql_get': num_mysql_get,
+                                                  'con_mysql_get': con_mysql_get,
+                                                  'num_mysql_put': num_mysql_put,
+                                                  'con_mysql_put': con_mysql_put,
+                                                  'num_welcome': num_welcome,
+                                                  'con_welcome': con_welcome,
+                                                  'num_elastic': num_elastic,
+                                                  'con_elastic': con_elastic})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'GET requests have been sent'
+
+        data_collected = False
+        collect_url = 'http://' + traffic_generator_ip + ':80/collectresults'
+        try:
+            collected = requests.get(collect_url, params={'w': num_traffic_generators})
+            perf_dict = collected.json()
+            print perf_dict
+            data_collected = True
+        except:
+            print 'Failure Detected. Sleep 200 seconds'
+            time.sleep(100)
+
+        # Linear combination of all entries (no weighting)
+        if data_collected:
+            perf_linear = {}
+            for endpoint in perf_dict.keys():
+                for perf_field in perf_dict[endpoint]:
+                    if perf_field not in perf_linear:
+                        perf_linear[perf_field] = perf_dict[endpoint][perf_field]
+                    else:
+                        perf_linear[perf_field] += perf_dict[endpoint][perf_field]
+
+            if len(perf_linear.keys()) != 0:
+                for k in perf_linear.keys():
+                    all_requests[k].append(perf_linear[k])
+            else:
+                print "Too long to wait for collection. Service is probable down"
+                sys.exit(1)
+
+            print 'Data has been collected: {}'.format(all_requests)
+            successful_experiments += 1
+            print 'Successful experiments is {}'.format(successful_experiments)
+        else:
+            print 'Data has not been collected. Clearing data and restarting experiment.'
+
+        clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
+        try:
+            clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators})
+        except requests.exceptions.Timeout:
+            logging.info('Timeout occured while waiting for clearing to finish')
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+
+        print 'Data has been cleared'
+
+        delete_url = 'http://' + traffic_generator_ip + ':80/delete'
+        try:
+            r =	requests.get(delete_url)
+	except requests.exceptions.Timeout:
+            logging.info('Timeout occured. Pausing for a bit before restarting')
+            time.sleep(30)
+            continue
+        except requests.exceptions.RequestException as e:
+            print e
+            sys.exit(1)
+        print 'Databases have been initiated'
+
+        logging.info(all_requests)
+        print all_requests
+
+    all_requests['rps'] = [np.median(all_requests['rps'])]
+    all_requests['latency'] = [np.median(all_requests['latency'])]
+    all_requests['latency_50'] = [np.median(all_requests['latency_50'])]
+    all_requests['latency_90'] = [np.median(all_requests['latency_90'])]
+    all_requests['latency_99'] = [np.median(all_requests['latency_99'])]
+    return all_requests
+
+'''
+def measure_apt_app(workload_config, experiment_iterations):
     apt_app_public_ip = workload_config['frontend'][0]
     traffic_gen_ips = workload_config['request_generator']
 
@@ -565,7 +708,7 @@ def measure_apt_app(workload_config, experiment_iterations):
         logging.info("Sleeping for 2 seconds")
         sleep(2)
 
-        # Checkpoint 1 (initialize machines)
+# Checkpoint 1 (initialize machines)
         # logging.error('Reached Checkpoint 1! Check all traffic machines for post.json and db for entries')
         # exit()
 
@@ -728,6 +871,7 @@ def measure_apt_app(workload_config, experiment_iterations):
     close_client(traffic_client)
 
     return all_requests
+'''
 
 def measure_hotrod(workload_config, experiment_iterations,
                    index_concurrency=100, dispatch_concurrency=100, mapper_concurrency=100):
@@ -845,7 +989,10 @@ if __name__ == '__main__':
                                        output_csv='concurrency_results.csv')
 
         elif args.test_name == 'hotrod':
-            print 'do something else'
+            concurrency_perf, concurrency_std = hotrod_robustness(args.traffic_ip, int(args.workload_num),
+                                                                  int(args.iterations), concurrency_range)
+            export_concurrency_results(concurrency_perf, concurrency_std,
+                                       output_csv='concurrency_results.csv')
 
         
     else:
@@ -854,6 +1001,9 @@ if __name__ == '__main__':
             
         if args.test_name == 'hotrod':
             test_hotrod(args.traffic_ip, int(args.workload_num), int(args.iterations))
+
+        if args.test_name == 'apt_app':
+            test_apt(args.traffic_ip, int(args.workload_num), int(args.iterations))
 
 
             
