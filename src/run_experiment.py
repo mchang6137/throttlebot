@@ -532,18 +532,18 @@ def measure_apt_app(workload_config, experiment_iterations):
     NUM_REQUESTS = 800
     CONCURRENCY = 500
 
-    num_postgresql_get = 50#800
-    con_postgresql_get = 50#500
-    num_postgresql_put = 50#800
-    con_postgresql_put = 50#500
-    num_mysql_get = 50#800
-    con_mysql_get = 50#500
-    num_mysql_put = 50#800
-    con_mysql_put = 50#500
-    num_welcome = 50#800
-    con_welcome = 50#500
-    num_elastic = 50#800
-    con_elastic = 50#500
+    num_postgresql_get = 1
+    con_postgresql_get = 1
+    num_postgresql_put = 20
+    con_postgresql_put = 10
+    num_mysql_get = 500
+    con_mysql_get = 250
+    num_mysql_put = 1
+    con_mysql_put = 1
+    num_welcome = 500
+    con_welcome = 250
+    num_elastic = 1
+    con_elastic = 1
     
     all_requests = {}
     all_requests['latency_90'] = []
@@ -551,6 +551,8 @@ def measure_apt_app(workload_config, experiment_iterations):
     all_requests['rps'] = []
     all_requests['latency'] = []
     all_requests['latency_50'] = []
+
+    latency_99_breakdown = {}
 
     successful_experiments = 0
     while successful_experiments < experiment_iterations:
@@ -612,6 +614,12 @@ def measure_apt_app(workload_config, experiment_iterations):
                     else:
                         perf_linear[perf_field] += perf_dict[endpoint][perf_field]
 
+            for endpoint in perf_dict.keys():
+                if endpoint not in latency_99_breakdown:
+                    latency_99_breakdown[endpoint] = []
+                if 'latency_99' in perf_dict[endpoint]:
+                    latency_99_breakdown[endpoint].append(perf_dict[endpoint]['latency_99'])
+
             if len(perf_linear.keys()) != 0:
                 for k in perf_linear.keys():
                     all_requests[k].append(perf_linear[k])
@@ -650,12 +658,17 @@ def measure_apt_app(workload_config, experiment_iterations):
 
         logging.info(all_requests)
         print all_requests
+        print 'Latency 99 breakdown is {}'.format(latency_99_breakdown)
 
     all_requests['rps'] = [np.median(all_requests['rps'])]
     all_requests['latency'] = [np.median(all_requests['latency'])]
     all_requests['latency_50'] = [np.median(all_requests['latency_50'])]
     all_requests['latency_90'] = [np.median(all_requests['latency_90'])]
-    all_requests['latency_99'] = [np.median(all_requests['latency_99'])]
+    #all_requests['latency_99'] = [np.median(all_requests['latency_99'])]
+
+    median = np.median(all_requests['latency_99'])
+    std = np.std(all_requests['latency_99'])
+    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i >= (median - std) and i <= (median + std))]
     return all_requests
 
 '''
@@ -900,9 +913,9 @@ def measure_hotrod(workload_config, experiment_iterations,
         traffic_url = 'http://' + traffic_generator_ip + ':80/startab'
         try:
             r = requests.get(traffic_url, params={'w': num_traffic_generators,
-                                                  'num_dispatch': NUM_DISPATCH_REQUESTS,
-                                                  'num_index': NUM_INDEX_REQUESTS,
-                                                  'concurreny_mapper': mapper_concurrency,
+                                                  'num_dispatch': dispatch_concurrency,
+                                                  'num_index': index_concurrency,
+                                                  'concurrency_mapper': mapper_concurrency,
                                                   'concurrency_index': index_concurrency,
                                                   'concurrency_dispatch': dispatch_concurrency})
         except requests.exceptions.Timeout:
@@ -1002,7 +1015,8 @@ if __name__ == '__main__':
         if args.test_name == 'hotrod':
             test_hotrod(args.traffic_ip, int(args.workload_num), int(args.iterations))
 
-        if args.test_name == 'apt_app':
+        if args.test_name == 'apt-app':
+            print 'running apt app'
             test_apt(args.traffic_ip, int(args.workload_num), int(args.iterations))
 
 

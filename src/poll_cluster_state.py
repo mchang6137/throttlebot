@@ -18,7 +18,8 @@ TODO: Retrieve the information from directly querying the Quilt key-value store
 ### Pre-defined blacklist (Temporary)
 quilt_blacklist = ['quilt/ovs', 'google/cadvisor:v0.24.1', 'quay.io/coreos/etcd:v3.0.2', 'mchang6137/quilt:latest',
                    'throttlebot/quilt:latest', 'tsaianson/quilt:latest']
-service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed', 'mchang6137/workloadlb', 'mchang6137/workloadmean', 'workloadlb', 'workloadmean', 'hotrodworkload', 'hotrodworkloadlb', 'mchang6137/hotrodworkload', 'mchang6137/hotrodworkloadlb']
+service_blacklist = ['hantaowang/lumbersexual', 'hantaowang/hotrod-seed', 'mchang6137/workloadlb', 'mchang6137/workloadmean', 'workloadlb', 'workloadmean', 'hotrodworkload', 'hotrodworkloadlb', 'mchang6137/hotrodworkload', 'mchang6137/hotrodworkloadlb',\
+                     'mchang6137/aptworkload, mchang6137/aptworkloadlb']
 testing_blacklist = ['hantaowang/logstash-postgres', 'haproxy:1.7','elasticsearch:2.4', 'kibana:4', 'library/postgres:9.4',
                      'mysql:5.6.32', 'osalpekar/spark-image-compress...']
 

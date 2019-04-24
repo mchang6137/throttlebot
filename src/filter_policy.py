@@ -56,8 +56,10 @@ def apply_filtering_policy(redis_db,
             pipeline_mr = pipeline_groups[int(pipeline_repr)]
             current_performance_mean = mean_list(current_performance[metric])
             is_constant_perf = is_performance_constant(current_performance_mean, pipeline_perf, error_tolerance)
+            is_improved_perf = is_performance_improved(current_performance_mean, pipeline_perf,
+                                                       optimize_for_lowest, error_tolerance)
             logging.info('For pipeline {}, the current mean is {} and new performance is {}'.format([mr.to_string() for mr in pipeline_mr], current_performance_mean, pipeline_perf))
-            if is_constant_perf:
+            if is_constant_perf or is_improved_perf:
                 mr_of_interest.append(pipeline_mr)
 
     return mr_of_interest
@@ -197,6 +199,15 @@ def mean_list(target_list):
 
 def is_performance_constant(initial_perf, after_perf, within_x=0):
     if abs(initial_perf - after_perf) < initial_perf * within_x:
+        return True
+    else:
+        return False
+
+# Assesses the relative performnace between initial_perf and after_perf
+def is_performance_improved(initial_perf, after_perf, optimize_for_lowest, within_x=0):
+    if after_perf > initial_perf + (initial_perf * within_x) and optimize_for_lowest is False:
+        return True
+    elif after_perf < initial_perf - (initial_perf * within_x) and optimize_for_lowest:
         return True
     else:
         return False
