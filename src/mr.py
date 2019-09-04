@@ -12,6 +12,9 @@ class MR:
     def to_string(self):
         return '{},{}'.format(self.service_name, self.resource)
 
+    def to_string_csv(self):
+        return '{}-{}'.format(self.service_name, self.resource)
+
     def __hash__(self):
         return hash((self.service_name, self.resource))
 
