@@ -1,5 +1,5 @@
 language: PYTHON
-name: "bayOptSearch"
+name: "bayOpt"
 
 variable {
     name: "cpu_quota"
