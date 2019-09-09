@@ -18,22 +18,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import datetime
-import imp
-import multiprocessing
 import optparse
+import tempfile
+import datetime
+import multiprocessing
+import importlib
+import time
+import imp
 import os
-import random
+import sys
 import re
 import signal
 import socket
-import sys
-import tempfile
-import time
-
-import config
-import importlib
 import numpy as np
+import random
+import config
 
 try: import simplejson as json
 except ImportError: import json
@@ -77,6 +76,9 @@ def parse_args():
     parser.add_option("--max-concurrent", dest="max_concurrent",
                       help="Maximum number of concurrent jobs.",
                       type="int", default=1)
+    parser.add_option("--data-file", dest="data_file",
+                      help="Data to preload Search space",
+                      type="string", default="")
     parser.add_option("--max-finished-jobs", dest="max_finished_jobs",
                       type="int", default=10000)
     parser.add_option("--method", dest="chooser_module",
@@ -134,7 +136,7 @@ def get_available_port(portnum):
 def start_web_view(options, experiment_config, chooser):
     '''Start the web view in a separate process.'''
 
-    from spearmint.web.app import app    
+    from spearmint.web.app import app
     port = get_available_port(options.web_status_port)
     print "Using port: " + str(port)
     if options.web_status_host:
@@ -185,11 +187,15 @@ def main():
     driver = module.init()
 
     # Loop until we run out of jobs.
-    while attempt_dispatch(experiment_config, expt_dir, chooser, driver, options):
+
+    first_time = True
+
+    while attempt_dispatch(experiment_config, expt_dir, chooser, driver, options, first_time):
         # This is polling frequency. A higher frequency means that the algorithm
         # picks up results more quickly after they finish, but also significantly
         # increases overhead.
         time.sleep(options.polling_time)
+        first_time = False
 
 
 # TODO:
@@ -197,14 +203,21 @@ def main():
 #  driver classes to handle local execution and SGE execution.
 #  * take cmdline engine arg into account, and submit job accordingly
 
-def attempt_dispatch(expt_config, expt_dir, chooser, driver, options):
+
+def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time = False):
     log("\n" + "-" * 40)
     expt = load_experiment(expt_config)
+
+    input_file = os.path.join(expt_dir, options.data_file)
+    found_input_array = os.path.exists(input_file)
+    if found_input_array:
+        input_array = np.loadtxt(input_file, delimiter=',', dtype=np.float32)
+
 
     # Build the experiment grid.
     expt_grid = ExperimentGrid(expt_dir,
                                expt.variable,
-                               options.grid_size,
+                               options.grid_size if not found_input_array else 1,
                                options.grid_seed)
 
     # Print out the current best function value.
@@ -213,6 +226,18 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options):
         log("Current best: %f (job %d)" % (best_val, best_job))
     else:
         log("Current best: No results returned yet.")
+
+    if first_time and found_input_array:
+        log("Loading {} entries from data.csv into search table".format(np.shape(input_array)[0]))
+        for index in range(np.shape(input_array)[0]):
+            expt_grid.add_to_grid(input_array[index][:-1])
+            # Duration values don't matter in choosing candidates
+            expt_grid.set_complete(id=index + 1,
+                                   value=input_array[index][-1],
+                                   duration=0)
+            # expt_grid.set_candidate(id = index+1)
+    print("Status list is {}".format(expt_grid.status))
+    print("Value list is {}".format(expt_grid.values))
 
     # Gets you everything - NaN for unknown values & durations.
     grid, values, durations = expt_grid.get_grid()
@@ -268,15 +293,16 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options):
         # Ask the chooser to pick the next candidate
         log("Choosing next candidate... ")
         job_id, ei = chooser.next(grid, values, durations, candidates, pending, complete)
+        log("Job id is {}".format(job_id))
         log("Expected improvement: %.6f" % ei)
 
         print ">>>>>>>", n_executed, ei
-        if ei < config.EI and n_executed >= config.MIN_ACCEPTED_RUNS:
-            config.strikes += 1
-            if config.strikes > 0:
-                return False
-        else:
-            config.strikes = 0
+        # if ei < config.EI and n_executed >= config.MIN_ACCEPTED_RUNS:
+        #     config.strikes += 1
+        #     if config.strikes > 0:
+        #         return False
+        # else:
+        #     config.strikes = 0
 
         # If the job_id is a tuple, then the chooser picked a new job.
         # We have to add this to our grid

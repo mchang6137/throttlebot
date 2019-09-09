@@ -136,6 +136,7 @@ class ExperimentGrid:
 
         self.values = np.append(self.values, np.zeros(1)+np.nan)
         self.durs   = np.append(self.durs, np.zeros(1)+np.nan)
+        self.executed = np.append(self.executed, np.zeros(1) + np.nan)
         self.proc_ids = np.append(self.proc_ids, np.zeros(1,dtype=int))
 
         # Save this out.

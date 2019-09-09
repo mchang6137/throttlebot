@@ -2,7 +2,7 @@ import argparse
 import csv
 import ConfigParser
 import time
-import
+import numpy as np
 
 import redis.client
 import src.modify_resources as resource_modifier
@@ -26,7 +26,6 @@ workload_config = parse_config_file()
 
 
 def main(job_id, params):
-
 
     return explore_spearmint(workload_config, params)
 
