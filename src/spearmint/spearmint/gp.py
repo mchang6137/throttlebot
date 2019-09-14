@@ -26,7 +26,7 @@ import numpy as np
 import scipy.linalg as spla
 import scipy.optimize as spo
 import scipy.io as sio
-import scipy.weave
+import scipy.weave as sci_weave
     
 SQRT_3 = np.sqrt(3.0)
 SQRT_5 = np.sqrt(5.0)
@@ -38,7 +38,7 @@ def dist2(ls, x1, x2=None):
     if x2 is None:
         # Find distance with self for x1.
 
-        # Rescale.
+        # Rescale.x
         xx1 = x1 / ls        
         xx2 = xx1
 
@@ -74,13 +74,15 @@ def grad_dist2(ls, x1, x2=None):
           gX(i,j,d) = (2/ls(d))*(x1(i,d) - x2(j,d));
     """
     try:
-        scipy.weave.inline(code, ['x1','x2','gX','ls','M','N','D'], \
-                       type_converters=scipy.weave.converters.blitz, \
+        sci_weave.inline(code, ['x1','x2','gX','ls','M','N','D'], \
+                       type_converters=sci_weave.converters.blitz, \
                        compiler='gcc')
     except:
         # The C code weave above is 10x faster than this:
         for i in xrange(0,x1.shape[0]):
             gX[i,:,:] = 2*(x1[i,:] - x2[:,:])*(1/ls)
+
+    print("Gx is {}".format(gX))
 
     return gX
 

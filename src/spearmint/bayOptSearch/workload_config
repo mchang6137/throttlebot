@@ -1,0 +1,10 @@
+type = todo-app
+request_generator = 54.67.95.70
+frontend = 52.53.154.181:80
+additional_args =
+additional_arg_values =
+tbot_metric = latency_99
+optimize_for_lowest = True
+performance_target = 10
+include_warmup = False
+workload_num = 3

@@ -212,6 +212,8 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
     found_input_array = os.path.exists(input_file)
     if found_input_array:
         input_array = np.loadtxt(input_file, delimiter=',', dtype=np.float32)
+        found_input_array = len(input_array) != 0
+
 
 
     # Build the experiment grid.

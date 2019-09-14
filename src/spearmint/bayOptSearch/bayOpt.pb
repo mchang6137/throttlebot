@@ -2,25 +2,26 @@ language: PYTHON
 name: "bayOpt"
 
 variable {
-    name: "cpu_quota"
+    name: "CPU-QUOTA"
     type: FLOAT
     size: 1
-    min: 1
-    max: 100
+    min: 10
+    max: 50
 }
 
 variable {
-    name: "cpu_count"
+    name: "DISK"
     type: FLOAT
     size: 1
-    min: 2
-    max: 8
+    min: 10
+    max: 50
 }
 
 variable {
-    name: "machine_count"
+    name: "MEMORY"
     type: FLOAT
     size: 1
-    min: 2
-    max: 7
+    min: 10
+    max: 50
 }
+
