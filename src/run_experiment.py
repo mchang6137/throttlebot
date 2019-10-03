@@ -273,8 +273,9 @@ def measure_ml_matrix(workload_configuration, experiment_iterations):
 def measure_TODO_response_time(workload_configuration, iterations):
     REST_server_ip = workload_configuration['frontend'][0]
     traffic_generator_ip = workload_configuration['request_generator'][0]
-
+    print(traffic_generator_ip)
     traffic_client = get_client(traffic_generator_ip)
+
 
     all_requests = {}
     all_requests['rps'] = []
@@ -286,14 +287,19 @@ def measure_TODO_response_time(workload_configuration, iterations):
     NUM_REQUESTS = 350
     CONCURRENCY = 150
 
-    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -s 200 -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
-
+    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    # print(post_cmd)
+    # return post_cmd
     clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
 
-    for x in range(iterations):
+    for x in range(1):
         _, results,_ = traffic_client.exec_command(post_cmd)
         print post_cmd
         results.read()
+
+
+
+        # _, results, _ = traffic_client.exec_command("touch post.json")
 
         rps_cmd = 'cat output.txt | grep \'Requests per second\' | awk {{\'print $4\'}}'
         latency_90_cmd = 'cat output.txt | grep \'90%\' | awk {\'print $2\'}'
@@ -308,7 +314,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
         all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
 
         _,cleared,_ = traffic_client.exec_command(clear_cmd)
-        cleared.read()
+        print("Successfully cleared? {}".format(cleared.read()))
 
     close_client(traffic_client)
 

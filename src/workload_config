@@ -1,0 +1,41 @@
+[Basic]
+
+baseline_trials = 1
+trials = 1
+stress_weight = -50
+improve_weight = 50
+stress_these_resources = CPU-CORE,CPU-QUOTA,DISK,NET,MEMORY
+stress_these_services = node-app:node-todo.git,haproxy:1.7,quilt/mongo
+stress_these_machines = 13.56.248.77,13.57.217.49
+redis_host = localhost
+stress_policy = ALL
+machine_type = c4.large
+quilt_overhead = 10
+gradient_mode = inverted
+rerun_baseline = False
+nimr_squeeze_only = False
+num_iterations = 5
+error_tolerance = 0.02
+setting_mode = cloud
+fill_services_first =
+
+[Workload]
+
+type = todo-app
+frontend = 13.57.217.49:80
+request_generator = 18.144.18.119
+additional_args =
+additional_arg_values =
+tbot_metric = latency_99
+optimize_for_lowest = True
+performance_target = 10
+include_warmup = False
+workload_num = 3
+
+[Filter]
+
+filter_policy =
+stress_amount = -50
+pipeline_services = 1
+filter_exp_trials = 1
+pipeline_partitions = 1

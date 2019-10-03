@@ -137,7 +137,7 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     redis_db.hset(hash_name, 'elapsed_time', elapsed_time)
     redis_db.hset(hash_name, 'cumulative_mr', cumm_mr)
     redis_db.hset(hash_name, 'analytic_perf', analytic_perf)
-    redis_db.hset(hash_name, 'is_backtrack', is_backtrack)
+    redis_db.hset(hash_name, 'is_backtrack', str(is_backtrack))
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 
 def read_summary_redis(redis_db, experiment_iteration_count):
@@ -149,7 +149,7 @@ def read_summary_redis(redis_db, experiment_iteration_count):
     elapsed_time = redis_db.hget(hash_name, 'elapsed_time')
     cumulative_mr = redis_db.hget(hash_name, 'cumulative_mr')
     analytic_perf = redis_db.hget(hash_name, 'analytic_perf')
-    is_backtrack = redis_db.hget(hash_name, 'is_backtrack')
+    is_backtrack = bool(redis_db.hget(hash_name, 'is_backtrack'))
     return mimr, action_taken, perf_improvement,analytic_perf, current_perf, elapsed_time, cumulative_mr, is_backtrack
 
 

@@ -449,6 +449,7 @@ def print_csv_configuration(final_configuration, output_csv='tuned_config.csv'):
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
     print 'Finding colocated NIMRs'
     experiment_trials = sys_config['trials']
+    print("Num trials is {}".format(experiment_trials))
     stress_weight = sys_config['stress_weight']
 
     preferred_performance_metric = workload_config['tbot_metric']

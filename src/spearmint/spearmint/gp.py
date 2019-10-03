@@ -66,23 +66,23 @@ def grad_dist2(ls, x1, x2=None):
     D = x1.shape[1]
     gX = np.zeros((x1.shape[0],x2.shape[0],x1.shape[1]))
 
-    code = \
-    """
-    for (int i=0; i<N; i++)
-      for (int j=0; j<M; j++)
-        for (int d=0; d<D; d++)
-          gX(i,j,d) = (2/ls(d))*(x1(i,d) - x2(j,d));
-    """
-    try:
-        sci_weave.inline(code, ['x1','x2','gX','ls','M','N','D'], \
-                       type_converters=sci_weave.converters.blitz, \
-                       compiler='gcc')
-    except:
+    # code = \
+    # """
+    # for (int i=0; i<N; i++)
+    #   for (int j=0; j<M; j++)
+    #     for (int d=0; d<D; d++)
+    #       gX(i,j,d) = (2/ls(d))*(x1(i,d) - x2(j,d));
+    # """
+    # try:
+    #     sci_weave.inline(code, ['x1','x2','gX','ls','M','N','D'], \
+    #                    type_converters=sci_weave.converters.blitz, \
+    #                    compiler='gcc')
+    # except:
         # The C code weave above is 10x faster than this:
-        for i in xrange(0,x1.shape[0]):
-            gX[i,:,:] = 2*(x1[i,:] - x2[:,:])*(1/ls)
+    for i in xrange(0,x1.shape[0]):
+        gX[i,:,:] = 2*(x1[i,:] - x2[:,:])*(1/ls)
 
-    print("Gx is {}".format(gX))
+    # print("Gx is {}".format(gX))
 
     return gX
 

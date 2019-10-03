@@ -104,19 +104,24 @@ def run_matlab_job(job):
 def job_params(job):
     # Convert the PB object into useful parameters.
     params = {}
+    print(job.param)
     for param in job.param:
-        dbl_vals = param.dbl_val._values
-        int_vals = param.int_val._values
-        str_vals = param.str_val._values
+        try:
+            dbl_vals = param.dbl_val
+            int_vals = param.int_val
+        except:
+            pass
 
-        if len(dbl_vals) > 0:
+        if dbl_vals:
             params[param.name] = np.array(dbl_vals)
-        elif len(int_vals) > 0:
-            params[param.name] = np.array(int_vals, dtype=int)
-        elif len(str_vals) > 0:
-            params[param.name] = str_vals
-        else:
-            raise Exception("Unknown parameter type.")
+        if int_vals:
+            params[param.name] = np.array(int_vals)
+        # elif len(int_vals) > 0:
+        #     params[param.name] = np.array(int_vals, dtype=int)
+        # elif len(str_vals) > 0:
+        #     params[param.name] = str_vals
+        # else:
+        #     raise Exception("Unknown parameter type.")
     return params
 
 # TODO: change this function to be more flexible when running python jobs

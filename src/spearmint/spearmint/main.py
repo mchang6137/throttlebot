@@ -238,7 +238,12 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
                                    value=input_array[index][-1],
                                    duration=0)
             # expt_grid.set_candidate(id = index+1)
+    # else:
+    #     for x in range(1,4):
+    #         expt_grid.add_to_grid(np.array([x*10, x*10, x*10]))
+
     print("Status list is {}".format(expt_grid.status))
+    print("Grid is {}".format(expt_grid.grid))
     print("Value list is {}".format(expt_grid.values))
 
     # Gets you everything - NaN for unknown values & durations.

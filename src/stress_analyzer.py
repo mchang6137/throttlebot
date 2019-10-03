@@ -26,7 +26,7 @@ def generate_mr_from_policy(redis_db, stress_policy):
 def get_all_mrs_cluster(vm_list, services, resources):
     mr_schedule = []
     service_to_deployment = get_service_placements(vm_list)
-    print 'printing service to deployment {}'.format(service_to_deployment)
+    # print 'printing service to deployment {}'.format(service_to_deployment)
     
     for service in service_to_deployment:
         deployments = service_to_deployment[service]
