@@ -55,6 +55,8 @@ past_results = {}
 
 def main(job_id, params):
 
+
+    # return 1
     return explore_spearmint(workload_config, params)
 
 
@@ -76,13 +78,13 @@ def explore_spearmint(workload_config, params):
 
     service = "node-app"
     workload_config["type"] = "todo-app"
-    workload_config["frontend"] = ["54.193.3.62:80"]
-    masterNode = ["54.183.169.226"]
+    workload_config["frontend"] = ["54.219.186.95:80"]
+    masterNode = ["54.67.52.240"]
 
 
 
 
-    dct = {"54.193.3.62": ["haproxy", "node-app"], "13.52.104.144": ["mongo"]}
+    dct = {"54.219.186.95": ["node-app", "haproxy"], "54.219.145.85": ["mongo"]}
     service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
 
     # params["CPU-QUOTA"] = [40, 40, 40]
@@ -91,8 +93,13 @@ def explore_spearmint(workload_config, params):
     # params["NET"] = 40
 
     for mr in params:
-        if (sum(params[mr]) > 100):
-            return 1/0
+        if mr != "CPU-QUOTA":
+            for machine in dct:
+                sum = 0
+                for service in dct[machine]:
+                   sum += params[mr][service_index_dct[service]]
+                if sum > 120:
+                    return 1/0
 
     for ip in dct:
         workload_config["request_generator"] = [ip]
@@ -117,7 +124,7 @@ def explore_spearmint(workload_config, params):
                 if mr not in ["CPU-QUOTA", "CPU-CORE"]:
                     temp_mr = MR(name, mr, instances)
 
-                    max_capacity = instance_specs.get_instance_specs("m4.large")[mr]
+                    max_capacity = instance_specs.get_instance_specs(workload_config["machine_type"])[mr]
 
 
                     temp = (params[mr][service_index_dct[name]]/ 100.0) * max_capacity
@@ -128,6 +135,12 @@ def explore_spearmint(workload_config, params):
 
 
     workload_config["request_generator"] = masterNode
+
+    client = re.get_client(masterNode[0])
+    # re.ssh_exec(client, "sudo apt install apache2-utils")
+    # re.ssh_exec(client, "curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master\%20Node\%20Files/clear_entries.py")
+
+    # re.ssh_exec(client, "curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master\%20Node\%20Files/post.json")
 
 
     experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)

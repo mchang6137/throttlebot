@@ -1,4 +1,4 @@
-cd ../bayOptSearch
+cd /Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/bayOptSearch
 
 rm -r jobs
 rm -r output
@@ -9,4 +9,4 @@ rm trace.csv
 rm chooser.GPEIOptChooser.pkl
 rm chooser.GPEIOptChooser_hyperparameters.txt
 
-cd ../spearmint
+cd /Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/spearmint

@@ -6,7 +6,7 @@ variable {
     type: INT
     size: 3
     min: 10
-    max: 40
+    max: 100
 }
 
 variable {
@@ -14,7 +14,7 @@ variable {
     type: INT
     size: 3
     min: 10
-    max: 40
+    max: 60
 }
 
 variable {
@@ -22,7 +22,7 @@ variable {
     type: INT
     size: 3
     min: 10
-    max: 40
+    max: 60
 }
 
 variable {
@@ -30,6 +30,6 @@ variable {
     type: INT
     size: 3
     min: 10
-    max: 40
+    max: 80
 }
 
