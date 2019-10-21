@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 import shlex
 import glob
+import math
 
 
 def run(iterations, time_to_beat, duration, polling_frequency):
@@ -82,7 +83,7 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
                 value_to_add = float(output[13:-1])
 
-                if output[13:-1] == "NaN" or value_to_add < 0:
+                if math.isnan(value_to_add):
                     raise ValueError
 
                 print("Adding value {} to time data".format(value_to_add))
@@ -107,4 +108,4 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
 
 
-run(iterations=2, time_to_beat=4000, duration=15*60, polling_frequency=30)
+run(iterations=2, time_to_beat=10000, duration=3*60, polling_frequency=10)
