@@ -3,6 +3,7 @@ dateTime=$(date +%Y%m%d_%H%M%S)
 
 toSave=$(ls -t ~/Desktop/data | head -1)
 
+
 mkdir ~/Desktop/data/$toSave/$dateTime
 mv best_job_and_result.txt ~/Desktop/data/$toSave/$dateTime
 mv output ~/Desktop/data/$toSave/$dateTime

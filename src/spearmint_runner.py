@@ -10,13 +10,15 @@ import glob
 
 def run(iterations, time_to_beat, duration, polling_frequency):
 
-    # date_time = datetime.now()
-    # subprocess.Popen(shlex.split("mkdir /Users/rahulbalakrishnan/Desktop/data/experiment_run-{}"
-    #                              .format(date_time.strftime("%m-%d-%Y-%H-%M-%S"))))
+    date_time = datetime.now()
+    subprocess.Popen(shlex.split("mkdir /Users/rahulbalakrishnan/Desktop/data/experiment_run-{}"
+                                 .format(date_time.strftime("%m-%d-%Y-%H-%M-%S"))))
 
     cumulative_results = []
 
     for _ in range(iterations):
+
+        iteration_results = []
 
         print("Starting iteration {}".format(_))
 
@@ -39,10 +41,12 @@ def run(iterations, time_to_beat, duration, polling_frequency):
 
         process_poll.join()
 
-        cumulative_results.append(queue.get())
+        while not queue.empty():
+            iteration_results.append(queue.get())
 
         print("Done with iteration {}".format(_))
 
+        cumulative_results.append(iteration_results)
 
         subprocess.check_output(["bash ./spearmint/spearmint/save.sh"], shell=True)
 
@@ -53,14 +57,17 @@ def run(iterations, time_to_beat, duration, polling_frequency):
     with open("/Users/rahulbalakrishnan/Desktop/data/threshold/data_{}"
                       .format(date_time.strftime("%m-%d-%Y-%H-%M-%S")), "w") as f:
 
-            f.write(json.dumps({"results": cumulative_results, "polling_frequency": polling_frequency}))
+            f.write(json.dumps({"results": cumulative_results,
+                                "polling_frequency": polling_frequency,
+                                "duration": duration}))
 
 def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, polling_frequency):
 
     starting_time = time.time()
     time_to_compare = starting_time
-    while time.time() - starting_time < duration:
 
+    first = True
+    while time.time() - starting_time < duration:
 
         try:
 
@@ -72,7 +79,18 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
                 output = str(subprocess.check_output([cmd], shell=True).decode("utf-8"))
                 trial = len(glob.glob("/Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/bayOptSearch/output/*"))
-                queue.put([float(output[13:-1]), trial])
+
+                value_to_add = float(output[13:-1])
+
+                if output[13:-1] == "NaN" or value_to_add < 0:
+                    raise ValueError
+
+                print("Adding value {} to time data".format(value_to_add))
+                queue.put([value_to_add, trial])
+
+                if first:
+                    starting_time = current_time
+                    first = False
 
             else:
                 time.sleep(max(polling_frequency, 2))
@@ -83,8 +101,10 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
 
 
+
+
     process_to_terminate.kill()
 
 
 
-run(iterations=20, time_to_beat=4000, duration=5*60, polling_frequency=30)
+run(iterations=2, time_to_beat=4000, duration=15*60, polling_frequency=30)
