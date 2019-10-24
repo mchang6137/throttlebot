@@ -292,7 +292,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
     # return post_cmd
     clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
 
-    for x in range(1):
+    for x in range(iterations):
         _, results,_ = traffic_client.exec_command(post_cmd)
         print post_cmd
         results.read()

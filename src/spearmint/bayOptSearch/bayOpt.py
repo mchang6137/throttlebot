@@ -65,7 +65,7 @@ def main(job_id, params):
 def explore_spearmint(workload_config, params):
 
     redis_db = redis.StrictRedis(host='0.0.0.0', port=6379, db=0)
-    experiment_trials = workload_config['num_trials'] if 'num_trials' in workload_config else 5
+
 
 
     t0 = time.time()
@@ -78,13 +78,14 @@ def explore_spearmint(workload_config, params):
 
     service = "node-app"
     workload_config["type"] = "todo-app"
-    workload_config["frontend"] = ["54.219.186.95:80"]
-    masterNode = ["54.67.52.240"]
+    workload_config["frontend"] = ["54.67.14.95:80"]
+    masterNode = ["54.67.95.39"]
+    experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 3
 
 
 
 
-    dct = {"54.219.186.95": ["node-app", "haproxy"], "54.219.145.85": ["mongo"]}
+    dct = {"54.153.123.125": ["node-app"], "54.67.14.95": ["haproxy", "mongo"]}
     service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
 
     # params["CPU-QUOTA"] = [40, 40, 40]
@@ -143,6 +144,7 @@ def explore_spearmint(workload_config, params):
     # re.ssh_exec(client, "curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master\%20Node\%20Files/post.json")
 
 
+    print("Using {} trials".format(experiment_trials))
     experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
     mean_result = filter_policy.mean_list(experiment_results['latency_99'])
 
