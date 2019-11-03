@@ -23,6 +23,7 @@ import os
 import sys
 import tempfile
 import cPickle
+import random
 
 import numpy        as np
 import numpy.random as npr
@@ -69,7 +70,7 @@ class ExperimentGrid:
 
         # Set up the grid for the first time if it doesn't exist.
         if variables is not None and not os.path.exists(self.jobs_pkl):
-            self.seed     = grid_seed
+            self.seed     = random.randint(1, 10000)
             self.vmap     = GridMap(variables, grid_size)
             self.grid     = self._hypercube_grid(self.vmap.card(), grid_size)
             self.status   = np.zeros(grid_size, dtype=int) + CANDIDATE_STATE
@@ -199,6 +200,7 @@ class ExperimentGrid:
 
     def _hypercube_grid(self, dims, size):
         # Generate from a sobol sequence
+        print("seed is {}".format(self.seed))
         sobol_grid = np.transpose(i4_sobol_generate(dims,size,self.seed))
 
         return sobol_grid

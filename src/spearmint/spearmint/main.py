@@ -153,8 +153,10 @@ def start_web_view(options, experiment_config, chooser):
 
 def main():
     # Life universe and everything ...
-    np.random.seed(42)
-    random.seed(42)
+
+
+    np.random.seed()
+    random.seed()
     config.strikes = 0
 
     (options, args) = parse_args()

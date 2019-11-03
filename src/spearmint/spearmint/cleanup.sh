@@ -10,3 +10,6 @@ rm chooser.GPEIOptChooser.pkl
 rm chooser.GPEIOptChooser_hyperparameters.txt
 
 cd /Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/spearmint
+
+
+find /Users/rahulbalakrishnan/Desktop/data -type d -empty -delete

@@ -94,13 +94,17 @@ def explore_spearmint(workload_config, params):
     # params["NET"] = 40
 
     for mr in params:
-        if mr != "CPU-QUOTA":
-            for machine in dct:
-                sum = 0
-                for service in dct[machine]:
-                   sum += params[mr][service_index_dct[service]]
-                if sum > 120:
-                    return 1/0
+
+        for machine in dct:
+            sum = 0
+            for service in dct[machine]:
+               sum += params[mr][service_index_dct[service]]
+
+            threshold = 110
+            cpu_threshold = 200
+            toCompare = cpu_threshold if mr == "CPU-QUOTA" else threshold
+            if sum > toCompare:
+                return 1/0
 
     for ip in dct:
         workload_config["request_generator"] = [ip]

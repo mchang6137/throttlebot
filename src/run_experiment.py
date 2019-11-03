@@ -314,7 +314,10 @@ def measure_TODO_response_time(workload_configuration, iterations):
         all_requests['rps'].append(execute_parse_results(traffic_client, rps_cmd))
 
         _,cleared,_ = traffic_client.exec_command(clear_cmd)
-        print("Successfully cleared? {}".format(cleared.read()))
+        try:
+            print("Successfully cleared? {}".format(cleared.read()))
+        except Exception as e:
+            print(e.message)
 
     close_client(traffic_client)
 
