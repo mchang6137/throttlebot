@@ -395,7 +395,8 @@ def measure_apt_app(workload_config, experiment_iterations):
     apt_app_public_ip = workload_config['frontend'][0]
     traffic_gen_ips = workload_config['request_generator']
 
-    POSTGRES_REQUESTS = 800
+    POSTGRES_REQUESTS = 200
+    POSTGRES_CONCURRENCY = 50
     NUM_REQUESTS = 800
     CONCURRENCY = 500
 
@@ -413,8 +414,8 @@ def measure_apt_app(workload_config, experiment_iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
+    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
     mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
     welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
@@ -577,25 +578,26 @@ def measure_apt_app(workload_config, experiment_iterations):
         # exit()
 
     # Remove outliers (all outside of 1 standard deviation)
-    median = np.median(all_requests['rps'])
-    std = np.std(all_requests['rps'])
-    all_requests['rps'] = [i for i in all_requests['rps'] if (i > (median - std) and i < (median + std))]
+    if experiment_iterations > 1:
+        median = np.median(all_requests['rps'])
+        std = np.std(all_requests['rps'])
+        all_requests['rps'] = [i for i in all_requests['rps'] if (i > (median - std) and i < (median + std))]
 
-    median = np.median( all_requests['latency'])
-    std = np.std( all_requests['latency'])
-    all_requests['latency'] = [i for i in all_requests['latency'] if (i > (median - std) and i < (median + std))]
+        median = np.median( all_requests['latency'])
+        std = np.std( all_requests['latency'])
+        all_requests['latency'] = [i for i in all_requests['latency'] if (i > (median - std) and i < (median + std))]
 
-    median = np.median(all_requests['latency_50'])
-    std = np.std(all_requests['latency_50'])
-    all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i > (median - std) and i < (median + std))]
+        median = np.median(all_requests['latency_50'])
+        std = np.std(all_requests['latency_50'])
+        all_requests['latency_50'] = [i for i in all_requests['latency_50'] if (i > (median - std) and i < (median + std))]
 
-    median = np.median(all_requests['latency_90'])
-    std = np.std(all_requests['latency_90'])
-    all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i > (median - std) and i < (median + std))]
+        median = np.median(all_requests['latency_90'])
+        std = np.std(all_requests['latency_90'])
+        all_requests['latency_90'] = [i for i in all_requests['latency_90'] if (i > (median - std) and i < (median + std))]
 
-    median = np.median(all_requests['latency_99'])
-    std = np.std(all_requests['latency_99'])
-    all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
+        median = np.median(all_requests['latency_99'])
+        std = np.std(all_requests['latency_99'])
+        all_requests['latency_99'] = [i for i in all_requests['latency_99'] if (i > (median - std) and i < (median + std))]
 
     # Closing clients
     # for client in traffic_clients:

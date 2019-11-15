@@ -15,24 +15,66 @@ import run_experiment
 import filter_policy, instance_specs
 import remote_execution as re
 from mr import MR
+from collections import defaultdict
 
 
-# os.chdir(currentDirectory)
+def ip_to_service_list(service_names):
 
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--spearmint_config", help="Spearmint")
-# args = parser.parse_args()
+    output = str(subprocess.check_output("quilt ps | grep \'Amazon\' | awk {\'print $6\'}", shell=True).decode("utf-8"))
+    output = output.split('\n')
+    ips = output[:-1]
+    # print(ips)
 
+    output = str(subprocess.check_output("quilt ps | grep \'Amazon\' | awk {\'print $1\'}", shell=True).decode("utf-8"))
+    output = output.split('\n')
+    machines = output[:-1]
+    # print(machines)
 
-# def parse_config_file():
-#     workload_config['type'] = 'spark-ml-matrix'
-#     workload_config['request_generator'] = [1]  # request generator
-#     workload_config['additional_args'] = {'container_id': 'blah'}
-#     workload_config['num_trials'] = 5
-#     return workload_config
-#
-#
-# workload_config = parse_config_file()
+    machine_to_ip = {}
+    for index in range(len(machines)):
+        machine_to_ip[machines[index]] = ips[index]
+
+    output = str(
+        subprocess.check_output("quilt ps | grep \'running\' | awk {\'print $3\'}", shell=True).decode("utf-8"))
+    output = output.split('\n')
+    services = output[:-1]
+    # print(services)
+
+    output = str(
+        subprocess.check_output("quilt ps | grep \'running\' | awk {\'print $2\'}", shell=True).decode("utf-8"))
+    output = output.split('\n')
+    machines = output[:-1]
+    # print(machines)
+
+    output = str(
+        subprocess.check_output("quilt ps | grep \'running\' | awk {\'print $1\'}", shell=True).decode("utf-8"))
+    output = output.split('\n')
+    containers = output[:-1]
+
+    machines_to_services = defaultdict(list)
+
+    for index in range(len(machines)):
+        machine = machines[index]
+        service_name = services[index]
+        services_matched = []
+        for service in service_names:
+
+            if service in service_name:
+                services_matched.append(service)
+        earliest_service = min(services_matched, key=service_name.index)
+        machines_to_services[machine].append(earliest_service)
+
+    ip_to_services = {}
+    for machine in machines_to_services:
+        key_name = machine_to_ip[machine]
+        value = machines_to_services[machine]
+        ip_to_services[key_name] = value
+
+    return ip_to_services
+
+def master_node():
+    mn = str(subprocess.check_output("quilt ps | grep Master | awk {\'print $6\'}", shell=True).decode("utf-8"))[:-1]
+    return mn
 
 def load_config():
     d = {}
@@ -76,17 +118,21 @@ def explore_spearmint(workload_config, params):
 
 
 
-    service = "node-app"
-    workload_config["type"] = "todo-app"
-    workload_config["frontend"] = ["54.67.14.95:80"]
-    masterNode = ["54.67.95.39"]
-    experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 3
 
+    workload_config["type"] = "apt-app"
+    masterNode = [master_node()]
+    experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 1
+    # service_names = ["node-app", "haproxy", "mongodb"]
+    service_names = ["elasticsearch", "kibana", "logstash", "mysql", "postgres", "node-apt-app", "haproxy"]
+    dct = ip_to_service_list(service_names)
+    for ip in dct:
+        if "haproxy" in dct[ip]:
+            workload_config["frontend"] = [ip]
+            break
 
-
-
-    dct = {"54.153.123.125": ["node-app"], "54.67.14.95": ["haproxy", "mongo"]}
-    service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
+    # service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
+    service_index_dct = {"node-apt-app": 0, "kibana": 1, "elasticsearch": 2, "logstash": 3, "mysql":4,
+                         "haproxy": 5, "postgres":6}
 
     # params["CPU-QUOTA"] = [40, 40, 40]
     # params["DISK"] = []
@@ -98,9 +144,15 @@ def explore_spearmint(workload_config, params):
         for machine in dct:
             sum = 0
             for service in dct[machine]:
-               sum += params[mr][service_index_dct[service]]
 
-            threshold = 110
+               client = re.get_client(machine)
+               _, containers, _ = client.exec_command("docker ps | grep " + service + " | awk {'print $1'}")
+               containers = containers.read().split("\n")
+               if len(containers) > 1:
+                   containers = containers[:-1]
+               sum += params[mr][service_index_dct[service]] * len(containers)
+
+            threshold = 120
             cpu_threshold = 200
             toCompare = cpu_threshold if mr == "CPU-QUOTA" else threshold
             if sum > toCompare:
@@ -141,7 +193,7 @@ def explore_spearmint(workload_config, params):
 
     workload_config["request_generator"] = masterNode
 
-    client = re.get_client(masterNode[0])
+    # client = re.get_client(masterNode[0])
     # re.ssh_exec(client, "sudo apt install apache2-utils")
     # re.ssh_exec(client, "curl -O https://raw.githubusercontent.com/TsaiAnson/mean-a/master/Master\%20Node\%20Files/clear_entries.py")
 
@@ -150,6 +202,7 @@ def explore_spearmint(workload_config, params):
 
     print("Using {} trials".format(experiment_trials))
     experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
+    print("Experiment results are {}".format(experiment_results))
     mean_result = filter_policy.mean_list(experiment_results['latency_99'])
 
 
