@@ -125,13 +125,17 @@ class ExperimentGrid:
     def get_proc_id(self, id):
         return self.proc_ids[id]
 
-    def add_to_grid(self, candidate):
+    def add_to_grid(self, candidate, add_to_end=True):
         # Checks to prevent numerical over/underflow from corrupting the grid
         candidate[candidate > 1.0] = 1.0
         candidate[candidate < 0.0] = 0.0
 
         # Set up the grid
-        self.grid   = np.vstack((self.grid, candidate))
+        if add_to_end:
+            self.grid   = np.vstack((self.grid, candidate))
+        else:
+            self.grid = np.vstack((candidate,self.grid))
+
         self.status = np.append(self.status, np.zeros(1, dtype=int) +
                                 int(CANDIDATE_STATE))
 
