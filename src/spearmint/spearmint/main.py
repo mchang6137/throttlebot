@@ -243,9 +243,9 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
     # else:
     #     for x in range(1,4):
     #         expt_grid.add_to_grid(np.array([x*10, x*10, x*10]))
-    candidate = np.array([])
-    if first_time:
-        expt_grid.add_to_grid(candidate, add_to_end=False)
+    # candidate = np.array([])
+    # if first_time:
+    #     expt_grid.add_to_grid(candidate, add_to_end=False)
 
 
     print("Status list is {}".format(expt_grid.status))
