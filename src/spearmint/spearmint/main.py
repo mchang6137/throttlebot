@@ -283,11 +283,11 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
     # Print out the best job results
     write_best_job(expt_dir, best_val, best_job, expt_grid)
 
-    if n_complete >= options.max_finished_jobs:
-        log("Maximum number of finished jobs (%d) reached."
-                         "Exiting" % options.max_finished_jobs)
-        return False
-
+    # if n_complete >= options.max_finished_jobs:
+    #     log("Maximum number of finished jobs (%d) reached."
+    #                      "Exiting" % options.max_finished_jobs)
+    #     return False
+    #
     if n_candidates == 0:
         log("There are no candidates left.  Exiting.")
         return False

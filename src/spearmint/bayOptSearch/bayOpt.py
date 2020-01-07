@@ -64,12 +64,14 @@ def ip_to_service_list(service_names):
         earliest_service = min(services_matched, key=service_name.index)
         machines_to_services[machine].append(earliest_service)
 
+
     ip_to_services = {}
     for machine in machines_to_services:
         key_name = machine_to_ip[machine]
         value = machines_to_services[machine]
-        ip_to_services[key_name] = value
+        ip_to_services[key_name] = list(set(value))
 
+    print(ip_to_services)
     return ip_to_services
 
 def master_node():
@@ -122,7 +124,7 @@ def explore_spearmint(workload_config, params):
     workload_config["type"] = "apt-app"
     masterNode = [master_node()]
     experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 1
-    # service_names = ["node-app", "haproxy", "mongodb"]
+    # service_names = ["node-app", "haproxy", "mongo"]
     service_names = ["elasticsearch", "kibana", "logstash", "mysql", "postgres", "node-apt-app", "haproxy"]
     dct = ip_to_service_list(service_names)
     for ip in dct:
@@ -156,6 +158,7 @@ def explore_spearmint(workload_config, params):
             cpu_threshold = 200
             toCompare = cpu_threshold if mr == "CPU-QUOTA" else threshold
             if sum > toCompare:
+                print("Sum for {} is {}, which exceeds {}".format(mr, sum, toCompare))
                 return 1/0
 
     for ip in dct:

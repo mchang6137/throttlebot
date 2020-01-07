@@ -235,7 +235,7 @@ class GPEIOptChooser:
 
         # Spray a set of candidates around the min so far
         best_comp = np.argmin(vals)
-        cand2 = np.vstack((np.random.randn(10,comp.shape[1])*0.15 +
+        cand2 = np.vstack((np.random.randn(50,comp.shape[1])*0.15 +
                            comp[best_comp,:], cand))
 
         if self.mcmc_iters > 0:
