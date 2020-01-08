@@ -594,6 +594,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                            {},
                                            mean_list(current_performance[preferred_performance_metric]),
                                            mean_list(current_performance[preferred_performance_metric]),
+                                           np.std(np.array(current_performance[preferred_performance_metric])), 
                                            time_delta.seconds, 0)
 
     print '============================================'
@@ -761,6 +762,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             simulated_performance = measure_runtime(workload_config, baseline_trials)
             simulated_performance[preferred_performance_metric] = remove_outlier(simulated_performance[preferred_performance_metric])
             simulated_mean = mean_list(simulated_performance[preferred_performance_metric])
+            simulated_std = np.std(np.array(simulated_performance[preferred_performance_metric]))
 
             current_perf_mean = mean_list(current_performance[preferred_performance_metric])
             is_perf_improved = is_performance_improved(current_perf_mean, simulated_mean, optimize_for_lowest, within_x=0.5)
@@ -786,13 +788,14 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         # Test the new performance after potential resource stealing
         improved_performance = simulated_performance
         improved_mean = simulated_mean
+        improved_std = simulated_std
         previous_mean = mean_list(current_performance[preferred_performance_metric])
         performance_improvement = simulated_mean - previous_mean
 
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, effective_mimr,
                                            performance_improvement, action_taken,
-                                           analytic_mean, improved_mean,
+                                           analytic_mean, improved_mean, improved_std,
                                            time_delta.seconds, cumulative_mr_count)
 
         current_performance = improved_performance
@@ -915,7 +918,7 @@ def squeeze_nimrs(redis_db, sys_config,
         print 'exploring {}'.format(nimr.to_string())
         current_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         new_alloc = convert_percent_to_raw(nimr, current_nimr_alloc, stress_weight)
-        resource_modifier.set_mr_provision(nimr, new_alloc, workload_config, redis_db, redis_db)
+        resource_modifier.set_mr_provision(nimr, new_alloc, workload_config, redis_db)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
@@ -946,6 +949,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         resource_modifier.set_mr_provision(mr, median_alloc, workload_config, redis_db)
         median_alloc_perf = measure_runtime(workload_config, experiment_count)
         median_alloc_mean = mean_list(median_alloc_perf[metric])
+        median_alloc_std = np.std(np.array(median_alloc_perf[metric]))
 
         # If the median alloc performance is better, rewind the improvement back to this point
         if is_performance_improved(current_perf_float, median_alloc_mean, optimize_for_lowest, within_x=0.01):
@@ -957,7 +961,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             new_action[mr] = median_alloc - new_mr_alloc
             tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
                                                perf_improvement, new_action,
-                                               median_alloc_mean, median_alloc_mean,
+                                               median_alloc_mean, median_alloc_mean, median_alloc_std, 
                                                0, 0, is_backtrack=True)
 
             results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
