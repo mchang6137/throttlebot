@@ -604,7 +604,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
     # Initialize the current configurations
     # Initialize the working set of MRs to all the MRs
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
-    resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+    #resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
@@ -749,7 +749,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
                                                                                             current_mimr,
                                                                                             filtered_nimr_list,
                                                                                             stress_weight,
-                                                                                            imr_improvement_weight
+                                                                                            imr_improvement_proposal
                 )
 
 

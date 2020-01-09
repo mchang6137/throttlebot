@@ -143,6 +143,7 @@ def write_summary_redis(redis_db, experiment_iteration_count, mimr, perf_gain, a
     for result in all_results:
         trial_str = 'trial{}_perf'.format(trial_num)
         redis_db.hset(hash_name, trial_str, result)
+        trial_num += 1
 
     print 'Summary of Iteration {} written to redis'.format(experiment_iteration_count)
 

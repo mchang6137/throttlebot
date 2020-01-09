@@ -74,6 +74,9 @@ def get_working_set_key(redis_db, iteration):
 # Writes a list of MRs to the working set
 def write_mr_working_set(redis_db, mr_to_add, iteration):
     list_name = get_working_set_key(redis_db, iteration)
+    print mr_to_add
+    for mr in mr_to_add:
+        print mr.to_string()
     list_to_add = json.dumps(mr_to_add)
     redis_db.set(list_name, list_to_add)
 
