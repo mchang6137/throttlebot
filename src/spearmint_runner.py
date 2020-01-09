@@ -122,4 +122,4 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
 
 
-run(iterations=1, time_to_beat=10000, duration=8*60*60, polling_frequency=30)
+run(iterations=1, time_to_beat=10000, duration=200*60*60, polling_frequency=30)
