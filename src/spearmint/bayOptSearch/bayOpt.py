@@ -123,7 +123,7 @@ def explore_spearmint(workload_config, params):
 
     workload_config["type"] = "apt-app"
     masterNode = [master_node()]
-    experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 1
+    experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 5
     # service_names = ["node-app", "haproxy", "mongo"]
     service_names = ["elasticsearch", "kibana", "logstash", "mysql", "postgres", "node-apt-app", "haproxy"]
     dct = ip_to_service_list(service_names)

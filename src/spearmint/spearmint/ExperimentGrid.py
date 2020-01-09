@@ -70,8 +70,8 @@ class ExperimentGrid:
 
         # Set up the grid for the first time if it doesn't exist.
         if variables is not None and not os.path.exists(self.jobs_pkl):
-            self.seed     = random.randint(1, 10000)
-            # self.seed = 5102
+            # self.seed     = random.randint(1, 10000)
+            self.seed = 3067
             self.vmap     = GridMap(variables, grid_size)
             self.grid     = self._hypercube_grid(self.vmap.card(), grid_size)
             self.status   = np.zeros(grid_size, dtype=int) + CANDIDATE_STATE
