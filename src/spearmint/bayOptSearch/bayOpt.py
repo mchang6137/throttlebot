@@ -207,6 +207,8 @@ def explore_spearmint(workload_config, params):
     experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
     print("Experiment results are {}".format(experiment_results))
     mean_result = filter_policy.mean_list(experiment_results['latency_99'])
+    std_result = np.std(np.array(experiment_results['latency_99']))
+
 
 
     return mean_result
