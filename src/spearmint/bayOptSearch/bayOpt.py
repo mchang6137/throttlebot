@@ -209,6 +209,8 @@ def explore_spearmint(workload_config, params):
     mean_result = filter_policy.mean_list(experiment_results['latency_99'])
     std_result = np.std(np.array(experiment_results['latency_99']))
 
+    with open("best_results", "a") as f:
+        f.write("Beat Time-to-beat with these stats: {}\n".format([experiment_results, std_result]))
 
 
     return mean_result

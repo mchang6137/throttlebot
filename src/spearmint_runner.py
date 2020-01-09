@@ -15,6 +15,10 @@ def run(iterations, time_to_beat, duration, polling_frequency):
     subprocess.Popen(shlex.split("mkdir /Users/rahulbalakrishnan/Desktop/data/experiment_run-{}"
                                  .format(date_time.strftime("%m-%d-%Y-%H-%M-%S"))))
 
+    with open("/Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/bayOptSearch/best_results", "w") as f:
+        f.write()
+
+
     cumulative_results = []
 
     for _ in range(iterations):
