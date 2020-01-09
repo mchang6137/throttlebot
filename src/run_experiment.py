@@ -5,6 +5,7 @@ from remote_execution import *
 from modify_resources import *
 from measure_performance_MEAN_py3 import *
 from run_spark_streaming import *
+
 import numpy as np
 
 # Measure the performance of the application in term of latency
@@ -284,10 +285,18 @@ def measure_TODO_response_time(workload_configuration, iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
+    all_requests['l0'] = []
+    all_requests['l25'] = []
+    all_requests['l50'] = []
+    all_requests['l75'] = []
+    all_requests['l90'] = []
+    all_requests['l99'] = []
+    all_requests['l100'] = []
+
     NUM_REQUESTS = 350
     CONCURRENCY = 150
 
-    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    post_cmd = 'ab -e percentiles.csv -p post.json -T application/json -n {} -c {} -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
     # print(post_cmd)
     # return post_cmd
     clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
@@ -296,8 +305,19 @@ def measure_TODO_response_time(workload_configuration, iterations):
         _, results,_ = traffic_client.exec_command(post_cmd)
         print post_cmd
         results.read()
-
-
+        
+        # Read other percentiles (not something actionable to AutoTune)
+        percentiles = [0, 25, 50, 75, 90, 99, 100]
+        for percentile in percentiles: 
+            percentile_command = 'awk -F, \'$1 == {}\' percentiles.csv'.format(percentile)
+            _,results,_ = traffic_client.exec_command(percentile_command)
+            results_float = 0
+            try:
+                result_str = results.read()
+                results_float = float(result_str.split(',')[1])
+            except:
+                results_str = -1 
+            all_requests['l{}'.format(percentiles)].append(results_float)
 
         # _, results, _ = traffic_client.exec_command("touch post.json")
 
