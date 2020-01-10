@@ -296,7 +296,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
     NUM_REQUESTS = 350
     CONCURRENCY = 150
 
-    post_cmd = 'ab -e percentiles.csv -p post.json -T application/json -n {} -c {} -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
+    post_cmd = 'ab -p post.json -T application/json -n {} -c {} -q -e results_file http://{}/api/todos > output.txt && echo Done'.format(NUM_REQUESTS, CONCURRENCY, REST_server_ip)
     # print(post_cmd)
     # return post_cmd
     clear_cmd = 'python3 clear_entries.py {}'.format(REST_server_ip)
@@ -309,15 +309,17 @@ def measure_TODO_response_time(workload_configuration, iterations):
         # Read other percentiles (not something actionable to AutoTune)
         percentiles = [0, 25, 50, 75, 90, 99, 100]
         for percentile in percentiles: 
-            percentile_command = 'awk -F, \'$1 == {}\' percentiles.csv'.format(percentile)
-            _,results,_ = traffic_client.exec_command(percentile_command)
-            results_float = 0
+            percentile_command = 'awk -F, \'$1 == {}\' results_file'.format(percentile)
+            _,perc_results,_ = traffic_client.exec_command(percentile_command)
+            result_float = 0
             try:
-                result_str = results.read()
-                results_float = float(result_str.split(',')[1])
+                result_str = perc_results.read()
+                print result_str
+                result_float = float(result_str.split(',')[1])
+                print result_float
             except:
-                results_str = -1 
-            all_requests['l{}'.format(percentiles)].append(results_float)
+                results_float = -1
+            all_requests['l{}'.format(percentile)].append(result_float)
 
         # _, results, _ = traffic_client.exec_command("touch post.json")
 
