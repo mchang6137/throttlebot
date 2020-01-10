@@ -36,6 +36,25 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
 
+def collect_percentiles(filename):
+    # Read other percentiles (not something actionable to AutoTune)
+    percentiles = [0, 25, 50, 75, 90, 99, 100]
+    percentile_perf = {}
+    for percentile in percentiles:
+        percentile_command = 'awk -F, \'$1 == {}\' {}'.format(percentile, filename)
+        _,perc_results,_ = traffic_client.exec_command(percentile_command)
+        result_float = 0
+        try:
+            result_str = perc_results.read()
+            print result_str
+            result_float = float(result_str.split(',')[1])
+            print result_float
+        except:
+            result_float = -1
+        percentile_perf[percentile] = result_float
+
+    return percentile_perf
+
 #Resets all parameters of the experiment to default values
 def reset_experiment(vm_ip, container_id):
     ssh_client = get_client(vm_ip)
@@ -307,19 +326,9 @@ def measure_TODO_response_time(workload_configuration, iterations):
         results.read()
         
         # Read other percentiles (not something actionable to AutoTune)
-        percentiles = [0, 25, 50, 75, 90, 99, 100]
-        for percentile in percentiles: 
-            percentile_command = 'awk -F, \'$1 == {}\' results_file'.format(percentile)
-            _,perc_results,_ = traffic_client.exec_command(percentile_command)
-            result_float = 0
-            try:
-                result_str = perc_results.read()
-                print result_str
-                result_float = float(result_str.split(',')[1])
-                print result_float
-            except:
-                results_float = -1
-            all_requests['l{}'.format(percentile)].append(result_float)
+        percentile_perf = collect_percentiles('results_file')
+        for percentile in percentile_perf:
+            all_requests['l{}'.format(percentile)].append(percentile_perf[percentile])
 
         # _, results, _ = traffic_client.exec_command("touch post.json")
 
@@ -436,12 +445,20 @@ def measure_apt_app(workload_config, experiment_iterations):
     all_requests['latency_99'] = []
     all_requests['latency_90'] = []
 
-    postgres_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
-    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
-    mysql_get = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e results_file http://{}:80/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    welcome = 'ab -q -n {} -c {} -s 9999 -e results_file http://{}:80/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
-    elastic = 'ab -n 1 -s 9999 -e results_file http://{}:80/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 3)
+    all_requests['l0'] = []
+    all_requests['l25'] = []
+    all_requests['l50'] = []
+    all_requests['l75'] = []
+    all_requests['l90'] = []
+    all_requests['l99'] = []
+    all_requests['l100'] = []
+
+    postgres_get = 'ab -q -n {} -c {} -s 9999 -e percentile0 http://{}:80/app/psql/users/ > output0.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
+    postgres_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e percentile1 http://{}:80/app/psql/users/ > output1.txt'.format(POSTGRES_REQUESTS, POSTGRES_CONCURRENCY, apt_app_public_ip)
+    mysql_get = 'ab -q -n {} -c {} -s 9999 -e percentile2 http://{}:80/app/mysql/users/ > output2.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    mysql_post = 'ab -q -p post.json -T application/json -n {} -c {} -s 9999 -e percentile3 http://{}:80/app/mysql/users/ > output3.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    welcome = 'ab -q -n {} -c {} -s 9999 -e percentile4 http://{}:80/app/users/ > output4.txt'.format(NUM_REQUESTS, CONCURRENCY, apt_app_public_ip)
+    elastic = 'ab -n 1 -s 9999 -e percentile5 http://{}:80/app/elastic/users/{} > output5.txt'.format(apt_app_public_ip, 3)
 
     benchmark_commands = [postgres_get, postgres_post, mysql_get, mysql_post, welcome, elastic]
 
@@ -511,6 +528,16 @@ def measure_apt_app(workload_config, experiment_iterations):
         latency_50 = 0
         latency_90 = 0
         latency_99 = 0
+
+        latency_p = {}
+        latency_p['l0'] = 0
+        latency_p['l25'] = 0
+        latency_p['l50'] = 0
+        latency_p['l75'] = 0
+        latency_p['l90'] = 0
+        latency_p['l99'] = 0
+        latency_p['l100'] = 0
+
         # rps_cmd = "cat output.txt | grep 'Requests per second' | awk {{'print $4'}}"
         # latency_cmd = "cat output.txt | grep 'Time per request' | awk 'NR==1{{print $4}}'"
         # latency_50_cmd = "cat output.txt | grep '50%' | awk {'print $2'}"
@@ -549,6 +576,13 @@ def measure_apt_app(workload_config, experiment_iterations):
             rps += float(execute_parse_results(traffic_client, rps_cmd))
             latency += float(execute_parse_results(traffic_client, latency_cmd))
 
+            percentile_perf = collect_percentiles('percentile{}'.format(c))
+            for percentile in percentile_perf:
+                if percentile_perf[percentile] == -1:
+                    latency_p['l{}'.format(percentile)] += percentile_perf[100] * 0.33
+                else:
+                    latency_p['l{}'.format(percentile)] += percentile_perf[percentile]
+            
             if latency_50t == -1:
                 latency_50 += latencyt * 0.33
                 latency_90 += latencyt * 0.33
@@ -560,6 +594,8 @@ def measure_apt_app(workload_config, experiment_iterations):
             # traffic_clients[c].exec_command('rm output.txt')
             rm_out_cmd = 'rm output{}.txt'.format(c)
             traffic_client.exec_command(rm_out_cmd)
+            rm_result_cmd = 'rm percentile{}'.format(c)
+            traffic_client.exec_command(rm_result_cmd)
             sleep(0.3)
             print '{},{},{},{},{}'.format(rpst, latencyt, latency_50t, latency_90t, latency_99t)
         print 'total:{},{},{},{},{}'.format(rps, latency, latency_50, latency_90, latency_99)
@@ -599,6 +635,9 @@ def measure_apt_app(workload_config, experiment_iterations):
         # print 'Checkpoint 2, Baseline and iteration done'
         # exit()
 
+        for percentile in latency_p:
+            all_requests['l{}'.format(percentile)].append(latency_p[percentile])
+
     # Remove outliers (all outside of 1 standard deviation)
     if experiment_iterations > 1:
         median = np.median(all_requests['rps'])
@@ -625,5 +664,4 @@ def measure_apt_app(workload_config, experiment_iterations):
     # for client in traffic_clients:
     #     close_client(client)
     close_client(traffic_client)
-
     return all_requests
