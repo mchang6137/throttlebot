@@ -761,6 +761,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             # Change MR provisions without committing the actions
             simulate_mr_provisions(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal, workload_config)
             simulated_performance = measure_runtime(workload_config, baseline_trials)
+            original_simulated = deepcopy(simulated_performance)
             simulated_performance[preferred_performance_metric] = remove_outlier(simulated_performance[preferred_performance_metric])
             simulated_mean = mean_list(simulated_performance[preferred_performance_metric])
             simulated_std = np.std(np.array(simulated_performance[preferred_performance_metric]))
@@ -793,17 +794,20 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         previous_mean = mean_list(current_performance[preferred_performance_metric])
         performance_improvement = simulated_mean - previous_mean
 
-        with open('individual_results.csv','a') as fd:
+        with open('individual_results.csv','a') as csvfile:
             field_names = ['iter', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
-            for trial in range(len(simulated_performance['l0'])):
+            for trial in range(len(original_simulated['l0'])):
+                result_dict = {}
                 result_dict['iter'] = experiment_count
-                result_dict['l0'] = simulated_performance['l0']
-                result_dict['l25'] = simulated_performance['l25']
-                result_dict['l50'] = simulated_performance['l50']
-                result_dict['l75'] = simulated_performance['l75'] 
-                result_dict['l90'] = simulated_performance['l90']
-                result_dict['l99'] = simulated_performance['l99']
-                result_dict['l100'] = simulated_performnace['l100']
+                result_dict['l0'] = original_simulated['l0'][trial]
+                result_dict['l25'] = original_simulated['l25'][trial]
+                result_dict['l50'] = original_simulated['l50'][trial]
+                result_dict['l75'] = original_simulated['l75'][trial]
+                result_dict['l90'] = original_simulated['l90'][trial]
+                result_dict['l99'] = original_simulated['l99'][trial]
+                result_dict['l100'] = original_simulated['l100'][trial]
+                writer = csv.DictWriter(csvfile, fieldnames=field_names)
+                writer.writerow(result_dict)
 
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, effective_mimr,
