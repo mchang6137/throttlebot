@@ -9,7 +9,7 @@ import subprocess
 import os
 import sys
 currentDirectory = os.getcwd()
-sys.path.append("/Users/rahulbalakrishnan/Desktop/throttlebot/src")
+sys.path.append("/home/ubuntu/throttlebot/src")
 import modify_resources as resource_modifier
 import run_experiment
 import filter_policy, instance_specs
@@ -78,7 +78,7 @@ def master_node():
 
 def load_config():
     d = {}
-    with open("/Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/bayOptSearch/workload_config") as f:
+    with open("/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/workload_config") as f:
         for line in f:
             try:
                (key, val) = line.split(" = ")
@@ -115,24 +115,20 @@ def explore_spearmint(workload_config, params):
     print("The paramters are {}".format(params))
     # Set all fields using params object
 
-
-
-
-
-    workload_config["type"] = "apt-app"
+    #workload_config["type"] = "apt-app"
     masterNode = [master_node()]
     experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 1
-    # service_names = ["node-app", "haproxy", "mongodb"]
-    service_names = ["elasticsearch", "kibana", "logstash", "mysql", "postgres", "node-apt-app", "haproxy"]
+     service_names = ["node-app", "haproxy", "mongodb"]
+    #service_names = ["elasticsearch", "kibana", "logstash", "mysql", "postgres", "node-apt-app", "haproxy"]
     dct = ip_to_service_list(service_names)
     for ip in dct:
         if "haproxy" in dct[ip]:
             workload_config["frontend"] = [ip]
             break
 
-    # service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
-    service_index_dct = {"node-apt-app": 0, "kibana": 1, "elasticsearch": 2, "logstash": 3, "mysql":4,
-                         "haproxy": 5, "postgres":6}
+    service_index_dct = {"node-app": 0, "haproxy": 1, "mongo": 2}
+    #service_index_dct = {"node-apt-app": 0, "kibana": 1, "elasticsearch": 2, "logstash": 3, "mysql":4,
+    #"haproxy": 5, "postgres":6}
 
     # params["CPU-QUOTA"] = [40, 40, 40]
     # params["DISK"] = []

@@ -12,7 +12,7 @@ import math
 def run(iterations, time_to_beat, duration, polling_frequency):
 
     date_time = datetime.now()
-    subprocess.Popen(shlex.split("mkdir /Users/rahulbalakrishnan/Desktop/data/experiment_run-{}"
+    subprocess.Popen(shlex.split("mkdir /home/ubuntu/Desktop/data/experiment_run-{}"
                                  .format(date_time.strftime("%m-%d-%Y-%H-%M-%S"))))
 
     cumulative_results = []
@@ -28,8 +28,7 @@ def run(iterations, time_to_beat, duration, polling_frequency):
         queue = mp.Queue()
 
         cmd = "python2.7 ./spearmint/spearmint/main.py --driver=local --method=GPEIOptChooser " + \
-              "--method-args=noiseless=1 --data-file=test.csv /Users/rahulbalakrishnan/Desktop/" + \
-              "throttlebot/src/spearmint/bayOptSearch/bayOpt.pb"
+              "--method-args=noiseless=1 --data-file=test.csv /home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.pb"
 
         p = subprocess.Popen(shlex.split(cmd), shell=False)
 
@@ -55,7 +54,7 @@ def run(iterations, time_to_beat, duration, polling_frequency):
     print("Saving aggregate results to disk")
 
     date_time = datetime.now()
-    with open("/Users/rahulbalakrishnan/Desktop/data/threshold/data_{}"
+    with open("/home/ubuntu/Desktop/data/threshold/data_{}"
                       .format(date_time.strftime("%m-%d-%Y-%H-%M-%S")), "w") as f:
 
             f.write(json.dumps({"results": cumulative_results,
@@ -75,11 +74,11 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
             current_time = time.time()
             if current_time - time_to_compare >= polling_frequency:
                 time_to_compare = current_time
-                cmd = "grep \'Best result\' /Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/" \
+                cmd = "grep \'Best result\' /home/ubuntu/throttlebot/src/spearmint/" \
                       "bayOptSearch/best_job_and_result.txt"
 
                 output = str(subprocess.check_output([cmd], shell=True).decode("utf-8"))
-                trial = len(glob.glob("/Users/rahulbalakrishnan/Desktop/throttlebot/src/spearmint/bayOptSearch/output/*"))
+                trial = len(glob.glob("/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/output/*"))
 
                 value_to_add = float(output[13:-1])
 
