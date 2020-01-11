@@ -36,7 +36,7 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
         exit()
 
-def collect_percentiles(filename):
+def collect_percentiles(traffic_client, filename):
     # Read other percentiles (not something actionable to AutoTune)
     percentiles = [0, 25, 50, 75, 90, 99, 100]
     percentile_perf = {}
@@ -326,7 +326,7 @@ def measure_TODO_response_time(workload_configuration, iterations):
         results.read()
         
         # Read other percentiles (not something actionable to AutoTune)
-        percentile_perf = collect_percentiles('results_file')
+        percentile_perf = collect_percentiles(traffic_client, 'results_file')
         for percentile in percentile_perf:
             all_requests['l{}'.format(percentile)].append(percentile_perf[percentile])
 
@@ -576,7 +576,7 @@ def measure_apt_app(workload_config, experiment_iterations):
             rps += float(execute_parse_results(traffic_client, rps_cmd))
             latency += float(execute_parse_results(traffic_client, latency_cmd))
 
-            percentile_perf = collect_percentiles('percentile{}'.format(c))
+            percentile_perf = collect_percentiles(traffic_client, 'percentile{}'.format(c))
             for percentile in percentile_perf:
                 if percentile_perf[percentile] == -1:
                     latency_p['l{}'.format(percentile)] += percentile_perf[100] * 0.33
