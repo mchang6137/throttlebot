@@ -243,9 +243,9 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
     # else:
     #     for x in range(1,4):
     #         expt_grid.add_to_grid(np.array([x*10, x*10, x*10]))
-    candidate = np.array([])
-    if first_time:
-        expt_grid.add_to_grid(candidate, add_to_end=False)
+    # candidate = np.array([])
+    # if first_time:
+    #     expt_grid.add_to_grid(candidate, add_to_end=False)
 
 
     print("Status list is {}".format(expt_grid.status))
@@ -283,11 +283,11 @@ def attempt_dispatch(expt_config, expt_dir, chooser, driver, options, first_time
     # Print out the best job results
     write_best_job(expt_dir, best_val, best_job, expt_grid)
 
-    if n_complete >= options.max_finished_jobs:
-        log("Maximum number of finished jobs (%d) reached."
-                         "Exiting" % options.max_finished_jobs)
-        return False
-
+    # if n_complete >= options.max_finished_jobs:
+    #     log("Maximum number of finished jobs (%d) reached."
+    #                      "Exiting" % options.max_finished_jobs)
+    #     return False
+    #
     if n_candidates == 0:
         log("There are no candidates left.  Exiting.")
         return False

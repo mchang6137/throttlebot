@@ -15,6 +15,9 @@ def run(iterations, time_to_beat, duration, polling_frequency):
     subprocess.Popen(shlex.split("mkdir /home/ubuntu/Desktop/data/experiment_run-{}"
                                  .format(date_time.strftime("%m-%d-%Y-%H-%M-%S"))))
 
+    open("/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/best_results", "w").close()
+
+
     cumulative_results = []
 
     for _ in range(iterations):
@@ -35,7 +38,7 @@ def run(iterations, time_to_beat, duration, polling_frequency):
 
 
         process_poll = mp.Process(target=poll_for_best_result, args = (queue, time_to_beat, p, duration,
-                                                                       polling_frequency))
+                                                                       polling_frequency, date_time))
 
         process_poll.start()
 
@@ -53,18 +56,20 @@ def run(iterations, time_to_beat, duration, polling_frequency):
 
     print("Saving aggregate results to disk")
 
-    date_time = datetime.now()
-    with open("/home/ubuntu/Desktop/data/threshold/data_{}"
-                      .format(date_time.strftime("%m-%d-%Y-%H-%M-%S")), "w") as f:
+    if iterations > 1:
+        date_time = datetime.now()
+        with open("/home/ubuntu/Desktop/data/threshold/data_{}"
+                          .format(date_time.strftime("%m-%d-%Y-%H-%M-%S")), "w") as f:
 
-            f.write(json.dumps({"results": cumulative_results,
-                                "polling_frequency": polling_frequency,
-                                "duration": duration}))
+                f.write(json.dumps({"results": cumulative_results,
+                                    "polling_frequency": polling_frequency,
+                                    "duration": duration}))
 
-def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, polling_frequency):
+def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, polling_frequency, date_time):
 
     starting_time = time.time()
     time_to_compare = starting_time
+    result_list = []
 
     first = True
     while time.time() - starting_time < duration:
@@ -87,6 +92,15 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
                 print("Adding value {} to time data".format(value_to_add))
                 queue.put([value_to_add, trial])
+                result_list.append([value_to_add, trial])
+
+                with open("/home/ubuntu/Desktop/data/threshold/data_{}"
+                                  .format(date_time.strftime("%m-%d-%Y-%H-%M-%S")), "w") as f:
+
+                    f.write(json.dumps({"results": result_list,
+                                        "polling_frequency": polling_frequency,
+                                        "duration": duration}))
+
 
                 if first:
                     starting_time = current_time
@@ -107,4 +121,4 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
 
 
 
-run(iterations=1, time_to_beat=10000, duration=120*60, polling_frequency=30)
+run(iterations=1, time_to_beat=10000, duration=200*60*60, polling_frequency=30)
