@@ -798,7 +798,8 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
             field_names = ['iter', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
             for trial in range(len(original_simulated['l0'])):
                 result_dict = {}
-                result_dict['iter'] = experiment_count
+                result_dict['time'] = time_delta.seconds
+                result_dict['iteration'] = experiment_count
                 result_dict['l0'] = original_simulated['l0'][trial]
                 result_dict['l25'] = original_simulated['l25'][trial]
                 result_dict['l50'] = original_simulated['l50'][trial]
