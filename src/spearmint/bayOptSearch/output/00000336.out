@@ -1,0 +1,146 @@
+Running in wrapper mode for '336'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 50
+int_val: 19
+int_val: 54
+int_val: 19
+int_val: 62
+int_val: 23
+int_val: 92
+, name: "DISK"
+int_val: 16
+int_val: 6
+int_val: 6
+int_val: 17
+int_val: 7
+int_val: 16
+int_val: 5
+, name: "MEMORY"
+int_val: 17
+int_val: 19
+int_val: 37
+int_val: 19
+int_val: 24
+int_val: 6
+int_val: 17
+, name: "NET"
+int_val: 33
+int_val: 18
+int_val: 24
+int_val: 12
+int_val: 7
+int_val: 14
+int_val: 14
+]
+The paramters are {u'CPU-QUOTA': array([50, 19, 54, 19, 62, 23, 92]), u'NET': array([33, 18, 24, 12,  7, 14, 14]), u'DISK': array([16,  6,  6, 17,  7, 16,  5]), u'MEMORY': array([17, 19, 37, 19, 24,  6, 17])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Setting cpu quota to 47500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, NET 92160.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, DISK 5033164.8
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, MEMORY 712500000.0
+Recovering the memory utilization
+Setting cpu quota to 125000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, NET 168960.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, DISK 13421772.8
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, MEMORY 637500000.0
+Recovering the memory utilization
+Setting cpu quota to 135000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, NET 122880.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, DISK 5033164.8
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, MEMORY 1387500000.0
+Recovering the memory utilization
+Setting cpu quota to 125000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, NET 168960.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, DISK 13421772.8
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, MEMORY 637500000.0
+Recovering the memory utilization
+Setting cpu quota to 135000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, NET 122880.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, DISK 5033164.8
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, MEMORY 1387500000.0
+Recovering the memory utilization
+Using 5 trials
+52.53.243.115
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,17.183
+
+17.183
+25,582.541
+
+582.541
+50,1421.888
+
+1421.888
+75,2118.031
+
+2118.031
+90,2752.853
+
+2752.853
+99,3316.225
+
+3316.225
+100,3343.910
+
+3343.91
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,26.575
+
+26.575
+25,468.737
+
+468.737
+50,1395.579
+
+1395.579
+75,2118.865
+
+2118.865
+90,2493.639
+
+2493.639
+99,2898.793
+
+2898.793
+100,2963.966
+
+2963.966
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.SystemExit'>, SystemExit(0,), <traceback object at 0x7fd5bc26c6c8>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 205, in explore_spearmint
+    experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
+  File "/home/ubuntu/throttlebot/src/run_experiment.py", line 22, in measure_runtime
+    return measure_TODO_response_time(workload_config, experiment_iterations)
+  File "/home/ubuntu/throttlebot/src/run_experiment.py", line 350, in measure_TODO_response_time
+    print("Successfully cleared? {}".format(cleared.read()))
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/file.py", line 193, in read
+    new_data = self._read(self._DEFAULT_BUFSIZE)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/channel.py", line 1332, in _read
+    return self.channel.recv(size)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/channel.py", line 683, in recv
+    out = self.in_buffer.read(nbytes, self.timeout)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/buffered_pipe.py", line 156, in read
+    self._cv.wait(timeout)
+  File "/usr/lib/python2.7/threading.py", line 340, in wait
+    waiter.acquire()
+  File "./spearmint/spearmint/main.py", line 407, in sigint_handler
+    sys.exit(0)
+SystemExit: 0
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 35.30 seconds.

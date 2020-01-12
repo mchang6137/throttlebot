@@ -1,0 +1,63 @@
+Running in wrapper mode for '26'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 57
+int_val: 30
+int_val: 96
+int_val: 82
+int_val: 45
+int_val: 54
+int_val: 64
+, name: "DISK"
+int_val: 18
+int_val: 18
+int_val: 31
+int_val: 22
+int_val: 34
+int_val: 32
+int_val: 9
+, name: "MEMORY"
+int_val: 12
+int_val: 9
+int_val: 27
+int_val: 27
+int_val: 26
+int_val: 8
+int_val: 37
+, name: "NET"
+int_val: 5
+int_val: 10
+int_val: 15
+int_val: 30
+int_val: 7
+int_val: 11
+int_val: 28
+]
+The paramters are {u'CPU-QUOTA': array([57, 30, 96, 82, 45, 54, 64]), u'NET': array([ 5, 10, 15, 30,  7, 11, 28]), u'DISK': array([18, 18, 31, 22, 34, 32,  9]), u'MEMORY': array([12,  9, 27, 27, 26,  8, 37])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+----------------------------------------
+Problem running the job:
+(<class 'paramiko.ssh_exception.BadAuthenticationType'>, BadAuthenticationType('Bad authentication type', [u'publickey']), <traceback object at 0x7fd41b7af440>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 147, in explore_spearmint
+    client = re.get_client(machine)
+  File "/home/ubuntu/throttlebot/src/remote_execution.py", line 6, in get_client
+    client.connect(ip, username="quilt", password="")
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/client.py", line 424, in connect
+    passphrase,
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/client.py", line 714, in _auth
+    raise saved_exception
+BadAuthenticationType: ('Bad authentication type', [u'publickey']) (allowed_types=[u'publickey'])
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 0.44 seconds.

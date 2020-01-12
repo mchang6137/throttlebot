@@ -1,0 +1,69 @@
+Running in wrapper mode for '154'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 58
+int_val: 22
+int_val: 79
+int_val: 35
+int_val: 21
+int_val: 43
+int_val: 68
+, name: "DISK"
+int_val: 8
+int_val: 13
+int_val: 29
+int_val: 31
+int_val: 24
+int_val: 7
+int_val: 39
+, name: "MEMORY"
+int_val: 33
+int_val: 33
+int_val: 26
+int_val: 40
+int_val: 34
+int_val: 36
+int_val: 24
+, name: "NET"
+int_val: 33
+int_val: 33
+int_val: 33
+int_val: 32
+int_val: 37
+int_val: 12
+int_val: 18
+]
+The paramters are {u'CPU-QUOTA': array([58, 22, 79, 35, 21, 43, 68]), u'NET': array([33, 33, 33, 32, 37, 12, 18]), u'DISK': array([ 8, 13, 29, 31, 24,  7, 39]), u'MEMORY': array([33, 33, 26, 40, 34, 36, 24])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.SystemExit'>, SystemExit(0,), <traceback object at 0x7f848c2891b8>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 148, in explore_spearmint
+    _, containers, _ = client.exec_command("docker ps | grep " + service + " | awk {'print $1'}")
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/client.py", line 480, in exec_command
+    chan = self._transport.open_session(timeout=timeout)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/transport.py", line 767, in open_session
+    timeout=timeout)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/transport.py", line 886, in open_channel
+    event.wait(0.1)
+  File "/usr/lib/python2.7/threading.py", line 614, in wait
+    self.__cond.wait(timeout)
+  File "/usr/lib/python2.7/threading.py", line 359, in wait
+    _sleep(delay)
+  File "./spearmint/spearmint/main.py", line 407, in sigint_handler
+    sys.exit(0)
+SystemExit: 0
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 1.55 seconds.

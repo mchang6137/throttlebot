@@ -1,0 +1,204 @@
+Running in wrapper mode for '338'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 74
+int_val: 43
+int_val: 30
+int_val: 43
+int_val: 38
+int_val: 47
+int_val: 20
+, name: "DISK"
+int_val: 7
+int_val: 15
+int_val: 33
+int_val: 8
+int_val: 34
+int_val: 7
+int_val: 32
+, name: "MEMORY"
+int_val: 8
+int_val: 28
+int_val: 10
+int_val: 10
+int_val: 15
+int_val: 15
+int_val: 26
+, name: "NET"
+int_val: 24
+int_val: 27
+int_val: 33
+int_val: 21
+int_val: 34
+int_val: 23
+int_val: 23
+]
+The paramters are {u'CPU-QUOTA': array([74, 43, 30, 43, 38, 47, 20]), u'NET': array([24, 27, 33, 21, 34, 23, 23]), u'DISK': array([ 7, 15, 33,  8, 34,  7, 32]), u'MEMORY': array([ 8, 28, 10, 10, 15, 15, 26])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Setting cpu quota to 107500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, NET 138240.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, DISK 12582912.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, MEMORY 1050000000.0
+Recovering the memory utilization
+Setting cpu quota to 185000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, NET 122880.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, DISK 5872025.6
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, MEMORY 300000000.0
+Recovering the memory utilization
+Setting cpu quota to 75000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, NET 168960.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, DISK 27682406.4
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, MEMORY 375000000.0
+Recovering the memory utilization
+Setting cpu quota to 185000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, NET 122880.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, DISK 5872025.6
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, MEMORY 300000000.0
+Recovering the memory utilization
+Setting cpu quota to 75000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, NET 168960.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, DISK 27682406.4
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, MEMORY 375000000.0
+Recovering the memory utilization
+Using 5 trials
+52.53.243.115
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,153.061
+
+153.061
+25,487.513
+
+487.513
+50,1053.525
+
+1053.525
+75,1499.337
+
+1499.337
+90,1969.343
+
+1969.343
+99,2487.849
+
+2487.849
+100,2513.104
+
+2513.104
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,21.781
+
+21.781
+25,309.775
+
+309.775
+50,986.345
+
+986.345
+75,1573.422
+
+1573.422
+90,1885.830
+
+1885.83
+99,2368.772
+
+2368.772
+100,2380.385
+
+2380.385
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,15.244
+
+15.244
+25,266.635
+
+266.635
+50,997.004
+
+997.004
+75,1575.168
+
+1575.168
+90,1953.641
+
+1953.641
+99,2292.385
+
+2292.385
+100,2372.318
+
+2372.318
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,39.793
+
+39.793
+25,275.293
+
+275.293
+50,1041.517
+
+1041.517
+75,1679.906
+
+1679.906
+90,1865.664
+
+1865.664
+99,2051.198
+
+2051.198
+100,2074.638
+
+2074.638
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,19.413
+
+19.413
+25,318.870
+
+318.87
+50,1014.511
+
+1014.511
+75,1556.457
+
+1556.457
+90,1898.606
+
+1898.606
+99,2092.778
+
+2092.778
+100,2150.109
+
+2150.109
+Successfully cleared? Cleared entries! 1
+
+{'latency_90': [1969.0, 1886.0, 1954.0, 1866.0, 1899.0], 'latency': [575338.75, 533172.15, 531807.5, 506749.95, 517672.05000000005], 'rps': [91.25, 98.47, 98.72, 103.6, 101.42], 'l90': [1969.343, 1885.83, 1953.641, 1865.664, 1898.606], 'latency_99': [2470.0, 2347.0, 2234.0, 2042.0, 2073.0], 'latency_50': [1054.0, 986.0, 997.0, 1042.0, 1015.0], 'l99': [2487.849, 2368.772, 2292.385, 2051.198, 2092.778], 'l75': [1499.337, 1573.422, 1575.168, 1679.906, 1556.457], 'l50': [1053.525, 986.345, 997.004, 1041.517, 1014.511], 'l25': [487.513, 309.775, 266.635, 275.293, 318.87], 'l0': [153.061, 21.781, 15.244, 39.793, 19.413], 'l100': [2513.104, 2380.385, 2372.318, 2074.638, 2150.109]}
+Experiment results are {'latency_90': [1969.0, 1886.0, 1954.0, 1866.0, 1899.0], 'latency': [575338.75, 533172.15, 531807.5, 506749.95, 517672.05000000005], 'rps': [91.25, 98.47, 98.72, 103.6, 101.42], 'l90': [1969.343, 1885.83, 1953.641, 1865.664, 1898.606], 'latency_99': [2470.0, 2347.0, 2234.0, 2042.0, 2073.0], 'latency_50': [1054.0, 986.0, 997.0, 1042.0, 1015.0], 'l99': [2487.849, 2368.772, 2292.385, 2051.198, 2092.778], 'l75': [1499.337, 1573.422, 1575.168, 1679.906, 1556.457], 'l50': [1053.525, 986.345, 997.004, 1041.517, 1014.511], 'l25': [487.513, 309.775, 266.635, 275.293, 318.87], 'l0': [153.061, 21.781, 15.244, 39.793, 19.413], 'l100': [2513.104, 2380.385, 2372.318, 2074.638, 2150.109]}
+Got result (2233.2, 162.01654236527824)
+
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.TypeError'>, TypeError('(2233.2, 162.01654236527824) has type tuple, but expected one of: int, long, float',), <traceback object at 0x7fb25c511878>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 148, in run_python_job
+    job.value = result
+TypeError: (2233.2, 162.01654236527824) has type tuple, but expected one of: int, long, float
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 59.11 seconds.

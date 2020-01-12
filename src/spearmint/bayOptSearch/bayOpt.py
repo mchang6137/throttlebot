@@ -118,6 +118,7 @@ def explore_spearmint(workload_config, params):
     # Set all fields using params object
 
     #workload_config["type"] = "apt-app"
+    workload_config["type"] = 'todo-app'
     masterNode = [master_node()]
     experiment_trials = int(workload_config['num_trials']) if 'num_trials' in workload_config else 5
     service_names = ["node-app", "haproxy", "mongo"]

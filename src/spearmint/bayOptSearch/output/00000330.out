@@ -1,0 +1,56 @@
+Running in wrapper mode for '330'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 59
+int_val: 34
+int_val: 81
+int_val: 76
+int_val: 53
+int_val: 14
+int_val: 71
+, name: "DISK"
+int_val: 10
+int_val: 29
+int_val: 29
+int_val: 32
+int_val: 35
+int_val: 18
+int_val: 17
+, name: "MEMORY"
+int_val: 36
+int_val: 25
+int_val: 7
+int_val: 31
+int_val: 5
+int_val: 36
+int_val: 11
+, name: "NET"
+int_val: 10
+int_val: 29
+int_val: 39
+int_val: 20
+int_val: 12
+int_val: 24
+int_val: 17
+]
+The paramters are {u'CPU-QUOTA': array([59, 34, 81, 76, 53, 14, 71]), u'NET': array([10, 29, 39, 20, 12, 24, 17]), u'DISK': array([10, 29, 29, 32, 35, 18, 17]), u'MEMORY': array([36, 25,  7, 31,  5, 36, 11])}
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.NameError'>, NameError("global name 'worklaod_config' is not defined",), <traceback object at 0x7f89acad8e18>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 121, in explore_spearmint
+    worklaod_config["type"] = 'todo-app'
+NameError: global name 'worklaod_config' is not defined
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 0.23 seconds.

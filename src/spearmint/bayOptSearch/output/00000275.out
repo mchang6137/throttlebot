@@ -1,0 +1,89 @@
+Running in wrapper mode for '275'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 28
+int_val: 69
+int_val: 88
+int_val: 59
+int_val: 33
+int_val: 75
+int_val: 34
+, name: "DISK"
+int_val: 8
+int_val: 11
+int_val: 29
+int_val: 9
+int_val: 37
+int_val: 22
+int_val: 19
+, name: "MEMORY"
+int_val: 30
+int_val: 34
+int_val: 21
+int_val: 31
+int_val: 31
+int_val: 34
+int_val: 21
+, name: "NET"
+int_val: 14
+int_val: 18
+int_val: 26
+int_val: 13
+int_val: 23
+int_val: 23
+int_val: 25
+]
+The paramters are {u'CPU-QUOTA': array([28, 69, 88, 59, 33, 75, 34]), u'NET': array([14, 18, 26, 13, 23, 23, 25]), u'DISK': array([ 8, 11, 29,  9, 37, 22, 19]), u'MEMORY': array([30, 34, 21, 31, 31, 34, 21])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Setting cpu quota to 172500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, NET 92160.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, DISK 9227468.8
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, MEMORY 1275000000.0
+Recovering the memory utilization
+Setting cpu quota to 70000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, NET 71680.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, DISK 6710886.4
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, MEMORY 1125000000.0
+Recovering the memory utilization
+Setting cpu quota to 220000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, NET 133120.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, DISK 24326963.2
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, MEMORY 787500000.0
+Recovering the memory utilization
+Setting cpu quota to 70000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, NET 71680.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, DISK 6710886.4
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, MEMORY 1125000000.0
+Recovering the memory utilization
+Setting cpu quota to 220000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, NET 133120.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, DISK 24326963.2
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, MEMORY 787500000.0
+Recovering the memory utilization
+Using 5 trials
+INVALID EXPERIMENT TYPE: todo-app
+
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.SystemExit'>, SystemExit(None,), <traceback object at 0x7f40384a6908>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 204, in explore_spearmint
+    experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
+  File "/home/ubuntu/throttlebot/src/run_experiment.py", line 37, in measure_runtime
+    exit()
+  File "/usr/lib/python2.7/site.py", line 375, in __call__
+    raise SystemExit(code)
+SystemExit: None
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 15.31 seconds.

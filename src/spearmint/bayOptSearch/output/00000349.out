@@ -1,0 +1,58 @@
+Running in wrapper mode for '349'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 57
+int_val: 99
+int_val: 91
+int_val: 50
+int_val: 6
+int_val: 70
+int_val: 54
+, name: "DISK"
+int_val: 8
+int_val: 39
+int_val: 6
+int_val: 36
+int_val: 33
+int_val: 20
+int_val: 37
+, name: "MEMORY"
+int_val: 29
+int_val: 5
+int_val: 5
+int_val: 8
+int_val: 32
+int_val: 19
+int_val: 23
+, name: "NET"
+int_val: 26
+int_val: 25
+int_val: 32
+int_val: 21
+int_val: 30
+int_val: 19
+int_val: 32
+]
+The paramters are {u'CPU-QUOTA': array([57, 99, 91, 50,  6, 70, 54]), u'NET': array([26, 25, 32, 21, 30, 19, 32]), u'DISK': array([ 8, 39,  6, 36, 33, 20, 37]), u'MEMORY': array([29,  5,  5,  8, 32, 19, 23])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Sum for CPU-QUOTA is 247, which exceeds 200
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.ZeroDivisionError'>, ZeroDivisionError('integer division or modulo by zero',), <traceback object at 0x7f5a0cf15560>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 160, in explore_spearmint
+    return 1/0
+ZeroDivisionError: integer division or modulo by zero
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 1.01 seconds.

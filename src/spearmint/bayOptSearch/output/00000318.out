@@ -1,0 +1,73 @@
+Running in wrapper mode for '318'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 77
+int_val: 52
+int_val: 27
+int_val: 22
+int_val: 95
+int_val: 80
+int_val: 53
+, name: "DISK"
+int_val: 21
+int_val: 27
+int_val: 14
+int_val: 7
+int_val: 28
+int_val: 38
+int_val: 24
+, name: "MEMORY"
+int_val: 20
+int_val: 5
+int_val: 27
+int_val: 33
+int_val: 21
+int_val: 34
+int_val: 9
+, name: "NET"
+int_val: 35
+int_val: 8
+int_val: 14
+int_val: 13
+int_val: 28
+int_val: 17
+int_val: 6
+]
+The paramters are {u'CPU-QUOTA': array([77, 52, 27, 22, 95, 80, 53]), u'NET': array([35,  8, 14, 13, 28, 17,  6]), u'DISK': array([21, 27, 14,  7, 28, 38, 24]), u'MEMORY': array([20,  5, 27, 33, 21, 34,  9])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.SystemExit'>, SystemExit(0,), <traceback object at 0x7effc473d560>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 142, in run_python_job
+    result = module.main(job.id, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 104, in main
+    return explore_spearmint(workload_config, params)
+  File "/home/ubuntu/throttlebot/src/spearmint/bayOptSearch/bayOpt.py", line 147, in explore_spearmint
+    client = re.get_client(machine)
+  File "/home/ubuntu/throttlebot/src/remote_execution.py", line 6, in get_client
+    client.connect(ip, username="quilt", password="")
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/client.py", line 424, in connect
+    passphrase,
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/client.py", line 652, in _auth
+    self._transport.auth_publickey(username, key))
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/transport.py", line 1450, in auth_publickey
+    return self.auth_handler.wait_for_response(my_event)
+  File "/home/ubuntu/.local/lib/python2.7/site-packages/paramiko/auth_handler.py", line 207, in wait_for_response
+    event.wait(0.1)
+  File "/usr/lib/python2.7/threading.py", line 614, in wait
+    self.__cond.wait(timeout)
+  File "/usr/lib/python2.7/threading.py", line 359, in wait
+    _sleep(delay)
+  File "./spearmint/spearmint/main.py", line 407, in sigint_handler
+    sys.exit(0)
+SystemExit: 0
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 4.06 seconds.

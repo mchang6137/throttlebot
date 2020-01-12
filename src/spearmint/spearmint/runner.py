@@ -141,10 +141,11 @@ def run_python_job(job):
     module  = __import__(job.name)
     result = module.main(job.id, params)
 
-    log("Got result %f\n" % (result))
+    log("Got result {}\n".format(result[0]))
+    #log("Got result %f\n" % (result))
 
     # Store the result.
-    job.value = result
+    job.value = result[0]
     save_job(job)
 
 

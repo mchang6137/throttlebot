@@ -34,6 +34,7 @@ def measure_runtime(workload_config, experiment_iterations, include_warmups=Fals
         return measure_bcd(workload_config, experiment_iterations)
     else:
         print 'INVALID EXPERIMENT TYPE: {}'.format(experiment_type)
+        print 'WHATS UP'
         exit()
 
 def collect_percentiles(traffic_client, filename):
