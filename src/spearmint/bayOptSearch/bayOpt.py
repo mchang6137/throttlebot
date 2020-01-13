@@ -3,6 +3,7 @@ import csv
 import ConfigParser
 import time
 import numpy as np
+import datetime
 
 import redis.client
 import subprocess
@@ -110,8 +111,6 @@ def explore_spearmint(workload_config, params):
 
     redis_db = redis.StrictRedis(host='0.0.0.0', port=6379, db=0)
 
-
-
     t0 = time.time()
 
     print("The paramters are {}".format(params))
@@ -203,6 +202,24 @@ def explore_spearmint(workload_config, params):
 
     print("Using {} trials".format(experiment_trials))
     experiment_results = run_experiment.measure_runtime(workload_config, experiment_trials)
+
+    # Write latency values to a csv, take the current time and then
+    # subtract it from the time that the spearmint_runner was initiated
+    with open('/home/ubuntu/throttlebot/src/spearmint_results.csv','a') as csvfile:
+        field_names = ['time', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
+        for trial in range(len(original_simulated['l0'])):
+            result_dict = {}
+            # To determine time elapsed, we will record the time at the start of the experiment
+            result_dict['time'] = datetime.datetime.now()
+            result_dict['l0'] = original_simulated['l0'][trial]
+            result_dict['l25'] = original_simulated['l25'][trial]
+            result_dict['l50'] = original_simulated['l50'][trial]
+            result_dict['l75'] = original_simulated['l75'][trial]
+            result_dict['l90'] = original_simulated['l90'][trial]
+            result_dict['l99'] = original_simulated['l99'][trial]
+            result_dict['l100'] = original_simulated['l100'][trial]
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            writer.writerow(result_dict)
     
     print("Experiment results are {}".format(experiment_results))
     mean_result = filter_policy.mean_list(experiment_results['latency_99'])
