@@ -795,7 +795,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config, last_comp
         performance_improvement = simulated_mean - previous_mean
 
         with open('individual_results.csv','a') as csvfile:
-            field_names = ['iter', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
+            field_names = ['time', 'iteration', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
             for trial in range(len(original_simulated['l0'])):
                 result_dict = {}
                 result_dict['time'] = time_delta.seconds
