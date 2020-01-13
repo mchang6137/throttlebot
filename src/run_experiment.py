@@ -580,7 +580,7 @@ def measure_apt_app(workload_config, experiment_iterations):
             percentile_perf = collect_percentiles(traffic_client, 'percentile{}'.format(c))
             for percentile in percentile_perf:
                 if percentile_perf[percentile] == -1:
-                    latency_p['l{}'.format(percentile)] += percentile_perf[100] * 0.33
+                    latency_p['l{}'.format(percentile)] += latencyt * 0.33
                 else:
                     latency_p['l{}'.format(percentile)] += percentile_perf[percentile]
             
