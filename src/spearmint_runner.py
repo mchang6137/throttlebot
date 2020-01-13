@@ -1,4 +1,5 @@
 import subprocess
+import csv
 import multiprocessing as mp
 import time
 import json
@@ -120,5 +121,19 @@ def poll_for_best_result(queue, time_to_beat, process_to_terminate, duration, po
     process_to_terminate.kill()
 
 
-
+with open('/home/ubuntu/throttlebot/src/spearmint_results.csv','a') as csvfile:
+    field_names = ['time', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
+    result_dict = {}
+    # To determine time elapsed, we will record the time at the start of the experiment
+    result_dict['time'] = datetime.now()
+    result_dict['l0'] = 0
+    result_dict['l25'] = 0
+    result_dict['l50'] = 0
+    result_dict['l75'] = 0
+    result_dict['l90'] = 0
+    result_dict['l99'] = 0
+    result_dict['l100'] = 0
+    writer = csv.DictWriter(csvfile, fieldnames=field_names)
+    writer.writerow(result_dict)
+        
 run(iterations=1, time_to_beat=10000, duration=200*60*60, polling_frequency=30)

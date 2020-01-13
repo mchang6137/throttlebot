@@ -207,17 +207,17 @@ def explore_spearmint(workload_config, params):
     # subtract it from the time that the spearmint_runner was initiated
     with open('/home/ubuntu/throttlebot/src/spearmint_results.csv','a') as csvfile:
         field_names = ['time', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
-        for trial in range(len(original_simulated['l0'])):
+        for trial in range(len(experiment_results['l0'])):
             result_dict = {}
             # To determine time elapsed, we will record the time at the start of the experiment
             result_dict['time'] = datetime.datetime.now()
-            result_dict['l0'] = original_simulated['l0'][trial]
-            result_dict['l25'] = original_simulated['l25'][trial]
-            result_dict['l50'] = original_simulated['l50'][trial]
-            result_dict['l75'] = original_simulated['l75'][trial]
-            result_dict['l90'] = original_simulated['l90'][trial]
-            result_dict['l99'] = original_simulated['l99'][trial]
-            result_dict['l100'] = original_simulated['l100'][trial]
+            result_dict['l0'] = experiment_results['l0'][trial]
+            result_dict['l25'] = experiment_results['l25'][trial]
+            result_dict['l50'] = experiment_results['l50'][trial]
+            result_dict['l75'] = experiment_results['l75'][trial]
+            result_dict['l90'] = experiment_results['l90'][trial]
+            result_dict['l99'] = experiment_results['l99'][trial]
+            result_dict['l100'] = experiment_results['l100'][trial]
             writer = csv.DictWriter(csvfile, fieldnames=field_names)
             writer.writerow(result_dict)
     
