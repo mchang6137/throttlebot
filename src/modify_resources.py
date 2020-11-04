@@ -9,9 +9,13 @@ import threading
 
 from weighting_conversions import *
 from remote_execution import *
+from instance_specs import *
 from measure_utilization import *
 from container_information import *
+import redis_resource as resource_datastore
 from get_utilization import *
+from modify_configs import modify_mr_conf, reset_mr_conf
+from mr import MR
 
 import logging
 
@@ -30,7 +34,6 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
-
 # writes all config of vm_ip
 def spark_rewrite_conf(vm_ip, search, replace):
     correct = []
@@ -44,15 +47,44 @@ def spark_rewrite_conf(vm_ip, search, replace):
         close_client(ssh_client)
     logging.info("Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct)))
 
+
 # Sets the resource provision for all containers in a service
-def set_mr_provision(mr, new_mr_allocation, wc=None):
+def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
+    modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
+
+    if mr.resource == 'CPU-CORE':
+        prev_num_of_cores, prev_quota_aggregate = current_allocs(redis_db, mr.service_name, wc)
+        prev_quota_per_core = float(prev_quota_aggregate / prev_num_of_cores)
+        new_quota_aggregate = int(prev_quota_per_core * new_mr_allocation)
+
+        print 'DEBUG: Going from {} cores to {} cores means, {} quota to {} quota'.format(prev_num_of_cores,
+                                                                                          new_mr_allocation,
+                                                                                          prev_quota_aggregate,
+                                                                                          new_quota_aggregate)
+        resource_datastore.write_mr_alloc(redis_db, mr, new_mr_allocation, "core-stress")
+        resource_datastore.write_mr_alloc(redis_db, MR(mr.service_name, 'CPU-QUOTA', []), new_quota_aggregate,
+                                          "core-stress")
+        new_mr_allocation = new_quota_aggregate
+
+    elif mr.resource == 'CPU-QUOTA':
+        prev_num_of_cores, prev_quota_aggregate = current_allocs(redis_db, mr.service_name, wc)
+        max_cores = get_instance_specs(wc['machine_type'])['CPU-CORE']
+        pre_quota_tb = int((float(prev_quota_aggregate) / prev_num_of_cores) * max_cores)
+        new_quota_aggregate = int(float(new_mr_allocation) / float(pre_quota_tb) * prev_quota_aggregate)
+
+        print 'DEBUG: Going from {} quota to {} quota means, {} quota to {} quota'.format(pre_quota_tb,
+                                                                                          new_mr_allocation,
+                                                                                          prev_quota_aggregate,
+                                                                                          new_quota_aggregate)
+        new_mr_allocation = new_quota_aggregate
+        resource_datastore.write_mr_alloc(redis_db, mr, new_quota_aggregate, "core-stress")
+
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         logging.info('STRESSING VM_IP {0} AND CONTAINER {1}, {2} {3}'.format(vm_ip, container_id, mr.resource, new_mr_allocation))
         if mr.resource == 'CPU-CORE':
-            set_cpu_cores(ssh_client, container_id, new_mr_allocation)
+            set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
         elif mr.resource == 'CPU-QUOTA':
-            #TODO: Period should not be hardcoded
             set_cpu_quota(ssh_client, container_id, 250000, new_mr_allocation)
         elif mr.resource == 'DISK':
             set_container_blkio(ssh_client, container_id, new_mr_allocation)
@@ -66,12 +98,13 @@ def set_mr_provision(mr, new_mr_allocation, wc=None):
 
 # Set the resource allocation for multiple MRs
 # without committing the change in provisions to Redis
-def set_multiple_mr_provision(mr_to_allocation):
+def set_multiple_mr_provision(mr_to_allocation, wc, redis_db):
     for mr in mr_to_allocation:
-        set_mr_provision(mr, mr_to_allocation[mr])
+        set_mr_provision(mr, mr_to_allocation[mr], wc, redis_db)
 
 # Reset all mr provisions -- remove ALL resource constraints
-def reset_mr_provision(mr, wc):
+def reset_mr_provision(mr, wc, redis_db):
+    reset_mr_conf(mr, wc, redis_db)
     for vm_ip,container_id in mr.instances:
         ssh_client = get_client(vm_ip)
         logging.info('RESETTING VM_IP {} and container id {}'.format(vm_ip, container_id))
@@ -83,12 +116,34 @@ def reset_mr_provision(mr, wc):
         elif mr.resource == 'DISK':
             reset_container_blkio(ssh_client, container_id)
         elif mr.resource == 'MEMORY':
-            reset_memory_size(ssh_client, container_id)
+            reset_memory_size(ssh_client,  container_id)
         elif mr.resource == 'NET':
             reset_egress_network_bandwidth(ssh_client, container_id)
         else:
             logging.error('Invalid Resource')
         close_client(ssh_client)
+
+def current_allocs(redis_db, service_name, wc):
+    core_mr = MR(service_name, 'CPU-CORE', [])
+    quota_mr = MR(service_name, 'CPU-QUOTA', [])
+
+    try:
+        previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, core_mr, "core-stress")
+    except TypeError:
+        try:
+            previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, core_mr)
+        except TypeError:
+            previous_core_alloc = get_instance_specs(wc['machine_type'])['CPU-CORE']
+    try:
+        previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, quota_mr, "core-stress")
+    except TypeError:
+        try:
+            previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, quota_mr)
+        except TypeError:
+            previous_quota_alloc = get_instance_specs(wc['machine_type'])['CPU-QUOTA']
+
+    return previous_core_alloc, previous_quota_alloc
+
 
 '''Stressing the Network'''
 # Container_to_bandwidth maps Docker container id to the bandwidth that container should be throttled to.
@@ -158,7 +213,7 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
     cpu_quota = int((cpu_quota_percent/100.0) * cpu_period)
     #cpu_quota *= get_num_cores(ssh_client)
-
+    print("Setting cpu quota to {} out of {}".format(cpu_quota, cpu_period))
     throttled_containers = []
     
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)

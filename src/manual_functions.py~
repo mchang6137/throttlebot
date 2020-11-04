@@ -1,0 +1,24 @@
+import argparse
+import numpy as np
+import csv
+import os
+import ConfigParser
+
+from modify_resources import *
+from remote_execution import *
+from poll_cluster_state import *
+from instance_specs import *
+
+def reset_all_resources():
+    vm_list = get_actual_vms()
+    service_placements = get_service_placements(vm_list)
+    all_services = get_actual_services()
+    all_resources = get_stressable_resources()
+    
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config_file", help="Configuration File for Throttlebot Execution")
+    parser.add_argument("--resource_config", help='Default Resource Allocation for Throttlebot')
+    parser.add_argument("--last_completed_iter", type=int, default=0, help="Last iteration completed")
+    args = parser.parse_args()

@@ -1,0 +1,194 @@
+Running in wrapper mode for '354'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 69
+int_val: 39
+int_val: 7
+int_val: 62
+int_val: 66
+int_val: 58
+int_val: 90
+, name: "DISK"
+int_val: 22
+int_val: 7
+int_val: 29
+int_val: 14
+int_val: 11
+int_val: 25
+int_val: 33
+, name: "MEMORY"
+int_val: 33
+int_val: 19
+int_val: 36
+int_val: 30
+int_val: 36
+int_val: 14
+int_val: 10
+, name: "NET"
+int_val: 40
+int_val: 20
+int_val: 36
+int_val: 26
+int_val: 7
+int_val: 14
+int_val: 28
+]
+The paramters are {u'CPU-QUOTA': array([69, 39,  7, 62, 66, 58, 90]), u'NET': array([40, 20, 36, 26,  7, 14, 28]), u'DISK': array([22,  7, 29, 14, 11, 25, 33]), u'MEMORY': array([33, 19, 36, 30, 36, 14, 10])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Setting cpu quota to 97500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, NET 102400.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, DISK 5872025.6
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, MEMORY 712500000.0
+Recovering the memory utilization
+Setting cpu quota to 172500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, NET 204800.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, DISK 18454937.6
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, MEMORY 1237500000.0
+Recovering the memory utilization
+Setting cpu quota to 17500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, NET 184320.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, DISK 24326963.2
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, MEMORY 1350000000.0
+Recovering the memory utilization
+Setting cpu quota to 172500 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, NET 204800.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, DISK 18454937.6
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, MEMORY 1237500000.0
+Recovering the memory utilization
+Setting cpu quota to 17500 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, NET 184320.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, DISK 24326963.2
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, MEMORY 1350000000.0
+Recovering the memory utilization
+Using 5 trials
+52.53.243.115
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,48.421
+
+48.421
+25,827.296
+
+827.296
+50,1133.032
+
+1133.032
+75,1384.889
+
+1384.889
+90,1585.124
+
+1585.124
+99,1989.174
+
+1989.174
+100,2081.053
+
+2081.053
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,18.065
+
+18.065
+25,781.980
+
+781.98
+50,1022.272
+
+1022.272
+75,1291.289
+
+1291.289
+90,1588.414
+
+1588.414
+99,2132.302
+
+2132.302
+100,2163.929
+
+2163.929
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,18.739
+
+18.739
+25,738.957
+
+738.957
+50,959.800
+
+959.8
+75,1120.770
+
+1120.77
+90,1429.683
+
+1429.683
+99,1965.079
+
+1965.079
+100,2019.286
+
+2019.286
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,23.753
+
+23.753
+25,792.570
+
+792.57
+50,1006.608
+
+1006.608
+75,1228.935
+
+1228.935
+90,1428.531
+
+1428.531
+99,1736.911
+
+1736.911
+100,1934.129
+
+1934.129
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,106.998
+
+106.998
+25,756.693
+
+756.693
+50,997.847
+
+997.847
+75,1385.101
+
+1385.101
+90,1725.015
+
+1725.015
+99,2220.752
+
+2220.752
+100,2329.356
+
+2329.356
+Successfully cleared? Cleared entries! 1
+
+{'latency_90': [1585.0, 1588.0, 1430.0, 1429.0, 1725.0], 'latency': [484646.39999999997, 474986.05000000005, 472759.0, 455484.4, 488308.44999999995], 'rps': [108.33, 110.53, 111.05, 115.26, 107.51], 'l90': [1585.124, 1588.414, 1429.683, 1428.531, 1725.015], 'latency_99': [1962.0, 2020.0, 1932.0, 1735.0, 2203.0], 'latency_50': [1133.0, 1022.0, 960.0, 1007.0, 998.0], 'l99': [1989.174, 2132.302, 1965.079, 1736.911, 2220.752], 'l75': [1384.889, 1291.289, 1120.77, 1228.935, 1385.101], 'l50': [1133.032, 1022.272, 959.8, 1006.608, 997.847], 'l25': [827.296, 781.98, 738.957, 792.57, 756.693], 'l0': [48.421, 18.065, 18.739, 23.753, 106.998], 'l100': [2081.053, 2163.929, 2019.286, 1934.129, 2329.356]}
+Experiment results are {'latency_90': [1585.0, 1588.0, 1430.0, 1429.0, 1725.0], 'latency': [484646.39999999997, 474986.05000000005, 472759.0, 455484.4, 488308.44999999995], 'rps': [108.33, 110.53, 111.05, 115.26, 107.51], 'l90': [1585.124, 1588.414, 1429.683, 1428.531, 1725.015], 'latency_99': [1962.0, 2020.0, 1932.0, 1735.0, 2203.0], 'latency_50': [1133.0, 1022.0, 960.0, 1007.0, 998.0], 'l99': [1989.174, 2132.302, 1965.079, 1736.911, 2220.752], 'l75': [1384.889, 1291.289, 1120.77, 1228.935, 1385.101], 'l50': [1133.032, 1022.272, 959.8, 1006.608, 997.847], 'l25': [827.296, 781.98, 738.957, 792.57, 756.693], 'l0': [48.421, 18.065, 18.739, 23.753, 106.998], 'l100': [2081.053, 2163.929, 2019.286, 1934.129, 2329.356]}
+Got result 1970.4
+
+Job file reloaded.
+Completed successfully in 66.37 seconds. [1970.400000]
+setting job 354 complete
+set...

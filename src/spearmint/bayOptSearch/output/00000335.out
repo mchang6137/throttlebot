@@ -1,0 +1,202 @@
+Running in wrapper mode for '335'
+
+Running python job.
+
+[name: "CPU-QUOTA"
+int_val: 38
+int_val: 55
+int_val: 42
+int_val: 79
+int_val: 26
+int_val: 11
+int_val: 56
+, name: "DISK"
+int_val: 11
+int_val: 37
+int_val: 28
+int_val: 40
+int_val: 38
+int_val: 30
+int_val: 9
+, name: "MEMORY"
+int_val: 12
+int_val: 6
+int_val: 5
+int_val: 32
+int_val: 29
+int_val: 10
+int_val: 40
+, name: "NET"
+int_val: 29
+int_val: 23
+int_val: 29
+int_val: 34
+int_val: 29
+int_val: 18
+int_val: 9
+]
+The paramters are {u'CPU-QUOTA': array([38, 55, 42, 79, 26, 11, 56]), u'NET': array([29, 23, 29, 34, 29, 18,  9]), u'DISK': array([11, 37, 28, 40, 38, 30,  9]), u'MEMORY': array([12,  6,  5, 32, 29, 10, 40])}
+{'13.56.14.158': ['haproxy', 'node-app', 'mongo'], '18.144.43.31': ['node-app', 'mongo']}
+Setting cpu quota to 137500 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, NET 117760.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, DISK 31037849.6
+STRESSING VM_IP 13.56.14.158 AND CONTAINER d824175f3227, MEMORY 225000000.0
+Recovering the memory utilization
+Setting cpu quota to 95000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, NET 148480.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, DISK 9227468.8
+STRESSING VM_IP 13.56.14.158 AND CONTAINER cd40be619604, MEMORY 450000000.0
+Recovering the memory utilization
+Setting cpu quota to 105000 out of 250000
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, NET 148480.0
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, DISK 23488102.4
+STRESSING VM_IP 13.56.14.158 AND CONTAINER c21ccad5695a, MEMORY 187500000.0
+Recovering the memory utilization
+Setting cpu quota to 95000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, NET 148480.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, DISK 9227468.8
+STRESSING VM_IP 18.144.43.31 AND CONTAINER 01a0240fb06e, MEMORY 450000000.0
+Recovering the memory utilization
+Setting cpu quota to 105000 out of 250000
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, NET 148480.0
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, DISK 23488102.4
+STRESSING VM_IP 18.144.43.31 AND CONTAINER d4df0b3c1712, MEMORY 187500000.0
+Recovering the memory utilization
+Using 5 trials
+52.53.243.115
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,34.092
+
+34.092
+25,810.553
+
+810.553
+50,1860.239
+
+1860.239
+75,3352.506
+
+3352.506
+90,5095.351
+
+5095.351
+99,5818.242
+
+5818.242
+100,5843.523
+
+5843.523
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,43.818
+
+43.818
+25,801.979
+
+801.979
+50,1873.132
+
+1873.132
+75,2795.116
+
+2795.116
+90,3363.746
+
+3363.746
+99,3947.377
+
+3947.377
+100,4072.423
+
+4072.423
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,17.387
+
+17.387
+25,501.720
+
+501.72
+50,1816.853
+
+1816.853
+75,2869.562
+
+2869.562
+90,3413.076
+
+3413.076
+99,3855.051
+
+3855.051
+100,3961.563
+
+3961.563
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,21.261
+
+21.261
+25,650.463
+
+650.463
+50,1865.287
+
+1865.287
+75,2975.256
+
+2975.256
+90,3515.630
+
+3515.63
+99,3984.070
+
+3984.07
+100,4101.113
+
+4101.113
+Successfully cleared? Cleared entries! 1
+
+ab -p post.json -T application/json -n 350 -c 150 -q -e results_file http://13.56.14.158/api/todos > output.txt && echo Done
+0,41.782
+
+41.782
+25,983.624
+
+983.624
+50,1950.223
+
+1950.223
+75,2750.420
+
+2750.42
+90,3494.262
+
+3494.262
+99,3875.261
+
+3875.261
+100,3993.733
+
+3993.733
+Successfully cleared? Cleared entries! 1
+
+{'latency_90': [5095.0, 3364.0, 3413.0, 3516.0, 3494.0], 'latency': [1282035.3, 961739.1, 933041.55, 943715.15, 974948.8], 'rps': [40.95, 54.59, 56.27, 55.63, 53.85], 'l90': [5095.351, 3363.746, 3413.076, 3515.63, 3494.262], 'latency_99': [5774.0, 3850.0, 3841.0, 3971.0, 3872.0], 'latency_50': [1860.0, 1873.0, 1817.0, 1865.0, 1950.0], 'l99': [5818.242, 3947.377, 3855.051, 3984.07, 3875.261], 'l75': [3352.506, 2795.116, 2869.562, 2975.256, 2750.42], 'l50': [1860.239, 1873.132, 1816.853, 1865.287, 1950.223], 'l25': [810.553, 801.979, 501.72, 650.463, 983.624], 'l0': [34.092, 43.818, 17.387, 21.261, 41.782], 'l100': [5843.523, 4072.423, 3961.563, 4101.113, 3993.733]}
+Experiment results are {'latency_90': [5095.0, 3364.0, 3413.0, 3516.0, 3494.0], 'latency': [1282035.3, 961739.1, 933041.55, 943715.15, 974948.8], 'rps': [40.95, 54.59, 56.27, 55.63, 53.85], 'l90': [5095.351, 3363.746, 3413.076, 3515.63, 3494.262], 'latency_99': [5774.0, 3850.0, 3841.0, 3971.0, 3872.0], 'latency_50': [1860.0, 1873.0, 1817.0, 1865.0, 1950.0], 'l99': [5818.242, 3947.377, 3855.051, 3984.07, 3875.261], 'l75': [3352.506, 2795.116, 2869.562, 2975.256, 2750.42], 'l50': [1860.239, 1873.132, 1816.853, 1865.287, 1950.223], 'l25': [810.553, 801.979, 501.72, 650.463, 983.624], 'l0': [34.092, 43.818, 17.387, 21.261, 41.782], 'l100': [5843.523, 4072.423, 3961.563, 4101.113, 3993.733]}
+----------------------------------------
+Problem running the job:
+(<type 'exceptions.TypeError'>, TypeError('not all arguments converted during string formatting',), <traceback object at 0x7fd5c0623e18>)
+Traceback (most recent call last):
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 42, in job_runner
+    elif job.language == PYTHON: run_python_job(job)
+  File "/home/ubuntu/throttlebot/src/spearmint/spearmint/runner.py", line 144, in run_python_job
+    log("Got result %f\n" % (result))
+TypeError: not all arguments converted during string formatting
+None
+----------------------------------------
+Job file reloaded.
+Could not find value in output file.
+Job failed in 74.31 seconds.

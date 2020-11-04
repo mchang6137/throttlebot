@@ -82,8 +82,7 @@ def revert_inverted_baseline(redis_db):
     all_mr_list = resource_datastore.get_all_mrs(redis_db)
     for mr in all_mr_list:
         current_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
-        new_alloc = convert_percent_to_raw(mr, current_mr_alloc, 0)
-        mr_to_alloc[mr] = new_alloc
+        mr_to_alloc[mr] = current_mr_alloc
     return mr_to_alloc
     
 # Only schedule a single resource

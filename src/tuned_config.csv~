@@ -1,0 +1,19 @@
+SERVICE,RESOURCE,AMOUNT,REPR
+<<<<<<< HEAD
+balancer,DISK,52114227.0,RAW
+balancer,NET,501759.0,RAW
+balancer,CPU-QUOTA,140.0,RAW
+=======
+quilt/mongo,NET,419520.0,RAW
+haproxy:1.7,MEMORY,656250000.0,RAW
+quilt/mongo,DISK,14680064.0,RAW
+node-app:node-todo.git,CPU-QUOTA,90.0,RAW
+haproxy:1.7,DISK,14680064.0,RAW
+haproxy:1.7,NET,220800.0,RAW
+haproxy:1.7,CPU-QUOTA,35.0,RAW
+quilt/mongo,CPU-QUOTA,72.0,RAW
+node-app:node-todo.git,NET,529920.0,RAW
+node-app:node-todo.git,DISK,37748736.0,RAW
+quilt/mongo,MEMORY,656250000.0,RAW
+node-app:node-todo.git,MEMORY,1687500000.0,RAW
+>>>>>>> rahulbranch

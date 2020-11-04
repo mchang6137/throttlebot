@@ -34,6 +34,7 @@ import redis.client
 import redis_client as tbot_datastore
 import redis_resource as resource_datastore
 import modify_resources as resource_modifier
+from modify_configs import init_conf_functions
 import visualizer as chart_generator
 
 import logging
@@ -80,7 +81,12 @@ def init_service_placement_r(redis_db, default_mr_configuration):
 def init_resource_config(redis_db, default_mr_config, machine_type, wc):
     logging.info('Initializing the Resource Configurations in the containers')
     instance_specs = get_instance_specs(machine_type)
-    for mr in default_mr_config:
+    init_conf_functions(wc, default_mr_config, redis_db)
+
+    core_mr = [mr for mr in default_mr_config if mr.resource == 'CPU-CORE']
+    non_core_mr = [mr for mr in default_mr_config if mr.resource != 'CPU-CORE']
+    # Makes sure that CPU_CORE MR always come last
+    for mr in non_core_mr + core_mr:
         new_resource_provision = int(default_mr_config[mr])
         if check_change_mr_viability(redis_db, mr, new_resource_provision)[0] is False:
             logging.error('Initial Resource provisioning for {} is too much. Exiting...'.format(mr.to_string()))
@@ -88,6 +94,7 @@ def init_resource_config(redis_db, default_mr_config, machine_type, wc):
 
         # Enact the change in resource provisioning
         set_mr_provision_detect_id_change(redis_db, mr, new_resource_provision, wc)
+        resource_modifier.set_mr_provision(mr, new_resource_provision, wc, redis_db)
 
         # Reflect the change in Redis
         resource_datastore.write_mr_alloc(redis_db, mr, new_resource_provision)
@@ -415,7 +422,7 @@ def determine_reallocation(redis_db, colocated_nimr_list, vm_to_nimr, imr,
     return min_vm_removal,nimr_reduction
 
 # Only enact MR resource changes but do not commit them!
-def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
+def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
         logging.info('Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc))
@@ -427,7 +434,7 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal):
     set_mr_provision_detect_id_change(redis_db, imr, int(new_imr_alloc), None)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
-def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal):
+def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
         set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), None)
@@ -535,6 +542,7 @@ def print_imr_rankings(ranking_list, output_csv='ranked_imr.csv'):
 def find_colocated_nimrs(redis_db, imr, mr_working_set, baseline_mean, sys_config, workload_config):
     logging.info('Finding colocated NIMRs')
     experiment_trials = sys_config['trials']
+    print("Num trials is {}".format(experiment_trials))
     stress_weight = sys_config['stress_weight']
     error_tolerance = sys_config['error_tolerance']
 
@@ -620,6 +628,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
     optimize_for_lowest = workload_config['optimize_for_lowest']
 
     filter_policy= filter_config['filter_policy']
+    workload_config['machine_type'] = machine_type
 
     redis_db = redis.StrictRedis(host=redis_host, port=6379, db=0)
     if last_completed_iter == 0:
@@ -688,7 +697,9 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
                                            {},
                                            mean_list(current_performance[preferred_performance_metric]),
                                            mean_list(current_performance[preferred_performance_metric]),
-                                           time_delta.seconds, 0)
+                                           np.std(np.array(current_performance[preferred_performance_metric])), 
+                                           time_delta.seconds, 0, 
+                                           all_results=current_performance[preferred_performance_metric])
 
     logging.info('============================================')
     logging.info('\n' * 2)
@@ -697,7 +708,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
     # Initialize the working set of MRs to all the MRs
 
     mr_working_set = resource_datastore.get_all_mrs(redis_db)
-    resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+    #resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
@@ -864,10 +875,12 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
                 continue
 
             # Change MR provisions without committing the actions
-            simulate_mr_provisions(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal)
+            simulate_mr_provisions(redis_db, current_mimr, imr_improvement_proposal, nimr_diff_proposal, workload_config)
             simulated_performance = measure_runtime(workload_config, baseline_trials)
+            original_simulated = deepcopy(simulated_performance)
             simulated_performance[preferred_performance_metric] = remove_outlier(simulated_performance[preferred_performance_metric])
             simulated_mean = mean_list(simulated_performance[preferred_performance_metric])
+            simulated_std = np.std(np.array(simulated_performance[preferred_performance_metric]))
 
             current_perf_mean = mean_list(current_performance[preferred_performance_metric])
             is_perf_improved = is_performance_improved(current_perf_mean, simulated_mean, optimize_for_lowest, within_x=error_tolerance)
@@ -893,14 +906,32 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
         # Test the new performance after potential resource stealing
         improved_performance = simulated_performance
         improved_mean = simulated_mean
+        improved_std = simulated_std
         previous_mean = mean_list(current_performance[preferred_performance_metric])
         performance_improvement = simulated_mean - previous_mean
+
+        with open('individual_results.csv','a') as csvfile:
+            field_names = ['iter', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
+            for trial in range(len(original_simulated['l0'])):
+                result_dict = {}
+                result_dict['time'] = time_delta.seconds
+                result_dict['iteration'] = experiment_count
+                result_dict['l0'] = original_simulated['l0'][trial]
+                result_dict['l25'] = original_simulated['l25'][trial]
+                result_dict['l50'] = original_simulated['l50'][trial]
+                result_dict['l75'] = original_simulated['l75'][trial]
+                result_dict['l90'] = original_simulated['l90'][trial]
+                result_dict['l99'] = original_simulated['l99'][trial]
+                result_dict['l100'] = original_simulated['l100'][trial]
+                writer = csv.DictWriter(csvfile, fieldnames=field_names)
+                writer.writerow(result_dict)
 
         # Write a summary of the experiment's iterations to Redis
         tbot_datastore.write_summary_redis(redis_db, experiment_count, effective_mimr,
                                            performance_improvement, action_taken,
-                                           analytic_mean, improved_mean,
-                                           time_delta.seconds, cumulative_mr_count)
+                                           analytic_mean, improved_mean, improved_std,
+                                           time_delta.seconds, cumulative_mr_count,
+                                           all_results=simulated_performance[preferred_performance_metric])
 
         current_performance = improved_performance
 
@@ -1096,6 +1127,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             return None
         
         median_alloc_mean = mean_list(median_alloc_perf[metric])
+        median_alloc_std = np.std(np.array(median_alloc_perf[metric]))
 
 
         # If the median alloc performance is better, rewind the improvement back to this point
@@ -1108,8 +1140,8 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             new_action[mr] = median_alloc - new_mr_alloc
             tbot_datastore.write_summary_redis(redis_db, experiment_count, mr,
                                                perf_improvement, new_action,
-                                               median_alloc_mean, median_alloc_mean,
-                                               0, 0, is_backtrack=True)
+                                               median_alloc_mean, median_alloc_mean, median_alloc_std, 
+                                               0, 0, is_backtrack=True, all_results=median_alloc_perf[metric])
 
             results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
             logging.info('Results from backtrack are {}'.format(results))

@@ -24,7 +24,7 @@ def reset_resources():
     logging.info('Resetting provisions for {}'.format([mr.to_string() for mr in mr_list]))
 
     for mr in mr_list:
-        resource_modifier.reset_mr_provision(mr)
+        resource_modifier.reset_mr_provision(mr, workload_config)
 
     logging.info('All MRs reset')
 

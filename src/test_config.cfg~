@@ -1,0 +1,69 @@
+[Basic]
+<<<<<<< HEAD
+baseline_trials = 10
+trials = 7
+stress_weight = -50
+improve_weight = 50
+stress_these_resources = CPU-QUOTA,NET,DISK
+stress_these_services = balancer
+stress_these_machines = 100.96.1.4
+=======
+
+baseline_trials = 1
+trials = 1
+stress_weight = -50
+improve_weight = 50
+stress_these_resources = CPU-CORE,CPU-QUOTA,DISK,NET,MEMORY
+stress_these_services = *
+stress_these_machines = *
+>>>>>>> rahulbranch
+redis_host = localhost
+stress_policy = ALL
+machine_type = m4.2xlarge
+quilt_overhead = 10
+<<<<<<< HEAD
+gradient_mode = single
+rerun_baseline = False
+setting_mode = cloud
+fill_services_first =
+num_iterations = 10
+error_tolerance = 0.2
+nimr_squeeze_only = False
+known_imr_service =
+known_imr_resource = CPU-QUOTA,NET
+
+[Workload]
+type = kubernetes
+request_generator = 54.153.105.217
+frontend = 13.57.226.210
+additional_args = url
+additional_arg_values = info
+=======
+gradient_mode = inverted
+rerun_baseline = False
+nimr_squeeze_only = False
+num_iterations = 10000
+error_tolerance = 0.02
+setting_mode = cloud
+fill_services_first =
+
+[Workload]
+
+type = bcd
+request_generator = 13.56.79.215
+frontend = 13.56.79.215
+additional_args = command
+additional_arg_values = load_latency
+>>>>>>> rahulbranch
+tbot_metric = latency
+optimize_for_lowest = True
+performance_target = 10
+include_warmup = False
+
+[Filter]
+
+filter_policy =
+stress_amount = -50
+pipeline_services =
+filter_exp_trials = 5
+pipeline_partitions = 3

@@ -2,6 +2,7 @@ import redis.client
 import redis_client as tbot_datastore
 
 from mr import MR
+import json
 
 '''
 Get Information relating to MRs
@@ -73,13 +74,18 @@ def get_working_set_key(redis_db, iteration):
 # Writes a list of MRs to the working set
 def write_mr_working_set(redis_db, mr_to_add, iteration):
     list_name = get_working_set_key(redis_db, iteration)
-    redis_db.lpush(list_name, mr_to_add)
+    print mr_to_add
+    for mr in mr_to_add:
+        print mr.to_string()
+    list_to_add = json.dumps(mr_to_add)
+    redis_db.set(list_name, list_to_add)
 
 # Reads all the MRs in the working set
 def read_mr_working_set(redis_db, iteration):
     list_name = get_working_set_key(redis_db, iteration)
-    mr_str_list = redis_db.lrange(list_name, 0, -1)
-    return mr_str_to_obj(redis_db, mr_str_list)
+    # mr_str_list = redis_db.lrange(list_name, 0, -1)
+    list_to_load = json.loads(redis.db.get(list_name))
+    return mr_str_to_obj(redis_db, list_to_load)
 
 '''
 Machine Consumption index maps a particular VM (identified by IP address) to 
@@ -130,8 +136,6 @@ def read_machine_floor(redis_db, machine_ip):
     for resource in machine_capacity:
         machine_floor[resource] = float(machine_floor[resource])
     return machine_floor
-
-    
 
 
     

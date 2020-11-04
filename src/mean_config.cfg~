@@ -1,0 +1,39 @@
+[Basic]
+baseline_trials = 5
+trials = 5
+stress_weight = -30
+improve_weight = 30
+stress_these_resources = CPU-QUOTA,DISK,NET
+stress_these_services = *
+stress_these_machines = *
+redis_host = 0.0.0.0
+stress_policy = ALL
+machine_type = m4.large
+quilt_overhead = 10
+gradient_mode = single
+rerun_baseline = False
+setting_mode = cloud
+fill_services_first =
+nimr_squeeze_only = False
+num_iterations = 10
+known_imr_service =
+known_imr_resource =
+error_tolerance = 0.1
+
+[Workload]
+type = todo-app
+request_generator = 13.57.3.73
+frontend = 54.67.46.144
+additional_args = command
+additional_arg_values = load_latency
+tbot_metric = latency_99
+optimize_for_lowest = True
+performance_target = 10
+include_warmup = False
+workload_num = 1
+
+[Filter]
+filter_policy = pipeline
+stress_amount = -30
+pipeline_services = RANDOM
+filter_exp_trials = 5
