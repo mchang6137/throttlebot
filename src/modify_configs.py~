@@ -1,0 +1,47 @@
+'''
+Function to help decide how to vary the amount of software configurations
+This used to jointly scale resource and software configurations
+
+Mostly hard-coded, but ultimately will require some architecting
+
+'''
+
+# Modifies the workload_config based on the services
+# Return the workload_config by reference
+def generate_conf_functions(workload_config):
+    if workload_config['type'] == 'bcd':
+        return generate_bcd_function(workload_config)
+    else:
+        return workload_config
+
+# bcd has two services that need to generate configurations
+# 1.) bcd-spark-master (master service)
+# 2.) bcd-spark (worker service)
+def generate_bcd_function(workload_config):
+    all_vm_ip = get_actual_vms()
+
+    # This doesn't belong in this function but let's deal with this later
+    # Task for Will Wang
+    service_to_deployment = get_service_placements(all_vm_ip)
+    workload_config['request_generator'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+    workload_config['frontend'] = [service_to_deployment['hantaowang/bcd-spark-master'][0][0]]
+    workload_config['additional_args'] = {'container_id': service_to_deployment['hantaowang/bcd-spark-master'][0][1]}
+
+    # Spark Executor cores and driver cores
+    # WILL: Where are these magic numbers from?
+    workload_config['CPU-CORE-CONFIG'] = {'hantaowang/bcd-spark-master': ('spark.executor.cores','8'),
+                                          'hantaowang/bcd-spark': ('spark.driver.cores', '8')} 
+    # Will: what is this field for? 'spark.cores.max': '48'
+
+    executor_memory = str(int(32 * 0.8)) + 'g')
+    driver_memory = str(int(32 * 0.8)) + 'g'
+    workload_config['MEMORY-CONFIG'] = {'hantaowang/bcd-spark-master': ('spark.driver.memory', driver_memory),
+                                        'hantaowang/bcd-spark': ('spark.executor.memory', executor_memory) }
+
+    workload_config['CPU-QUOTA-CONFIG'] = None
+    workload_config['DISK-CONFIG'] = None
+    workload_config['NET-CONFIG'] = None
+
+    return workload_config
+}
+    

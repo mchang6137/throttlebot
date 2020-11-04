@@ -1,0 +1,80 @@
+Complete requests:      700
+Failed requests:        0
+Non-2xx responses:      700
+Total transferred:      290500 bytes
+Total body sent:        98000
+HTML transferred:       98700 bytes
+Requests per second:    241.47 [#/sec] (mean)
+Time per request:       828.275 [ms] (mean)
+Time per request:       4.141 [ms] (mean, across all concurrent requests)
+Transfer rate:          97.86 [Kbytes/sec] received
+                        33.01 kb/s sent
+                        130.87 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    6  38.6      4    1023
+Processing:   187  301  59.8    294     506
+Waiting:      133  245  65.2    239     421
+Total:        217  307  70.1    301    1211
+
+Percentage of the requests served within a certain time (ms)
+  50%    301
+  66%    303
+  75%    308
+  80%    308
+  90%    425
+  95%    427
+  98%    479
+  99%    516
+ 100%   1211 (longest request)
+This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 100.70.249.135 (be patient).....done
+
+
+Server Software:        
+Server Hostname:        100.70.249.135
+Server Port:            8080
+
+Document Path:          //
+Document Length:        141 bytes
+
+Concurrency Level:      200
+Time taken for tests:   10.804 seconds
+Complete requests:      700
+Failed requests:        0
+Non-2xx responses:      700
+Total transferred:      290500 bytes
+Total body sent:        98000
+HTML transferred:       98700 bytes
+Requests per second:    64.79 [#/sec] (mean)
+Time per request:       3086.819 [ms] (mean)
+Time per request:       15.434 [ms] (mean, across all concurrent requests)
+Transfer rate:          26.26 [Kbytes/sec] received
+                        8.86 kb/s sent
+                        35.12 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0  426 744.7      6    3049
+Processing:    70  438 1056.4    203    7089
+Waiting:       29  401 1052.4    185    7050
+Total:         95  864 1231.7    258    7094
+
+Percentage of the requests served within a certain time (ms)
+  50%    258
+  66%   1191
+  75%   1209
+  80%   1216
+  90%   1775
+  95%   3336
+  98%   3567
+  99%   7093
+ 100%   7094 (longest request)
+This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+

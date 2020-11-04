@@ -1,0 +1,19 @@
+import json
+
+services = ['spark-worker', 'spark-master']
+mr = ['cpu', 'memory', 'disk', 'network']
+
+overall_config = {}
+overall_config['language'] = 'PYTHON'
+overall_config['main-file'] = 'bayOpt.py'
+overall_config['experiment-name'] = 'spark-bcd'
+overall_config['likelihood'] = 'NOISELESS'
+overall_config['variables'] = {}
+
+resource_configuration = {}
+
+for service in services:
+
+
+with open('config.json', 'w') as fp:
+    json.dump(placement_dict, fp)

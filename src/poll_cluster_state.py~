@@ -1,0 +1,5 @@
+        role,ip = info
+                if role == 'Master':
+                                continue
+                                    ips.append(ip)
+                                        return ips~

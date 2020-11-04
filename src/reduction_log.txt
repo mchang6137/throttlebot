@@ -1,0 +1,2366 @@
+Round 2
+Can now fit into 4 bins
+Action Taken for haproxy:1.7,MEMORY is -933333333.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0haproxy:1.7,MEMORY,933333333.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0quilt/mongo,MEMORY,3466666668.0node-app:node-todo.git,MEMORY,1866666666.0
+
+Round 3
+Can now fit into 4 bins
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,MEMORY is -933333333.0
+quilt/mongo,NET,155307.0haproxy:1.7,MEMORY,933333333.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0quilt/mongo,MEMORY,3466666668.0node-app:node-todo.git,MEMORY,933333333.0
+
+Round 4
+Can now fit into 3 bins
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for haproxy:1.7,MEMORY is -466666666.0
+Action Taken for haproxy:1.7,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for quilt/mongo,MEMORY is -1733333334.0
+quilt/mongo,NET,77653.0haproxy:1.7,MEMORY,466666667.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0quilt/mongo,MEMORY,1733333334.0node-app:node-todo.git,MEMORY,933333333.0
+
+Round 5
+Can now fit into 2 bins
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for haproxy:1.7,MEMORY is -233333333.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+Action Taken for quilt/mongo,MEMORY is -866666667.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,233333334.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0quilt/mongo,MEMORY,866666667.0node-app:node-todo.git,MEMORY,933333333.0
+
+Round 6
+Can now fit into 2 bins
+Action Taken for haproxy:1.7,MEMORY is -116666667.0
+Action Taken for haproxy:1.7,NET is -10453.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for node-app:node-todo.git,MEMORY is -466666666.0
+Action Taken for node-app:node-todo.git,DISK is -1085712.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,116666667.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,1085732.0quilt/mongo,MEMORY,866666667.0node-app:node-todo.git,MEMORY,466666667.0
+
+Round 7
+Can now fit into 2 bins
+Action Taken for haproxy:1.7,MEMORY is -58333333.0
+Action Taken for quilt/mongo,MEMORY is -433333333.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,DISK is -542856.0
+Action Taken for node-app:node-todo.git,MEMORY is -233333333.0
+Action Taken for haproxy:1.7,NET is -5227.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,58333334.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,542876.0quilt/mongo,MEMORY,433333334.0node-app:node-todo.git,MEMORY,233333334.0
+
+Round 8
+Can now fit into 2 bins
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for node-app:node-todo.git,MEMORY is -116666667.0
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for quilt/mongo,MEMORY is -216666667.0
+Action Taken for node-app:node-todo.git,DISK is -271428.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,58333334.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,271448.0quilt/mongo,MEMORY,216666667.0node-app:node-todo.git,MEMORY,116666667.0
+
+Step 9, no pipelines found, increasing partition size to 4
+Round 10
+Can now fit into 2 bins
+Action Taken for haproxy:1.7,MEMORY is -29166667.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,MEMORY is -58333333.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for node-app:node-todo.git,DISK is -135714.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,29166667.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,135734.0quilt/mongo,MEMORY,216666667.0node-app:node-todo.git,MEMORY,58333334.0
+
+Round 11
+Can now fit into 2 bins
+Action Taken for haproxy:1.7,MEMORY is -14583333.0
+Action Taken for quilt/mongo,DISK is -1008162.0
+Action Taken for quilt/mongo,CPU-QUOTA is -2.75
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for node-app:node-todo.git,DISK is -67857.0
+Action Taken for node-app:node-todo.git,MEMORY is -29166667.0
+quilt/mongo,NET,38826.0haproxy:1.7,MEMORY,14583334.0quilt/mongo,DISK,1008182.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,2.75node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,67877.0quilt/mongo,MEMORY,216666667.0node-app:node-todo.git,MEMORY,29166667.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -119467.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,MEMORY is -1333333333.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,119466.0haproxy:1.7,MEMORY,1866666666.0quilt/mongo,DISK,24816299.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,67.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0quilt/mongo,MEMORY,1333333334.0node-app:node-todo.git,MEMORY,1866666666.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'quilt/mongo']}
+Action Taken for quilt/mongo,NET is -59733.0
+Action Taken for haproxy:1.7,MEMORY is -933333333.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for quilt/mongo,MEMORY is -666666667.0
+Action Taken for quilt/mongo,CPU-QUOTA is -33.5
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,MEMORY is -933333333.0
+quilt/mongo,NET,59733.0haproxy:1.7,MEMORY,933333333.0quilt/mongo,DISK,24816299.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0quilt/mongo,MEMORY,666666667.0node-app:node-todo.git,MEMORY,933333333.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7']}
+Action Taken for haproxy:1.7,MEMORY is -466666666.0
+Action Taken for quilt/mongo,DISK is -12408139.0
+Action Taken for quilt/mongo,MEMORY is -333333333.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+Action Taken for node-app:node-todo.git,MEMORY is -466666666.0
+quilt/mongo,NET,59733.0haproxy:1.7,MEMORY,466666667.0quilt/mongo,DISK,12408160.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0quilt/mongo,MEMORY,333333334.0node-app:node-todo.git,MEMORY,466666667.0
+
+Round 6
+Can now fit into 2 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo']}
+Action Taken for quilt/mongo,NET is -29867.0
+Action Taken for haproxy:1.7,MEMORY is -233333333.0
+Action Taken for quilt/mongo,MEMORY is -166666667.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -16.75
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,MEMORY is -233333333.0
+quilt/mongo,NET,29866.0haproxy:1.7,MEMORY,233333334.0quilt/mongo,DISK,12408160.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,16.75node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0quilt/mongo,MEMORY,166666667.0node-app:node-todo.git,MEMORY,233333334.0
+
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'quilt/mongo']}
+Action Taken for quilt/mongo,CPU-QUOTA is -33.5
+Action Taken for node-app:node-todo.git,MEMORY is -116666667.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,DISK is -16208130.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,301653.0haproxy:1.7,MEMORY,233333334.0quilt/mongo,DISK,16208151.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0quilt/mongo,MEMORY,3483333333.0node-app:node-todo.git,MEMORY,116666667.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'quilt/mongo']}
+Action Taken for quilt/mongo,NET is -150827.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for node-app:node-todo.git,MEMORY is -58333333.0
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for node-app:node-todo.git,DISK is -1085712.0
+quilt/mongo,NET,150826.0haproxy:1.7,MEMORY,233333334.0quilt/mongo,DISK,16208151.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,1085732.0quilt/mongo,MEMORY,3483333333.0node-app:node-todo.git,MEMORY,58333334.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'quilt/mongo']}
+quilt/mongo,NET,150826.0haproxy:1.7,MEMORY,233333334.0quilt/mongo,DISK,16208151.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,1085732.0quilt/mongo,MEMORY,3483333333.0node-app:node-todo.git,MEMORY,58333334.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7']}
+Action Taken for haproxy:1.7,MEMORY is -116666667.0
+Action Taken for quilt/mongo,DISK is -8104065.0
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for node-app:node-todo.git,MEMORY is -29166667.0
+Action Taken for quilt/mongo,MEMORY is -1741666666.0
+quilt/mongo,NET,150826.0haproxy:1.7,MEMORY,116666667.0quilt/mongo,DISK,8104086.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,33.5node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,1085732.0quilt/mongo,MEMORY,1741666667.0node-app:node-todo.git,MEMORY,29166667.0
+
+Round 6
+Can now fit into 2 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo']}
+Action Taken for haproxy:1.7,MEMORY is -58333333.0
+Action Taken for quilt/mongo,NET is -75413.0
+Action Taken for quilt/mongo,CPU-QUOTA is -16.75
+Action Taken for node-app:node-todo.git,MEMORY is -14583333.0
+Action Taken for node-app:node-todo.git,DISK is -542856.0
+quilt/mongo,NET,75413.0haproxy:1.7,MEMORY,58333334.0quilt/mongo,DISK,8104086.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,16.75node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,542876.0quilt/mongo,MEMORY,1741666667.0node-app:node-todo.git,MEMORY,14583334.0
+
+Round 7
+Can now fit into 2 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,MEMORY is -29166667.0
+Action Taken for quilt/mongo,MEMORY is -870833333.0
+Action Taken for quilt/mongo,CPU-QUOTA is -8.375
+Action Taken for node-app:node-todo.git,NET is -2613.0
+Action Taken for node-app:node-todo.git,DISK is -271428.0
+Action Taken for node-app:node-todo.git,MEMORY is -7291667.0
+quilt/mongo,NET,75413.0haproxy:1.7,MEMORY,29166667.0quilt/mongo,DISK,8104086.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,8.375node-app:node-todo.git,NET,2613.0node-app:node-todo.git,DISK,271448.0quilt/mongo,MEMORY,870833334.0node-app:node-todo.git,MEMORY,7291667.0
+
+Round 8
+Can now fit into 2 bins, imr aware is True
+The placement groups are {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,MEMORY is -14583333.0
+Action Taken for quilt/mongo,MEMORY is -435416667.0
+Action Taken for node-app:node-todo.git,NET is -1307.0
+Action Taken for node-app:node-todo.git,MEMORY is -3645833.0
+Action Taken for node-app:node-todo.git,DISK is -135714.0
+quilt/mongo,NET,75413.0haproxy:1.7,MEMORY,14583334.0quilt/mongo,DISK,8104086.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,8.375node-app:node-todo.git,NET,1306.0node-app:node-todo.git,DISK,135734.0quilt/mongo,MEMORY,435416667.0node-app:node-todo.git,MEMORY,3645834.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,4342868.0
+
+Step 5, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for haproxy:1.7,DISK is -542856.0
+Action Taken for node-app:node-todo.git,DISK is -1085712.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,542876.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,1085732.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Step 5, no pipelines found, increasing partition size to 6
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0
+
+Round 9
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,2171444.0
+
+Round 10
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -1085712.0
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,1085732.0
+
+Round 11
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -19413.0
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for node-app:node-todo.git,NET is -2613.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,19413.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,2613.0node-app:node-todo.git,DISK,1085732.0
+
+Round 12
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -9707.0
+Action Taken for node-app:node-todo.git,DISK is -542856.0
+Action Taken for quilt/mongo,DISK is -1008162.0
+Action Taken for node-app:node-todo.git,NET is -1307.0
+Action Taken for haproxy:1.7,NET is -5227.0
+quilt/mongo,NET,9706.0quilt/mongo,DISK,1008182.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,1306.0node-app:node-todo.git,DISK,542876.0
+
+Round 13
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -653.0
+quilt/mongo,NET,9706.0quilt/mongo,DISK,1008182.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,653.0node-app:node-todo.git,DISK,542876.0
+
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Step 5, no pipelines found, increasing partition size to 4
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Step 7, no pipelines found, increasing partition size to 6
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,2171444.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Step 3, no pipelines found, increasing partition size to 6
+Step 4, no pipelines found, increasing partition size to 8
+Step 5, no pipelines found, increasing partition size to 10
+Step 6, no pipelines found, increasing partition size to 10
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 9, no pipelines found, increasing partition size to 10
+Round 10
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 11, no pipelines found, increasing partition size to 10
+Round 12
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 13, no pipelines found, increasing partition size to 10
+Step 14, no pipelines found, increasing partition size to 10
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 7, no pipelines found, increasing partition size to 6
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,NET is -10453.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for quilt/mongo,DISK is -1008162.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,1008182.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 10
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -504081.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,504101.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 11
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,NET is -5227.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,504101.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 12
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for quilt/mongo,DISK is -252040.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,252061.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Step 3, no pipelines found, increasing partition size to 6
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,CPU-QUOTA is -23.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,23.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,23.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 10
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -4342847.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,23.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 11
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for haproxy:1.7,DISK is -2171424.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,23.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 12
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -2.75
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,23.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,2.75node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Step 5, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,17371409.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,77653.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Step 10, no pipelines found, increasing partition size to 6
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0
+
+Step 8, no pipelines found, increasing partition size to 6
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for node-app:node-todo.git,DISK is -1085712.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,1085732.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -19413.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,19413.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Step 4, no pipelines found, increasing partition size to 6
+Step 5, no pipelines found, increasing partition size to 8
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -2171424.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 9, no pipelines found, increasing partition size to 10
+Round 10
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 11
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 12
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 13
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Step 14, no pipelines found, increasing partition size to 10
+Round 15
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,2171444.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Step 3, no pipelines found, increasing partition size to 4
+Step 4, no pipelines found, increasing partition size to 6
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,11.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -5.5
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,5.5node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -2.75
+Action Taken for node-app:node-todo.git,NET is -10453.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,2.75node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,17371409.0
+
+Step 8, no pipelines found, increasing partition size to 6
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -1.375
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,1.375node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,17371409.0
+
+Step 10, no pipelines found, increasing partition size to 8
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 8
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Round 9
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,17371409.0
+
+Round 10
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Round 11
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 12
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 13
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -542856.0
+Action Taken for haproxy:1.7,NET is -5227.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,542876.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 14
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,77653.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,542876.0haproxy:1.7,NET,5226.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,2171444.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,8685715.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for haproxy:1.7,DISK is -1085712.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,1085732.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,8685715.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -1008162.0
+Action Taken for haproxy:1.7,DISK is -542856.0
+Action Taken for haproxy:1.7,NET is -10453.0
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,1008182.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,542876.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,5226.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 5
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for haproxy:1.7,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,2171444.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,17371409.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,17371409.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for quilt/mongo,DISK is -2016323.0
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,2016344.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,8685715.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 7
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 8
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -38827.0
+Action Taken for node-app:node-todo.git,NET is -20907.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,4342868.0
+
+Round 9
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,38826.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,10453.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,10453.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 4
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 6
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -4032646.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,4032667.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,88.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for quilt/mongo,DISK is -8065292.0
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for node-app:node-todo.git,DISK is -2171424.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,8065313.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,4342868.0haproxy:1.7,NET,20906.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,20906.0node-app:node-todo.git,DISK,2171444.0
+
+Step 6, no pipelines found, increasing partition size to 4
+Round 2
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,17371409.0
+
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,8685715.0
+
+Step 4, no pipelines found, increasing partition size to 4
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for haproxy:1.7,NET is -41813.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,41813.0node-app:node-todo.git,DISK,4342868.0
+
+Step 2, no pipelines found, increasing partition size to 4
+Round 3
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,32261189.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,17371409.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -77654.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,167253.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,77653.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,83626.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo'], 1: ['quilt/mongo', 'quilt/mongo'], 2: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 3: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,CPU-QUOTA is -44.0
+Action Taken for haproxy:1.7,NET is -83627.0
+Action Taken for quilt/mongo,DISK is -16130584.0
+Action Taken for node-app:node-todo.git,DISK is -8685694.0
+quilt/mongo,NET,310614.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,17371409.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,44.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,8685715.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -155307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -22.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for node-app:node-todo.git,DISK is -4342847.0
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,4342868.0
+
+Round 4
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,4342868.0
+
+Round 5
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['quilt/mongo', 'quilt/mongo', 'quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'node-app:node-todo.git'], 2: ['haproxy:1.7', 'node-app:node-todo.git']}
+quilt/mongo,NET,155307.0quilt/mongo,DISK,16130605.0node-app:node-todo.git,CPU-QUOTA,46.0haproxy:1.7,DISK,8685715.0haproxy:1.7,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0quilt/mongo,CPU-QUOTA,22.0node-app:node-todo.git,NET,167253.0node-app:node-todo.git,DISK,4342868.0
+
+Round 2
+Can now fit into 4 bins, imr aware is False
+The placement groups are {0: ['library/postgres:9.4', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'mysql:5.6.32'], 1: ['kibana:4', 'kibana:4', 'kibana:4', 'kibana:4'], 2: ['elasticsearch:2.4', 'hantaowang/logstash-postgres', 'tsaianson/node-apt-app', 'tsaianson/node-apt-app'], 3: ['tsaianson/node-apt-app', 'haproxy:1.7']}
+Action Taken for haproxy:1.7,MEMORY is -933333333.0
+Action Taken for elasticsearch:2.4,CPU-QUOTA is -23.0
+Action Taken for kibana:4,NET is -155307.0
+Action Taken for tsaianson/node-apt-app,NET is -83627.0
+Action Taken for osalpekar/spark-image-compress...,NET is -83627.0
+Action Taken for elasticsearch:2.4,DISK is -8685694.0
+Action Taken for mysql:5.6.32,NET is -167253.0
+Action Taken for hantaowang/logstash-postgres,CPU-QUOTA is -23.0
+Action Taken for kibana:4,DISK is -8685694.0
+Action Taken for library/postgres:9.4,NET is -83627.0
+Action Taken for osalpekar/spark-image-compress...,MEMORY is -933333333.0
+Action Taken for osalpekar/spark-image-compress...,DISK is -8685694.0
+Action Taken for library/postgres:9.4,MEMORY is -933333333.0
+Action Taken for mysql:5.6.32,DISK is -24816289.0
+Action Taken for library/postgres:9.4,DISK is -8685694.0
+Action Taken for mysql:5.6.32,MEMORY is -2666666667.0
+Action Taken for hantaowang/logstash-postgres,NET is -83627.0
+Action Taken for tsaianson/node-apt-app,MEMORY is -933333333.0
+Action Taken for mysql:5.6.32,CPU-QUOTA is -46.0
+Action Taken for osalpekar/spark-image-compress...,CPU-QUOTA is -23.0
+Action Taken for kibana:4,MEMORY is -933333333.0
+Action Taken for library/postgres:9.4,CPU-QUOTA is -23.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for hantaowang/logstash-postgres,MEMORY is -933333333.0
+Action Taken for elasticsearch:2.4,MEMORY is -933333333.0
+Action Taken for hantaowang/logstash-postgres,DISK is -8685694.0
+Action Taken for tsaianson/node-apt-app,DISK is -8685694.0
+Action Taken for kibana:4,CPU-QUOTA is -44.0
+Action Taken for elasticsearch:2.4,NET is -83627.0
+haproxy:1.7,MEMORY,933333333.0elasticsearch:2.4,CPU-QUOTA,23.0kibana:4,NET,155307.0tsaianson/node-apt-app,NET,83626.0haproxy:1.7,CPU-QUOTA,46.0osalpekar/spark-image-compress...,NET,83626.0elasticsearch:2.4,DISK,8685715.0mysql:5.6.32,NET,167253.0hantaowang/logstash-postgres,CPU-QUOTA,23.0kibana:4,DISK,8685715.0library/postgres:9.4,NET,83626.0osalpekar/spark-image-compress...,MEMORY,933333333.0osalpekar/spark-image-compress...,DISK,8685715.0library/postgres:9.4,MEMORY,933333333.0mysql:5.6.32,DISK,24816309.0tsaianson/node-apt-app,CPU-QUOTA,46.0library/postgres:9.4,DISK,8685715.0haproxy:1.7,NET,167253.0mysql:5.6.32,MEMORY,2666666667.0hantaowang/logstash-postgres,NET,83626.0tsaianson/node-apt-app,MEMORY,933333333.0mysql:5.6.32,CPU-QUOTA,46.0osalpekar/spark-image-compress...,CPU-QUOTA,23.0kibana:4,MEMORY,933333333.0library/postgres:9.4,CPU-QUOTA,23.0haproxy:1.7,DISK,8685715.0hantaowang/logstash-postgres,MEMORY,933333333.0elasticsearch:2.4,MEMORY,933333333.0hantaowang/logstash-postgres,DISK,8685715.0tsaianson/node-apt-app,DISK,8685715.0kibana:4,CPU-QUOTA,44.0elasticsearch:2.4,NET,83626.0
+
+Round 3
+Can now fit into 3 bins, imr aware is True
+The placement groups are {0: ['tsaianson/node-apt-app', 'library/postgres:9.4', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'mysql:5.6.32', 'kibana:4', 'kibana:4', 'elasticsearch:2.4'], 1: ['tsaianson/node-apt-app', 'kibana:4', 'kibana:4', 'hantaowang/logstash-postgres', 'tsaianson/node-apt-app'], 2: ['tsaianson/node-apt-app', 'tsaianson/node-apt-app', 'haproxy:1.7']}
+Action Taken for haproxy:1.7,MEMORY is -466666666.0
+Action Taken for elasticsearch:2.4,CPU-QUOTA is -11.5
+Action Taken for kibana:4,NET is -77654.0
+Action Taken for tsaianson/node-apt-app,NET is -41813.0
+Action Taken for osalpekar/spark-image-compress...,NET is -41813.0
+Action Taken for elasticsearch:2.4,DISK is -4342847.0
+Action Taken for mysql:5.6.32,NET is -83627.0
+Action Taken for hantaowang/logstash-postgres,CPU-QUOTA is -11.5
+Action Taken for kibana:4,DISK is -4342847.0
+Action Taken for library/postgres:9.4,NET is -41813.0
+Action Taken for osalpekar/spark-image-compress...,MEMORY is -466666666.0
+Action Taken for osalpekar/spark-image-compress...,DISK is -4342847.0
+Action Taken for library/postgres:9.4,MEMORY is -466666666.0
+Action Taken for mysql:5.6.32,DISK is -12408144.0
+Action Taken for library/postgres:9.4,DISK is -4342847.0
+Action Taken for mysql:5.6.32,MEMORY is -1333333333.0
+Action Taken for hantaowang/logstash-postgres,NET is -41813.0
+Action Taken for tsaianson/node-apt-app,MEMORY is -466666666.0
+Action Taken for mysql:5.6.32,CPU-QUOTA is -23.0
+Action Taken for osalpekar/spark-image-compress...,CPU-QUOTA is -11.5
+Action Taken for kibana:4,MEMORY is -466666666.0
+Action Taken for library/postgres:9.4,CPU-QUOTA is -11.5
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for hantaowang/logstash-postgres,MEMORY is -466666666.0
+Action Taken for elasticsearch:2.4,MEMORY is -466666666.0
+Action Taken for hantaowang/logstash-postgres,DISK is -4342847.0
+Action Taken for tsaianson/node-apt-app,DISK is -4342847.0
+Action Taken for kibana:4,CPU-QUOTA is -22.0
+Action Taken for elasticsearch:2.4,NET is -41813.0
+haproxy:1.7,MEMORY,466666667.0elasticsearch:2.4,CPU-QUOTA,11.5kibana:4,NET,77653.0tsaianson/node-apt-app,NET,41813.0haproxy:1.7,CPU-QUOTA,46.0osalpekar/spark-image-compress...,NET,41813.0elasticsearch:2.4,DISK,4342868.0mysql:5.6.32,NET,83626.0hantaowang/logstash-postgres,CPU-QUOTA,11.5kibana:4,DISK,4342868.0library/postgres:9.4,NET,41813.0osalpekar/spark-image-compress...,MEMORY,466666667.0osalpekar/spark-image-compress...,DISK,4342868.0library/postgres:9.4,MEMORY,466666667.0mysql:5.6.32,DISK,12408165.0tsaianson/node-apt-app,CPU-QUOTA,46.0library/postgres:9.4,DISK,4342868.0haproxy:1.7,NET,167253.0mysql:5.6.32,MEMORY,1333333334.0hantaowang/logstash-postgres,NET,41813.0tsaianson/node-apt-app,MEMORY,466666667.0mysql:5.6.32,CPU-QUOTA,23.0osalpekar/spark-image-compress...,CPU-QUOTA,11.5kibana:4,MEMORY,466666667.0library/postgres:9.4,CPU-QUOTA,11.5haproxy:1.7,DISK,4342868.0hantaowang/logstash-postgres,MEMORY,466666667.0elasticsearch:2.4,MEMORY,466666667.0hantaowang/logstash-postgres,DISK,4342868.0tsaianson/node-apt-app,DISK,4342868.0kibana:4,CPU-QUOTA,22.0elasticsearch:2.4,NET,41813.0
+
+Round 2
+FF Packing has 4 bins, with placement {0: ['haproxy:1.7', 'tsaianson/node-apt-app', 'tsaianson/node-apt-app', 'hantaowang/logstash-postgres'], 1: ['tsaianson/node-apt-app', 'elasticsearch:2.4', 'kibana:4', 'kibana:4', 'osalpekar/spark-image-compress...'], 2: ['kibana:4', 'kibana:4', 'mysql:5.6.32', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...'], 3: ['library/postgres:9.4']}
+IMR aware Packing has 4 bins with placement {0: ['haproxy:1.7', 'hantaowang/logstash-postgres', 'elasticsearch:2.4', 'kibana:4', 'kibana:4'], 1: ['tsaianson/node-apt-app', 'kibana:4', 'kibana:4', 'mysql:5.6.32'], 2: ['tsaianson/node-apt-app', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'library/postgres:9.4'], 3: ['tsaianson/node-apt-app']}
+Action Taken for haproxy:1.7,MEMORY is -933333333.0
+Action Taken for elasticsearch:2.4,CPU-QUOTA is -23.0
+Action Taken for kibana:4,NET is -155307.0
+Action Taken for tsaianson/node-apt-app,NET is -83627.0
+Action Taken for osalpekar/spark-image-compress...,NET is -83627.0
+Action Taken for elasticsearch:2.4,DISK is -8685694.0
+Action Taken for mysql:5.6.32,NET is -167253.0
+Action Taken for hantaowang/logstash-postgres,CPU-QUOTA is -23.0
+Action Taken for kibana:4,DISK is -8685694.0
+Action Taken for library/postgres:9.4,NET is -83627.0
+Action Taken for osalpekar/spark-image-compress...,MEMORY is -933333333.0
+Action Taken for osalpekar/spark-image-compress...,DISK is -8685694.0
+Action Taken for library/postgres:9.4,MEMORY is -933333333.0
+Action Taken for mysql:5.6.32,DISK is -24816289.0
+Action Taken for library/postgres:9.4,DISK is -8685694.0
+Action Taken for mysql:5.6.32,MEMORY is -2666666667.0
+Action Taken for hantaowang/logstash-postgres,NET is -83627.0
+Action Taken for tsaianson/node-apt-app,MEMORY is -933333333.0
+Action Taken for mysql:5.6.32,CPU-QUOTA is -46.0
+Action Taken for osalpekar/spark-image-compress...,CPU-QUOTA is -23.0
+Action Taken for kibana:4,MEMORY is -933333333.0
+Action Taken for library/postgres:9.4,CPU-QUOTA is -23.0
+Action Taken for haproxy:1.7,DISK is -8685694.0
+Action Taken for hantaowang/logstash-postgres,MEMORY is -933333333.0
+Action Taken for elasticsearch:2.4,MEMORY is -933333333.0
+Action Taken for hantaowang/logstash-postgres,DISK is -8685694.0
+Action Taken for tsaianson/node-apt-app,DISK is -8685694.0
+Action Taken for kibana:4,CPU-QUOTA is -44.0
+Action Taken for elasticsearch:2.4,NET is -83627.0
+haproxy:1.7,MEMORY,933333333.0,RAWelasticsearch:2.4,CPU-QUOTA,23.0,RAWkibana:4,NET,155307.0,RAWtsaianson/node-apt-app,NET,83626.0,RAWhaproxy:1.7,CPU-QUOTA,46.0,RAWosalpekar/spark-image-compress...,NET,83626.0,RAWelasticsearch:2.4,DISK,8685715.0,RAWmysql:5.6.32,NET,167253.0,RAWhantaowang/logstash-postgres,CPU-QUOTA,23.0,RAWkibana:4,DISK,8685715.0,RAWlibrary/postgres:9.4,NET,83626.0,RAWosalpekar/spark-image-compress...,MEMORY,933333333.0,RAWosalpekar/spark-image-compress...,DISK,8685715.0,RAWlibrary/postgres:9.4,MEMORY,933333333.0,RAWmysql:5.6.32,DISK,24816309.0,RAWtsaianson/node-apt-app,CPU-QUOTA,46.0,RAWlibrary/postgres:9.4,DISK,8685715.0,RAWhaproxy:1.7,NET,167253.0,RAWmysql:5.6.32,MEMORY,2666666667.0,RAWhantaowang/logstash-postgres,NET,83626.0,RAWtsaianson/node-apt-app,MEMORY,933333333.0,RAWmysql:5.6.32,CPU-QUOTA,46.0,RAWosalpekar/spark-image-compress...,CPU-QUOTA,23.0,RAWkibana:4,MEMORY,933333333.0,RAWlibrary/postgres:9.4,CPU-QUOTA,23.0,RAWhaproxy:1.7,DISK,8685715.0,RAWhantaowang/logstash-postgres,MEMORY,933333333.0,RAWelasticsearch:2.4,MEMORY,933333333.0,RAWhantaowang/logstash-postgres,DISK,8685715.0,RAWtsaianson/node-apt-app,DISK,8685715.0,RAWkibana:4,CPU-QUOTA,44.0,RAWelasticsearch:2.4,NET,83626.0,RAW
+
+Round 3
+FF Packing has 3 bins, with placement {0: ['haproxy:1.7', 'tsaianson/node-apt-app', 'tsaianson/node-apt-app', 'hantaowang/logstash-postgres', 'elasticsearch:2.4', 'osalpekar/spark-image-compress...'], 1: ['tsaianson/node-apt-app', 'kibana:4', 'kibana:4', 'kibana:4', 'kibana:4', 'mysql:5.6.32', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...'], 2: ['library/postgres:9.4']}
+IMR aware Packing has 3 bins with placement {0: ['tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres', 'elasticsearch:2.4', 'kibana:4', 'kibana:4', 'osalpekar/spark-image-compress...'], 1: ['tsaianson/node-apt-app', 'kibana:4', 'kibana:4', 'mysql:5.6.32', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'library/postgres:9.4'], 2: ['tsaianson/node-apt-app']}
+Action Taken for haproxy:1.7,MEMORY is -466666666.0
+Action Taken for elasticsearch:2.4,CPU-QUOTA is -11.5
+Action Taken for kibana:4,NET is -77654.0
+Action Taken for tsaianson/node-apt-app,NET is -41813.0
+Action Taken for osalpekar/spark-image-compress...,NET is -41813.0
+Action Taken for elasticsearch:2.4,DISK is -4342847.0
+Action Taken for mysql:5.6.32,NET is -83627.0
+Action Taken for hantaowang/logstash-postgres,CPU-QUOTA is -11.5
+Action Taken for kibana:4,DISK is -4342847.0
+Action Taken for library/postgres:9.4,NET is -41813.0
+Action Taken for osalpekar/spark-image-compress...,MEMORY is -466666666.0
+Action Taken for osalpekar/spark-image-compress...,DISK is -4342847.0
+Action Taken for library/postgres:9.4,MEMORY is -466666666.0
+Action Taken for mysql:5.6.32,DISK is -12408144.0
+Action Taken for library/postgres:9.4,DISK is -4342847.0
+Action Taken for mysql:5.6.32,MEMORY is -1333333333.0
+Action Taken for hantaowang/logstash-postgres,NET is -41813.0
+Action Taken for tsaianson/node-apt-app,MEMORY is -466666666.0
+Action Taken for mysql:5.6.32,CPU-QUOTA is -23.0
+Action Taken for osalpekar/spark-image-compress...,CPU-QUOTA is -11.5
+Action Taken for kibana:4,MEMORY is -466666666.0
+Action Taken for library/postgres:9.4,CPU-QUOTA is -11.5
+Action Taken for haproxy:1.7,DISK is -4342847.0
+Action Taken for hantaowang/logstash-postgres,MEMORY is -466666666.0
+Action Taken for elasticsearch:2.4,MEMORY is -466666666.0
+Action Taken for hantaowang/logstash-postgres,DISK is -4342847.0
+Action Taken for tsaianson/node-apt-app,DISK is -4342847.0
+Action Taken for kibana:4,CPU-QUOTA is -22.0
+Action Taken for elasticsearch:2.4,NET is -41813.0
+haproxy:1.7,MEMORY,466666667.0,RAWelasticsearch:2.4,CPU-QUOTA,11.5,RAWkibana:4,NET,77653.0,RAWtsaianson/node-apt-app,NET,41813.0,RAWhaproxy:1.7,CPU-QUOTA,46.0,RAWosalpekar/spark-image-compress...,NET,41813.0,RAWelasticsearch:2.4,DISK,4342868.0,RAWmysql:5.6.32,NET,83626.0,RAWhantaowang/logstash-postgres,CPU-QUOTA,11.5,RAWkibana:4,DISK,4342868.0,RAWlibrary/postgres:9.4,NET,41813.0,RAWosalpekar/spark-image-compress...,MEMORY,466666667.0,RAWosalpekar/spark-image-compress...,DISK,4342868.0,RAWlibrary/postgres:9.4,MEMORY,466666667.0,RAWmysql:5.6.32,DISK,12408165.0,RAWtsaianson/node-apt-app,CPU-QUOTA,46.0,RAWlibrary/postgres:9.4,DISK,4342868.0,RAWhaproxy:1.7,NET,167253.0,RAWmysql:5.6.32,MEMORY,1333333334.0,RAWhantaowang/logstash-postgres,NET,41813.0,RAWtsaianson/node-apt-app,MEMORY,466666667.0,RAWmysql:5.6.32,CPU-QUOTA,23.0,RAWosalpekar/spark-image-compress...,CPU-QUOTA,11.5,RAWkibana:4,MEMORY,466666667.0,RAWlibrary/postgres:9.4,CPU-QUOTA,11.5,RAWhaproxy:1.7,DISK,4342868.0,RAWhantaowang/logstash-postgres,MEMORY,466666667.0,RAWelasticsearch:2.4,MEMORY,466666667.0,RAWhantaowang/logstash-postgres,DISK,4342868.0,RAWtsaianson/node-apt-app,DISK,4342868.0,RAWkibana:4,CPU-QUOTA,22.0,RAWelasticsearch:2.4,NET,41813.0,RAW
+
+Round 4
+FF Packing has 2 bins, with placement {0: ['haproxy:1.7', 'tsaianson/node-apt-app', 'tsaianson/node-apt-app', 'hantaowang/logstash-postgres', 'elasticsearch:2.4', 'kibana:4', 'kibana:4', 'osalpekar/spark-image-compress...'], 1: ['tsaianson/node-apt-app', 'kibana:4', 'kibana:4', 'mysql:5.6.32', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'library/postgres:9.4']}
+IMR aware Packing has 2 bins with placement {0: ['tsaianson/node-apt-app', 'haproxy:1.7', 'hantaowang/logstash-postgres', 'elasticsearch:2.4', 'kibana:4', 'kibana:4', 'kibana:4', 'kibana:4', 'mysql:5.6.32', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...', 'osalpekar/spark-image-compress...'], 1: ['tsaianson/node-apt-app', 'tsaianson/node-apt-app', 'library/postgres:9.4']}
+Action Taken for haproxy:1.7,MEMORY is -233333333.0
+Action Taken for elasticsearch:2.4,CPU-QUOTA is -5.75
+Action Taken for kibana:4,NET is -38827.0
+Action Taken for tsaianson/node-apt-app,NET is -20907.0
+Action Taken for osalpekar/spark-image-compress...,NET is -20907.0
+Action Taken for elasticsearch:2.4,DISK is -2171424.0
+Action Taken for mysql:5.6.32,NET is -41813.0
+Action Taken for hantaowang/logstash-postgres,CPU-QUOTA is -5.75
+Action Taken for kibana:4,DISK is -2171424.0
+Action Taken for library/postgres:9.4,NET is -20907.0
+Action Taken for osalpekar/spark-image-compress...,MEMORY is -233333333.0
+Action Taken for osalpekar/spark-image-compress...,DISK is -2171424.0
+Action Taken for library/postgres:9.4,MEMORY is -233333333.0
+Action Taken for mysql:5.6.32,DISK is -6204072.0
+Action Taken for library/postgres:9.4,DISK is -2171424.0
+Action Taken for mysql:5.6.32,MEMORY is -666666667.0
+Action Taken for hantaowang/logstash-postgres,NET is -20907.0
+Action Taken for tsaianson/node-apt-app,MEMORY is -233333333.0
+Action Taken for mysql:5.6.32,CPU-QUOTA is -11.5
+Action Taken for osalpekar/spark-image-compress...,CPU-QUOTA is -5.75
+Action Taken for kibana:4,MEMORY is -233333333.0
+Action Taken for library/postgres:9.4,CPU-QUOTA is -5.75
+Action Taken for haproxy:1.7,DISK is -2171424.0
+Action Taken for hantaowang/logstash-postgres,MEMORY is -233333333.0
+Action Taken for elasticsearch:2.4,MEMORY is -233333333.0
+Action Taken for hantaowang/logstash-postgres,DISK is -2171424.0
+Action Taken for tsaianson/node-apt-app,DISK is -2171424.0
+Action Taken for kibana:4,CPU-QUOTA is -11.0
+Action Taken for elasticsearch:2.4,NET is -20907.0
+haproxy:1.7,MEMORY,233333334.0,RAWelasticsearch:2.4,CPU-QUOTA,5.75,RAWkibana:4,NET,38826.0,RAWtsaianson/node-apt-app,NET,20906.0,RAWhaproxy:1.7,CPU-QUOTA,46.0,RAWosalpekar/spark-image-compress...,NET,20906.0,RAWelasticsearch:2.4,DISK,2171444.0,RAWmysql:5.6.32,NET,41813.0,RAWhantaowang/logstash-postgres,CPU-QUOTA,5.75,RAWkibana:4,DISK,2171444.0,RAWlibrary/postgres:9.4,NET,20906.0,RAWosalpekar/spark-image-compress...,MEMORY,233333334.0,RAWosalpekar/spark-image-compress...,DISK,2171444.0,RAWlibrary/postgres:9.4,MEMORY,233333334.0,RAWmysql:5.6.32,DISK,6204093.0,RAWtsaianson/node-apt-app,CPU-QUOTA,46.0,RAWlibrary/postgres:9.4,DISK,2171444.0,RAWhaproxy:1.7,NET,167253.0,RAWmysql:5.6.32,MEMORY,666666667.0,RAWhantaowang/logstash-postgres,NET,20906.0,RAWtsaianson/node-apt-app,MEMORY,233333334.0,RAWmysql:5.6.32,CPU-QUOTA,11.5,RAWosalpekar/spark-image-compress...,CPU-QUOTA,5.75,RAWkibana:4,MEMORY,233333334.0,RAWlibrary/postgres:9.4,CPU-QUOTA,5.75,RAWhaproxy:1.7,DISK,2171444.0,RAWhantaowang/logstash-postgres,MEMORY,233333334.0,RAWelasticsearch:2.4,MEMORY,233333334.0,RAWhantaowang/logstash-postgres,DISK,2171444.0,RAWtsaianson/node-apt-app,DISK,2171444.0,RAWkibana:4,CPU-QUOTA,11.0,RAWelasticsearch:2.4,NET,20906.0,RAW
+
+Starting a new iteration of CUTTING 
+All measurements are [56030.532, 55800.151, 55479.801]
+Initial Performance is 55770.1613333
+
+Starting a new iteration of CUTTING 
+All measurements are [6212.0, 6014.666666666667, 6155.0]
+Initial Performance is 6127.22222222
+
+Starting a new iteration of CUTTING 
+All measurements are [7197.333333333333]
+Initial Performance is 7197.33333333
+
+Starting a new iteration of CUTTING 
+All measurements are [6030.0]
+Initial Performance is 6030.0
+
+Starting a new iteration of CUTTING 
+All measurements are [6152.0]
+Initial Performance is 6152.0
+
+Starting a new iteration of CUTTING 
+All measurements are [5718.333333333333]
+Initial Performance is 5718.33333333
+
+Starting a new iteration of CUTTING 
+All measurements are [5531.333333333333]
+Initial Performance is 5531.33333333
+
+Starting a new iteration of CUTTING 
+All measurements are [6468.666666666666]
+Initial Performance is 6468.66666667
+
+Starting a new iteration of CUTTING 
+All measurements are [5750.666666666667]
+Initial Performance is 5750.66666667
+
+Round 2
+Updated performance is 6164.33333333
+FF Packing has 2 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git']}
+IMR aware Packing has 2 bins with placement {0: ['quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -23.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,83626.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,83626.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,23.0,RAW
+node-app:node-todo.git,NET,83626.0,RAW
+
+
+Starting a new iteration of CUTTING 
+All measurements are [6019.666666666667]
+Initial Performance is 6019.66666667
+
+Round 2
+Updated performance is 6007.0
+FF Packing has 2 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git'], 1: ['node-app:node-todo.git']}
+IMR aware Packing has 2 bins with placement {0: ['quilt/mongo', 'quilt/mongo'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -83627.0
+Action Taken for quilt/mongo,CPU-QUOTA is -23.0
+Action Taken for node-app:node-todo.git,NET is -83627.0
+Action Taken for haproxy:1.7,NET is -83627.0
+quilt/mongo,NET,83626.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,83626.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,23.0,RAW
+node-app:node-todo.git,NET,83626.0,RAW
+
+
+Round 3
+Updated performance is 6064.0
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -41813.0
+Action Taken for quilt/mongo,CPU-QUOTA is -11.5
+Action Taken for node-app:node-todo.git,NET is -41813.0
+Action Taken for haproxy:1.7,NET is -41813.0
+quilt/mongo,NET,41813.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,41813.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,11.5,RAW
+node-app:node-todo.git,NET,41813.0,RAW
+
+
+Round 4
+Updated performance is 6221.0
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -20907.0
+Action Taken for quilt/mongo,CPU-QUOTA is -5.75
+Action Taken for node-app:node-todo.git,NET is -20907.0
+Action Taken for haproxy:1.7,NET is -20907.0
+quilt/mongo,NET,20906.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,20906.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,5.75,RAW
+node-app:node-todo.git,NET,20906.0,RAW
+
+
+Round 5
+Updated performance is 6423.66666667
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -10453.0
+Action Taken for haproxy:1.7,NET is -10453.0
+quilt/mongo,NET,10453.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,10453.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,5.75,RAW
+node-app:node-todo.git,NET,20906.0,RAW
+
+
+Round 6
+Updated performance is 6039.33333333
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -5227.0
+Action Taken for quilt/mongo,CPU-QUOTA is -2.875
+Action Taken for node-app:node-todo.git,NET is -10453.0
+Action Taken for haproxy:1.7,NET is -5227.0
+quilt/mongo,NET,5226.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,5226.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,2.875,RAW
+node-app:node-todo.git,NET,10453.0,RAW
+
+
+Round 7
+Updated performance is 5846.66666667
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -2613.0
+Action Taken for quilt/mongo,CPU-QUOTA is -1.4375
+Action Taken for node-app:node-todo.git,NET is -5227.0
+Action Taken for haproxy:1.7,NET is -2613.0
+quilt/mongo,NET,2613.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,2613.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,1.4375,RAW
+node-app:node-todo.git,NET,5226.0,RAW
+
+
+Round 8
+Updated performance is 6014.33333333
+FF Packing has 1 bins, with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+IMR aware Packing has 1 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7', 'node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -1307.0
+Action Taken for quilt/mongo,CPU-QUOTA is -0.71875
+Action Taken for node-app:node-todo.git,NET is -2613.0
+Action Taken for haproxy:1.7,NET is -1307.0
+quilt/mongo,NET,1306.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,1306.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,0.71875,RAW
+node-app:node-todo.git,NET,2613.0,RAW
+
+

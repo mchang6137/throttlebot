@@ -1,0 +1,22 @@
+{
+    "language"        : "PYTHON",
+    "main-file"       : "bayOpt.py",
+    "experiment-name" : "spark-bcd",
+    "likelihood"      : "NOISELESS",
+    "variables" : {
+	
+	
+        "x" : {
+            "type" : "FLOAT",
+            "size" : 1,
+            "min"  : -5,
+            "max"  : 10
+        },
+        "y" : {
+            "type" : "FLOAT",
+            "size" : 1,
+            "min"  : 0,
+            "max"  : 15
+        }
+    }
+}

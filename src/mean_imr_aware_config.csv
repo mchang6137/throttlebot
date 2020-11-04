@@ -1,0 +1,13 @@
+SERVICE,RESOURCE,AMOUNT,REPR
+quilt/mongo,NET,29866.0,RAW
+haproxy:1.7,MEMORY,233333334.0,RAW
+quilt/mongo,DISK,12408160.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,DISK,2171444.0,RAW
+haproxy:1.7,NET,20906.0,RAW
+haproxy:1.7,CPU-QUOTA,46.0,RAW
+quilt/mongo,CPU-QUOTA,16.75,RAW
+node-app:node-todo.git,NET,41813.0,RAW
+node-app:node-todo.git,DISK,2171444.0,RAW
+quilt/mongo,MEMORY,166666667.0,RAW
+node-app:node-todo.git,MEMORY,233333334.0,RAW

@@ -45,7 +45,7 @@ for iteration in iteration_points:
     iteration_99[iteration] = np.median(iteration_points[iteration])
     iteration_0[iteration] = np.median(iteration_min[iteration])
     iteration_100[iteration] = np.median(iteration_max[iteration])
-    if iteration == 100:
+    if iteration == 50:
         break
 
 plot_99_list = iteration_99.values()

@@ -1,0 +1,1 @@
+scale_deployment_name = node-appworkload_deployment_name = workload-managerservice_name = node-appadditional_args = workload_size = 3num_iterations = 20min_scaleout = 10max_scaleout = 500cpu_cost = 0.454545454545workload_node_count = 9label = 4.4podsPerNodeab = True

@@ -1,0 +1,14 @@
+spec:
+      serviceAccount: elasticsearch
+      containers:
+      - name: es
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        image: quay.io/pires/docker-elasticsearch-kubernetes:1.7.1-4
+        env:
+	- name: "CLUSTER_NAME"
+          value: "myesdb"
+        - name: "PERFORMANCE_TUNING"
+          value: "elasticsearch"
