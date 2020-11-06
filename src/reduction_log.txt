@@ -2364,3 +2364,176 @@ quilt/mongo,CPU-QUOTA,0.71875,RAW
 node-app:node-todo.git,NET,2613.0,RAW
 
 
+Starting a new iteration of CUTTING 
+All measurements are [5003.0]
+Initial Performance is 5003.0
+
+Starting a new iteration of CUTTING 
+All measurements are [5002.0]
+Initial Performance is 5002.0
+
+Starting a new iteration of CUTTING 
+All measurements are [5003.0]
+Initial Performance is 5003.0
+
+Starting a new iteration of CUTTING 
+All measurements are [5002.0]
+Initial Performance is 5002.0
+
+Round 2
+Updated performance is 5230.0
+FF Packing has 2 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7']}
+IMR aware Packing has 2 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -50176.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -13.8
+Action Taken for quilt/mongo,CPU-QUOTA is -13.8
+Action Taken for node-app:node-todo.git,NET is -50176.0
+Action Taken for haproxy:1.7,NET is -50176.0
+quilt/mongo,NET,117077.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,117077.0,RAW
+haproxy:1.7,CPU-QUOTA,32.2,RAW
+quilt/mongo,CPU-QUOTA,32.2,RAW
+node-app:node-todo.git,NET,117077.0,RAW
+
+
+Round 3
+Updated performance is 5002.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -35124.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -9.66
+Action Taken for quilt/mongo,CPU-QUOTA is -9.66
+Action Taken for node-app:node-todo.git,NET is -35124.0
+Action Taken for haproxy:1.7,NET is -35124.0
+quilt/mongo,NET,81953.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,81953.0,RAW
+haproxy:1.7,CPU-QUOTA,22.54,RAW
+quilt/mongo,CPU-QUOTA,22.54,RAW
+node-app:node-todo.git,NET,81953.0,RAW
+
+
+Round 4
+Updated performance is 5003.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -24586.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -6.762
+Action Taken for quilt/mongo,CPU-QUOTA is -6.762
+Action Taken for node-app:node-todo.git,NET is -24586.0
+Action Taken for haproxy:1.7,NET is -24586.0
+quilt/mongo,NET,57367.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,57367.0,RAW
+haproxy:1.7,CPU-QUOTA,15.778,RAW
+quilt/mongo,CPU-QUOTA,15.778,RAW
+node-app:node-todo.git,NET,57367.0,RAW
+
+
+Round 5
+Updated performance is 5003.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -17211.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -4.7334
+Action Taken for quilt/mongo,CPU-QUOTA is -4.7334
+Action Taken for node-app:node-todo.git,NET is -17211.0
+Action Taken for haproxy:1.7,NET is -17211.0
+quilt/mongo,NET,40156.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,40156.0,RAW
+haproxy:1.7,CPU-QUOTA,11.0446,RAW
+quilt/mongo,CPU-QUOTA,11.0446,RAW
+node-app:node-todo.git,NET,40156.0,RAW
+
+
+Starting a new iteration of CUTTING 
+All measurements are [5003.0]
+Initial Performance is 5003.0
+
+Round 2
+Updated performance is 5002.0
+FF Packing has 2 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo'], 1: ['haproxy:1.7']}
+IMR aware Packing has 2 bins with placement {0: ['quilt/mongo', 'quilt/mongo', 'haproxy:1.7'], 1: ['node-app:node-todo.git', 'node-app:node-todo.git']}
+Action Taken for quilt/mongo,NET is -50176.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -13.8
+Action Taken for quilt/mongo,CPU-QUOTA is -13.8
+Action Taken for node-app:node-todo.git,NET is -50176.0
+Action Taken for haproxy:1.7,NET is -50176.0
+quilt/mongo,NET,117077.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,117077.0,RAW
+haproxy:1.7,CPU-QUOTA,32.2,RAW
+quilt/mongo,CPU-QUOTA,32.2,RAW
+node-app:node-todo.git,NET,117077.0,RAW
+
+
+Round 3
+Updated performance is 5003.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -35124.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -9.66
+Action Taken for quilt/mongo,CPU-QUOTA is -9.66
+Action Taken for node-app:node-todo.git,NET is -35124.0
+Action Taken for haproxy:1.7,NET is -35124.0
+quilt/mongo,NET,81953.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,81953.0,RAW
+haproxy:1.7,CPU-QUOTA,22.54,RAW
+quilt/mongo,CPU-QUOTA,22.54,RAW
+node-app:node-todo.git,NET,81953.0,RAW
+
+
+Round 4
+Updated performance is 5003.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -24586.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -6.762
+Action Taken for quilt/mongo,CPU-QUOTA is -6.762
+Action Taken for node-app:node-todo.git,NET is -24586.0
+Action Taken for haproxy:1.7,NET is -24586.0
+quilt/mongo,NET,57367.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,57367.0,RAW
+haproxy:1.7,CPU-QUOTA,15.778,RAW
+quilt/mongo,CPU-QUOTA,15.778,RAW
+node-app:node-todo.git,NET,57367.0,RAW
+
+
+Round 5
+Updated performance is 5003.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -17211.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -4.7334
+Action Taken for quilt/mongo,CPU-QUOTA is -4.7334
+Action Taken for node-app:node-todo.git,NET is -17211.0
+Action Taken for haproxy:1.7,NET is -17211.0
+quilt/mongo,NET,40156.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,40156.0,RAW
+haproxy:1.7,CPU-QUOTA,11.0446,RAW
+quilt/mongo,CPU-QUOTA,11.0446,RAW
+node-app:node-todo.git,NET,40156.0,RAW
+
+
+Round 6
+Updated performance is 5002.0
+FF Packing has 1 bins, with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+IMR aware Packing has 1 bins with placement {0: ['node-app:node-todo.git', 'node-app:node-todo.git', 'quilt/mongo', 'quilt/mongo', 'haproxy:1.7']}
+Action Taken for quilt/mongo,NET is -12047.0
+Action Taken for haproxy:1.7,CPU-QUOTA is -3.31338
+Action Taken for quilt/mongo,CPU-QUOTA is -3.31338
+Action Taken for node-app:node-todo.git,NET is -12047.0
+Action Taken for haproxy:1.7,NET is -12047.0
+quilt/mongo,NET,28109.0,RAW
+node-app:node-todo.git,CPU-QUOTA,46.0,RAW
+haproxy:1.7,NET,28109.0,RAW
+haproxy:1.7,CPU-QUOTA,7.73122,RAW
+quilt/mongo,CPU-QUOTA,7.73122,RAW
+node-app:node-todo.git,NET,28109.0,RAW
+
+

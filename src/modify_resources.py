@@ -128,14 +128,14 @@ def current_allocs(redis_db, service_name, wc):
     quota_mr = MR(service_name, 'CPU-QUOTA', [])
 
     try:
-        previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, core_mr, "core-stress")
+        previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, core_mr, mr_name="core-stress")
     except TypeError:
         try:
             previous_core_alloc = resource_datastore.read_mr_alloc(redis_db, core_mr)
         except TypeError:
             previous_core_alloc = get_instance_specs(wc['machine_type'])['CPU-CORE']
     try:
-        previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, quota_mr, "core-stress")
+        previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, quota_mr, mr_name="core-stress")
     except TypeError:
         try:
             previous_quota_alloc = resource_datastore.read_mr_alloc(redis_db, quota_mr)

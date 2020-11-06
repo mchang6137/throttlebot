@@ -34,8 +34,6 @@ CONVERSION = {"KiB": 1, "MiB": 2**10, "GiB": 2**20}
 # This is changed manually
 MAX_NETWORK_BANDWIDTH = 600
 
-<<<<<<< HEAD
-
 # writes all config of vm_ip
 def spark_rewrite_conf(vm_ip, search, replace):
     correct = []
@@ -49,8 +47,7 @@ def spark_rewrite_conf(vm_ip, search, replace):
         close_client(ssh_client)
     logging.info("Set all {0} -> {1}: {2}".format(search, replace.split()[1], all(correct)))
 
-=======
->>>>>>> rahulbranch
+
 # Sets the resource provision for all containers in a service
 def set_mr_provision(mr, new_mr_allocation, wc, redis_db):
     modify_mr_conf(mr, new_mr_allocation, wc, redis_db)
@@ -220,12 +217,7 @@ def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
     throttled_containers = []
     
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
-<<<<<<< HEAD
     ssh_exec(ssh_client, update_command, modifies_container=True)
-=======
-
-    ssh_exec(ssh_client, update_command)
->>>>>>> rahulbranch
     throttled_containers.append(container_id)
 
     return throttled_containers

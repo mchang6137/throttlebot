@@ -1,0 +1,3 @@
+SERVICE,RESOURCE,PERF
+node-app:node-todo.git,CPU-QUOTA,3145.3125
+haproxy:1.7,CPU-QUOTA,2215.6875

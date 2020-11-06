@@ -461,13 +461,18 @@ def measure_TODO_response_time(workload_configuration, iterations, concurrency=2
         print 'Data has been collected: {}'.format(all_requests)
 
         clear_entries_url = 'http://' + traffic_generator_ip + ':80/clearentries'
-        try:
-            clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators})
-        except requests.exceptions.Timeout:
-            logging.info('Timeout occured while waiting for clearing to finish')
-        except requests.exceptions.RequestException as e:
-            print e
-            sys.exit(1)
+        isCleared = False
+        while isCleared is False:
+            try:
+                print 'attempting to clear'
+                clear_attempt = requests.get(clear_entries_url, params={'w': num_traffic_generators}, timeout=10)
+                print 'clear succeded!'
+                isCleared = True
+            except requests.exceptions.Timeout:
+                print 'timeout happened'
+                logging.info('Timeout occured while waiting for clearing to finish')
+            except requests.exceptions.RequestException as e:
+                print e
 
         print 'Data has been cleared'
 

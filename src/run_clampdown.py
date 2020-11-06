@@ -133,7 +133,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
     for mr in known_imr_list:
         mr_working_set.remove(mr)
 
-    resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
+    #resource_datastore.write_mr_working_set(redis_db, mr_working_set, 0)
     cumulative_mr_count = 0
     experiment_count = last_completed_iter + 1
     recent_nimr_list = []
@@ -174,7 +174,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
             for mr in pipeline:
                 current_mr_allocation = resource_datastore.read_mr_alloc(redis_db, mr)
                 new_mr_allocation = convert_percent_to_raw(mr, current_mr_allocation, stress_weight)
-                resource_modifier.set_mr_provision(mr, new_mr_allocation)
+                resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config, redis_db)
                 mr_new_allocation[mr] = new_mr_allocation
                 mr_original_allocation[mr] = current_mr_allocation
 
@@ -186,7 +186,7 @@ def runClampdown(sys_config, workload_config, filter_config, default_mr_config, 
             if is_performance_degraded(current_mean, new_performance_mean, optimize_for_lowest, error_tolerance):
                 # Revert the changes
                 for mr in pipeline:
-                    resource_modifier.set_mr_provision(mr, mr_original_allocation[mr])
+                    resource_modifier.set_mr_provision(mr, mr_original_allocation[mr], workload_config, redis_db)
                 logging.warning('Failed, trying a new filtering pipeline')
             else:
                 # Commit the changes
@@ -331,6 +331,7 @@ def parse_clampdown_config_file(config_file):
     workload_config['frontend'] = config.get('Workload', 'frontend').split(',')
     workload_config['tbot_metric'] = config.get('Workload', 'tbot_metric')
     workload_config['optimize_for_lowest'] = config.getboolean('Workload', 'optimize_for_lowest')
+    workload_config['machine_type'] =  sys_config['machine_type']
     if sys_config['gradient_mode'] == 'inverted':
         # kind of a hack. If we are doing the inverted stressing for gradient, we actually want to optimize for the most effective.
         workload_config['optimize_for_lowest'] = not workload_config['optimize_for_lowest']

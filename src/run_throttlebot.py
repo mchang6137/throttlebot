@@ -426,21 +426,21 @@ def simulate_mr_provisions(redis_db, imr, imr_proposal, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         new_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr) + nimr_diff_proposal[nimr]
         logging.info('Changing NIMR {} from {} to {}'.format(nimr.to_string(), resource_datastore.read_mr_alloc(redis_db, nimr), new_nimr_alloc))
-        set_mr_provision_detect_id_change(redis_db, nimr, int(new_nimr_alloc), None)
+        set_mr_provision_detect_id_change(redis_db, nimr, int(new_nimr_alloc), wc)
 
     old_imr_alloc = resource_datastore.read_mr_alloc(redis_db, imr)
     new_imr_alloc = old_imr_alloc + imr_proposal
     logging.info('changing imr from {} to {}'.format(old_imr_alloc, new_imr_alloc))
-    set_mr_provision_detect_id_change(redis_db, imr, int(new_imr_alloc), None)
+    set_mr_provision_detect_id_change(redis_db, imr, int(new_imr_alloc), wc)
 
 # Revert to nimr allocation to most recently committed values, reverts "simulation"
 def revert_simulate_mr_provisions(redis_db, imr, nimr_diff_proposal, wc):
     for nimr in nimr_diff_proposal:
         old_nimr_alloc = resource_datastore.read_mr_alloc(redis_db, nimr)
-        set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), None)
+        set_mr_provision_detect_id_change(redis_db, nimr, int(old_nimr_alloc), wc)
 
     old_imr_alloc =	resource_datastore.read_mr_alloc(redis_db, imr)
-    set_mr_provision_detect_id_change(redis_db, imr, int(old_imr_alloc), None)
+    set_mr_provision_detect_id_change(redis_db, imr, int(old_imr_alloc), wc)
 
 # Commits the changes to Redis datastore
 def commit_mr_provision(redis_db, imr, imr_proposal, nimr_diff_proposal):
@@ -781,10 +781,10 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
         current_time_stop = datetime.datetime.now()
         time_delta = current_time_stop - time_start
         cumulative_mr_count += len(mr_to_consider)
-        chart_generator.get_summary_mimr_charts(redis_db, workload_config,
-                                                current_performance, mr_working_set,
-                                                experiment_count, stress_weight,
-                                                preferred_performance_metric, time_start)
+        #chart_generator.get_summary_mimr_charts(redis_db, workload_config,
+        #                                        current_performance, mr_working_set,
+        #                                        experiment_count, stress_weight,
+        #                                        preferred_performance_metric, time_start)
 
 
         # If set, reruns the baseline as a sanity check before the IMR, MIMR is calculated
@@ -911,18 +911,17 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
         performance_improvement = simulated_mean - previous_mean
 
         with open('individual_results.csv','a') as csvfile:
-            field_names = ['iter', 'l0', 'l25', 'l50', 'l75', 'l90', 'l99', 'l100']
-            for trial in range(len(original_simulated['l0'])):
+            field_names = ['time', 'iter', 'rps', 'latency_99', 'latency_50', 'latency', 'latency_90']
+            for trial in range(len(original_simulated['latency_99'])):
                 result_dict = {}
                 result_dict['time'] = time_delta.seconds
-                result_dict['iteration'] = experiment_count
-                result_dict['l0'] = original_simulated['l0'][trial]
-                result_dict['l25'] = original_simulated['l25'][trial]
-                result_dict['l50'] = original_simulated['l50'][trial]
-                result_dict['l75'] = original_simulated['l75'][trial]
-                result_dict['l90'] = original_simulated['l90'][trial]
-                result_dict['l99'] = original_simulated['l99'][trial]
-                result_dict['l100'] = original_simulated['l100'][trial]
+                result_dict['iter'] = experiment_count
+                result_dict['rps'] = original_simulated['rps'][trial]
+                result_dict['latency'] = original_simulated['latency'][trial]
+                result_dict['latency_99'] = original_simulated['latency_99'][trial]
+                result_dict['latency_50'] = original_simulated['latency_50'][trial]
+                result_dict['latency_90'] = original_simulated['latency_90'][trial]
+
                 writer = csv.DictWriter(csvfile, fieldnames=field_names)
                 writer.writerow(result_dict)
 
@@ -936,7 +935,7 @@ def run(sys_config, workload_config, filter_config, default_mr_config,
         current_performance = improved_performance
 
         # Generating overall performance improvement
-        chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
+        #chart_generator.get_summary_performance_charts(redis_db, workload_config, experiment_count, time_start)
 
         results = tbot_datastore.read_summary_redis(redis_db, experiment_count)
         logging.info('Results from iteration {} are {}'.format(experiment_count, results))
@@ -1075,7 +1074,7 @@ def squeeze_nimrs(redis_db, sys_config,
                 continue
             
         new_alloc = current_nimr_alloc + valid_change_amount
-        set_mr_provision_detect_id_change(redis_db, nimr, new_alloc, None)
+        set_mr_provision_detect_id_change(redis_db, nimr, new_alloc, workload_config)
 
         nimr_results = measure_runtime(workload_config, experiment_trials)
         nimr_mean = mean_list(nimr_results[metric])
@@ -1099,7 +1098,7 @@ def squeeze_nimrs(redis_db, sys_config,
             logging.info('Unsuccessfully cut resources from NIMR {}: {} to {}'.format(nimr.to_string(),
                                                                                current_nimr_alloc,
                                                                                new_alloc))
-            set_mr_provision_detect_id_change(redis_db, nimr, current_nimr_alloc, None)
+            set_mr_provision_detect_id_change(redis_db, nimr, current_nimr_alloc, workload_config)
 
     return successful_steal
 
@@ -1118,7 +1117,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
         new_mr_alloc = resource_datastore.read_mr_alloc(redis_db, mr)
         old_mr_alloc = new_mr_alloc - action_taken[mr]
         median_alloc = old_mr_alloc + (new_mr_alloc - old_mr_alloc) / 2
-        set_mr_provision_detect_id_change(redis_db, mr, median_alloc, None)
+        set_mr_provision_detect_id_change(redis_db, mr, median_alloc, workload_config)
         # HACK!!
         if experiment_count == 0:
             experiment_count = 5
@@ -1148,7 +1147,7 @@ def backtrack_overstep(redis_db, workload_config, experiment_count,
             return median_alloc_perf
         else:
             # Revert to the most recent MR allocation
-            set_mr_provision_detect_id_change(redis_db, mr, new_mr_alloc, None)
+            set_mr_provision_detect_id_change(redis_db, mr, new_mr_alloc, workload_config)
 
     return None
 
@@ -1399,7 +1398,7 @@ def set_mr_provision_detect_id_change(redis_db, mr, new_mr_allocation, workload_
 
     while (attempt_count < max_attempts) and (not no_container_id_error):
         try:
-            resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config)
+            resource_modifier.set_mr_provision(mr, new_mr_allocation, workload_config, redis_db)
             no_container_id_error = True
         except SystemError as e:
             logging.info("Updating the container_id of mr: " + mr.to_string())
