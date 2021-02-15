@@ -2,42 +2,34 @@ language: PYTHON
 name: "bayOpt"
 
 variable {
-    name: "cpu_quota"
+    name: "CPU-QUOTA"
     type: INT
-    size: 1
-    min: 1
+    size: 7
+    min: 5
     max: 100
 }
 
 variable {
-    name: "cpu_count"
+    name: "DISK"
     type: INT
-    size: 1
-    min: 2
-    max: 8
+    size: 7
+    min: 5
+    max: 80
 }
 
 variable {
-    name: "machine_count"
+    name: "MEMORY"
     type: INT
-    size: 1
-    min: 2
-    max: 7
+    size: 7
+    min: 5
+    max: 80
 }
 
 variable {
-    name: "disk_type"
-    type: ENUM
-    size: 1
-    options: "fast"
-    options: "slow"
+    name: "NET"
+    type: INT
+    size: 7
+    min: 5
+    max: 80
 }
 
-variable {
-    name: "ram"
-    type: ENUM
-    size: 1
-    options: "low"
-    options: "medium"
-    options: "high"
-}

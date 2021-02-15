@@ -23,6 +23,7 @@ import os
 import sys
 import tempfile
 import cPickle
+import random
 
 import numpy        as np
 import numpy.random as npr
@@ -69,7 +70,8 @@ class ExperimentGrid:
 
         # Set up the grid for the first time if it doesn't exist.
         if variables is not None and not os.path.exists(self.jobs_pkl):
-            self.seed     = grid_seed
+            # self.seed     = random.randint(1, 10000)
+            self.seed = 3067
             self.vmap     = GridMap(variables, grid_size)
             self.grid     = self._hypercube_grid(self.vmap.card(), grid_size)
             self.status   = np.zeros(grid_size, dtype=int) + CANDIDATE_STATE
@@ -124,18 +126,23 @@ class ExperimentGrid:
     def get_proc_id(self, id):
         return self.proc_ids[id]
 
-    def add_to_grid(self, candidate):
+    def add_to_grid(self, candidate, add_to_end=True):
         # Checks to prevent numerical over/underflow from corrupting the grid
         candidate[candidate > 1.0] = 1.0
         candidate[candidate < 0.0] = 0.0
 
         # Set up the grid
-        self.grid   = np.vstack((self.grid, candidate))
+        if add_to_end:
+            self.grid   = np.vstack((self.grid, candidate))
+        else:
+            self.grid = np.vstack((candidate,self.grid))
+
         self.status = np.append(self.status, np.zeros(1, dtype=int) +
                                 int(CANDIDATE_STATE))
 
         self.values = np.append(self.values, np.zeros(1)+np.nan)
         self.durs   = np.append(self.durs, np.zeros(1)+np.nan)
+        self.executed = np.append(self.executed, np.zeros(1) + np.nan)
         self.proc_ids = np.append(self.proc_ids, np.zeros(1,dtype=int))
 
         # Save this out.
@@ -198,6 +205,7 @@ class ExperimentGrid:
 
     def _hypercube_grid(self, dims, size):
         # Generate from a sobol sequence
+        print("seed is {}".format(self.seed))
         sobol_grid = np.transpose(i4_sobol_generate(dims,size,self.seed))
 
         return sobol_grid

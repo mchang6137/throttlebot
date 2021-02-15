@@ -198,10 +198,11 @@ def remove_all_network_manipulation(ssh_client, container_id, remove_all_machine
 def set_cpu_quota(ssh_client, container_id, cpu_period, cpu_quota_percent):
     cpu_quota = int((cpu_quota_percent/100.0) * cpu_period)
     #cpu_quota *= get_num_cores(ssh_client)
-
+    print("Setting cpu quota to {} out of {}".format(cpu_quota, cpu_period))
     throttled_containers = []
     
     update_command = 'docker update --cpu-period={} --cpu-quota={} {}'.format(cpu_period, cpu_quota, container_id)
+
     ssh_exec(ssh_client, update_command)
     throttled_containers.append(container_id)
 
